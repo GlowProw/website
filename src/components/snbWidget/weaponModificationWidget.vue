@@ -577,7 +577,7 @@ defineOptions({
                           <template v-slot:title>
                             <RhombusWidget
                                 :size="30"
-                                :type="item.raw ?? item"></RhombusWidget>
+                                :type="(item as any).raw ?? item"></RhombusWidget>
                           </template>
                         </v-list-item>
                       </template>

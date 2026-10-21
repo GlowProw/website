@@ -1,0 +1,136 @@
+<script setup lang="ts">
+import {onMounted, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
+import {Apis} from "@/assets/sripts/api";
+import type {PublicAchievementSummary} from "@/assets/types/Achievement";
+
+const props = defineProps<{
+  userId?: string | null
+}>()
+
+const {t, te} = useI18n(),
+    api = Apis.accountGrowthApi()
+
+const loading = ref(true),
+    summary = ref<PublicAchievementSummary | null>(null)
+
+/**
+ * 读取指定用户的公开成就摘要
+ */
+const onLoad = async () => {
+  if (!props.userId) {
+    loading.value = false
+    return
+  }
+
+  loading.value = true
+  try {
+    const result = await api.getPublicAchievements(String(props.userId))
+    summary.value = result.data.data as PublicAchievementSummary
+  } catch {
+    summary.value = {hidden: true}
+  } finally {
+    loading.value = false
+  }
+}
+
+/**
+ * 等级图标路径
+ * @param key 等级标识
+ */
+const levelIcon = (key: string): string => {
+  const match = key.match(/^kingpin_(copper|silver|gold)_(\d+)$/)
+  if (match) return `/images/emote/snb-Infamy/kingpin ${match[1]}-${match[2]}.webp`
+  return `/images/emote/snb-Infamy/${key}.webp`
+}
+
+/**
+ * 等级名称
+ * @param key 等级标识
+ */
+const levelName = (key: string): string => t(`account.achievements.levels.${key}.name`)
+
+/**
+ * 等级位阶（罗马数字）
+ * @param level 等级序号
+ */
+const romanLevel = (level: number): string => [
+  'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
+  'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX',
+  'XXI', 'XXII', 'XXIII', 'XXIV', 'XXV'
+][level - 1] || String(level)
+
+/**
+ * 成就名称
+ * @param key 成就标识
+ */
+const achievementName = (key: string): string => {
+  const path = `account.achievements.items.${key}.name`
+  return te(path) ? t(path) : key
+}
+
+onMounted(onLoad)
+
+watch(() => props.userId, () => {
+  summary.value = null
+  onLoad()
+})
+
+defineOptions({
+  name: 'AccountAchievementWidget'
+})
+</script>
+
+<template>
+  <div v-if="loading" class="d-flex justify-center py-2">
+    <v-progress-circular indeterminate size="20" color="amber"/>
+  </div>
+
+  <div v-else-if="!summary || summary.hidden" class="text-caption opacity-50 py-1">
+    {{ t('account.achievements.widget.hidden') }}
+  </div>
+
+  <template v-else-if="summary.level">
+    <v-row>
+      <v-col cols="auto">
+        <v-img :src="levelIcon(summary.level.key)" width="45" height="45" contain/>
+      </v-col>
+      <v-col>
+        <div class="d-flex align-center flex-wrap ga-2">
+          <span class="text-body-2 font-weight-bold">{{ levelName(summary.level.key) }}</span>
+          <v-chip size="x-small" color="amber" variant="tonal">
+            {{ t('account.achievements.levelBadge', {level: romanLevel(summary.level.level)}) }}
+          </v-chip>
+        </div>
+        <v-row class="d-flex mb-2 ga-2">
+          <v-col>
+            <v-progress-linear class="mt-2" :model-value="Math.round((summary.progress || 0) * 100)"
+                               color="amber" height="3" rounded/>
+          </v-col>
+
+          <v-col cols="auto">
+            {{ t('account.achievements.points', {points: summary.points || 0}) }}
+          </v-col>
+        </v-row>
+
+<!--        <div class="text-caption opacity-60 mt-3 mb-1">-->
+<!--          {{ t('account.achievements.widget.obtained', {count: summary.achievements?.length || 0}) }}-->
+<!--        </div>-->
+
+        <div v-if="summary.achievements?.length" class="achievement-list d-flex flex-wrap ga-2 gap-2">
+          <v-chip v-for="item in summary.achievements" :key="item.key" color="amber" variant="tonal">
+            {{ achievementName(item.key) }}
+          </v-chip>
+        </div>
+        <div v-else class="text-caption opacity-50">{{ t('account.achievements.widget.empty') }}</div>
+      </v-col>
+    </v-row>
+  </template>
+</template>
+
+<style scoped>
+.achievement-list {
+  max-height: 80px;
+  overflow-y: auto;
+}
+</style>

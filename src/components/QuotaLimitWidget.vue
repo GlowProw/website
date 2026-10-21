@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
+import {computed, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {useQuotaApi,} from '@/assets/sripts/api/quota_service'
 import type {QuotaBucket, QuotaResourceKey, QuotaStatus, QuotaStatusItem,} from '@/assets/types/Quota'
@@ -22,7 +22,7 @@ const authStore = useAuthStore()
 
 const status = ref<QuotaStatus | null>(null)
 const loading = ref(false)
-const RESOURCE_ORDER: QuotaResourceKey[] = ['assembly', 'comment', 'teamup', 'map', 'media']
+const RESOURCE_ORDER: QuotaResourceKey[] = ['assembly', 'comment', 'teamup', 'map', 'media', 'alias']
 const visibleResources = computed<QuotaResourceKey[]>(() =>
     props.resource ? [props.resource] : RESOURCE_ORDER
 )
@@ -31,23 +31,15 @@ const itemOf = (resource: QuotaResourceKey): QuotaStatusItem | undefined =>
 const identityUnlimited = computed(() => !!status.value?.identity?.unlimited)
 const boostMultiplier = computed(() => Number(status.value?.identity?.multiplier) || 1)
 
-let loadedAt = 0
-
-onMounted(() => {
-  if (authStore.isLogin) fetchStatus()
-})
-
 /**
- * 拉取额度状态：优先读 sessionStorage 会话缓存（服务层 60 秒 TTL，按账号隔离），
- * 减少重复请求；强制刷新用于需要同步最新用量的场景
+ * 拉取额度状态：优先读本地缓存（3 小时 TTL，按账号隔离），
+ * 只有缓存过期或面板点击刷新时才真正请求接口
  **/
 const fetchStatus = async (force = false): Promise<void> => {
   if (loading.value) return
-  if (!force && status.value && Date.now() - loadedAt < 60_000) return
   loading.value = true
   try {
     status.value = await quotaApi.getQuotaStatus(force)
-    loadedAt = Date.now()
   } catch {
     // 悬浮组件不打断宿主页面，拉取失败静默
   } finally {
@@ -81,7 +73,7 @@ const progressColor = (percent: number): string =>
     percent >= 100 ? 'error' : percent >= 80 ? 'warning' : 'success'
 
 const onMenuToggle = (open: boolean): void => {
-  // 展开时优先走会话缓存（60 秒 TTL），避免每次悬浮都发请求
+  // 只在面板展开时读取额度：命中缓存不发请求，过期才拉取
   if (open && authStore.isLogin) fetchStatus()
 }
 </script>
@@ -104,6 +96,12 @@ const onMenuToggle = (open: boolean): void => {
       <v-card-title class="py-8 text-center bg-black mb-3">
         <v-icon size="64">mdi-shield-check-outline</v-icon>
       </v-card-title>
+
+      <div class="d-flex justify-end px-4 mt-n2">
+        <v-btn size="small" variant="text" icon="mdi-refresh"
+               :title="t('quota.refresh')" :loading="loading"
+               @click="fetchStatus(true)"></v-btn>
+      </div>
 
       <v-card-text class="pt-1">
         <div class="d-flex ga-2 gap-1 align-center">
@@ -264,8 +262,29 @@ const onMenuToggle = (open: boolean): void => {
 
             <!-- 常规资源展示 -->
             <template v-else>
+              <div v-if="resource === 'alias'" class="d-flex align-center ga-2">
+                <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.quarterly') }}</span>
+                <v-progress-linear
+                    v-if="itemOf(resource)?.quarterly?.limit != null"
+                    :model-value="percentOf(itemOf(resource)?.quarterly)"
+                    :color="progressColor(percentOf(itemOf(resource)?.quarterly))"
+                    height="6" rounded density="compact" hide-details class="flex-grow-1"></v-progress-linear>
+                <span v-else class="flex-grow-1"></span>
+                <span class="text-caption quota-count">
+                  <template v-if="itemOf(resource)?.quarterly?.limit != null">
+                    {{
+                      t('quota.used', {
+                        used: itemOf(resource)?.quarterly?.used ?? 0,
+                        limit: itemOf(resource)?.quarterly?.limit
+                      })
+                    }}
+                  </template>
+                  <template v-else>{{ t('quota.unlimited') }}</template>
+                </span>
+              </div>
+
               <!-- 本月 -->
-              <div class="d-flex align-center ga-2 mb-1">
+              <div v-if="resource !== 'alias'" class="d-flex align-center ga-2 mb-1">
                 <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.monthly') }}</span>
                 <v-progress-linear
                     v-if="itemOf(resource)?.monthly.limit != null"
@@ -287,7 +306,7 @@ const onMenuToggle = (open: boolean): void => {
               </div>
 
               <!-- 本年 -->
-              <div class="d-flex align-center ga-2">
+              <div v-if="resource !== 'alias'" class="d-flex align-center ga-2">
                 <span class="text-caption text-medium-emphasis quota-period-label">{{ t('quota.yearly') }}</span>
                 <v-progress-linear
                     v-if="itemOf(resource)?.yearly.limit != null"

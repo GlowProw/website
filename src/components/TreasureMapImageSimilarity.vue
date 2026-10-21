@@ -98,7 +98,7 @@
                     <template v-slot:item="{props, item}">
                       <v-list-item v-bind="props">
                         <template v-slot:title>
-                          {{ t(`codex.treasureMaps.comparison.algorithms.${(item.raw ?? item).value}`) }}
+                          {{ t(`codex.treasureMaps.comparison.algorithms.${((item as any).raw ?? item).value}`) }}
                         </template>
                       </v-list-item>
                     </template>
@@ -134,7 +134,7 @@
                             <template v-slot:item="{props, item}">
                               <v-list-item v-bind="props">
                                 <template v-slot:title>
-                                  {{ t(`snb.mapLocations.${(item.raw ?? item).value}.name`) }}
+                                  {{ t(`snb.mapLocations.${((item as any).raw ?? item).value}.name`) }}
                                 </template>
                               </v-list-item>
                             </template>
@@ -451,7 +451,7 @@
               <template v-slot:item="{props, item}">
                 <v-list-item v-bind="props">
                   <template v-slot:title>
-                    {{ t(`codex.treasureMaps.comparison.algorithms.${(item.raw ?? item).value}`) }}
+                    {{ t(`codex.treasureMaps.comparison.algorithms.${((item as any).raw ?? item).value}`) }}
                   </template>
                 </v-list-item>
               </template>
@@ -485,7 +485,7 @@
                       <template v-slot:item="{props, item}">
                         <v-list-item v-bind="props">
                           <template v-slot:title>
-                            {{ t(`snb.mapLocations.${(item.raw ?? item).value}.name`) }}
+                            {{ t(`snb.mapLocations.${((item as any).raw ?? item).value}.name`) }}
                           </template>
                         </v-list-item>
                       </template>

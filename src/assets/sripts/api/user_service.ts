@@ -6,6 +6,7 @@ import { SigninParams } from "@/assets/types/User.Login";
 import { SignupParams } from "@/assets/types/User.Signup";
 import { ChangePasswordParams, ForgotPasswordParams, ResetPasswordParams } from "@/assets/types/User";
 import { ApiError } from "@/assets/types/Api";
+import { CaptchaParams } from "@/assets/types/Captcha";
 import { createApiBase } from "@/assets/sripts/api/api-util";
 
 export interface AvatarPreset {
@@ -469,7 +470,7 @@ export function useUserApi() {
     /**
      * 第三方登录新用户补充注册
      */
-    const oauthCompleteSignup = async (data: { oauthTicket: string; username: string; alternativeName?: string; password: string; email?: string }) => {
+    const oauthCompleteSignup = async (data: { oauthTicket: string; username: string; alternativeName?: string; password: string; email?: string; captcha: CaptchaParams }) => {
         try {
             const result = await http.post('user/oauth/complete-signup', { data })
             return handleResponse(result)
@@ -482,7 +483,7 @@ export function useUserApi() {
     /**
      * 第三方登录绑定已有账号
      */
-    const oauthCompleteBind = async (data: { oauthTicket: string; username: string; password: string }) => {
+    const oauthCompleteBind = async (data: { oauthTicket: string; username: string; password: string; captcha: CaptchaParams }) => {
         try {
             const result = await http.post('user/oauth/complete-bind', { data })
             return handleResponse(result)

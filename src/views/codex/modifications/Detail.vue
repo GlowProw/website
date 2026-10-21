@@ -20,6 +20,7 @@ import LikeWidget from "@/components/LikeWidget.vue";
 import {number, storage, getAppUrl} from "@/assets/sripts/index";
 import {useHead} from "@unhead/vue";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
@@ -167,6 +168,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
+              <CollectionToggle target-type="mod" :target-id="modDetailData.id"></CollectionToggle>
               <ShareWidget type="modification" :target-id="modDetailData.id" />
             </div>
           </v-col>

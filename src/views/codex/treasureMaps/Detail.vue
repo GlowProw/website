@@ -27,6 +27,7 @@ import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -207,6 +208,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
+              <CollectionToggle target-type="treasureMap" :target-id="mapDetailData.id"></CollectionToggle>
               <ShareWidget type="treasureMap" :target-id="mapDetailData.id" />
             </div>
           </v-col>

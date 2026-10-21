@@ -14,6 +14,7 @@ export interface StatsOverview {
     assemblyCount: number;
     conversationCount: number;
     messageUnread: number;
+    collectionCount: number;
     updatedAt: number;
 }
 
@@ -53,4 +54,53 @@ export interface StatsAssemblyTop {
         recentVisitors: StatsVisitor[];
     }>;
     updatedAt: number;
+}
+
+/**
+ * 已取得记录
+ */
+export interface CollectionRecord {
+    targetId: string
+    targetType: string
+    createdTime: string
+}
+
+/**
+ * 收藏统计原始数据
+ */
+export interface CollectionStatsResult {
+    targetType: string;
+    total: number;
+    firstCollectedAt: string | null;
+    lastCollectedAt: string | null;
+    records: CollectionRecord[];
+}
+
+/**
+ * 按周聚合的收藏趋势
+ */
+export interface CollectionWeekStat {
+    start: string;
+    label: string;
+    added: number;
+    cumulative: number;
+}
+
+/**
+ * 按物品类型聚合的收藏进度
+ */
+export interface CollectionTypeStat {
+    type: string;
+    collected: number;
+    available: number;
+    percent: number;
+}
+
+/**
+ * 按赛季聚合的收藏数量
+ */
+export interface CollectionSeasonStat {
+    season: string;
+    collected: number;
+    types: Array<{ type: string; count: number }>;
 }

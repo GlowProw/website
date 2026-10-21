@@ -366,7 +366,7 @@ onBeforeUnmount(() => {
                       <template v-slot:title>
                         <div class="color-strip my-2">
                           <div
-                              v-for="(c, cIndex) in (item.raw ?? item).value"
+                              v-for="(c, cIndex) in ((item as any).raw ?? item).value"
                               :key="cIndex"
                               class="color-dot"
                               :style="{ backgroundColor: c }"
@@ -380,17 +380,17 @@ onBeforeUnmount(() => {
                   <template v-slot:chip="{ item }">
                     <div class="d-flex align-center">
                       <span class="mr-2">
-                        {{ t(`calculator.sankey.${(item.raw ?? item).name}`) }}
+                        {{ t(`calculator.sankey.${((item as any).raw ?? item).name}`) }}
                       </span>
                       <div class="color-strip">
                         <div
-                            v-for="(c, cIndex) in (item.raw ?? item).value.slice(0, 5)"
+                            v-for="(c, cIndex) in ((item as any).raw ?? item).value.slice(0, 5)"
                             :key="cIndex"
                             class="color-dot small"
                             :style="{ backgroundColor: c }"
                             :title="c">
                         </div>
-                        <v-chip v-if="(item.raw ?? item).value.length > 5">+{{ (item.raw ?? item).value.length - 5 }}</v-chip>
+                        <v-chip v-if="((item as any).raw ?? item).value.length > 5">+{{ ((item as any).raw ?? item).value.length - 5 }}</v-chip>
                       </div>
                     </div>
                   </template>

@@ -24,6 +24,7 @@ import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useHead} from "@unhead/vue";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -166,6 +167,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
+              <CollectionToggle target-type="cosmetic" :target-id="cosmeticDetailData.id"></CollectionToggle>
               <ShareWidget type="cosmetic" :target-id="cosmeticDetailData.id" />
             </div>
           </v-col>

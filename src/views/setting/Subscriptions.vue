@@ -194,6 +194,8 @@ const onContinuePay = async (o: MyOrder): Promise<void> => {
           ? o.period as 'monthly' | 'yearly' | 'once'
           : 'once',
       platform: o.platform === 'paypal' ? 'paypal' : (o.platform === 'stripe' ? 'stripe' : 'afdian'),
+      // 复用原待支付订单，避免继续支付时重复建单
+      orderId: o.id,
       // 自定义一次性赞助按原金额重开支付单（旧单超时后由服务端自动关闭）
       ...(o.tier === 'custom' ? {amount: Number(o.amountCny || o.amount)} : {})
     }
@@ -481,7 +483,7 @@ onMounted(async () => {
     notice.minimal(t('subscription.paySuccess') || '支付成功，感谢您的赞助支持！', 'success')
 
     try {
-      storage.session.rem('quota.status')
+      storage.local.rem('quota.status')
     } catch {
     }
 

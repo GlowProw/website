@@ -16,7 +16,9 @@ export const handleApiError = (error: any): never => {
     console.error(error)
     const errorData = error.response?.data;
     const isRateLimited = error.response?.status === 429 || errorData?.code === 'request.rateLimited' || errorData?.code === 'rate.limit';
-    const code = isRateLimited ? 'request.rateLimited' : (errorData?.code || 'error');
+    // 额度超限同样返回 429，需保留具体周期提示
+    const isQuotaExceeded = typeof errorData?.code === 'string' && errorData.code.startsWith('quota.exceeded.');
+    const code = isQuotaExceeded ? errorData.code : (isRateLimited ? 'request.rateLimited' : (errorData?.code || 'error'));
     throw new ApiError(
         formatMessage(errorData?.message || (isRateLimited ? 'Too many requests, please slow down.' : error.message)),
         code,

@@ -16,6 +16,8 @@ import {useBrowseApi} from "@/assets/sripts/api/browse_service";
 import {useStatsApi} from "@/assets/sripts/api/stats_service";
 import {useMediaApi} from "@/assets/sripts/api/media_service";
 import {useBotApi} from "@/assets/sripts/api/bot_service";
+import {useAccountGrowthApi} from "@/assets/sripts/api/account_growth_service";
+import {useCollectionApi} from "@/assets/sripts/api/collection_service";
 
 export * from './user_service'
 export * from './assembly_service'
@@ -36,6 +38,8 @@ export * from './browse_service'
 export * from './stats_service'
 export * from './media_service'
 export * from './bot_service'
+export * from './account_growth_service'
+export * from './collection_service'
 export * from './api-util'
 
 export class Apis {
@@ -57,4 +61,6 @@ export class Apis {
     static statsApi = useStatsApi
     static mediaApi = useMediaApi
     static botApi = useBotApi
+    static accountGrowthApi = useAccountGrowthApi
+    static collectionApi = useCollectionApi
 }

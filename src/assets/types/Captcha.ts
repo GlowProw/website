@@ -8,6 +8,8 @@ export type CaptchaType = 'svg' | 'turnstile'
  */
 export interface CaptchaParams {
     type?: CaptchaType
+    // 验证码组件上报的实际模式，与 type 等价，后端两种字段都兼容
+    captchaType?: CaptchaType
     // 验证码哈希
     encryptCaptcha: string,
     // 用户输入

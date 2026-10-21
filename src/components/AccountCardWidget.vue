@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {apis, sessionUserInfo} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -9,9 +9,11 @@ import Silk from "@/components/Silk.vue";
 import Textarea from "@/components/textarea/index.vue";
 import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
+import AccountAchievementWidget from "@/components/AccountAchievementWidget.vue";
 import {AccountCardWidgetProps, SpaceUserResult} from "@/assets/types/User";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
+import Banner from "@/components/Banner.vue";
 
 const props = withDefaults(defineProps<AccountCardWidgetProps>(), {id: null}),
     notice = useNoticeStore(),
@@ -75,7 +77,7 @@ defineOptions({
 
 <template>
   <v-tooltip v-model="model"
-      scroll-strategy="close"
+             scroll-strategy="close"
              transition="opacity 300ms ease-in"
              location="right top"
              min-width="450"
@@ -93,49 +95,56 @@ defineOptions({
         <slot></slot>
       </div>
     </template>
-    <v-card border class="overflow-hidden" min-width="400" max-width="600" min-height="200">
-      <v-card height="180px" variant="text" class="mt-n5 mx-n10">
-        <Silk
-            :speed="4"
-            :scale="1.2"
-            :color="'#1c1c1c'"
-            :noise-intensity="0.1"
-            :rotation="-.6"
-            class="bg-black"></Silk>
-      </v-card>
+    <v-card border class="overflow-hidden" elevation="24" min-width="400" max-width="600" min-height="200">
+      <Banner>
+        <v-card height="260px" variant="text" class="mt-n5 mx-n10">
+          <template v-slot:image>
+            <Silk
+                :speed="4"
+                :scale=".7"
+                :color="'#1c1c1c'"
+                :noise-intensity="0.1"
+                :rotation="-.6"
+                class="bg-black"></Silk>
+          </template>
+
+          <div class="mx-auto mt-16">
+            <UserAvatar :size="100" :src="userInfo.userAvatar" class="d-block mx-auto rounded-circle"></UserAvatar>
+
+            <router-link variant="text"
+                         class="px-0 h-auto"
+                         :to="`/space/${userInfo.userId || id}`">
+              <div class="text-center">
+                <p class="text-h4 u">{{ userInfo.username || t('assembly.anonymous') }}</p>
+              </div>
+            </router-link>
+          </div>
+        </v-card>
+      </Banner>
 
       <v-divider opacity=".06"></v-divider>
-      <div class="mx-auto mt-n14">
-        <UserAvatar size="100" :src="userInfo.userAvatar" class="d-block mx-auto rounded-circle border overflow-hidden bg-black" v-if="userInfo.userAvatar"></UserAvatar>
-        <v-avatar size="100" class="d-block mx-auto rounded-circle border overflow-hidden bg-black" v-else>
-          <div class="d-flex justify-center align-center h-100">
-            <v-icon size="60">mdi-account</v-icon>
-          </div>
-        </v-avatar>
-      </div>
 
-      <v-card-text class="px-6">
-        <router-link variant="text"
-                     class="px-0 h-auto"
-                     :to="`/space/${userInfo.userId || id}`">
-          <div class="text-amber text-center">
-            <p class="text-h4 u">{{ userInfo.username || t('assembly.anonymous') }}</p>
+      <v-card-text class="px-6 background-flavor">
+        <Textarea
+            readonly
+            class="w-100 mb-6"
+            min-height="auto"
+            :value="userInfo.attr?.introduction || '🚢 🌊🌊🌊'"></Textarea>
+
+        <AccountAchievementWidget v-if="userInfo.userId || id"
+                                  :user-id="String(userInfo.userId || id)"/>
+
+        <v-row class="mt-n2">
+          <v-col cols="2"></v-col>
+          <v-col>
             <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mt-6"></RolesTagWidget>
-          </div>
-
-          <Textarea
-              readonly
-              class="text-caption opacity-60 w-100"
-              min-height="120"
-              :value="userInfo.attr?.introduction || '🚢 🌊🌊🌊'"></Textarea>
-        </router-link>
+          </v-col>
+        </v-row>
       </v-card-text>
 
-      <v-divider></v-divider>
-
-      <v-card-actions class="px-2">
+      <v-card-actions class="px-2 bg-black">
         <v-spacer></v-spacer>
-        <v-btn variant="flat"
+        <v-btn variant="tonal"
                class="px-5"
                :to="`/space/${userInfo.userId || id}`">
           {{ t('space.title') }}

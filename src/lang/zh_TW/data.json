@@ -203,7 +203,8 @@
       "quota": {
         "exceeded": {
           "monthly": "本月發佈額度已用完，額度將於下月 1 日重置；如需更多額度，可透過網站聯絡方式免費申請提升",
-          "yearly": "本年發佈額度已用完，額度將於明年 1 月 1 日重置；如需更多額度，可透過網站聯絡方式免費申請提升"
+          "yearly": "本年發佈額度已用完，額度將於明年 1 月 1 日重置；如需更多額度，可透過網站聯絡方式免費申請提升",
+          "quarterly": "本季度別名修改額度已用完，額度將於下季度首日重置；訂閱任意贊助檔位可獲得額外 10 次"
         }
       },
       "admin": {
@@ -466,8 +467,14 @@
       "signup": {
         "ok": "注册成功",
         "userAlreadyHas": "注册帐号的名称已存在",
+        "illegalFormat": "帳號 ID 含有非法字元，請更換後重試",
+        "emailAlreadyHas": "該信箱已被綁定，請直接登入",
         "error": "注册错误: {context}",
         "bad": "注册错误: 请检查注册信息的格式要求"
+      },
+      "oauth": {
+        "alreadyBound": "該第三方帳號已關聯其他站點帳戶",
+        "alreadyBoundToOther": "該第三方帳號已關聯其他站點帳戶，請直接使用第三方登入"
       },
       "activate": {
         "ok": "賬戶激活成功，請登錄",
@@ -621,6 +628,10 @@
         "error": "操作失敗：{context}"
       },
       "bot": {
+        "groupOccupied": "該群已被其他帳戶綁定，無法重複綁定",
+        "blocklist": {
+          "full": "該群黑名單已達 400 人上限"
+        },
         "account": {
           "pushNow": {
             "failed": "推送失敗，請檢查機器人服務是否在線、群是否允許主動推送",
@@ -890,6 +901,7 @@
         "comment": "評論/回復",
         "unread": "私訊未讀",
         "assembly": "配裝總數",
+        "collected": "已取得物品數",
         "conversations": "活躍會話",
         "last30": "近 30 天累計"
       },
@@ -908,6 +920,347 @@
         "visitorCount": "訪客數",
         "noVisitors": "暫無訪客",
         "noData": "暫無數據"
+      }
+    },
+    "collectionStats": {
+      "title": "收藏統計",
+      "empty": {
+        "title": "還沒有已取得的圖鑑記錄，去圖鑑中標記後再來看統計"
+      },
+      "overview": {
+        "title": "收集概覽",
+        "collected": "已取得",
+        "catalog": "圖鑑總數",
+        "completion": "收集完成度",
+        "lastCollected": "最近取得"
+      },
+      "trend": {
+        "title": "收集趨勢",
+        "range": "時間範圍",
+        "range12": "12 週",
+        "range26": "26 週",
+        "range52": "52 週",
+        "added": "每週新增",
+        "addedUnit": "件",
+        "addedMax": "單週最高",
+        "cumulative": "累計收集",
+        "totalUnit": "件",
+        "noData": "所選時間範圍內暫無新增"
+      },
+      "types": {
+        "title": "圖鑑統計"
+      },
+      "kinds": {
+        "item": "物品",
+        "ship": "船隻",
+        "material": "材料",
+        "cosmetic": "裝飾品",
+        "commoditie": "商品",
+        "empireSkill": "帝國技能",
+        "mapLocation": "地圖地點",
+        "mastery": "專精",
+        "mod": "模組",
+        "npc": "NPC",
+        "set": "集合",
+        "treasureMap": "藏寶圖",
+        "ultimate": "終結技"
+      },
+      "seasons": {
+        "title": "賽季統計",
+        "items": "{count} 件",
+        "unknown": "未知賽季"
+      }
+    },
+    "achievements": {
+      "title": "成就",
+      "levelBadge": "等級 {level}",
+      "points": "{points} 積分",
+      "nextLevel": "下一等級 · {level}",
+      "remaining": "還需 {points} 積分",
+      "maxLevel": "已達到最高等級",
+      "pointUnit": "積分",
+      "claim": "領取",
+      "times": "已獲得 {times} 次",
+      "obtainedAt": "獲得於 {time}",
+      "lockedTip": "尚未滿足條件",
+      "claimSuccess": "成就已領取，積分已到帳",
+      "claimFailed": "領取失敗，請稍後重試",
+      "loadFailed": "成就載入失敗",
+      "widget": {
+        "hidden": "該用戶未公開成就資訊",
+        "obtained": "已獲得 {count} 個成就",
+        "empty": "暫未獲得成就"
+      },
+      "categories": {
+        "assembly": "配裝",
+        "mastery": "精通",
+        "signin": "簽到",
+        "teamup": "組隊",
+        "subscription": "贊助訂閱"
+      },
+      "status": {
+        "locked": "未達成",
+        "claimable": "可領取",
+        "obtained": "已獲得"
+      },
+      "requirement": {
+        "assembly": "累計發布 {count} 份配裝",
+        "mastery": "累計發布 {count} 份精通",
+        "teamup": "累計發布 {count} 次組隊",
+        "level": "賬戶等級達到 {level} 級",
+        "subscription": "{tier} 檔位贊助"
+      },
+      "levels": {
+        "outcast": {
+          "name": "棄民",
+          "desc": "初入海域，尚無人知曉你的名字。"
+        },
+        "scoundrel": {
+          "name": "流氓",
+          "desc": "開始在碼頭間惹是生非，惡名悄悄傳開。"
+        },
+        "rover": {
+          "name": "遊蕩者",
+          "desc": "足跡遍佈群島，行蹤飄忽不定。"
+        },
+        "freebooter": {
+          "name": "自由劫掠者",
+          "desc": "不受任何旗號約束，只為自己而戰。"
+        },
+        "buccaneer": {
+          "name": "海盜狂徒",
+          "desc": "膽大妄為，連皇家船隊也敢碰一碰。"
+        },
+        "brigand": {
+          "name": "綠林強盜",
+          "desc": "陸上與海上的生意，你都做得得心應手。"
+        },
+        "marauder": {
+          "name": "掠奪者",
+          "desc": "所到之處，只留下一片狼藉與傳說。"
+        },
+        "corsair": {
+          "name": "私掠海盜",
+          "desc": "掛著合法旗號，做著最不合法的買賣。"
+        },
+        "cutthroat": {
+          "name": "割喉者",
+          "desc": "你的名字足以讓整片海域噤聲。"
+        },
+        "kingpin": {
+          "name": "魁首",
+          "desc": "站在海盜世界的頂端，你就是規則本身。"
+        },
+        "kingpin_copper_100": {
+          "name": "青銅魁首 100 級",
+          "desc": "邁入魁首首個百級大關，開啟青銅巔峰海盜勳章。"
+        },
+        "kingpin_copper_200": {
+          "name": "青銅魁首 200 級",
+          "desc": "持續擴張走私網絡與勢力範圍，惡名累積達到新高度。"
+        },
+        "kingpin_copper_300": {
+          "name": "青銅魁首 300 級",
+          "desc": "穩固公海霸權，見證青銅中階海盜帝國的崛起。"
+        },
+        "kingpin_copper_400": {
+          "name": "青銅魁首 400 級",
+          "desc": "縱橫遠洋諸島，掠奪與貿易影響力遍及各處海域。"
+        },
+        "kingpin_copper_500": {
+          "name": "青銅魁首 500 級",
+          "desc": "達成青銅勳章最高極境，即將躍升至白銀位階。"
+        },
+        "kingpin_silver_600": {
+          "name": "白銀魁首 600 級",
+          "desc": "晉升白銀位階！象徵支配印度洋核心航線的強大號召力。"
+        },
+        "kingpin_silver_700": {
+          "name": "白銀魁首 700 級",
+          "desc": "龐大艦隊在公海所向披靡，獲得深海各方陣營敬畏。"
+        },
+        "kingpin_silver_800": {
+          "name": "白銀魁首 800 級",
+          "desc": "坐擁巨額白銀財富與走私據點，統御多處走私貿易鏈。"
+        },
+        "kingpin_silver_900": {
+          "name": "白銀魁首 900 級",
+          "desc": "白銀巔峰之境，威名傳遍整個印度洋及外洋群島。"
+        },
+        "kingpin_silver_1000": {
+          "name": "白銀魁首 1000 級",
+          "desc": "達成千級巔峰里程碑！解鎖白銀極境，邁向黃金時代。"
+        },
+        "kingpin_gold_1100": {
+          "name": "黃金魁首 1100 級",
+          "desc": "榮登黃金至尊位階！公海之上無可爭議的傳奇霸主。"
+        },
+        "kingpin_gold_1200": {
+          "name": "黃金魁首 1200 級",
+          "desc": "榮耀與財富的巔峰體現，象徵無人匹敵的極高聲望。"
+        },
+        "kingpin_gold_1300": {
+          "name": "黃金魁首 1300 級",
+          "desc": "令所有海上艦隊與要塞聞風喪膽的黃金高階海盜巨擘。"
+        },
+        "kingpin_gold_1400": {
+          "name": "黃金魁首 1400 級",
+          "desc": "巔峰惡名近在咫尺，傲視整個大洋航道的絕對統治力。"
+        },
+        "kingpin_gold_1500": {
+          "name": "黃金魁首 1500 級",
+          "desc": "達成當前版本 1500 級終極極境！榮獲黃金極境勳章。"
+        }
+      },
+      "items": {
+        "assembly_publish_1": {
+          "name": "初出茅廬",
+          "desc": "發布你的第一份配裝，正式揚帆起航。"
+        },
+        "assembly_publish_10": {
+          "name": "小有名氣",
+          "desc": "累計發布 10 份配裝，你的方案開始被更多船長採用。"
+        },
+        "assembly_publish_50": {
+          "name": "聲名遠揚",
+          "desc": "累計發布 50 份配裝，碼頭酒館裡都在討論你的作品。"
+        },
+        "assembly_publish_100": {
+          "name": "傳奇船匠",
+          "desc": "累計發布 100 份配裝，你的名字已被寫進海盜的航海日誌。"
+        },
+        "mastery_publish_1": {
+          "name": "鋒芒初露",
+          "desc": "發布第一份精通方案，展示你對戰鬥細節的理解。"
+        },
+        "mastery_publish_10": {
+          "name": "戰術革新",
+          "desc": "累計發布 10 份精通，為同僚提供可靠的作戰思路。"
+        },
+        "mastery_publish_50": {
+          "name": "流派宗師",
+          "desc": "累計發布 50 份精通，你的打法自成一派。"
+        },
+        "mastery_publish_100": {
+          "name": "戰爭藝術家",
+          "desc": "累計發布 100 份精通，每一份都是海戰藝術的註腳。"
+        },
+        "teamup_publish_1": {
+          "name": "同舟共濟",
+          "desc": "發布一次組隊，與夥伴並肩揚帆出海。"
+        },
+        "subscription_tier_100": {
+          "name": "黃金贊助人",
+          "desc": "以最高檔位贊助閃耀船首，為站點的遠航注入強勁動力。"
+        },
+        "subscription_tier_50": {
+          "name": "白銀贊助人",
+          "desc": "贊助 ¥50 檔位，讓伺服器與航線持續穩定運轉。"
+        },
+        "subscription_tier_10": {
+          "name": "青銅贊助人",
+          "desc": "贊助 ¥10 檔位，為站點的日常維護添一份力。"
+        },
+        "subscription_tier_5": {
+          "name": "啟航支持者",
+          "desc": "贊助 ¥5 檔位，每一份心意都是繼續前行的理由。"
+        },
+        "signin_level_2": {
+          "name": "惡名初顯",
+          "desc": "簽到累積足夠積分，賬戶等級升至 2 級。"
+        },
+        "signin_level_3": {
+          "name": "遊蕩之名",
+          "desc": "簽到累積足夠積分，賬戶等級升至 3 級。"
+        },
+        "signin_level_4": {
+          "name": "自由之帆",
+          "desc": "簽到累積足夠積分，賬戶等級升至 4 級。"
+        },
+        "signin_level_5": {
+          "name": "狂徒之證",
+          "desc": "簽到累積足夠積分，賬戶等級升至 5 級。"
+        },
+        "signin_level_6": {
+          "name": "綠林之影",
+          "desc": "簽到累積足夠積分，賬戶等級升至 6 級。"
+        },
+        "signin_level_7": {
+          "name": "掠奪之路",
+          "desc": "簽到累積足夠積分，賬戶等級升至 7 級。"
+        },
+        "signin_level_8": {
+          "name": "私掠之旗",
+          "desc": "簽到累積足夠積分，賬戶等級升至 8 級。"
+        },
+        "signin_level_9": {
+          "name": "割喉之刃",
+          "desc": "簽到累積足夠積分，賬戶等級升至 9 級。"
+        },
+        "signin_level_10": {
+          "name": "魁首之冠",
+          "desc": "簽到累積足夠積分，賬戶等級升至 10 級。"
+        }
+      }
+    },
+    "signin": {
+      "title": "每日簽到",
+      "subtitle": "已連續簽到 {streak} 天，保持節奏可累積更多積分。",
+      "streakChip": "連續 {days} 天",
+      "pointsChip": "賬戶積分 {points}",
+      "makeupChip": "可補簽 {count} 次",
+      "sign": "立即簽到",
+      "signed": "今日已簽到",
+      "makeupFree": "每月免費補簽",
+      "contributorBonus": "貢獻者加成",
+      "streakBonus": "連續簽到獎勵",
+      "makeupUsed": "本月已補簽",
+      "calendarTip": "點擊本月未簽到的日期可使用補簽次數；連續簽到滿 7 天額外獲得 1 次補簽。",
+      "legend": {
+        "normal": "已簽到",
+        "makeup": "補簽",
+        "unsign": "未簽到"
+      },
+      "weekdays": {
+        "mon": "一",
+        "tue": "二",
+        "wed": "三",
+        "thu": "四",
+        "fri": "五",
+        "sat": "六",
+        "sun": "日"
+      },
+      "platform": {
+        "web": "網站",
+        "qq": "QQ 機器人"
+      },
+      "type": {
+        "normal": "正常簽到",
+        "makeup": "補簽"
+      },
+      "records": {
+        "title": "簽到記錄",
+        "date": "日期",
+        "platform": "平台",
+        "type": "類型",
+        "points": "積分",
+        "streak": "連續天數",
+        "empty": "本月暫無簽到記錄"
+      },
+      "message": {
+        "success": "簽到成功，獲得 {points} 積分，已連續 {streak} 天",
+        "bonusMakeup": "連續簽到滿 7 天，額外獲得 1 次補簽機會",
+        "makeupSuccess": "已補簽 {date}",
+        "already": "今天已經簽到過了",
+        "invalidDate": "該日期不可補簽",
+        "notCurrentMonth": "只能補簽當月的日期",
+        "noQuota": "補簽次數已用完",
+        "failed": "簽到失敗，請稍後重試"
+      },
+      "makeupDialog": {
+        "title": "確認補簽",
+        "desc": "確定補簽 {date} 嗎？本次將消耗 1 次補簽機會，當前剩餘 {count} 次。",
+        "confirm": "確認補簽"
       }
     },
     "title": "账户",
@@ -964,6 +1317,14 @@
         "spaceEnabled": {
           "name": "公開用戶空間",
           "description": "關閉後其他用戶將無法訪問您的用戶空間"
+        },
+        "showDescription": {
+          "name": "顯示個人描述",
+          "description": "關閉後其他用戶查看您的資料時將不顯示個人介紹"
+        },
+        "showAchievements": {
+          "name": "顯示成就列表",
+          "description": "關閉後其他用戶查看您的資料時將不顯示等級與成就"
         },
         "dmEnabled": {
           "name": "允許私訊",
@@ -1260,67 +1621,101 @@
       "title": "機器人",
       "guide": {
         "title": "機器人引導",
-        "subtitle": "把閃耀船首機器人接入你的群組",
-        "intro": "「閃耀船首」機器人可以為你的群提供航海日報、組隊、掉寶與簽到等服務。綁定群後，可在本頁面統一管理推送開關與群配置。",
-        "openBotDoc": "查看機器人功能文件",
+        "subtitle": "讓閃耀船首登上你的船隊，替你守望整片海域",
+        "intro": "「閃耀船首」是一位隨船的老水手——航海日報、組隊招募、掉寶情報與每日簽到，他都替你盯著。把群組交給他，你只管揚帆。",
+        "openBotDoc": "翻閱船長的航海手冊",
         "step1Title": "邀請機器人入群",
-        "step1Desc": "在群組中加入「閃耀船首」機器人，並允許機器人接收主動訊息。",
+        "step1Desc": "把「閃耀船首」請進群組，並允許他接收主動訊息，否則風暴來臨時他無法向你傳信。",
         "step2Title": "產生綁定驗證碼",
-        "step2Desc": "填寫群號與管理口令，產生一次性的群綁定驗證碼。",
+        "step2Desc": "報上群號，領取一枚只生效一次的綁定暗號。",
         "step3Title": "群內完成綁定",
-        "step3Desc": "由群主或群管理員在群內發送 /群組綁定 <驗證碼>，完成後即可在此管理。",
+        "step3Desc": "由群主或群管理員在群內念出 /群組綁定 <驗證碼>，握手完成，這群便歸入你的航線。",
         "bindTitle": "綁定群組",
-        "bindDesc": "群號用於識別目標群，管理口令僅用於後續管理驗證，伺服器只保存雜湊值。",
+        "bindDesc": "群號是你的港口座標；暗號必須由群主或群管理員在群內親口念出，方能生效。",
         "platform": "選擇平台",
         "bot": "選擇機器人",
         "groupNumber": "群組號碼",
-        "password": "管理口令",
-        "passwordHint": "至少 6 位，請妥善保管",
-        "managePasswordTitle": "管理口令說明",
-        "managePasswordDesc": "這裡設定的管理口令用於群內管理指令的身份驗證，站點不會保存明文；忘記口令時重新產生一次綁定驗證碼即可覆蓋。",
-        "generateCode": "產生綁定驗證碼",
-        "codeDialogTitle": "群組綁定驗證碼",
-        "botJoined": "已偵測到機器人加入該群組。",
-        "botNotJoined": "未偵測到該機器人已加入此群組，請先在群組中邀請機器人；若已加入可忽略此提示。",
-        "usageTitle": "使用說明",
-        "formInvalid": "請完整填寫機器人、群號與至少 6 位管理口令",
-        "codeCreated": "驗證碼已產生",
-        "codeHint": "驗證碼 {minutes} 分鐘內有效，請盡快在群內使用。",
+        "generateCode": "領取綁定暗號",
+        "codeDialogTitle": "群組綁定暗號",
+        "botJoined": "瞭望手已發現機器人的船影，他就在這個群裡。",
+        "botNotJoined": "尚未在這片海域發現該機器人。先把他請進群；若已入群，可以無視這條提醒。",
+        "usageTitle": "航海須知",
+        "formInvalid": "請完整填寫機器人與群號",
+        "codeCreated": "暗號已封好",
+        "codeHint": "暗號 {minutes} 分鐘內有效，潮水一退便作廢，抓緊在群內念出。",
         "copyCommand": "複製指令",
-        "codeUsage": "請讓群主或群管理員在目標群發送上方的指令；機器人會讀取群 OpenID 完成綁定。",
-        "checkBound": "我已完成綁定",
-        "bound": "綁定成功，正在進入管理",
-        "notYet": "尚未偵測到綁定，請確認群內指令已發送成功。"
+        "codeUsage": "讓群主或群管理員在目標群念出上面的指令；機器人會憑群 OpenID 確認你們的船籍。",
+        "checkBound": "我已經完成綁定",
+        "bound": "綁定完成，正在為你拉開船長室的門",
+        "notYet": "還沒收到綁定回執。確認群內那條指令已經順利發出。"
       },
       "overview": {
-        "title": "概覽",
+        "title": "船長室",
         "groups": "已綁定群組",
         "groupsUnit": "個",
         "subscribedGroups": "已訂閱組隊推送",
         "sent": "推送成功",
         "failed": "推送失敗",
         "timesUnit": "次",
+        "errorCount": "錯誤次數",
+        "errorDays": "近 30 天",
+        "errorLogTitle": "錯誤日誌",
+        "errorLogDesc": "所選群組最近的推送與指令錯誤，已過濾機器人執行資訊",
+        "errorLogEmpty": "暫無錯誤，海面平靜",
+        "errorType": {
+          "push": "推送",
+          "command": "指令",
+          "group": "群務"
+        },
         "quotaTitle": "今日主動推送額度",
         "quotaDesc": "已使用 {used} / {limit} 次",
+        "quotaTotal": "全部群組今日已使用 {used} / {limit} 次",
         "tier": "目前檔位：{tier}",
         "tierNone": "未訂閱",
-        "toManage": "進入群管理",
-        "toGuide": "新增群組",
+        "toManage": "進入船務管理",
+        "toGuide": "召集新船隊",
         "toTeamup": "前往組隊大廳",
-        "guideBtn": "機器人引導"
+        "guideBtn": "機器人引導",
+        "monthSignin": "本月簽到",
+        "groupFilter": "查看群組",
+        "signinTrend": "本月簽到潮汐",
+        "signinTrendDesc": "{month} 所選群組每日簽到人數",
+        "signinTop": "簽到英雄榜",
+        "signinTopDesc": "本月在本群甲板上打卡最多的十位水手",
+        "topUser": "水手",
+        "topGroup": "群組",
+        "topDays": "天數",
+        "messageTrend": "群訊息潮汐",
+        "messageTrendDesc": "最近 30 天本群的訊息浪高，每日凌晨由機器人統一彙總",
+        "messageTypes": "訊息類型",
+        "messageTotal": "共計 {total} 條",
+        "messageType": {
+          "text": "文字",
+          "image": "圖片",
+          "video": "影片",
+          "forward": "轉發",
+          "card": "卡片",
+          "other": "其他"
+        },
+        "messageEmpty": "海面還很安靜。等機器人凌晨彙總後，這裡會浮出訊息的潮汐",
+        "commands": "指令羅盤",
+        "commandsDesc": "最近 30 天本群向機器人發出的指令次數",
+        "fullModeTitle": "建議開啟全量訊息瞭望",
+        "fullModeDesc": "這些群還沒開啟全量訊息，統計會漏掉大半海面：{groups}。請群主在 QQ 群設定中允許機器人接收全部訊息。",
+        "noData": "暫無航海紀錄"
       },
       "manage": {
         "title": "群管理",
-        "subtitle": "管理機器人所在群的推送與基礎資訊",
+        "subtitle": "照看你的每一條船：推送、簽到與群務，都在這張海圖上",
         "addGroup": "新增群組",
-        "empty": "還沒有綁定的群組，先依引導完成綁定吧。",
+        "empty": "船隊還沒靠岸——先依引導綁定第一個群組吧",
         "groupNumber": "群號",
-        "pushOn": "推送正常",
-        "pushOff": "推送關閉",
+        "pushOn": "傳信正常",
+        "pushOff": "傳信停擺",
         "settings": "設定",
         "remove": "解除綁定",
-        "deleteConfirm": "確定解除群「{name}」的綁定嗎？解除後機器人將不再接收該群配置。",
-        "panelTitle": "群設定 · {name}",
+        "deleteConfirm": "確定讓「{name}」脫離船隊嗎？解除後，機器人將不再理會這個群的配置。",
+        "panelTitle": "船務面板 · {name}",
         "columns": {
           "group": "群組",
           "platform": "平台",
@@ -1331,9 +1726,51 @@
         "tabs": {
           "base": "基礎資訊",
           "push": "推送設定",
-          "commands": "指令",
           "quota": "額度",
-          "signin": "簽到"
+          "signin": "簽到",
+          "management": "群管理"
+        },
+        "management": {
+          "blacklistTitle": "黑名單",
+          "blacklistDesc": "被寫進黑名單的水手，機器人不會回應他的任何呼喚。每個群最多 400 人。",
+          "memberOpenid": "成員 OpenID",
+          "memberName": "成員暱稱",
+          "memberSearch": "搜尋成員暱稱，或直接填寫 OpenID",
+          "memberEmpty": "沒有符合的成員",
+          "memberUnavailable": "機器人無權讀取成員，請直接填寫 OpenID",
+          "add": "新增",
+          "remove": "移除",
+          "added": "已加入黑名單",
+          "removed": "已移出黑名單",
+          "addedAt": "新增時間",
+          "empty": "黑名單為空",
+          "join": {
+            "title": "入群申請",
+            "desc": "機器人在群裡掌舵時，你可以在此放行或拒絕登船申請",
+            "member": "申請人",
+            "verify": "驗證訊息",
+            "appliedAt": "申請時間",
+            "approve": "通過",
+            "decline": "拒絕",
+            "approved": "已通過申請",
+            "declined": "已拒絕申請",
+            "empty": "暫無待審批申請"
+          },
+          "mute": {
+            "title": "群禁言",
+            "desc": "目前全員禁言模式：{mode}",
+            "minutes": "禁言分鐘數（0 為解除）",
+            "apply": "設定禁言",
+            "unmute": "解除",
+            "expireAt": "到期時間",
+            "saved": "禁言狀態已更新",
+            "empty": "目前沒有成員被禁言",
+            "mode": {
+              "none": "未開啟",
+              "always": "始終禁言",
+              "schedule": "定時禁言"
+            }
+          }
         },
         "info": {
           "name": "群名稱",
@@ -1352,19 +1789,19 @@
           "tags": "群標籤",
           "noAvatar": "QQ 開放平台不提供群頭像"
         },
-        "pushReadonlyHint": "「主動推送」是否可用由 QQ 群設定決定，需要群主在 QQ 群內允許機器人推送訊息，本頁面唯讀展示。",
+        "pushSwitchHint": "落帆之後，日報、組隊與掉寶的傳信都會停下；儲存即刻生效。",
         "activePush": "主動推送",
-        "activePushDesc": "由 QQ 群設定與機器人事件同步，無法在網站直接開啟",
+        "activePushDesc": "決定機器人是否向這個群主動傳信",
         "dailyReport": "日報推送",
-        "dailyReportDesc": "依設定時間向本群推送航海日報",
+        "dailyReportDesc": "依約定時間把航海日報送到甲板上",
         "dailyTimes": "推送時間",
-        "dailyTimesHint": "24 小時制，可新增多個時間，例如 09:00",
+        "dailyTimesHint": "24 小時制，可掛多個報時，例如 09:00",
         "teamupPush": "組隊推送",
-        "teamupPushDesc": "接收網頁端選擇同步 QQ 的組隊資訊",
+        "teamupPushDesc": "接收網頁端選擇同步到 QQ 的組隊招募",
         "dropPush": "掉寶推送",
-        "dropPushDesc": "官方上線新 Twitch 掉寶時提醒本群",
+        "dropPushDesc": "官方放出新 Twitch 掉寶時，第一時間提醒本群",
         "welcome": "群員入群歡迎語",
-        "welcomeDesc": "新成員入群時由機器人發送歡迎訊息",
+        "welcomeDesc": "新水手登船時，由機器人送上第一句歡迎",
         "welcomeContent": "歡迎語內容",
         "quota": {
           "user": "帳號今日額度",
@@ -1375,29 +1812,15 @@
           "user": "使用者",
           "days": "本月簽到",
           "last": "最近簽到",
-          "monthHint": "僅統計本自然月內的簽到紀錄。",
-          "empty": "本群本月暫無簽到紀錄。"
-        },
-        "commands": {
-          "title": "機器人指令",
-          "hint": "指令由機器人即時回報。發送「/指令 幫助」後，機器人會把幫助內容直接發到群裡。",
-          "input": "指令",
-          "placeholder": "例如 /管理 幫助",
-          "send": "發送",
-          "use": "填入",
-          "sent": "已發送到群聊",
-          "sendFailed": "指令已執行，但訊息未能發送到群聊",
-          "notFound": "沒有匹配到該指令，請檢查指令前綴。",
-          "helpOnly": "面板目前只支援執行幫助類指令，請在群內發送完整指令。",
-          "empty": "暫未取得機器人指令。"
+          "monthHint": "只清點本自然月內留在甲板上的腳印。",
+          "empty": "本月這片甲板還沒人簽到。"
         },
         "refresh": "主動重新整理",
         "refreshed": "群資訊已重新整理",
         "pushNow": "立即推送",
         "pushTeamupList": "推送組隊列表",
         "pushNowSuccess": "已觸發推送",
-        "pushCooldownHint": "主動推送冷卻中，剩餘 {time}",
-        "pushUnknown": "無法取得推送狀態",
+        "pushCooldownHint": "傳信冷卻中，還需等待 {time}",
         "msgRange": {
           "all": "全部群訊息",
           "only_mention": "僅 @ 機器人",
@@ -1405,7 +1828,7 @@
         },
         "groupFallback": "群"
       },
-      "noAccess": "機器人模組僅對有效贊助訂閱使用者開放（5 / 10 / 50 / 100 檔位）。訂閱到期後將暫停管理，已儲存的群設定與推送設定會保留，續訂後自動恢復。",
+      "noAccess": "機器人船艙只對有效贊助訂閱開放（5 / 10 / 50 / 100 檔位）。訂閱到期後暫停管理，但群設定與推送設定會替你妥善保管，續訂即可復工。",
       "display": {
         "qq": "QQ號",
         "appid": "AppID"
@@ -1725,6 +2148,10 @@
       "worldEvent": "世界事件",
       "bluePrint": "设计图",
       "requiredRank": "最低使用等级",
+      "collected": "已取得",
+      "collectedOn": "已標記為已取得",
+      "collectedOff": "已取消已取得標記",
+      "collectedFailed": "操作失敗，請稍後重試",
       "gearScore": "分数",
       "rarity": "稀有度",
       "dateAdded": "添加日期",
@@ -2206,6 +2633,11 @@
       "title": "當前可用掉寶",
       "subtitle": "Twitch Drops 限時掉寶活動與獎勵",
       "noDrops": "當前暫無正在生效的掉寶活動"
+    },
+    "connoisseur": {
+      "title": "鑑賞家週報",
+      "subtitle": "本週走私犯物品與鑑賞家點評",
+      "noReport": "本週暫無鑑賞家週報"
     }
   },
   "map": {
@@ -2659,6 +3091,10 @@
     "deleteBtn": "刪除",
     "deleteSuccess": "取消發佈成功",
     "expiresLabel": "剩餘喇叭時間",
+    "source": {
+      "web": "網頁端",
+      "bot": "QQ機器人 {name}"
+    },
     "hornValidTimeTooltip": "該喇叭有效顯示時間",
     "expired": "已到期",
     "copyPlayerBtn": "複製",
@@ -3855,6 +4291,7 @@
       "security": "安全",
       "orders": "訂單",
       "subscriptions": "贊助訂閱",
+      "signin": "簽到",
       "switchLanguage": "切換語言",
       "logout": "註銷帳戶"
     },
@@ -4427,7 +4864,11 @@
     "authFailed": "第三方授權啟動失敗",
     "urlError": "獲取授權鏈接失敗",
     "unknownError": "授權處理失敗",
-    "waitHint": "正在與第三方平台確認授權資訊，請勿關閉視窗..."
+    "waitHint": "正在與第三方平台確認授權資訊，請勿關閉視窗...",
+    "ticketExpired": "授權憑證已失效，請重新發起第三方授權。",
+    "restartAuth": "重新授權",
+    "platformNickname": "平臺暱稱",
+    "accountIdHint": "帳號 ID 由你自行填寫，用於後續登入，不是第三方平臺的暱稱"
   },
   "common": {
     "cancel": "取消",
@@ -4448,11 +4889,13 @@
   "quota": {
     "trigger": "額度",
     "title": "額度限制",
+    "refresh": "重新整理額度",
     "description": "因服務資源所限，對發佈資源明確額度限制，以減少開支，如果你認為額度不夠，可以透過網站聯絡方式，來免費提高升級",
     "loading": "額度載入中…",
     "unlimited": "不限",
     "monthly": "本月",
     "yearly": "本年",
+    "quarterly": "本季度",
     "used": "已用 {used}/{limit}",
     "identityUnlimited": "你的身份不受額度限制",
     "boost": "贊助加成 ×{multiplier}",
@@ -4461,7 +4904,8 @@
       "comment": "評論",
       "teamup": "組隊",
       "map": "地圖",
-      "media": "媒體庫"
+      "media": "媒體庫",
+      "alias": "別名修改"
     },
     "media": {
       "files": "檔案數量",

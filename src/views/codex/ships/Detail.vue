@@ -27,6 +27,7 @@ import ShipDescription from "@/components/snbWidget/shipDescription.vue";
 import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -214,6 +215,7 @@ const onAddCalculator = () => {
                 <v-icon icon="mdi-chart-box-outline"></v-icon>
               </v-btn>
 
+              <CollectionToggle target-type="ship" :target-id="shipDetailData.id"></CollectionToggle>
               <ShareWidget type="ship" :target-id="shipDetailData.id"/>
             </div>
           </v-col>

@@ -113,6 +113,16 @@ const getRemainingHornTime = (expiresAt: number) => {
 }
 
 /**
+ * 组队信息来源展示文案
+ * @param item 组队条目
+ */
+const onSourceLabel = (item: any) => {
+  const source = item?.source;
+  if (!source || source.platform === 'web') return t('teamUp.source.web');
+  return t('teamUp.source.bot', {name: source.name || ''});
+}
+
+/**
  * 定时刷新配置
  * 支持 10/15/30/60/120 秒预设或自定义秒数
  */
@@ -424,8 +434,22 @@ const pushTeamInfo = async () => {
     await getTeams(getTeamsType.none);
     pushLoading.value = false;
     pushModel.value = false;
-  } catch (e) {
+  } catch (e: any) {
     pushLoading.value = false;
+    // 发布频率限制需要把剩余等待时间换算成分钟/小时后提示
+    const remainingMs = Number(e?.response?.data?.remainingTime || 0);
+    if (e?.code === 'teamUp.account.rateLimit') {
+      notice.error(t('basic.tips.teamUp.account.rateLimit', {
+        remainingTime: Math.max(1, Math.ceil(remainingMs / 60000))
+      }));
+      return;
+    }
+    if (e?.code === 'teamUp.anonymous.rateLimit') {
+      notice.error(t('basic.tips.teamUp.anonymous.rateLimit', {
+        remainingTime: Math.max(1, Math.ceil(remainingMs / 3600000))
+      }));
+      return;
+    }
     handleApiError(e, notice, t, {component: 'Team'});
   }
 }
@@ -683,6 +707,11 @@ const copyToClipboard = async (content: string) => {
                         <v-col cols="auto">
                           <v-icon icon="mdi-calendar-range" class="mr-1" size="17"></v-icon>
                           <TimeView :time="formatTimestamp(i.createdAt)"></TimeView>
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-icon :icon="i.source?.platform && i.source.platform !== 'web' ? 'mdi-robot' : 'mdi-web'"
+                                  class="mr-1" size="17"></v-icon>
+                          {{ onSourceLabel(i) }}
                         </v-col>
                         <v-col cols="auto" v-tooltip="`${t('teamUp.hornValidTimeTooltip')}: ${new Date(formatTimestamp(i.expiresAt)).toLocaleString()}`">
                           <v-icon icon="mdi-update" class="mr-1" size="17"></v-icon>

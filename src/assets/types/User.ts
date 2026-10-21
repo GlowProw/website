@@ -5,6 +5,8 @@ export interface UserAttr {
     introduction: string
     dmEnabled?: boolean
     spaceEnabled?: boolean
+    showDescription?: boolean
+    showAchievements?: boolean
     notifyMessage?: boolean
     notifyReply?: boolean
     notifyLike?: boolean

@@ -212,7 +212,8 @@
       "quota": {
         "exceeded": {
           "monthly": "本月发布额度已用完，额度将于下月 1 日重置；如需更多额度，可通过网站联系方式免费申请提升",
-          "yearly": "本年发布额度已用完，额度将于明年 1 月 1 日重置；如需更多额度，可通过网站联系方式免费申请提升"
+          "yearly": "本年发布额度已用完，额度将于明年 1 月 1 日重置；如需更多额度，可通过网站联系方式免费申请提升",
+          "quarterly": "本季度别名修改额度已用完，额度将于下季度首日重置；订阅任意赞助档位可获得额外 10 次"
         }
       },
       "error": "应用程序错误: {content}",
@@ -476,12 +477,18 @@
       "signup": {
         "ok": "注册成功，请激活账户",
         "userAlreadyHas": "注册帐号的名称已存在",
+        "illegalFormat": "账户 ID 含有非法字符，请更换后重试",
+        "emailAlreadyHas": "该邮箱已被绑定，请直接登录",
         "dailyLimitExceeded": "今日注册邮件发送已达上限（每天最多3次），请明天再试",
         "emailQuotaExceeded": "邮件发送达到每日上限，请稍后再试",
         "notConfigured": "系统超额，请联系管理员",
         "actionLocked": "操作已锁定，请次日再试",
         "error": "注册错误: {context}",
         "bad": "注册错误: 请检查注册信息的格式要求"
+      },
+      "oauth": {
+        "alreadyBound": "该第三方账号已关联其他站点账户",
+        "alreadyBoundToOther": "该第三方账号已关联其他站点账户，请直接使用第三方登录"
       },
       "activate": {
         "ok": "账户激活成功，请登录",
@@ -642,6 +649,10 @@
         "error": "操作失败：{context}"
       },
       "bot": {
+        "groupOccupied": "该群已被其他账户绑定，无法重复绑定",
+        "blocklist": {
+          "full": "该群黑名单已达 400 人上限"
+        },
         "account": {
           "pushNow": {
             "failed": "推送失败，请检查机器人服务是否在线、群是否允许主动推送",
@@ -910,6 +921,7 @@
         "reply": "回复",
         "unread": "私信未读",
         "assembly": "配装总数",
+        "collected": "已取得物品数",
         "conversations": "活跃会话",
         "last30": "近 30 天累计"
       },
@@ -928,6 +940,347 @@
         "visitorCount": "访客数",
         "noVisitors": "暂无访客",
         "noData": "暂无数据"
+      }
+    },
+    "collectionStats": {
+      "title": "收藏统计",
+      "empty": {
+        "title": "还没有已取得的图鉴记录，去图鉴中标记后再来看统计"
+      },
+      "overview": {
+        "title": "收集概览",
+        "collected": "已取得",
+        "catalog": "图鉴总数",
+        "completion": "收集完成度",
+        "lastCollected": "最近取得"
+      },
+      "trend": {
+        "title": "收集趋势",
+        "range": "时间范围",
+        "range12": "12 周",
+        "range26": "26 周",
+        "range52": "52 周",
+        "added": "每周新增",
+        "addedUnit": "件",
+        "addedMax": "单周最高",
+        "cumulative": "累计收集",
+        "totalUnit": "件",
+        "noData": "所选时间范围内暂无新增"
+      },
+      "types": {
+        "title": "图鉴统计"
+      },
+      "kinds": {
+        "item": "物品",
+        "ship": "船只",
+        "material": "材料",
+        "cosmetic": "装饰品",
+        "commoditie": "商品",
+        "empireSkill": "帝国技能",
+        "mapLocation": "地图地点",
+        "mastery": "专精",
+        "mod": "模组",
+        "npc": "NPC",
+        "set": "集合",
+        "treasureMap": "藏宝图",
+        "ultimate": "终结技"
+      },
+      "seasons": {
+        "title": "赛季统计",
+        "items": "{count} 件",
+        "unknown": "未知赛季"
+      }
+    },
+    "achievements": {
+      "title": "成就",
+      "levelBadge": "等级 {level}",
+      "points": "{points} 积分",
+      "nextLevel": "下一等级 · {level}",
+      "remaining": "还需 {points} 积分",
+      "maxLevel": "已达到最高等级",
+      "pointUnit": "积分",
+      "claim": "领取",
+      "times": "已获得 {times} 次",
+      "obtainedAt": "获得于 {time}",
+      "lockedTip": "尚未满足条件",
+      "claimSuccess": "成就已领取，积分已到账",
+      "claimFailed": "领取失败，请稍后重试",
+      "loadFailed": "成就加载失败",
+      "widget": {
+        "hidden": "该用户未公开成就信息",
+        "obtained": "已获得 {count} 个成就",
+        "empty": "暂未获得成就"
+      },
+      "categories": {
+        "assembly": "配装",
+        "mastery": "精通",
+        "signin": "签到",
+        "teamup": "组队",
+        "subscription": "赞助订阅"
+      },
+      "status": {
+        "locked": "未达成",
+        "claimable": "可领取",
+        "obtained": "已获得"
+      },
+      "requirement": {
+        "assembly": "累计发布 {count} 份配装",
+        "mastery": "累计发布 {count} 份精通",
+        "teamup": "累计发布 {count} 次组队",
+        "level": "账户等级达到 {level} 级",
+        "subscription": "{tier} 档位赞助"
+      },
+      "levels": {
+        "outcast": {
+          "name": "弃民",
+          "desc": "初入海域，尚无人知晓你的名字。"
+        },
+        "scoundrel": {
+          "name": "流氓",
+          "desc": "开始在码头间惹是生非，恶名悄悄传开。"
+        },
+        "rover": {
+          "name": "游荡者",
+          "desc": "足迹遍布群岛，行踪飘忽不定。"
+        },
+        "freebooter": {
+          "name": "自由劫掠者",
+          "desc": "不受任何旗号约束，只为自己而战。"
+        },
+        "buccaneer": {
+          "name": "海盗狂徒",
+          "desc": "胆大妄为，连皇家船队也敢碰一碰。"
+        },
+        "brigand": {
+          "name": "绿林强盗",
+          "desc": "陆上与海上的生意，你都做得得心应手。"
+        },
+        "marauder": {
+          "name": "掠夺者",
+          "desc": "所到之处，只留下一片狼藉与传说。"
+        },
+        "corsair": {
+          "name": "私掠海盗",
+          "desc": "挂着合法旗号，做着最不合法的买卖。"
+        },
+        "cutthroat": {
+          "name": "割喉者",
+          "desc": "你的名字足以让整片海域噤声。"
+        },
+        "kingpin": {
+          "name": "魁首",
+          "desc": "站在海盗世界的顶端，你就是规则本身。"
+        },
+        "kingpin_copper_100": {
+          "name": "青铜魁首 100 级",
+          "desc": "迈入魁首首个百级大关，开启青铜巅峰海盗勋章。"
+        },
+        "kingpin_copper_200": {
+          "name": "青铜魁首 200 级",
+          "desc": "持续扩张走私网络与势力范围，恶名积累达到新高度。"
+        },
+        "kingpin_copper_300": {
+          "name": "青铜魁首 300 级",
+          "desc": "稳固公海霸权，见证青铜中阶海盗帝国的崛起。"
+        },
+        "kingpin_copper_400": {
+          "name": "青铜魁首 400 级",
+          "desc": "纵横远洋诸岛，掠夺与贸易影响力遍及各处海域。"
+        },
+        "kingpin_copper_500": {
+          "name": "青铜魁首 500 级",
+          "desc": "达成青铜勋章最高极境，即将跃升至白银位阶。"
+        },
+        "kingpin_silver_600": {
+          "name": "白银魁首 600 级",
+          "desc": "晋升白银位阶！象征支配印度洋核心航线的强大号召力。"
+        },
+        "kingpin_silver_700": {
+          "name": "白银魁首 700 级",
+          "desc": "庞大舰队在公海所向披靡，获得深海各方阵营敬畏。"
+        },
+        "kingpin_silver_800": {
+          "name": "白银魁首 800 级",
+          "desc": "坐拥巨额白银财富与走私据点，统御多处走私贸易链。"
+        },
+        "kingpin_silver_900": {
+          "name": "白银魁首 900 级",
+          "desc": "白银巅峰之境，威名传遍整个印度洋及外洋群岛。"
+        },
+        "kingpin_silver_1000": {
+          "name": "白银魁首 1000 级",
+          "desc": "达成千级巅峰里程碑！解锁白银极境，迈向黄金时代。"
+        },
+        "kingpin_gold_1100": {
+          "name": "黄金魁首 1100 级",
+          "desc": "荣登黄金至尊位阶！公海之上无可争议的传奇霸主。"
+        },
+        "kingpin_gold_1200": {
+          "name": "黄金魁首 1200 级",
+          "desc": "荣耀与财富的巅峰体现，象征无人匹敌的极高声望。"
+        },
+        "kingpin_gold_1300": {
+          "name": "黄金魁首 1300 级",
+          "desc": "令所有海上舰队与要塞闻风丧胆的黄金高阶海盗巨擘。"
+        },
+        "kingpin_gold_1400": {
+          "name": "黄金魁首 1400 级",
+          "desc": "巅峰恶名近在咫尺，傲视整个大洋航道的绝对统治力。"
+        },
+        "kingpin_gold_1500": {
+          "name": "黄金魁首 1500 级",
+          "desc": "达成当前版本 1500 级终极极境！荣获黄金极境勋章。"
+        }
+      },
+      "items": {
+        "assembly_publish_1": {
+          "name": "初出茅庐",
+          "desc": "发布你的第一份配装，正式扬帆起航。"
+        },
+        "assembly_publish_10": {
+          "name": "小有名气",
+          "desc": "累计发布 10 份配装，你的方案开始被更多船长采用。"
+        },
+        "assembly_publish_50": {
+          "name": "声名远扬",
+          "desc": "累计发布 50 份配装，码头酒馆里都在讨论你的作品。"
+        },
+        "assembly_publish_100": {
+          "name": "传奇船匠",
+          "desc": "累计发布 100 份配装，你的名字已被写进海盗的航海日志。"
+        },
+        "mastery_publish_1": {
+          "name": "锋芒初露",
+          "desc": "发布第一份精通方案，展示你对战斗细节的理解。"
+        },
+        "mastery_publish_10": {
+          "name": "战术革新",
+          "desc": "累计发布 10 份精通，为同僚提供可靠的作战思路。"
+        },
+        "mastery_publish_50": {
+          "name": "流派宗师",
+          "desc": "累计发布 50 份精通，你的打法自成一派。"
+        },
+        "mastery_publish_100": {
+          "name": "战争艺术家",
+          "desc": "累计发布 100 份精通，每一份都是海战艺术的注脚。"
+        },
+        "teamup_publish_1": {
+          "name": "同舟共济",
+          "desc": "发布一次组队，与伙伴并肩扬帆出海。"
+        },
+        "subscription_tier_100": {
+          "name": "黄金赞助人",
+          "desc": "以最高档位赞助闪耀船首，为站点的远航注入强劲动力。"
+        },
+        "subscription_tier_50": {
+          "name": "白银赞助人",
+          "desc": "赞助 ¥50 档位，让服务器与航线持续稳定运转。"
+        },
+        "subscription_tier_10": {
+          "name": "青铜赞助人",
+          "desc": "赞助 ¥10 档位，为站点的日常维护添一份力。"
+        },
+        "subscription_tier_5": {
+          "name": "启航支持者",
+          "desc": "赞助 ¥5 档位，每一份心意都是继续前行的理由。"
+        },
+        "signin_level_2": {
+          "name": "恶名初显",
+          "desc": "签到积累足够积分，账户等级升至 2 级。"
+        },
+        "signin_level_3": {
+          "name": "游荡之名",
+          "desc": "签到积累足够积分，账户等级升至 3 级。"
+        },
+        "signin_level_4": {
+          "name": "自由之帆",
+          "desc": "签到积累足够积分，账户等级升至 4 级。"
+        },
+        "signin_level_5": {
+          "name": "狂徒之证",
+          "desc": "签到积累足够积分，账户等级升至 5 级。"
+        },
+        "signin_level_6": {
+          "name": "绿林之影",
+          "desc": "签到积累足够积分，账户等级升至 6 级。"
+        },
+        "signin_level_7": {
+          "name": "掠夺之路",
+          "desc": "签到积累足够积分，账户等级升至 7 级。"
+        },
+        "signin_level_8": {
+          "name": "私掠之旗",
+          "desc": "签到积累足够积分，账户等级升至 8 级。"
+        },
+        "signin_level_9": {
+          "name": "割喉之刃",
+          "desc": "签到积累足够积分，账户等级升至 9 级。"
+        },
+        "signin_level_10": {
+          "name": "魁首之冠",
+          "desc": "签到积累足够积分，账户等级升至 10 级。"
+        }
+      }
+    },
+    "signin": {
+      "title": "每日签到",
+      "subtitle": "已连续签到 {streak} 天，保持节奏可累积更多积分。",
+      "streakChip": "连续 {days} 天",
+      "pointsChip": "账户积分 {points}",
+      "makeupChip": "可补签 {count} 次",
+      "sign": "立即签到",
+      "signed": "今日已签到",
+      "makeupFree": "每月免费补签",
+      "contributorBonus": "贡献者加成",
+      "streakBonus": "连续签到奖励",
+      "makeupUsed": "本月已补签",
+      "calendarTip": "点击本月未签到的日期可使用补签次数；连续签到满 7 天额外获得 1 次补签。",
+      "legend": {
+        "normal": "已签到",
+        "makeup": "补签",
+        "unsign": "未签到"
+      },
+      "weekdays": {
+        "mon": "一",
+        "tue": "二",
+        "wed": "三",
+        "thu": "四",
+        "fri": "五",
+        "sat": "六",
+        "sun": "日"
+      },
+      "platform": {
+        "web": "网站",
+        "qq": "QQ 机器人"
+      },
+      "type": {
+        "normal": "正常签到",
+        "makeup": "补签"
+      },
+      "records": {
+        "title": "签到记录",
+        "date": "日期",
+        "platform": "平台",
+        "type": "类型",
+        "points": "积分",
+        "streak": "连续天数",
+        "empty": "本月暂无签到记录"
+      },
+      "message": {
+        "success": "签到成功，获得 {points} 积分，已连续 {streak} 天",
+        "bonusMakeup": "连续签到满 7 天，额外获得 1 次补签机会",
+        "makeupSuccess": "已补签 {date}",
+        "already": "今天已经签到过了",
+        "invalidDate": "该日期不可补签",
+        "notCurrentMonth": "只能补签当月的日期",
+        "noQuota": "补签次数已用完",
+        "failed": "签到失败，请稍后重试"
+      },
+      "makeupDialog": {
+        "title": "确认补签",
+        "desc": "确定补签 {date} 吗？本次将消耗 1 次补签机会，当前剩余 {count} 次。",
+        "confirm": "确认补签"
       }
     },
     "selectAll": "全选",
@@ -987,6 +1340,14 @@
         "spaceEnabled": {
           "name": "公开用户空间",
           "description": "关闭后其他用户将无法访问您的用户空间"
+        },
+        "showDescription": {
+          "name": "显示个人描述",
+          "description": "关闭后其他用户查看您的资料时将不显示个人介绍"
+        },
+        "showAchievements": {
+          "name": "显示成就列表",
+          "description": "关闭后其他用户查看您的资料时将不显示等级与成就"
         },
         "dmEnabled": {
           "name": "允许私信",
@@ -1287,67 +1648,101 @@
       "title": "机器人",
       "guide": {
         "title": "机器人引导",
-        "subtitle": "把闪耀船首机器人接入你的群组",
-        "intro": "「闪耀船首」机器人可以为你的群提供航海日报、组队、掉宝与签到等服务。绑定群后，可在本页面统一管理推送开关与群配置。",
-        "openBotDoc": "查看机器人功能文档",
+        "subtitle": "让闪耀船首登上你的船队，替你守望整片海域",
+        "intro": "「闪耀船首」是一位随船的老水手——航海日报、组队招募、掉宝情报与每日签到，他都替你盯着。把群组交给他，你只管扬帆。",
+        "openBotDoc": "翻阅船长的航海手册",
         "step1Title": "邀请机器人入群",
-        "step1Desc": "在群组中添加「闪耀船首」机器人，并允许机器人接收主动消息。",
+        "step1Desc": "把「闪耀船首」请进群组，并允许他接收主动消息，否则风暴来临时他无法向你传信。",
         "step2Title": "生成绑定验证码",
-        "step2Desc": "填写群号与管理口令，生成一次性的群绑定验证码。",
+        "step2Desc": "报上群号，领取一枚只生效一次的绑定暗号。",
         "step3Title": "群内完成绑定",
-        "step3Desc": "由群主或群管理员在群内发送 /群组绑定 <验证码>，完成后即可在此管理。",
+        "step3Desc": "由群主或群管理员在群内念出 /群组绑定 <验证码>，握手完成，这群便归入你的航线。",
         "bindTitle": "绑定群组",
-        "bindDesc": "群号用于标识目标群，管理口令仅用于后续管理验证，服务端只保存散列值。",
+        "bindDesc": "群号是你的港口坐标；暗号必须由群主或群管理员在群内亲口念出，方能生效。",
         "platform": "选择平台",
         "bot": "选择机器人",
         "groupNumber": "群组号码",
-        "password": "管理口令",
-        "passwordHint": "至少 6 位，请妥善保管",
-        "managePasswordTitle": "管理口令说明",
-        "managePasswordDesc": "这里设置的管理口令用于群内管理指令的身份校验，站点不会保存明文；遗忘口令时重新生成一次绑定验证码即可覆盖。",
-        "generateCode": "生成绑定验证码",
-        "codeDialogTitle": "群组绑定验证码",
-        "botJoined": "已检测到机器人加入该群组。",
-        "botNotJoined": "未检测到该机器人已加入此群组，请先在群组中邀请机器人；若已加入可忽略此提示。",
-        "usageTitle": "使用说明",
-        "formInvalid": "请完整填写机器人、群号与至少 6 位管理口令",
-        "codeCreated": "验证码已生成",
-        "codeHint": "验证码 {minutes} 分钟内有效，请尽快在群内使用。",
+        "generateCode": "领取绑定暗号",
+        "codeDialogTitle": "群组绑定暗号",
+        "botJoined": "瞭望手已发现机器人的船影，他就在这个群里。",
+        "botNotJoined": "尚未在这片海域发现该机器人。先把他请进群；若已入群，可以无视这条提醒。",
+        "usageTitle": "航海须知",
+        "formInvalid": "请完整填写机器人与群号",
+        "codeCreated": "暗号已封好",
+        "codeHint": "暗号 {minutes} 分钟内有效，潮水一退便作废，抓紧在群内念出。",
         "copyCommand": "复制指令",
-        "codeUsage": "请让群主或群管理员在目标群发送上面的指令；机器人会读取群 OpenID 完成绑定。",
-        "checkBound": "我已完成绑定",
-        "bound": "绑定成功，正在进入管理",
-        "notYet": "尚未检测到绑定，请确认群内指令已发送成功。"
+        "codeUsage": "让群主或群管理员在目标群念出上面的指令；机器人会凭群 OpenID 确认你们的船籍。",
+        "checkBound": "我已经完成绑定",
+        "bound": "绑定完成，正在为你拉开船长室的门",
+        "notYet": "还没收到绑定回执。确认群内那条指令已经顺利发出。"
       },
       "overview": {
-        "title": "概览",
+        "title": "船长室",
         "groups": "已绑定群组",
         "groupsUnit": "个",
         "subscribedGroups": "已订阅组队推送",
         "sent": "推送成功",
         "failed": "推送失败",
         "timesUnit": "次",
+        "errorCount": "错误次数",
+        "errorDays": "近 30 天",
+        "errorLogTitle": "错误日志",
+        "errorLogDesc": "所选群组最近的推送与指令错误，已过滤机器人运行信息",
+        "errorLogEmpty": "暂无错误，海面平静",
+        "errorType": {
+          "push": "推送",
+          "command": "指令",
+          "group": "群务"
+        },
         "quotaTitle": "今日主动推送额度",
         "quotaDesc": "已使用 {used} / {limit} 次",
+        "quotaTotal": "全部群组今日已使用 {used} / {limit} 次",
         "tier": "当前档位：{tier}",
         "tierNone": "未订阅",
-        "toManage": "进入群管理",
-        "toGuide": "添加群组",
+        "toManage": "进入船务管理",
+        "toGuide": "召集新船队",
         "toTeamup": "前往组队大厅",
-        "guideBtn": "机器人引导"
+        "guideBtn": "机器人引导",
+        "monthSignin": "本月签到",
+        "groupFilter": "查看群组",
+        "signinTrend": "本月签到潮汐",
+        "signinTrendDesc": "{month} 所选群组每日签到人数",
+        "signinTop": "签到英雄榜",
+        "signinTopDesc": "本月在本群甲板上打卡最多的十位水手",
+        "topUser": "水手",
+        "topGroup": "群组",
+        "topDays": "天数",
+        "messageTrend": "群消息潮汐",
+        "messageTrendDesc": "最近 30 天本群的消息浪高，每日凌晨由机器人统一汇总",
+        "messageTypes": "消息类型",
+        "messageTotal": "共计 {total} 条",
+        "messageType": {
+          "text": "文本",
+          "image": "图片",
+          "video": "视频",
+          "forward": "转发",
+          "card": "卡片",
+          "other": "其他"
+        },
+        "messageEmpty": "海面还很安静。等机器人凌晨汇总后，这里会浮出消息的潮汐",
+        "commands": "指令罗盘",
+        "commandsDesc": "最近 30 天本群向机器人发出的指令次数",
+        "fullModeTitle": "建议开启全量消息瞭望",
+        "fullModeDesc": "这些群还没开启全量消息，统计会漏掉大半海面：{groups}。请群主在 QQ 群设置中允许机器人接收全部消息。",
+        "noData": "暂无航海记录"
       },
       "manage": {
         "title": "群管理",
-        "subtitle": "管理机器人所在群的推送与基础信息",
+        "subtitle": "照看你的每一条船：推送、签到与群务，都在这张海图上",
         "addGroup": "添加群组",
-        "empty": "还没有绑定的群组，先按引导完成绑定吧。",
+        "empty": "船队还没靠岸——先按引导绑定第一个群组吧",
         "groupNumber": "群号",
-        "pushOn": "推送正常",
-        "pushOff": "推送关闭",
+        "pushOn": "传信正常",
+        "pushOff": "传信停摆",
         "settings": "设置",
         "remove": "解绑",
-        "deleteConfirm": "确定解除群「{name}」的绑定吗？解除后机器人将不再接收该群配置。",
-        "panelTitle": "群设置 · {name}",
+        "deleteConfirm": "确定让「{name}」脱离船队吗？解除后，机器人将不再理会这个群的配置。",
+        "panelTitle": "船务面板 · {name}",
         "columns": {
           "group": "群组",
           "platform": "平台",
@@ -1358,9 +1753,51 @@
         "tabs": {
           "base": "基础信息",
           "push": "推送设置",
-          "commands": "命令",
           "quota": "额度",
-          "signin": "签到"
+          "signin": "签到",
+          "management": "群管理"
+        },
+        "management": {
+          "blacklistTitle": "黑名单",
+          "blacklistDesc": "被写进黑名单的水手，机器人不会回应他的任何呼唤。每个群最多 400 人。",
+          "memberOpenid": "成员 OpenID",
+          "memberName": "成员昵称",
+          "memberSearch": "搜索成员昵称，或直接填写 OpenID",
+          "memberEmpty": "没有匹配的成员",
+          "memberUnavailable": "机器人无权读取成员，请直接填写 OpenID",
+          "add": "添加",
+          "remove": "移除",
+          "added": "已加入黑名单",
+          "removed": "已移出黑名单",
+          "addedAt": "添加时间",
+          "empty": "黑名单为空",
+          "join": {
+            "title": "入群申请",
+            "desc": "机器人在群里掌舵时，你可以在这里放行或拒绝登船申请",
+            "member": "申请人",
+            "verify": "验证消息",
+            "appliedAt": "申请时间",
+            "approve": "通过",
+            "decline": "拒绝",
+            "approved": "已通过申请",
+            "declined": "已拒绝申请",
+            "empty": "暂无待审批申请"
+          },
+          "mute": {
+            "title": "群禁言",
+            "desc": "当前全员禁言模式：{mode}",
+            "minutes": "禁言分钟数（0 为解除）",
+            "apply": "设置禁言",
+            "unmute": "解除",
+            "expireAt": "到期时间",
+            "saved": "禁言状态已更新",
+            "empty": "当前没有成员被禁言",
+            "mode": {
+              "none": "未开启",
+              "always": "始终禁言",
+              "schedule": "定时禁言"
+            }
+          }
         },
         "info": {
           "name": "群名称",
@@ -1379,19 +1816,19 @@
           "tags": "群标签",
           "noAvatar": "QQ 开放平台不提供群头像"
         },
-        "pushReadonlyHint": "「主动推送」是否可用由 QQ 群设置决定，需要群主在 QQ 群内允许机器人推送消息，本页面只读展示。",
+        "pushSwitchHint": "落帆之后，日报、组队与掉宝的传信都会停下；保存即刻生效。",
         "activePush": "主动推送",
-        "activePushDesc": "由 QQ 群设置与机器人事件同步，无法在网站直接开启",
+        "activePushDesc": "决定机器人是否向这个群主动传信",
         "dailyReport": "日报推送",
-        "dailyReportDesc": "按设定时间向本群推送航海日报",
+        "dailyReportDesc": "按约定时间把航海日报送到甲板上",
         "dailyTimes": "推送时间",
-        "dailyTimesHint": "24 小时制，可添加多个时间，例如 09:00",
+        "dailyTimesHint": "24 小时制，可挂多个报时，例如 09:00",
         "teamupPush": "组队推送",
-        "teamupPushDesc": "接收网页端选择同步 QQ 的组队信息",
+        "teamupPushDesc": "接收网页端选择同步到 QQ 的组队招募",
         "dropPush": "掉宝推送",
-        "dropPushDesc": "官方上线新 Twitch 掉宝时提醒本群",
+        "dropPushDesc": "官方放出新 Twitch 掉宝时，第一时间提醒本群",
         "welcome": "群员入群欢迎语",
-        "welcomeDesc": "新成员入群时由机器人发送欢迎消息",
+        "welcomeDesc": "新水手登船时，由机器人送上第一句欢迎",
         "welcomeContent": "欢迎语内容",
         "quota": {
           "user": "账号今日额度",
@@ -1402,29 +1839,15 @@
           "user": "用户",
           "days": "本月签到",
           "last": "最近签到",
-          "monthHint": "仅统计本自然月内的签到记录。",
-          "empty": "本群本月暂无签到记录。"
-        },
-        "commands": {
-          "title": "机器人命令",
-          "hint": "命令由机器人实时上报。发送「/指令 帮助」后，机器人会把帮助内容直接发到群里。",
-          "input": "命令",
-          "placeholder": "例如 /管理 帮助",
-          "send": "发送",
-          "use": "填入",
-          "sent": "已发送到群聊",
-          "sendFailed": "命令已执行，但消息未能发送到群聊",
-          "notFound": "没有匹配到该命令，请检查指令前缀。",
-          "helpOnly": "面板目前只支持执行帮助类命令，请在群内发送完整指令。",
-          "empty": "暂未获取到机器人命令。"
+          "monthHint": "只清点本自然月内留在甲板上的脚印。",
+          "empty": "本月这片甲板还没人签到。"
         },
         "refresh": "主动刷新",
         "refreshed": "群信息已刷新",
         "pushNow": "立即推送",
         "pushTeamupList": "推送组队列表",
         "pushNowSuccess": "已触发推送",
-        "pushCooldownHint": "主动推送冷却中，剩余 {time}",
-        "pushUnknown": "无法获取推送状态",
+        "pushCooldownHint": "传信冷却中，还需等待 {time}",
         "msgRange": {
           "all": "全部群消息",
           "only_mention": "仅 @ 机器人",
@@ -1432,7 +1855,7 @@
         },
         "groupFallback": "群"
       },
-      "noAccess": "机器人模块仅对有效赞助订阅用户开放（5 / 10 / 50 / 100 档位）。订阅到期后将暂停管理，已保存的群配置与推送设置会保留，续费后自动恢复。",
+      "noAccess": "机器人船舱只对有效赞助订阅开放（5 / 10 / 50 / 100 档位）。订阅到期后暂停管理，但群配置与推送设置会替你妥善保管，续费即可复工。",
       "display": {
         "qq": "QQ号",
         "appid": "AppID"
@@ -1771,6 +2194,10 @@
       "worldEvent": "世界事件",
       "bluePrint": "蓝图",
       "requiredRank": "最低使用等级",
+      "collected": "已取得",
+      "collectedOn": "已标记为已取得",
+      "collectedOff": "已取消已取得标记",
+      "collectedFailed": "操作失败，请稍后重试",
       "gearScore": "分数",
       "rarity": "稀有度",
       "dateAdded": "添加日期",
@@ -2245,6 +2672,11 @@
       "title": "当前可用掉宝",
       "subtitle": "Twitch Drops 限时掉宝活动与奖励",
       "noDrops": "当前暂无正在生效的掉宝活动"
+    },
+    "connoisseur": {
+      "title": "鉴赏家周报",
+      "subtitle": "本周走私犯物品与鉴赏家点评",
+      "noReport": "本周暂无鉴赏家周报"
     }
   },
   "map": {
@@ -2698,6 +3130,10 @@
     "deleteBtn": "删除",
     "deleteSuccess": "取消发布成功",
     "expiresLabel": "剩余喇叭时间",
+    "source": {
+      "web": "网页端",
+      "bot": "QQ机器人 {name}"
+    },
     "hornValidTimeTooltip": "该喇叭有效显示时间",
     "expired": "已到期",
     "copyPlayerBtn": "复制",
@@ -3866,6 +4302,7 @@
       "security": "安全",
       "orders": "订单",
       "subscriptions": "赞助订阅",
+      "signin": "签到",
       "switchLanguage": "切换语言",
       "logout": "注销账户"
     },
@@ -4438,7 +4875,11 @@
     "authFailed": "第三方授权启动失败",
     "urlError": "获取授权链接失败",
     "unknownError": "授权处理失败",
-    "waitHint": "正在与第三方平台确认授权信息，请勿关闭窗口..."
+    "waitHint": "正在与第三方平台确认授权信息，请勿关闭窗口...",
+    "ticketExpired": "授权凭证已失效，请重新发起第三方授权。",
+    "restartAuth": "重新授权",
+    "platformNickname": "平台昵称",
+    "accountIdHint": "账户 ID 由你自行填写，用于后续登录，不是第三方平台的昵称"
   },
   "common": {
     "cancel": "取消",
@@ -4459,11 +4900,13 @@
   "quota": {
     "trigger": "额度",
     "title": "额度限制",
+    "refresh": "刷新额度",
     "description": "因服务资源所限，对发布资源明确额度限制，以减少开支，如果你认为额度不够，可以通过网站联系方式，来免费提高升级",
     "loading": "额度加载中…",
     "unlimited": "不限",
     "monthly": "本月",
     "yearly": "本年",
+    "quarterly": "本季度",
     "used": "已用 {used}/{limit}",
     "identityUnlimited": "你的身份不受额度限制",
     "boost": "赞助加成 ×{multiplier}",
@@ -4472,7 +4915,8 @@
       "comment": "评论",
       "teamup": "组队",
       "map": "地图",
-      "media": "媒体库"
+      "media": "媒体库",
+      "alias": "别名修改"
     },
     "media": {
       "files": "文件数量",

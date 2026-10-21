@@ -24,6 +24,13 @@ import Loading from "@/components/Loading.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import DropWidget from "@/components/DropWidget.vue";
+import SmugglersReportShowItemWidget from "@/components/SmugglersReportShowItemWidget.vue";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
+import AccountCardWidget from "@/components/AccountCardWidget.vue";
+import UserAvatar from "@/components/UserAvatar.vue";
+import Textarea from "@/components/textarea/index.vue";
+import TimeView from "@/components/TimeView.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
 const props = withDefaults(
     defineProps<{
@@ -32,12 +39,14 @@ const props = withDefaults(
       showCalendarLink?: boolean;
       showWarLink?: boolean;
       showDrop?: boolean;
+      showConnoisseur?: boolean;
     }>(),
     {
       isWidget: false,
       showCalendarLink: true,
       showWarLink: true,
       showDrop: true,
+      showConnoisseur: true,
     }
 );
 
@@ -151,6 +160,11 @@ const upcomingEvents = computed<DailyCalendarEventItem[]>(() => {
 // 掉宝活动数据
 const dropLoading = ref<boolean>(false);
 const activeCampaigns = ref<any[]>([]);
+
+// 鉴赏家周报数据
+const connoisseurLoading = ref<boolean>(false);
+const connoisseurReport = ref<any>({});
+const connoisseurComments = ref<any[]>([]);
 
 watch(
     () => props.seasonId,
@@ -480,6 +494,33 @@ const fetchDropData = async () => {
 };
 
 /**
+ * 获取本周鉴赏家周报与评论
+ */
+const fetchConnoisseurData = async () => {
+  if (!props.showConnoisseur) return;
+  try {
+    connoisseurLoading.value = true;
+    const res = await apis.smugglersApi().getRangeTimeReport();
+    const d = res?.data;
+    const report = d?.data ? (Array.isArray(d.data) ? d.data[0] : d.data) : null;
+
+    connoisseurReport.value = report || {};
+    connoisseurComments.value = [];
+
+    if (report?.id) {
+      const commentRes = await apis.smugglersApi().getReportComments(report.id);
+      connoisseurComments.value = commentRes?.data?.data?.data || [];
+    }
+  } catch (err) {
+    console.error("Failed to load connoisseur report for daily report:", err);
+    connoisseurReport.value = {};
+    connoisseurComments.value = [];
+  } finally {
+    connoisseurLoading.value = false;
+  }
+};
+
+/**
  * 刷新全部数据
  */
 const refreshAll = async () => {
@@ -487,6 +528,7 @@ const refreshAll = async () => {
     warStore.getStateOfWarData(targetSeasonId.value),
     fetchCalendarData(),
     fetchDropData(),
+    fetchConnoisseurData(),
   ]);
   hasInitialLoaded.value = true;
 };
@@ -799,6 +841,89 @@ const refreshAll = async () => {
               <!-- 活动列表 E -->
             </AffixBoxHasTitleView>
           </v-col>
+
+          <!-- 鉴赏家 S -->
+          <v-col cols="12" lg="6" v-if="showConnoisseur" class="mt-10">
+            <AffixBoxHasTitleView class="section-card h-100" disabled-title>
+              <template v-slot:title>
+                {{ t("dailyReport.connoisseur.title") }}
+              </template>
+
+              <!-- 加载中状态 -->
+              <div v-if="connoisseurLoading" class="py-8 text-center">
+                <Loading size="36"></Loading>
+              </div>
+
+              <!-- 空状态 -->
+              <div
+                  v-else-if="!connoisseurReport.id"
+                  class="py-8 text-center text-medium-emphasis">
+                <v-icon icon="mdi-book-search-outline" size="40" class="mb-2 opacity-30"></v-icon>
+                <p class="text-caption mb-0">{{ t("dailyReport.connoisseur.noReport") }}</p>
+              </div>
+
+              <!-- 周报与评论 S -->
+              <template v-else>
+                <div class="mb-4">
+                  <p class="text-subtitle-1 font-weight-bold text-amber-lighten-3 mb-1">
+                    {{ connoisseurReport.title || t("smugglersReport.title") }}
+                  </p>
+                  <p class="text-caption text-medium-emphasis mb-0">
+                    {{ t("smugglersReport.view.startTime") }}:
+                    <TimeView :time="connoisseurReport.startTime"></TimeView>
+                    ~
+                    {{ t("smugglersReport.view.endTime") }}:
+                    <TimeView :time="connoisseurReport.endTime"></TimeView>
+                  </p>
+                </div>
+
+                <SmugglersReportShowItemWidget
+                    :data="connoisseurReport.content"></SmugglersReportShowItemWidget>
+
+                <v-divider class="my-5"></v-divider>
+
+                <p class="text-h6 text-amber mb-1">{{ t("smugglersReport.view.connoisseurs") }}</p>
+                <p class="opacity-60 text-caption mb-3">{{ t("smugglersReport.view.connoisseursDesc") }}</p>
+
+                <HorizontalScrollList :is-indicator="false" v-if="connoisseurComments.length > 0">
+                  <v-card
+                      v-for="(comment, index) in connoisseurComments"
+                      :key="index"
+                      tile
+                      variant="text">
+                    <v-card variant="text" width="360px" min-height="140px">
+                      <v-row no-gutters>
+                        <v-col cols="auto">
+                          <AccountCardWidget :id="comment.userId">
+                            <ItemSlotBase size="50px">
+                              <UserAvatar :src="comment.avatar || comment.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
+                            </ItemSlotBase>
+                          </AccountCardWidget>
+                        </v-col>
+                        <v-col>
+                          <AccountCardWidget :id="comment.userId">
+                            <b class="u">{{ comment.username }}</b>
+                          </AccountCardWidget>
+
+                          <div class="opacity-60">
+                            <TimeView :time="comment.createdTime"></TimeView>
+                          </div>
+
+                          <Textarea
+                              readonly
+                              class="opacity-60 mt-2"
+                              :value="comment.content" v-if="comment.content" min-height="30"></Textarea>
+                        </v-col>
+                      </v-row>
+                    </v-card>
+                  </v-card>
+                </HorizontalScrollList>
+                <EmptyView v-else></EmptyView>
+              </template>
+              <!-- 周报与评论 E -->
+            </AffixBoxHasTitleView>
+          </v-col>
+          <!-- 鉴赏家 E -->
 
           <!-- 当前可用掉宝 S -->
           <v-col cols="12" v-if="showDrop" class="mt-10">

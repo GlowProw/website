@@ -124,6 +124,11 @@ const userSpaceRoute = computed(() => {
               </template>
             </v-list-item>
 
+            <v-list-item :to="{ name: 'AccountCheckin' }"
+                         prepend-icon="mdi-calendar-check-outline" rounded="lg">
+              <v-list-item-title>{{ t('header.accountMenu.signin') }}</v-list-item-title>
+            </v-list-item>
+
             <v-list-item :to="{ path: '/account/orders' }"
                          prepend-icon="mdi-receipt-text-outline" rounded="lg">
               <v-list-item-title>{{ t('header.accountMenu.orders') }}</v-list-item-title>

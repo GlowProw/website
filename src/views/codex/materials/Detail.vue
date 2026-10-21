@@ -26,6 +26,7 @@ import ItemNameRarity from "@/components/snbWidget/itemNameRarity.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
 
@@ -195,6 +196,7 @@ const onAddCalculator = () => {
                 <v-icon icon="mdi-chart-box-outline"></v-icon>
               </v-btn>
 
+              <CollectionToggle target-type="material" :target-id="materialDetailData.id"></CollectionToggle>
               <ShareWidget type="material" :target-id="materialDetailData.id"/>
             </div>
           </v-col>

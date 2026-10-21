@@ -13,6 +13,7 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
@@ -169,6 +170,7 @@ const onUltimateHistory = (id: string) => {
                 </template>
               </LikeWidget>
             </v-btn>
+            <CollectionToggle target-type="ultimate" :target-id="ultimateDetailData.id"></CollectionToggle>
             <ShareWidget type="ultimate" :target-id="ultimateDetailData.id" />
           </v-col>
         </v-row>

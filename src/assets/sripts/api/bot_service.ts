@@ -4,15 +4,16 @@ import {createApiBase} from "@/assets/sripts/api/api-util";
 import type {
     BotAccountOverview,
     BotAccountStatus,
-    BotCommandInfo,
-    BotCommandResult,
+    BotBlocklistItem,
     BotGroupDetail,
     BotGroupItem,
     BotGroupMembers,
+    BotGroupMuteState,
     BotGroupQuota,
     BotGroupSettings,
     BotGroupSignIn,
     BotInstanceOption,
+    BotJoinRequest,
     BotPlatformOption,
     BotPushTargetPlatform
 } from "@/assets/types/Bot";
@@ -80,9 +81,9 @@ export function useBotApi() {
 
     /**
      * 生成群绑定验证码
-     * @param data 机器人、群号与管理口令
+     * @param data 机器人与群号
      */
-    const createBindCode = async (data: { botId: number; groupNumber: string; password: string }) => {
+    const createBindCode = async (data: { botId: number; groupNumber: string }) => {
         try {
             const result = await http.post('bot-account/groups/bind-code', {data});
             return handleResponse(result) as unknown as { data: { data: { code: string; ttlMinutes: number; instruction: string; botJoined?: boolean } } };
@@ -114,6 +115,114 @@ export function useBotApi() {
     const deleteGroup = async (id: number) => {
         try {
             const result = await http.del(`bot-account/groups/${id}`);
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 查询群黑名单
+     * @param id 群记录ID
+     */
+    const getGroupBlocklist = async (id: number) => {
+        try {
+            const result = await http.get(`bot-account/groups/${id}/blocklist`);
+            return handleResponse(result) as unknown as { data: { data: { items: BotBlocklistItem[] } } };
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 添加群黑名单成员
+     * @param id 群记录ID
+     * @param data 成员 OpenID 与昵称
+     */
+    const addGroupBlocklist = async (id: number, data: { memberOpenid: string; memberName?: string }) => {
+        try {
+            const result = await http.post(`bot-account/groups/${id}/blocklist`, { data });
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 移除群黑名单成员
+     * @param id 群记录ID
+     * @param memberOpenid 成员 OpenID
+     */
+    const removeGroupBlocklist = async (id: number, memberOpenid: string) => {
+        try {
+            const result = await http.del(`bot-account/groups/${id}/blocklist/${encodeURIComponent(memberOpenid)}`);
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 入群申请列表
+     * @param id 群记录ID
+     * @param cursor 分页游标
+     */
+    const getGroupJoinRequests = async (id: number, cursor: string = "") => {
+        try {
+            const result = await http.get(`bot-account/groups/${id}/join-requests`, {params: {cursor}});
+            return handleResponse(result) as unknown as { data: { data: { items: BotJoinRequest[]; nextCursor: string } } };
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 审批入群申请
+     * @param id 群记录ID
+     * @param memberOpenid 申请人 OpenID
+     * @param data 审批动作
+     */
+    const approveGroupJoinRequest = async (
+        id: number,
+        memberOpenid: string,
+        data: {action: 'approve' | 'decline'; joinRequestId?: string; rejectReason?: string}
+    ) => {
+        try {
+            const result = await http.post(`bot-account/groups/${id}/join-requests/${encodeURIComponent(memberOpenid)}`, {data});
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 查询群禁言状态
+     * @param id 群记录ID
+     */
+    const getGroupMuteState = async (id: number) => {
+        try {
+            const result = await http.get(`bot-account/groups/${id}/mute`);
+            return handleResponse(result) as unknown as { data: { data: BotGroupMuteState } };
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 设置或解除群成员禁言
+     * @param id 群记录ID
+     * @param data 成员与禁言分钟数
+     */
+    const setGroupMemberMute = async (id: number, data: {memberOpenid: string; minutes: number}) => {
+        try {
+            const result = await http.post(`bot-account/groups/${id}/mute`, {data});
             return handleResponse(result);
         } catch (error) {
             if (error instanceof ApiError) throw error;
@@ -221,35 +330,6 @@ export function useBotApi() {
     };
 
     /**
-     * 查询机器人支持的指令目录
-     * @param id 群记录ID
-     */
-    const getGroupCommands = async (id: number) => {
-        try {
-            const result = await http.get(`bot-account/groups/${id}/commands`);
-            return handleResponse(result) as unknown as { data: { data: { items: BotCommandInfo[] } } };
-        } catch (error) {
-            if (error instanceof ApiError) throw error;
-            return handleError(error);
-        }
-    };
-
-    /**
-     * 让机器人在群里执行一条指令
-     * @param id 群记录ID
-     * @param command 指令文本
-     */
-    const executeGroupCommand = async (id: number, command: string) => {
-        try {
-            const result = await http.post(`bot-account/groups/${id}/command`, {data: {command}});
-            return handleResponse(result) as unknown as { data: { data: BotCommandResult } };
-        } catch (error) {
-            if (error instanceof ApiError) throw error;
-            return handleError(error);
-        }
-    };
-
-    /**
      * 查询组队同步可选平台与机器人
      */
     const getPushTargets = async () => {
@@ -271,14 +351,19 @@ export function useBotApi() {
         updateGroup,
         deleteGroup,
         getGroupDetail,
+        getGroupBlocklist,
+        addGroupBlocklist,
+        removeGroupBlocklist,
+        getGroupJoinRequests,
+        approveGroupJoinRequest,
+        getGroupMuteState,
+        setGroupMemberMute,
         getGroupQuota,
         getGroupSignIns,
         getOverview,
         refreshGroup,
         pushNow,
         getGroupMembers,
-        getGroupCommands,
-        executeGroupCommand,
         getPushTargets
     };
 }

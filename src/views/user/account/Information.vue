@@ -85,6 +85,8 @@ const getUserAccount = async () => {
     const profile = await authStore.fetchAccountProfile()
     if (profile) {
       userAccountData.value = profile;
+      userAccountData.value.attr.showDescription ??= true
+      userAccountData.value.attr.showAchievements ??= true
     }
   } catch (e) {
     handleApiError(e, notice, t, {component: 'Information'})
@@ -394,6 +396,38 @@ defineOptions({
                           v-model="userAccountData.attr.spaceEnabled"
                           inset color="amber"
                           :prepend-icon="userAccountData.attr.spaceEnabled ? 'mdi-eye-outline' : 'mdi-eye-off-outline'">
+                      </v-switch>
+                    </template>
+                  </v-list-item>
+
+                  <v-list-item link>
+                    <v-list-item-title class="text-caption font-weight-bold">
+                      {{ t('account.information.form.showDescription.name') }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      <p class="text-caption opacity-50">{{ t('account.information.form.showDescription.description') }}</p>
+                    </v-list-item-subtitle>
+                    <template v-slot:append>
+                      <v-switch
+                          v-model="userAccountData.attr.showDescription"
+                          inset color="amber"
+                          :prepend-icon="userAccountData.attr.showDescription ? 'mdi-text-box-outline' : 'mdi-text-box-remove-outline'">
+                      </v-switch>
+                    </template>
+                  </v-list-item>
+
+                  <v-list-item link>
+                    <v-list-item-title class="text-caption font-weight-bold">
+                      {{ t('account.information.form.showAchievements.name') }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle>
+                      <p class="text-caption opacity-50">{{ t('account.information.form.showAchievements.description') }}</p>
+                    </v-list-item-subtitle>
+                    <template v-slot:append>
+                      <v-switch
+                          v-model="userAccountData.attr.showAchievements"
+                          inset color="amber"
+                          :prepend-icon="userAccountData.attr.showAchievements ? 'mdi-trophy-outline' : 'mdi-trophy-broken'">
                       </v-switch>
                     </template>
                   </v-list-item>

@@ -1,7 +1,7 @@
 <template>
   <v-avatar
       icon="ios-person"
-      class="user-avatar"
+      class="user-avatar d-flex justify-center align-center bg-black"
       :shape="shape"
       :rounded="tile ? 0 : ''"
       :size="size"
@@ -13,7 +13,7 @@
          class="ivu-avatar-square"
          @load="imageStatus = 1"
          @error="loadImageError"/>
-    <v-icon class="opacity-60" v-show="imageStatus === 0">mdi-account</v-icon>
+    <v-icon :size="size / 2.4" class="opacity-60" v-show="imageStatus === 0">mdi-account</v-icon>
   </v-avatar>
 </template>
 
@@ -85,4 +85,6 @@ export default {
 </script>
 
 <style scoped lang="less">
+.user-avatar {
+}
 </style>

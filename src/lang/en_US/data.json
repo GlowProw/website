@@ -212,7 +212,8 @@
       "quota": {
         "exceeded": {
           "monthly": "Your monthly publishing quota has been used up. It resets on the 1st of next month. If you need more, contact us via the website for a free increase.",
-          "yearly": "Your yearly publishing quota has been used up. It resets on January 1st. If you need more, contact us via the website for a free increase."
+          "yearly": "Your yearly publishing quota has been used up. It resets on January 1st. If you need more, contact us via the website for a free increase.",
+          "quarterly": "Your quarterly alias change quota has been used up. It resets on the first day of next quarter. Any active subscription grants 10 extra changes."
         }
       },
       "error": "Application Error: {content}",
@@ -484,6 +485,10 @@
         "notConfigured": "System quota exceeded, please contact the administrator.",
         "actionLocked": "Operation is locked, please try again tomorrow."
       },
+      "oauth": {
+        "alreadyBound": "This third-party account is already linked to another site account.",
+        "alreadyBoundToOther": "This third-party account is already linked to another site account. Please sign in with the third party directly."
+      },
       "activate": {
         "ok": "Account activated successfully, please log in.",
         "invalidCode": "Activation code is invalid or has expired.",
@@ -643,6 +648,10 @@
         "error": "Operation failed: {context}"
       },
       "bot": {
+        "groupOccupied": "This group is already bound to another account",
+        "blocklist": {
+          "full": "This group has reached the 400-member blocklist limit"
+        },
         "account": {
           "pushNow": {
             "failed": "Push failed. Check whether the bot service is online and proactive push is allowed in the group",
@@ -910,6 +919,7 @@
         "comment": "Comments/Replies",
         "unread": "DM Unread",
         "assembly": "Total Assemblies",
+        "collected": "Items Obtained",
         "conversations": "Active Conversations",
         "last30": "Last 30 days"
       },
@@ -928,6 +938,347 @@
         "visitorCount": "Visitors",
         "noVisitors": "No visitors yet",
         "noData": "No data yet"
+      }
+    },
+    "collectionStats": {
+      "title": "Collection Stats",
+      "empty": {
+        "title": "No collected entries yet. Mark entries in the codex to see your statistics."
+      },
+      "overview": {
+        "title": "Collection Overview",
+        "collected": "Collected",
+        "catalog": "Total Entries",
+        "completion": "Completion",
+        "lastCollected": "Last Collected"
+      },
+      "trend": {
+        "title": "Collection Trend",
+        "range": "Range",
+        "range12": "12 weeks",
+        "range26": "26 weeks",
+        "range52": "52 weeks",
+        "added": "Added per week",
+        "addedUnit": "items",
+        "addedMax": "Peak week",
+        "cumulative": "Cumulative collected",
+        "totalUnit": "items",
+        "noData": "No additions in the selected range"
+      },
+      "types": {
+        "title": "By Codex"
+      },
+      "kinds": {
+        "item": "Items",
+        "ship": "Ships",
+        "material": "Materials",
+        "cosmetic": "Cosmetics",
+        "commoditie": "Commodities",
+        "empireSkill": "Empire Skills",
+        "mapLocation": "Map Locations",
+        "mastery": "Masteries",
+        "mod": "Mods",
+        "npc": "NPCs",
+        "set": "Sets",
+        "treasureMap": "Treasure Maps",
+        "ultimate": "Ultimates"
+      },
+      "seasons": {
+        "title": "By Season",
+        "items": "{count} items",
+        "unknown": "Unknown season"
+      }
+    },
+    "achievements": {
+      "title": "Achievements",
+      "levelBadge": "Level {level}",
+      "points": "{points} pts",
+      "nextLevel": "Next level · {level}",
+      "remaining": "{points} pts to go",
+      "maxLevel": "Maximum level reached",
+      "pointUnit": "pts",
+      "claim": "Claim",
+      "times": "Earned {times}×",
+      "obtainedAt": "Obtained {time}",
+      "lockedTip": "Requirements not met",
+      "claimSuccess": "Achievement claimed, points added",
+      "claimFailed": "Claim failed, please try again",
+      "loadFailed": "Failed to load achievements",
+      "widget": {
+        "hidden": "Achievements are not public",
+        "obtained": "{count} achievements obtained",
+        "empty": "No achievements yet"
+      },
+      "categories": {
+        "assembly": "Loadouts",
+        "mastery": "Mastery",
+        "signin": "Check-in",
+        "teamup": "Team-up",
+        "subscription": "Sponsorship"
+      },
+      "status": {
+        "locked": "Locked",
+        "claimable": "Claimable",
+        "obtained": "Obtained"
+      },
+      "requirement": {
+        "assembly": "Publish {count} loadout(s) in total",
+        "mastery": "Publish {count} mastery build(s) in total",
+        "teamup": "Publish {count} team-up(s) in total",
+        "level": "Reach account level {level}",
+        "subscription": "Sponsor at the {tier} tier"
+      },
+      "levels": {
+        "outcast": {
+          "name": "Outcast",
+          "desc": "New to these waters, your name means nothing yet."
+        },
+        "scoundrel": {
+          "name": "Scoundrel",
+          "desc": "You start making trouble around the docks, and word spreads."
+        },
+        "rover": {
+          "name": "Rover",
+          "desc": "Your footprints span the isles, never staying long in one place."
+        },
+        "freebooter": {
+          "name": "Freebooter",
+          "desc": "Bound to no flag, you fight only for yourself."
+        },
+        "buccaneer": {
+          "name": "Buccaneer",
+          "desc": "Bold enough to trade shots with the royal fleet."
+        },
+        "brigand": {
+          "name": "Brigand",
+          "desc": "Business on land and at sea comes naturally to you."
+        },
+        "marauder": {
+          "name": "Marauder",
+          "desc": "You leave nothing behind but wreckage and legend."
+        },
+        "corsair": {
+          "name": "Corsair",
+          "desc": "Flying a lawful flag while running the most unlawful trade."
+        },
+        "cutthroat": {
+          "name": "Cutthroat",
+          "desc": "Your name is enough to silence an entire sea."
+        },
+        "kingpin": {
+          "name": "Kingpin",
+          "desc": "At the top of the pirate world, you are the rule itself."
+        },
+        "kingpin_copper_100": {
+          "name": "Kingpin Copper 100",
+          "desc": "Cross the first hundred Kingpin levels and claim the first Copper milestone badge."
+        },
+        "kingpin_copper_200": {
+          "name": "Kingpin Copper 200",
+          "desc": "Keep expanding your smuggling network and influence as your infamy reaches new heights."
+        },
+        "kingpin_copper_300": {
+          "name": "Kingpin Copper 300",
+          "desc": "Secure your grip on the high seas and witness the rise of a mid-Copper pirate empire."
+        },
+        "kingpin_copper_400": {
+          "name": "Kingpin Copper 400",
+          "desc": "Raid and trade across the far islands, extending your reach to every corner of the sea."
+        },
+        "kingpin_copper_500": {
+          "name": "Kingpin Copper 500",
+          "desc": "Reach the pinnacle of the Copper badge and prepare to ascend to Silver."
+        },
+        "kingpin_silver_600": {
+          "name": "Kingpin Silver 600",
+          "desc": "Ascend to Silver — a symbol of your command over the Indian Ocean's core routes."
+        },
+        "kingpin_silver_700": {
+          "name": "Kingpin Silver 700",
+          "desc": "Your grand fleet sweeps the open sea, earning fear and respect from every faction."
+        },
+        "kingpin_silver_800": {
+          "name": "Kingpin Silver 800",
+          "desc": "Command vast silver wealth and smuggling strongholds across multiple trade chains."
+        },
+        "kingpin_silver_900": {
+          "name": "Kingpin Silver 900",
+          "desc": "The peak of Silver, with your name echoing across the Indian Ocean and outer isles."
+        },
+        "kingpin_silver_1000": {
+          "name": "Kingpin Silver 1000",
+          "desc": "Reach the thousand-level milestone, unlock the Silver apex, and march toward Gold."
+        },
+        "kingpin_gold_1100": {
+          "name": "Kingpin Gold 1100",
+          "desc": "Ascend to Gold — an undisputed legendary overlord of the open sea."
+        },
+        "kingpin_gold_1200": {
+          "name": "Kingpin Gold 1200",
+          "desc": "The height of glory and wealth, a mark of unmatched renown."
+        },
+        "kingpin_gold_1300": {
+          "name": "Kingpin Gold 1300",
+          "desc": "A high-tier Gold pirate magnate whose name makes fleets and fortresses tremble."
+        },
+        "kingpin_gold_1400": {
+          "name": "Kingpin Gold 1400",
+          "desc": "The ultimate infamy is within reach, with absolute dominion over every sea lane."
+        },
+        "kingpin_gold_1500": {
+          "name": "Kingpin Gold 1500",
+          "desc": "Reach the current 1500-level apex and earn the Gold apex badge."
+        }
+      },
+      "items": {
+        "assembly_publish_1": {
+          "name": "First Voyage",
+          "desc": "Publish your first loadout and set sail for real."
+        },
+        "assembly_publish_10": {
+          "name": "Rising Reputation",
+          "desc": "10 loadouts published — more captains are starting to use your builds."
+        },
+        "assembly_publish_50": {
+          "name": "Far-Reaching Fame",
+          "desc": "50 loadouts published — the dockside taverns talk about your work."
+        },
+        "assembly_publish_100": {
+          "name": "Legendary Shipwright",
+          "desc": "100 loadouts published — your name is written into the pirates' logbooks."
+        },
+        "mastery_publish_1": {
+          "name": "First Edge",
+          "desc": "Publish your first mastery build and show your grasp of combat detail."
+        },
+        "mastery_publish_10": {
+          "name": "Tactical Innovation",
+          "desc": "10 mastery builds published — a reliable source of tactics for your crew."
+        },
+        "mastery_publish_50": {
+          "name": "School Master",
+          "desc": "50 mastery builds published — your approach has become a school of its own."
+        },
+        "mastery_publish_100": {
+          "name": "Artist of War",
+          "desc": "100 mastery builds published — each one a footnote in the art of naval war."
+        },
+        "teamup_publish_1": {
+          "name": "Shipmates",
+          "desc": "Publish your first team-up and sail out with your crew."
+        },
+        "subscription_tier_100": {
+          "name": "Golden Patron",
+          "desc": "Sponsor Glow Prow at the highest tier and give the site real momentum."
+        },
+        "subscription_tier_50": {
+          "name": "Silver Patron",
+          "desc": "Sponsor at the ¥50 tier and keep the servers and routes running smoothly."
+        },
+        "subscription_tier_10": {
+          "name": "Bronze Patron",
+          "desc": "Sponsor at the ¥10 tier and lend a hand with everyday maintenance."
+        },
+        "subscription_tier_5": {
+          "name": "Voyage Supporter",
+          "desc": "Sponsor at the ¥5 tier — every bit of support keeps the voyage going."
+        },
+        "signin_level_2": {
+          "name": "First Notoriety",
+          "desc": "Earn enough check-in points to reach account level 2."
+        },
+        "signin_level_3": {
+          "name": "Wanderer's Name",
+          "desc": "Earn enough check-in points to reach account level 3."
+        },
+        "signin_level_4": {
+          "name": "Sails of Freedom",
+          "desc": "Earn enough check-in points to reach account level 4."
+        },
+        "signin_level_5": {
+          "name": "Rogue's Mark",
+          "desc": "Earn enough check-in points to reach account level 5."
+        },
+        "signin_level_6": {
+          "name": "Shadow of the Wood",
+          "desc": "Earn enough check-in points to reach account level 6."
+        },
+        "signin_level_7": {
+          "name": "Path of Plunder",
+          "desc": "Earn enough check-in points to reach account level 7."
+        },
+        "signin_level_8": {
+          "name": "Privateer's Flag",
+          "desc": "Earn enough check-in points to reach account level 8."
+        },
+        "signin_level_9": {
+          "name": "Cutthroat's Blade",
+          "desc": "Earn enough check-in points to reach account level 9."
+        },
+        "signin_level_10": {
+          "name": "Crown of the Kingpin",
+          "desc": "Earn enough check-in points to reach account level 10."
+        }
+      }
+    },
+    "signin": {
+      "title": "Daily Check-in",
+      "subtitle": "You have checked in {streak} day(s) in a row. Keep the streak going for more points.",
+      "streakChip": "{days}-day streak",
+      "pointsChip": "{points} account points",
+      "makeupChip": "{count} makeups left",
+      "sign": "Check in",
+      "signed": "Checked in today",
+      "makeupFree": "Free makeups / month",
+      "contributorBonus": "Contributor bonus",
+      "streakBonus": "Streak reward",
+      "makeupUsed": "Makeups used this month",
+      "calendarTip": "Click an unsigned date this month to use a makeup; every 7-day streak grants 1 extra makeup.",
+      "legend": {
+        "normal": "Checked in",
+        "makeup": "Makeup",
+        "unsign": "Not checked in"
+      },
+      "weekdays": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      },
+      "platform": {
+        "web": "Website",
+        "qq": "QQ Bot"
+      },
+      "type": {
+        "normal": "Check-in",
+        "makeup": "Makeup"
+      },
+      "records": {
+        "title": "Check-in History",
+        "date": "Date",
+        "platform": "Platform",
+        "type": "Type",
+        "points": "Points",
+        "streak": "Streak",
+        "empty": "No check-ins this month"
+      },
+      "message": {
+        "success": "Checked in! +{points} points, {streak}-day streak",
+        "bonusMakeup": "7-day streak reached: 1 extra makeup granted",
+        "makeupSuccess": "Makeup check-in saved for {date}",
+        "already": "You have already checked in today",
+        "invalidDate": "This date cannot be made up",
+        "notCurrentMonth": "Only dates in the current month can be made up",
+        "noQuota": "No makeup attempts left",
+        "failed": "Check-in failed, please try again"
+      },
+      "makeupDialog": {
+        "title": "Confirm Makeup Check-in",
+        "desc": "Make up {date}? This uses 1 makeup attempt, {count} left.",
+        "confirm": "Confirm"
       }
     },
     "selectAll": "Select All",
@@ -987,6 +1338,14 @@
         "spaceEnabled": {
           "name": "Public Profile Space",
           "description": "When disabled, other users cannot access your profile space"
+        },
+        "showDescription": {
+          "name": "Show Personal Description",
+          "description": "When disabled, other users will not see your introduction"
+        },
+        "showAchievements": {
+          "name": "Show Achievement List",
+          "description": "When disabled, other users will not see your level and achievements"
         },
         "dmEnabled": {
           "name": "Allow Direct Messages",
@@ -1287,67 +1646,101 @@
       "title": "Bot",
       "guide": {
         "title": "Bot Guide",
-        "subtitle": "Connect the Glow Prow bot to your groups",
-        "intro": "The Glow Prow bot brings daily reports, team-up, Twitch drops and sign-in features to your QQ group. Bind a group to manage push switches and settings here.",
-        "openBotDoc": "View bot documentation",
+        "subtitle": "Bring the Glow Prow aboard your fleet and let it keep watch over your waters",
+        "intro": "The Glow Prow is an old hand on deck — daily reports, crew calls, Twitch spoils and daily sign-ins, all watched on your behalf. Hand over your groups and set sail.",
+        "openBotDoc": "Read the captain's handbook",
         "step1Title": "Invite the bot",
-        "step1Desc": "Add the Glow Prow bot to your group and allow it to send proactive messages.",
+        "step1Desc": "Bring the Glow Prow aboard and let it send proactive messages — otherwise no word can reach you when the storm rises.",
         "step2Title": "Generate a bind code",
-        "step2Desc": "Fill in the group number and management password to generate a one-time bind code.",
+        "step2Desc": "Give the group number and claim a one-time binding code.",
         "step3Title": "Bind inside the group",
-        "step3Desc": "A group owner or admin sends /群组绑定 <code> in the group, then the group appears here.",
+        "step3Desc": "A group owner or admin speaks /群组绑定 <code> in the group. Handshake done — the group joins your route.",
         "bindTitle": "Bind a group",
-        "bindDesc": "The group number identifies the target group. The management password is stored only as a salted hash.",
+        "bindDesc": "The group number is your harbor mark; the code must be spoken aloud by the group owner or an admin before it counts.",
         "platform": "Platform",
         "bot": "Bot",
         "groupNumber": "Group number",
-        "password": "Management password",
-        "passwordHint": "At least 6 characters",
-        "managePasswordTitle": "About the management password",
-        "managePasswordDesc": "This password authenticates in-group management commands. The site never stores it in plain text; if you forget it, generate a new bind code to overwrite it.",
-        "generateCode": "Generate bind code",
-        "codeDialogTitle": "Group bind code",
-        "botJoined": "The bot has been detected in this group.",
-        "botNotJoined": "The bot has not been detected in this group. Invite it first; ignore this hint if it is already there.",
-        "usageTitle": "Usage notes",
-        "formInvalid": "Please provide the bot, group number and a password of at least 6 characters",
-        "codeCreated": "Bind code generated",
-        "codeHint": "The code is valid for {minutes} minutes.",
+        "generateCode": "Claim bind code",
+        "codeDialogTitle": "Group binding code",
+        "botJoined": "The lookout has spotted the bot's sails — it is already aboard this group.",
+        "botNotJoined": "No sign of that bot in these waters. Invite it first; ignore this if it is already aboard.",
+        "usageTitle": "Sailing notes",
+        "formInvalid": "Please provide the bot and group number",
+        "codeCreated": "The code is sealed",
+        "codeHint": "Valid for {minutes} minutes — the tide turns and it is gone. Speak it in the group soon.",
         "copyCommand": "Copy command",
-        "codeUsage": "Ask a group owner or admin to send the command above in the target group. The bot resolves the group OpenID to complete binding.",
+        "codeUsage": "Have a group owner or admin speak the command above in the target group; the bot reads the group OpenID to confirm your colors.",
         "checkBound": "I have bound it",
-        "bound": "Bound successfully, opening management",
-        "notYet": "No binding detected yet. Please confirm the command was sent in the group."
+        "bound": "Bound. Opening the captain's quarters for you",
+        "notYet": "No word back yet. Confirm the command went through in the group."
       },
       "overview": {
-        "title": "Overview",
+        "title": "Captain's Quarters",
         "groups": "Bound groups",
         "groupsUnit": "",
         "subscribedGroups": "Subscribed to team-up push",
         "sent": "Push succeeded",
         "failed": "Push failed",
         "timesUnit": "",
+        "errorCount": "Errors",
+        "errorDays": "Last 30 days",
+        "errorLogTitle": "Error log",
+        "errorLogDesc": "Recent push and command errors for the selected group, with bot runtime details filtered out",
+        "errorLogEmpty": "No errors. Calm waters",
+        "errorType": {
+          "push": "Push",
+          "command": "Command",
+          "group": "Group"
+        },
         "quotaTitle": "Daily push quota",
         "quotaDesc": "Used {used} / {limit}",
+        "quotaTotal": "All groups used {used} / {limit} today",
         "tier": "Current tier: {tier}",
         "tierNone": "Not subscribed",
-        "toManage": "Manage groups",
-        "toGuide": "Add a group",
+        "toManage": "Enter ship's business",
+        "toGuide": "Muster a new fleet",
         "toTeamup": "Open team-up board",
-        "guideBtn": "Bot guide"
+        "guideBtn": "Bot guide",
+        "monthSignin": "Sign-ins this month",
+        "groupFilter": "View group",
+        "signinTrend": "This month's sign-in tides",
+        "signinTrendDesc": "Daily sign-ins for the selected group in {month}",
+        "signinTop": "Sign-in heroes",
+        "signinTopDesc": "The ten sailors with the most days on deck in this group this month",
+        "topUser": "Sailor",
+        "topGroup": "Group",
+        "topDays": "Days",
+        "messageTrend": "Message tides",
+        "messageTrendDesc": "Message swell for this group over the last 30 days, gathered nightly by the bot",
+        "messageTypes": "Message types",
+        "messageTotal": "{total} in all",
+        "messageType": {
+          "text": "Text",
+          "image": "Image",
+          "video": "Video",
+          "forward": "Forward",
+          "card": "Card",
+          "other": "Other"
+        },
+        "messageEmpty": "The sea is calm. Once the bot gathers the night's logs, the tides of messages will surface here",
+        "commands": "Command compass",
+        "commandsDesc": "Commands sent to the bot in this group over the last 30 days",
+        "fullModeTitle": "Open the full-message watch",
+        "fullModeDesc": "These groups are not in full message mode, so half the sea is missing: {groups}. Ask a group owner to let the bot receive all messages in QQ group settings.",
+        "noData": "No log entries yet"
       },
       "manage": {
         "title": "Group Management",
-        "subtitle": "Manage push settings and basic info for groups with the bot",
+        "subtitle": "Tend every ship on your ledger: pushes, sign-ins and crew business, all on one chart",
         "addGroup": "Add group",
-        "empty": "No bound groups yet. Follow the guide to bind one.",
+        "empty": "The fleet hasn't docked yet — bind your first group with the guide.",
         "groupNumber": "Group number",
-        "pushOn": "Push enabled",
-        "pushOff": "Push disabled",
+        "pushOn": "Signals clear",
+        "pushOff": "Signals down",
         "settings": "Settings",
         "remove": "Unbind",
-        "deleteConfirm": "Unbind group \"{name}\"? The bot will stop receiving its settings.",
-        "panelTitle": "Group settings · {name}",
+        "deleteConfirm": "Cut \"{name}\" loose from the fleet? The bot will stop tending this group's settings.",
+        "panelTitle": "Ship's panel · {name}",
         "columns": {
           "group": "Group",
           "platform": "Platform",
@@ -1358,9 +1751,51 @@
         "tabs": {
           "base": "Basic",
           "push": "Push",
-          "commands": "Commands",
           "quota": "Quota",
-          "signin": "Sign-in"
+          "signin": "Sign-in",
+          "management": "Management"
+        },
+        "management": {
+          "blacklistTitle": "Blocklist",
+          "blacklistDesc": "A sailor on the blocklist gets no answer, no matter how loud the call. Up to 400 per group.",
+          "memberOpenid": "Member OpenID",
+          "memberName": "Member name",
+          "memberSearch": "Search a member name, or paste an OpenID",
+          "memberEmpty": "No matching members",
+          "memberUnavailable": "The bot cannot read members, paste an OpenID instead",
+          "add": "Add",
+          "remove": "Remove",
+          "added": "Added to blocklist",
+          "removed": "Removed from blocklist",
+          "addedAt": "Added at",
+          "empty": "Blocklist is empty",
+          "join": {
+            "title": "Join requests",
+            "desc": "While the bot holds the helm, approve or turn away boarding requests here",
+            "member": "Applicant",
+            "verify": "Verification",
+            "appliedAt": "Applied at",
+            "approve": "Approve",
+            "decline": "Decline",
+            "approved": "Request approved",
+            "declined": "Request declined",
+            "empty": "No pending requests"
+          },
+          "mute": {
+            "title": "Group mute",
+            "desc": "Current all-member mute mode: {mode}",
+            "minutes": "Mute minutes (0 to unmute)",
+            "apply": "Apply mute",
+            "unmute": "Unmute",
+            "expireAt": "Expires at",
+            "saved": "Mute state updated",
+            "empty": "No muted members",
+            "mode": {
+              "none": "Off",
+              "always": "Always",
+              "schedule": "Scheduled"
+            }
+          }
         },
         "info": {
           "name": "Group name",
@@ -1379,19 +1814,19 @@
           "tags": "Group tags",
           "noAvatar": "QQ Open Platform does not provide group avatars"
         },
-        "pushReadonlyHint": "Whether proactive push is available is controlled by QQ group settings. A group owner must allow bot messages inside QQ; this page is read-only.",
+        "pushSwitchHint": "Furl the sails and reports, crew calls and drop news all stop; saved orders take effect at once.",
         "activePush": "Proactive push",
-        "activePushDesc": "Synced from QQ group settings and bot events, cannot be enabled here",
+        "activePushDesc": "Decide whether the bot sends word to this group",
         "dailyReport": "Daily report push",
-        "dailyReportDesc": "Send the sailing daily report at the configured times",
+        "dailyReportDesc": "Deliver the sailing report to the deck at the times you set",
         "dailyTimes": "Push times",
-        "dailyTimesHint": "24-hour format, multiple values allowed, e.g. 09:00",
+        "dailyTimesHint": "24-hour clock; add several bells, e.g. 09:00",
         "teamupPush": "Team-up push",
-        "teamupPushDesc": "Receive team-ups published on the website with QQ sync enabled",
+        "teamupPushDesc": "Receive crew calls synced from the site to QQ",
         "dropPush": "Twitch drops push",
-        "dropPushDesc": "Notify this group about new Twitch drops",
+        "dropPushDesc": "Warn this group the moment new Twitch drops appear",
         "welcome": "Welcome message",
-        "welcomeDesc": "Send a welcome message when a member joins",
+        "welcomeDesc": "The bot greets every new sailor stepping aboard",
         "welcomeContent": "Welcome content",
         "quota": {
           "user": "Account quota today",
@@ -1402,29 +1837,15 @@
           "user": "User",
           "days": "Sign-ins this month",
           "last": "Last sign-in",
-          "monthHint": "Only sign-in records in the current calendar month are counted.",
-          "empty": "No sign-in records this month yet."
-        },
-        "commands": {
-          "title": "Bot commands",
-          "hint": "Commands are reported live by the bot. Sending \"/command help\" makes the bot post the help content to the group.",
-          "input": "Command",
-          "placeholder": "e.g. /admin help",
-          "send": "Send",
-          "use": "Use",
-          "sent": "Sent to the group",
-          "sendFailed": "Command ran but the message could not be sent to the group",
-          "notFound": "No matching command found. Check the command prefix.",
-          "helpOnly": "The panel only runs help commands. Send the full command inside the group.",
-          "empty": "No bot commands available."
+          "monthHint": "Counts only footprints left on deck in this calendar month.",
+          "empty": "No one has signed in on this deck this month."
         },
         "refresh": "Refresh",
         "refreshed": "Group info refreshed",
         "pushNow": "Push now",
         "pushTeamupList": "Push team-up list",
         "pushNowSuccess": "Push triggered",
-        "pushCooldownHint": "Proactive push cooling down, {time} left",
-        "pushUnknown": "Push status unavailable",
+        "pushCooldownHint": "Signals cooling down, {time} to go",
         "msgRange": {
           "all": "All group messages",
           "only_mention": "Only @-mentions",
@@ -1432,7 +1853,7 @@
         },
         "groupFallback": "Group"
       },
-      "noAccess": "The bot module is available to active sponsors only (tiers 5 / 10 / 50 / 100). Management pauses when the subscription expires, but saved group and push settings are kept and restored after renewal.",
+      "noAccess": "The bot's hold is open to active sponsors only (5 / 10 / 50 / 100 tiers). When a subscription lapses, management pauses, but your group and push settings stay safely stowed until you renew.",
       "display": {
         "qq": "QQ",
         "appid": "AppID"
@@ -1768,6 +2189,10 @@
       "worldEvent": "World Event",
       "bluePrint": "Blueprint",
       "requiredRank": "Minimum Required Rank",
+      "collected": "Obtained",
+      "collectedOn": "Marked as obtained",
+      "collectedOff": "Obtained mark removed",
+      "collectedFailed": "Operation failed, please try again",
       "gearScore": "Gear Score",
       "rarity": "Rarity",
       "dateAdded": "Date Added",
@@ -2249,6 +2674,11 @@
       "title": "Active Twitch Drops",
       "subtitle": "Limited-time Twitch Drops campaigns & rewards",
       "noDrops": "No active Twitch Drops campaigns at the moment"
+    },
+    "connoisseur": {
+      "title": "Connoisseur Weekly",
+      "subtitle": "This week's smuggler goods and connoisseur reviews",
+      "noReport": "No connoisseur report for this week"
     }
   },
   "map": {
@@ -2702,6 +3132,10 @@
     "deleteBtn": "Delete",
     "deleteSuccess": "Post cancelled successfully",
     "expiresLabel": "Remaining horn time",
+    "source": {
+      "web": "Web",
+      "bot": "QQ bot {name}"
+    },
     "hornValidTimeTooltip": "Horn valid display time",
     "expired": "Expired",
     "copyPlayerBtn": "Copy",
@@ -3862,6 +4296,7 @@
       "security": "Security",
       "orders": "Orders",
       "subscriptions": "Sponsorship & Subscriptions",
+      "signin": "Check in",
       "switchLanguage": "Language",
       "logout": "Log Out"
     },
@@ -4435,7 +4870,11 @@
     "authFailed": "Failed to initiate third-party authorization",
     "urlError": "Failed to retrieve authorization URL",
     "unknownError": "Authorization failed",
-    "waitHint": "Verifying your authorization with the third-party platform, please keep this window open..."
+    "waitHint": "Verifying your authorization with the third-party platform, please keep this window open...",
+    "ticketExpired": "OAuth ticket has expired. Please re-authorize.",
+    "restartAuth": "Re-authorize",
+    "platformNickname": "Platform nickname",
+    "accountIdHint": "The account ID is chosen by you and used for future sign-in. It is not the third-party nickname."
   },
   "common": {
     "cancel": "Cancel",
@@ -4456,11 +4895,13 @@
   "quota": {
     "trigger": "Quota",
     "title": "Quota Limits",
+    "refresh": "Refresh quota",
     "description": "Due to limited server resources, publishing quotas are enforced to reduce costs. If you find the quota insufficient, you can contact us via the website to request a free upgrade.",
     "loading": "Loading quota…",
     "unlimited": "Unlimited",
     "monthly": "This month",
     "yearly": "This year",
+    "quarterly": "This quarter",
     "used": "{used}/{limit} used",
     "identityUnlimited": "Your role is not subject to quotas",
     "boost": "Sponsor bonus ×{multiplier}",
@@ -4469,7 +4910,8 @@
       "comment": "Comments",
       "teamup": "Team-ups",
       "map": "Maps",
-      "media": "Media"
+      "media": "Media",
+      "alias": "Alias Changes"
     },
     "media": {
       "files": "Files Count",

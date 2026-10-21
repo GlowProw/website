@@ -31,6 +31,21 @@ const accountTabs = [
     icon: 'mdi-face-man-profile'
   },
   {
+    name: 'account.achievements.title',
+    value: 'AccountAchievements',
+    icon: 'mdi-trophy-outline'
+  },
+  {
+    name: 'account.collectionStats.title',
+    value: 'AccountCollectionStats',
+    icon: 'mdi-chart-donut'
+  },
+  {
+    name: 'account.signin.title',
+    value: 'AccountCheckin',
+    icon: 'mdi-calendar-check'
+  },
+  {
     name: 'account.media.title',
     value: 'AccountMedia',
     icon: 'mdi-image-multiple-outline'

@@ -12,6 +12,8 @@ import Silk from '@/components/Silk.vue';
 import HalfScreenBannerText from '@/components/HalfScreenBannerText.vue';
 import AffixContainerView from '@/components/AffixContainerView.vue';
 import Loading from '@/components/Loading.vue';
+import Captcha from '@/components/captcha/index.vue';
+import {CaptchaParams} from '@/assets/types/Captcha';
 
 const route = useRoute();
 const router = useRouter();
@@ -30,8 +32,15 @@ const oauthPlatformLabel = computed(() => {
 
 const loading = ref(true);
 const errorMsg = ref('');
+const ticketExpired = ref(false);
 const activeTab = ref<'signup' | 'bind'>('signup');
 const showPassword = ref(false);
+
+// 补充注册与绑定分别持有验证码，切换标签互不影响
+const signupCaptchaRef = ref<InstanceType<typeof Captcha> | null>(null);
+const bindCaptchaRef = ref<InstanceType<typeof Captcha> | null>(null);
+const signupCaptcha = ref<CaptchaParams>({encryptCaptcha: '', response: ''});
+const bindCaptcha = ref<CaptchaParams>({encryptCaptcha: '', response: ''});
 
 // 补充注册/绑定状态
 const needComplete = ref(false);
@@ -63,10 +72,81 @@ const bindForm = ref({
 
 const submitLoading = ref(false);
 
+// 当前第三方平台标识，ticket 失效时用于重新发起授权
+const oauthPlatform = ref('qq');
+
+/**
+ * 校验验证码是否已完成
+ * @param captcha 验证码数据
+ */
+const isCaptchaValid = (captcha: CaptchaParams): boolean => {
+  const type = captcha.captchaType || captcha.type || 'turnstile';
+  if (type === 'svg') {
+    return Boolean(captcha.encryptCaptcha && captcha.response && String(captcha.response).trim().length === 4);
+  }
+  return Boolean(captcha.response && String(captcha.response).trim().length > 5);
+};
+
+/**
+ * 解析后端错误码为本地化文案
+ * @param err 接口错误
+ */
+const errorText = (err: any): string => {
+  const code = err?.code as string | undefined;
+  if (code === 'oauth.ticket.expired') {
+    ticketExpired.value = true;
+    return t('oauth.ticketExpired');
+  }
+  const key = code ? `basic.tips.${code}` : '';
+  if (key && te(key)) return t(key);
+  return err?.message || t('oauth.unknownError');
+};
+
+/**
+ * 重新发起第三方授权，拿到新的 ticket
+ */
+const onRestartOAuth = async () => {
+  const platform = oauthPlatform.value;
+  try {
+    submitLoading.value = true;
+    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+    const backUrl = (route.query.backUrl as string) || '';
+    // 重新授权后仍回到原目标页，避免用户登录成功后丢失来源
+    const callbackTarget = `${currentOrigin}/oauth/callback?platform=${platform}${backUrl ? `&backUrl=${encodeURIComponent(backUrl)}` : ''}`;
+    const res = await apis.userApi().getOAuthUrl(platform, callbackTarget);
+    if (res?.data?.data?.url) {
+      window.location.href = res.data.data.url;
+      return;
+    }
+    notice.error(t('oauth.urlError'));
+  } catch (err: any) {
+    notice.error(errorText(err));
+  } finally {
+    submitLoading.value = false;
+  }
+};
+
+/**
+ * 处理补充注册验证码数据
+ * @param data 验证码数据
+ */
+const onSignupCaptchaData = (data: CaptchaParams) => {
+  signupCaptcha.value = data;
+};
+
+/**
+ * 处理绑定验证码数据
+ * @param data 验证码数据
+ */
+const onBindCaptchaData = (data: CaptchaParams) => {
+  bindCaptcha.value = data;
+};
+
 onMounted(async () => {
   const code = (route.query.code as string) || '';
   const state = (route.query.state as string) || '';
   const platform = ((route.query.platform as string) || 'qq').toLowerCase();
+  oauthPlatform.value = platform;
 
   if (!code) {
     loading.value = false;
@@ -103,6 +183,7 @@ onMounted(async () => {
         email: result.data.email || '',
       };
 
+      // 第三方昵称仅作为别名默认值，账户 id 必须由用户自己填写
       signupForm.value.alternativeName = oauthProfile.value.platformUsername;
       signupForm.value.email = oauthProfile.value.email || '';
       loading.value = false;
@@ -111,7 +192,7 @@ onMounted(async () => {
 
     errorMsg.value = result.message || t('basic.tips.signin.oauth.unknownError');
   } catch (err: any) {
-    errorMsg.value = err?.message || t('basic.tips.signin.oauth.authFailed');
+    errorMsg.value = errorText(err);
   } finally {
     loading.value = false;
   }
@@ -121,8 +202,14 @@ onMounted(async () => {
  * 提交补充注册
  */
 const onCompleteSignup = async () => {
+  if (!isCaptchaValid(signupCaptcha.value)) {
+    notice.warning(t('captcha.messages.bad'));
+    return;
+  }
+
   try {
     submitLoading.value = true;
+    errorMsg.value = '';
 
     const res = await apis.userApi().oauthCompleteSignup({
       oauthTicket: oauthTicket.value,
@@ -130,6 +217,7 @@ const onCompleteSignup = async () => {
       alternativeName: signupForm.value.alternativeName || signupForm.value.username,
       password: signupForm.value.password,
       email: signupForm.value.email || undefined,
+      captcha: signupCaptcha.value,
     });
 
     if (res?.data?.code === 'signin.ok') {
@@ -143,7 +231,10 @@ const onCompleteSignup = async () => {
     }
 
   } catch (err: any) {
-    notice.error(err?.message || t('basic.tips.signin.oauth.failed'));
+    // 验证码与 ticket 均可能已失效，刷新验证码并给出可重试入口
+    signupCaptchaRef.value?.refreshCaptcha?.();
+    errorMsg.value = errorText(err);
+    notice.error(errorMsg.value);
   } finally {
     submitLoading.value = false;
   }
@@ -153,12 +244,19 @@ const onCompleteSignup = async () => {
  * 提交绑定已有账号
  */
 const onCompleteBind = async () => {
+  if (!isCaptchaValid(bindCaptcha.value)) {
+    notice.warning(t('captcha.messages.bad'));
+    return;
+  }
+
   try {
     submitLoading.value = true;
+    errorMsg.value = '';
     const res = await apis.userApi().oauthCompleteBind({
       oauthTicket: oauthTicket.value,
       username: bindForm.value.username,
       password: bindForm.value.password,
+      captcha: bindCaptcha.value,
     });
 
     if (res?.data?.code === 'signin.ok') {
@@ -172,7 +270,9 @@ const onCompleteBind = async () => {
     }
 
   } catch (err: any) {
-    notice.error(err?.message || t('basic.tips.signin.oauth.bindFailed'));
+    bindCaptchaRef.value?.refreshCaptcha?.();
+    errorMsg.value = errorText(err);
+    notice.error(errorMsg.value);
   } finally {
     submitLoading.value = false;
   }
@@ -231,6 +331,10 @@ const onBackRoute = () => {
               <v-icon icon="mdi-alert-circle" color="red" size="64" class="mb-4"></v-icon>
               <h3 class="text-h5 font-weight-bold text-red">{{ t('oauth.failedTitle') }}</h3>
               <p class="text-caption opacity-70 mt-2 mb-6">{{ errorMsg }}</p>
+              <v-btn v-if="ticketExpired" class="bg-amber text-black mb-3" size="50" block variant="flat"
+                     :loading="submitLoading" @click="onRestartOAuth">
+                {{ t('oauth.restartAuth') }}
+              </v-btn>
               <v-btn class="bg-amber text-black" to="/account/signin" size="50" block variant="flat">
                 {{ t('oauth.backToSignin') }}
               </v-btn>
@@ -251,7 +355,7 @@ const onBackRoute = () => {
                     {{ oauthProfile.platformUsername }}
                   </div>
                   <div class="text-caption text-amber d-flex align-center ga-1">
-                    <span>{{ oauthPlatformLabel }}</span>
+                    <span>{{ oauthPlatformLabel }} · {{ t('oauth.platformNickname') }}</span>
                   </div>
                 </div>
               </div>
@@ -260,6 +364,14 @@ const onBackRoute = () => {
               <p class="text-caption opacity-70 mb-4">
                 {{ t('oauth.firstTimeHint') }}
               </p>
+
+              <v-alert v-if="errorMsg" type="error" variant="tonal" density="compact" class="mb-4">
+                <div>{{ errorMsg }}</div>
+                <v-btn v-if="ticketExpired" class="mt-2" size="small" color="amber" variant="flat"
+                       :loading="submitLoading" @click="onRestartOAuth">
+                  {{ t('oauth.restartAuth') }}
+                </v-btn>
+              </v-alert>
 
               <v-tabs v-model="activeTab" color="amber" class="mb-4" grow>
                 <v-tab value="signup">{{ t('oauth.tabNewAccount') }}</v-tab>
@@ -279,6 +391,8 @@ const onBackRoute = () => {
                           prepend-inner-icon="mdi-account-key"
                           :label="t('signup.username.name') "
                           :placeholder="t('signup.username.placeholder')"
+                          :hint="t('oauth.accountIdHint')"
+                          persistent-hint
                       ></v-text-field>
 
                       <v-text-field
@@ -321,6 +435,10 @@ const onBackRoute = () => {
                     </v-col>
                   </v-row>
 
+                  <div class="mb-3">
+                    <Captcha ref="signupCaptchaRef" class="captcha" @getCaptchaData="onSignupCaptchaData"></Captcha>
+                  </div>
+
                   <div class="py-2">
                     <v-btn
                         class="bg-amber text-black"
@@ -328,7 +446,7 @@ const onBackRoute = () => {
                         size="50"
                         block
                         :loading="submitLoading"
-                        :disabled="!signupForm.username || !signupForm.password"
+                        :disabled="!signupForm.username || !signupForm.password || !isCaptchaValid(signupCaptcha) || ticketExpired"
                         variant="flat">
                       {{ t('oauth.completeSignupBtn') }}
                     </v-btn>
@@ -366,6 +484,10 @@ const onBackRoute = () => {
                     </v-col>
                   </v-row>
 
+                  <div class="mb-3">
+                    <Captcha ref="bindCaptchaRef" class="captcha" @getCaptchaData="onBindCaptchaData"></Captcha>
+                  </div>
+
                   <div class="py-2">
                     <v-btn
                         class="bg-amber text-black"
@@ -373,7 +495,7 @@ const onBackRoute = () => {
                         size="50"
                         block
                         :loading="submitLoading"
-                        :disabled="!bindForm.username || !bindForm.password"
+                        :disabled="!bindForm.username || !bindForm.password || !isCaptchaValid(bindCaptcha) || ticketExpired"
                         variant="flat">
                       {{ t('oauth.completeBindBtn') }}
                     </v-btn>

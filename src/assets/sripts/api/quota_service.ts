@@ -9,20 +9,20 @@ import type {
 } from "@/assets/types/Quota";
 
 /**
- * sessionStorage 缓存键名（按账号隔离）
+ * 本地缓存键名（按账号隔离）
  */
 const QUOTA_CACHE_KEY = 'quota.status';
 /**
- * 缓存有效期 60 秒：展开面板等重复读取直接走缓存，减少接口请求
+ * 缓存有效期 3 小时：额度变化不频繁，面板展开时优先读缓存，过期或手动刷新才重新请求
  */
-const QUOTA_CACHE_TTL_MS = 60_000;
+const QUOTA_CACHE_TTL_MS = 3 * 60 * 60 * 1000;
 
 /**
- * 读取当前账号的会话缓存（校验账号一致与有效期）
+ * 读取当前账号的缓存（校验账号一致与有效期）
  */
 const readQuotaCache = (userId: string | null): QuotaStatus | null => {
     try {
-        const result = storage.session.get(QUOTA_CACHE_KEY);
+        const result = storage.local.get(QUOTA_CACHE_KEY);
         if (result?.code !== 0 || !result.data?.value) return null;
         const payload = result.data.value as QuotaCachePayload;
         if (payload.userId !== userId) return null;
@@ -34,14 +34,14 @@ const readQuotaCache = (userId: string | null): QuotaStatus | null => {
 };
 
 /**
- * 写入当前账号的会话缓存
+ * 写入当前账号的本地缓存
  */
 const writeQuotaCache = (userId: string | null, status: QuotaStatus): void => {
     try {
         const payload: QuotaCachePayload = { userId, fetchedAt: Date.now(), status };
-        storage.session.set(QUOTA_CACHE_KEY, payload);
+        storage.local.set(QUOTA_CACHE_KEY, payload);
     } catch {
-        // sessionStorage 不可用（隐私模式/配额限制）时静默降级为每次请求
+        // 存储不可用（隐私模式/配额限制）时静默降级为每次请求
     }
 };
 
@@ -54,7 +54,7 @@ export function useQuotaApi() {
 
     /**
      * 获取当前登录用户四类资源的月/年用量与上限
-     * @param force true 时绕过会话缓存强制请求（默认优先读 60 秒内缓存）
+     * @param force true 时绕过缓存强制请求（默认优先读 3 小时内缓存）
      */
     const getQuotaStatus = async (force = false): Promise<QuotaStatus> => {
         const authStore = useAuthStore();

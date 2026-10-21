@@ -16,6 +16,7 @@ const AccountBotGuide = () => import('@/views/user/account/bot/Guide.vue');
 const AccountBotOverview = () => import('@/views/user/account/bot/Overview.vue');
 const AccountBotManage = () => import('@/views/user/account/bot/Manage.vue');
 const AccountDataCenterPage = () => import('@/views/user/account/DataCenter.vue');
+const AccountCollectionStatsPage = () => import('@/views/user/account/CollectionStats.vue');
 const AccountMessagesCenterPage = () => import('@/views/user/account/MessagesCenter.vue');
 const AccountMessagesSettingsPage = () => import('@/views/user/account/MessagesSettings.vue');
 const SpacePage = () => import('@/views/user/space/Index.vue');
@@ -233,10 +234,28 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         ]
                     },
                     {
+                        path: 'achievements',
+                        name: 'AccountAchievements',
+                        component: () => import('@/views/user/account/AccountAchievements.vue'),
+                        meta: { title: 'account.achievements.title', auth: true }
+                    },
+                    {
+                        path: 'checkin',
+                        name: 'AccountCheckin',
+                        component: () => import('@/views/user/account/Signin.vue'),
+                        meta: { title: 'account.signin.title', auth: true }
+                    },
+                    {
                         path: 'orders',
                         name: 'AccountOrders',
                         component: () => import('@/views/user/account/Orders.vue'),
                         meta: { title: 'account.orders.title', auth: true }
+                    },
+                    {
+                        path: 'collection-stats',
+                        name: 'AccountCollectionStats',
+                        component: AccountCollectionStatsPage,
+                        meta: { title: 'account.collectionStats.title', auth: true }
                     },
                     {
                         path: 'data-center',

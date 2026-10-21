@@ -5,7 +5,16 @@ import {apis} from "@/assets/sripts";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-import type {BotCommandInfo, BotGroupDetail, BotGroupItem, BotGroupSettings} from "@/assets/types/Bot";
+import type {
+  BotBlocklistItem,
+  BotGroupDetail,
+  BotGroupItem,
+  BotGroupMember,
+  BotGroupMuteState,
+  BotGroupSettings,
+  BotJoinRequest
+} from "@/assets/types/Bot";
+import TimeView from "@/components/TimeView.vue";
 
 const {t} = useI18n(),
     notice = useNoticeStore(),
@@ -20,11 +29,21 @@ const {t} = useI18n(),
     detail = ref<BotGroupDetail | null>(null),
     activeGroup = ref<BotGroupItem | null>(null),
     pushCooldown = ref(0),
-    commands = ref<BotCommandInfo[]>([]),
-    commandsLoading = ref(false),
-    commandInput = ref(''),
-    commandSending = ref(false),
-    commandResult = ref(''),
+    blocklist = ref<BotBlocklistItem[]>([]),
+    blocklistLoading = ref(false),
+    blockOpenid = ref(''),
+    blockName = ref(''),
+    blockAdding = ref(false),
+    joinRequests = ref<BotJoinRequest[]>([]),
+    joinLoading = ref(false),
+    muteState = ref<BotGroupMuteState | null>(null),
+    muteLoading = ref(false),
+    muteOpenid = ref(''),
+    muteMinutes = ref(60),
+    muteSaving = ref(false),
+    members = ref<BotGroupMember[]>([]),
+    membersLoading = ref(false),
+    membersAvailable = ref(true),
     form = ref<BotGroupSettings>({
       pushEnabled: false,
       welcome: {enabled: false, content: ''},
@@ -41,6 +60,12 @@ defineOptions({
 })
 
 const groupName = computed(() => activeGroup.value?.groupName || activeGroup.value?.groupNumber || activeGroup.value?.groupOpenid || '')
+
+// 机器人是群主或管理员时才会展示入群申请与禁言管理
+const isBotAdmin = computed(() => {
+  const role = String(detail.value?.state?.botRole || activeGroup.value?.botRole || '').toLowerCase()
+  return role === 'admin' || role === 'owner'
+})
 
 /**
  * 群主展示文案，优先名称，其次 OpenID
@@ -96,9 +121,8 @@ const onOpenSettings = async (group: BotGroupItem) => {
   form.value = JSON.parse(JSON.stringify(group.settings))
   form.value.pushEnabled = group.pushEnabled === 1
   dialogTab.value = 'base'
-  commandResult.value = ''
-  commandInput.value = '/帮助'
-  commands.value = []
+  members.value = []
+  membersAvailable.value = true
   dialog.value = true
   await onLoadDetail()
 }
@@ -112,8 +136,8 @@ const onLoadDetail = async () => {
   try {
     const result = await apis.botApi().getGroupDetail(activeGroup.value.id)
     detail.value = result.data?.data || null
-    if (detail.value?.state?.available) {
-      form.value.pushEnabled = Boolean(detail.value.state.pushEnabled)
+    if (activeGroup.value?.settings?.pushEnabled !== undefined) {
+      form.value.pushEnabled = Boolean(activeGroup.value.settings.pushEnabled)
     }
     onStartCooldown(detail.value?.pushNowCooldown || 0)
   } catch (e) {
@@ -161,71 +185,186 @@ const onPushNow = async (type: 'daily' | 'drop' | 'teamup') => {
 }
 
 /**
- * 拉取机器人指令目录
- */
-const onLoadCommands = async () => {
-  if (!activeGroup.value || commands.value.length > 0) return
-  commandsLoading.value = true
-  try {
-    const result = await apis.botApi().getGroupCommands(activeGroup.value.id)
-    commands.value = result.data?.data?.items || []
-  } catch (e) {
-    handleApiError(e, notice, t, {component: 'BotManage'})
-  } finally {
-    commandsLoading.value = false
-  }
-}
-
-/**
- * 强制重新拉取指令目录
- */
-const onReloadCommands = () => {
-  commands.value = []
-  onLoadCommands()
-}
-
-/**
- * 让机器人在群内执行指令并把结果发到群里
- */
-const onSendCommand = async () => {
-  if (!activeGroup.value || !commandInput.value.trim() || commandSending.value) return
-  commandSending.value = true
-  commandResult.value = ''
-  try {
-    const result = await apis.botApi().executeGroupCommand(activeGroup.value.id, commandInput.value.trim())
-    const data = result.data?.data
-    if (!data?.matched) {
-      commandResult.value = t('account.bot.manage.commands.notFound')
-      return
-    }
-    if (!data.reply) {
-      commandResult.value = t('account.bot.manage.commands.helpOnly')
-      return
-    }
-    commandResult.value = data.reply
-    notice.success(data.sent ? t('account.bot.manage.commands.sent') : t('account.bot.manage.commands.sendFailed'))
-  } catch (e) {
-    handleApiError(e, notice, t, {component: 'BotManage'})
-  } finally {
-    commandSending.value = false
-  }
-}
-
-/**
- * 命令帮助文本写入输入框
- * @param command 指令目录项
- */
-const onUseCommand = (command: BotCommandInfo) => {
-  commandInput.value = command.usage
-}
-
-/**
  * 切换设置标签页
  * @param value 标签标识
  */
 const onTabChange = (value: string) => {
-  if (value === 'commands') {
-    onLoadCommands()
+  if (value === 'management') {
+    onLoadBlocklist()
+    onLoadMembers()
+    if (isBotAdmin.value) {
+      onLoadJoinRequests()
+      onLoadMuteState()
+    }
+  }
+}
+
+/**
+ * 拉取群成员列表，用于黑名单与禁言时按昵称挑选 OpenID
+ */
+const onLoadMembers = async () => {
+  if (!activeGroup.value || membersLoading.value || members.value.length > 0) return
+  membersLoading.value = true
+  try {
+    const list: BotGroupMember[] = []
+    let cursor = ''
+    let available = true
+    // 大群按游标翻页，最多取 5 页足够覆盖日常管理
+    for (let page = 0; page < 5; page++) {
+      const result = await apis.botApi().getGroupMembers(activeGroup.value.id, cursor)
+      const data = result.data?.data
+      if (!data) break
+      available = data.available !== false
+      list.push(...(data.members || []))
+      cursor = data.nextCursor || ''
+      if (!cursor) break
+    }
+    members.value = list
+    membersAvailable.value = available
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'BotManage'})
+  } finally {
+    membersLoading.value = false
+  }
+}
+
+/**
+ * 成员下拉的展示文案，优先昵称并附带 OpenID
+ * @param member 群成员
+ */
+const memberTitle = (member: BotGroupMember) =>
+    member.username ? `${member.username} (${member.openid})` : member.openid
+
+/**
+ * 选中黑名单成员时顺带回填昵称
+ * @param value 下拉选中的 OpenID
+ */
+const onPickBlockMember = (value: unknown) => {
+  const member = members.value.find(item => item.openid === value)
+  if (member?.username) blockName.value = member.username
+}
+
+/**
+ * 拉取入群申请列表
+ */
+const onLoadJoinRequests = async () => {
+  if (!activeGroup.value) return
+  joinLoading.value = true
+  try {
+    const result = await apis.botApi().getGroupJoinRequests(activeGroup.value.id)
+    joinRequests.value = result.data?.data?.items || []
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'BotManage'})
+  } finally {
+    joinLoading.value = false
+  }
+}
+
+/**
+ * 审批入群申请
+ * @param item 申请记录
+ * @param action approve 或 decline
+ */
+const onApproveJoinRequest = async (item: BotJoinRequest, action: 'approve' | 'decline') => {
+  if (!activeGroup.value) return
+  try {
+    await apis.botApi().approveGroupJoinRequest(activeGroup.value.id, item.member_openid, {
+      action,
+      joinRequestId: item.join_request_id
+    })
+    notice.success(t(`account.bot.manage.management.join.${action === 'approve' ? 'approved' : 'declined'}`))
+    await onLoadJoinRequests()
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'BotManage'})
+  }
+}
+
+/**
+ * 拉取群禁言状态
+ */
+const onLoadMuteState = async () => {
+  if (!activeGroup.value) return
+  muteLoading.value = true
+  try {
+    const result = await apis.botApi().getGroupMuteState(activeGroup.value.id)
+    muteState.value = result.data?.data || null
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'BotManage'})
+  } finally {
+    muteLoading.value = false
+  }
+}
+
+/**
+ * 设置或解除成员禁言
+ * @param memberOpenid 成员 OpenID
+ * @param minutes 禁言分钟数，0 表示解除
+ */
+const onSetMemberMute = async (memberOpenid: string, minutes: number) => {
+  if (!activeGroup.value || !memberOpenid.trim() || muteSaving.value) return
+  muteSaving.value = true
+  try {
+    await apis.botApi().setGroupMemberMute(activeGroup.value.id, {memberOpenid: memberOpenid.trim(), minutes})
+    notice.success(t('account.bot.manage.management.mute.saved'))
+    if (minutes > 0) muteOpenid.value = ''
+    await onLoadMuteState()
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'BotManage'})
+  } finally {
+    muteSaving.value = false
+  }
+}
+
+/**
+ * 拉取群黑名单
+ */
+const onLoadBlocklist = async () => {
+  if (!activeGroup.value) return
+  blocklistLoading.value = true
+  try {
+    const result = await apis.botApi().getGroupBlocklist(activeGroup.value.id)
+    blocklist.value = result.data?.data?.items || []
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'BotManage'})
+  } finally {
+    blocklistLoading.value = false
+  }
+}
+
+/**
+ * 添加黑名单成员
+ */
+const onAddBlocklist = async () => {
+  if (!activeGroup.value || !blockOpenid.value.trim() || blockAdding.value) return
+  blockAdding.value = true
+  try {
+    await apis.botApi().addGroupBlocklist(activeGroup.value.id, {
+      memberOpenid: blockOpenid.value.trim(),
+      memberName: blockName.value.trim() || undefined
+    })
+    notice.success(t('account.bot.manage.management.added'))
+    blockOpenid.value = ''
+    blockName.value = ''
+    await onLoadBlocklist()
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'BotManage'})
+  } finally {
+    blockAdding.value = false
+  }
+}
+
+/**
+ * 移除黑名单成员
+ * @param memberOpenid 成员 OpenID
+ */
+const onRemoveBlocklist = async (memberOpenid: string) => {
+  if (!activeGroup.value) return
+  try {
+    await apis.botApi().removeGroupBlocklist(activeGroup.value.id, memberOpenid)
+    notice.success(t('account.bot.manage.management.removed'))
+    await onLoadBlocklist()
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'BotManage'})
   }
 }
 
@@ -237,6 +376,7 @@ const onSave = async () => {
   saving.value = true
   try {
     const payload: any = {
+      pushEnabled: Boolean(form.value.pushEnabled),
       welcome: form.value.welcome,
       dailyReport: {
         enabled: form.value.dailyReport.enabled,
@@ -295,7 +435,7 @@ onUnmounted(() => {
   <v-row>
     <v-col cols="12" lg="3">
       <AffixContainerView>
-        <p class="mb-0">{{ t('account.bot.manage.subtitle') }}</p>
+        <p class="opacity-60 mb-0">{{ t('account.bot.manage.subtitle') }}</p>
       </AffixContainerView>
     </v-col>
     <v-col cols="12" lg="9">
@@ -403,90 +543,87 @@ onUnmounted(() => {
               <v-tabs v-model="dialogTab" color="amber" density="comfortable" class="px-4" @update:model-value="onTabChange">
                 <v-tab value="base">{{ t('account.bot.manage.tabs.base') }}</v-tab>
                 <v-tab value="push">{{ t('account.bot.manage.tabs.push') }}</v-tab>
-                <v-tab value="commands">{{ t('account.bot.manage.tabs.commands') }}</v-tab>
                 <v-tab value="quota">{{ t('account.bot.manage.tabs.quota') }}</v-tab>
                 <v-tab value="signin">{{ t('account.bot.manage.tabs.signin') }}</v-tab>
+                <v-tab value="management">{{ t('account.bot.manage.tabs.management') }}</v-tab>
               </v-tabs>
             </v-card-item>
 
             <v-divider opacity=".08"></v-divider>
 
             <v-card-text style="max-height: 80vh;">
-
               <div v-if="detailLoading" class="d-flex justify-center py-16">
                 <Loading size="60"></Loading>
               </div>
 
               <template v-else>
                 <div v-if="dialogTab === 'base'">
-                  <v-row>
-                    <v-col>
-                      <v-list class="bg-transparent pa-0">
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.name') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ detail?.info?.groupName || groupName }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.groupNumber') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ activeGroup?.groupNumber || detail?.info?.groupNumber || '-' }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.owner') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ ownerText }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.members') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ detail?.info?.memberCount ?? activeGroup?.memberCount ?? '-' }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.description') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ detail?.info?.description || activeGroup?.groupDesc || '-' }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.class') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ detail?.info?.groupClass || activeGroup?.groupClass || '-' }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.addedBy') }}</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption">{{ activeGroup?.addedByOpenid || '-' }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.botRole') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ activeGroup?.botRole || detail?.state?.botRole || '-' }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.msgRange') }}</v-list-item-title>
-                          <v-list-item-subtitle>
-                            {{
-                              detail?.state?.recvMsgSetting
-                                  ? t(`account.bot.manage.msgRange.${detail.state.recvMsgSetting}`)
-                                  : (activeGroup?.recvMsgSetting ? t(`account.bot.manage.msgRange.${activeGroup.recvMsgSetting}`) : '-')
-                            }}
-                          </v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.joinedAt') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ activeGroup?.joinedAt || detail?.state?.joinedAt || '-' }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.syncTime') }}</v-list-item-title>
-                          <v-list-item-subtitle>{{ activeGroup?.lastSyncTime || '-' }}</v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.tags') }}</v-list-item-title>
-                          <v-list-item-subtitle>
-                            <v-chip v-for="tag in (detail?.info?.tags || [])" :key="tag" size="x-small" class="mr-1" variant="tonal">
-                              {{ tag }}
-                            </v-chip>
-                            <span v-if="!(detail?.info?.tags || []).length">-</span>
-                          </v-list-item-subtitle>
-                        </v-list-item>
-                        <v-list-item>
-                          <v-list-item-title>{{ t('account.bot.manage.info.openid') }}</v-list-item-title>
-                          <v-list-item-subtitle class="text-caption">{{ activeGroup?.groupOpenid }}</v-list-item-subtitle>
-                        </v-list-item>
-                      </v-list>
-                      <v-alert v-if="detail && detail.info.available === false" variant="tonal" color="orange" density="compact" class="mt-3">
+                  <v-row density="comfortable">
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.name') }}</p>
+                      <p class="mb-3">{{ detail?.info?.groupName || groupName }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.groupNumber') }}</p>
+                      <p class="mb-3">{{ activeGroup?.groupNumber || detail?.info?.groupNumber || '-' }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.owner') }}</p>
+                      <p class="mb-3">{{ ownerText }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.members') }}</p>
+                      <p class="mb-3">{{ detail?.info?.memberCount ?? activeGroup?.memberCount ?? '-' }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.description') }}</p>
+                      <p class="mb-3">{{ detail?.info?.description || activeGroup?.groupDesc || '-' }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.class') }}</p>
+                      <p class="mb-3">{{ detail?.info?.groupClass || activeGroup?.groupClass || '-' }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.addedBy') }}</p>
+                      <p class="mb-3 text-caption">{{ activeGroup?.addedByOpenid || '-' }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.botRole') }}</p>
+                      <p class="mb-3">{{ activeGroup?.botRole || detail?.state?.botRole || '-' }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.msgRange') }}</p>
+                      <p class="mb-3">
+                        {{
+                          detail?.state?.recvMsgSetting
+                              ? t(`account.bot.manage.msgRange.${detail.state.recvMsgSetting}`)
+                              : (activeGroup?.recvMsgSetting ? t(`account.bot.manage.msgRange.${activeGroup.recvMsgSetting}`) : '-')
+                        }}
+                      </p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.joinedAt') }}</p>
+                      <p class="mb-3">{{ activeGroup?.joinedAt || detail?.state?.joinedAt || '-' }}</p>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.syncTime') }}</p>
+                      <p class="mb-3">{{ activeGroup?.lastSyncTime || '-' }}</p>
+                    </v-col>
+                    <v-col cols="12">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.tags') }}</p>
+                      <div class="mb-3">
+                        <v-chip v-for="tag in (detail?.info?.tags || [])" :key="tag" size="small" class="mr-1" variant="tonal">
+                          {{ tag }}
+                        </v-chip>
+                        <span v-if="!(detail?.info?.tags || []).length">-</span>
+                      </div>
+                    </v-col>
+                    <v-col cols="12">
+                      <p class="text-caption text-medium-emphasis mb-1">{{ t('account.bot.manage.info.openid') }}</p>
+                      <p class="mb-3 text-caption">{{ activeGroup?.groupOpenid }}</p>
+                    </v-col>
+                    <v-col v-if="detail && detail.info.available === false" cols="12">
+                      <v-alert variant="tonal" color="orange" density="compact" class="mt-1">
                         {{ t('account.bot.manage.info.unavailable') }}
                       </v-alert>
                     </v-col>
@@ -498,13 +635,10 @@ onUnmounted(() => {
                     <div>
                       <p class="mb-0">{{ t('account.bot.manage.activePush') }}</p>
                       <p class="text-caption opacity-60 mb-0">{{ t('account.bot.manage.activePushDesc') }}</p>
-                      <p class="text-caption opacity-60 mb-0">{{ t('account.bot.manage.pushReadonlyHint') }}</p>
+                      <p class="text-caption opacity-60 mb-0">{{ t('account.bot.manage.pushSwitchHint') }}</p>
                     </div>
                     <div class="d-flex align-center ga-2">
-                      <v-chip v-if="detail?.state?.available" :color="form.pushEnabled ? 'green' : 'grey'" variant="tonal">
-                        {{ form.pushEnabled ? t('account.bot.manage.pushOn') : t('account.bot.manage.pushOff') }}
-                      </v-chip>
-                      <v-chip v-else color="grey" variant="tonal">{{ t('account.bot.manage.pushUnknown') }}</v-chip>
+                      <v-switch v-model="form.pushEnabled" color="amber" hide-details inset></v-switch>
                       <v-icon-btn variant="tonal" icon="mdi-refresh"
                                   :title="t('account.bot.manage.refresh')" :loading="refreshing" @click="onRefresh">
                       </v-icon-btn>
@@ -589,63 +723,6 @@ onUnmounted(() => {
                       counter></v-textarea>
                 </div>
 
-                <div v-else-if="dialogTab === 'commands'">
-                  <v-alert variant="tonal" color="amber" density="compact" class="mb-4">
-                    {{ t('account.bot.manage.commands.hint') }}
-                  </v-alert>
-
-                  <div class="d-flex align-center ga-2 mb-4">
-                    <v-text-field
-                        v-model="commandInput"
-                        :label="t('account.bot.manage.commands.input')"
-                        :placeholder="t('account.bot.manage.commands.placeholder')"
-                        density="compact"
-                        variant="outlined"
-                        hide-details
-                        @keydown.enter="onSendCommand"></v-text-field>
-                    <v-btn color="amber" variant="flat" :loading="commandSending"
-                           :disabled="!commandInput.trim()" @click="onSendCommand">
-                      {{ t('account.bot.manage.commands.send') }}
-                    </v-btn>
-                  </div>
-
-                  <v-card v-if="commandResult" variant="tonal" color="amber" class="pa-4 mb-4">
-                    <pre class="command-result">{{ commandResult }}</pre>
-                  </v-card>
-
-                  <div class="d-flex align-center justify-space-between mb-2">
-                    <span class="text-subtitle-2 font-weight-bold">{{ t('account.bot.manage.commands.title') }}</span>
-                    <v-btn size="small" variant="text" prepend-icon="mdi-refresh"
-                           :loading="commandsLoading" @click="onReloadCommands">
-                      {{ t('account.bot.manage.refresh') }}
-                    </v-btn>
-                  </div>
-
-                  <div v-if="commandsLoading" class="d-flex justify-center py-8">
-                    <v-progress-circular indeterminate color="amber"></v-progress-circular>
-                  </div>
-                  <v-list v-else-if="commands.length > 0" density="compact" class="bg-transparent">
-                    <v-list-item v-for="command in commands" :key="command.name" class="px-0">
-                      <template v-slot:prepend>
-                        <v-chip size="small" color="amber" variant="tonal" class="mr-3 font-monospace">
-                          /{{ command.primary }}
-                        </v-chip>
-                      </template>
-                      <v-list-item-title class="text-body-2">{{ command.description || '-' }}</v-list-item-title>
-                      <v-list-item-subtitle class="text-caption">
-                        {{ command.prefixes.map((p) => `/${p}`).join(' · ') }}
-                      </v-list-item-subtitle>
-                      <template v-slot:append>
-                        <v-btn size="x-small" variant="text" color="amber"
-                               :disabled="!command.hasHelp" @click="onUseCommand(command)">
-                          {{ t('account.bot.manage.commands.use') }}
-                        </v-btn>
-                      </template>
-                    </v-list-item>
-                  </v-list>
-                  <p v-else class="text-center py-8 opacity-60">{{ t('account.bot.manage.commands.empty') }}</p>
-                </div>
-
                 <div v-else-if="dialogTab === 'quota'">
                   <v-row>
                     <v-col cols="12" lg="4">
@@ -724,14 +801,188 @@ onUnmounted(() => {
                     </tbody>
                   </v-table>
                 </div>
+
+                <div v-else-if="dialogTab === 'management'">
+                  <p class="text-subtitle-2 font-weight-bold mb-1">{{ t('account.bot.manage.management.blacklistTitle') }}</p>
+                  <p class="text-caption opacity-60 mb-3">{{ t('account.bot.manage.management.blacklistDesc') }}</p>
+
+                  <div class="d-flex flex-wrap ga-2 mb-4">
+                    <v-combobox
+                        v-model="blockOpenid"
+                        :items="members"
+                        item-value="openid"
+                        :item-title="memberTitle"
+                        :label="t('account.bot.manage.management.memberSearch')"
+                        :no-data-text="membersAvailable ? t('account.bot.manage.management.memberEmpty') : t('account.bot.manage.management.memberUnavailable')"
+                        :loading="membersLoading"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        style="max-width: 320px;"
+                        @update:model-value="onPickBlockMember"></v-combobox>
+                    <v-text-field
+                        v-model="blockName"
+                        :label="t('account.bot.manage.management.memberName')"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        style="max-width: 220px;"></v-text-field>
+                    <v-btn color="amber" variant="flat" :loading="blockAdding"
+                           :disabled="!blockOpenid.trim()" @click="onAddBlocklist">
+                      {{ t('account.bot.manage.management.add') }}
+                    </v-btn>
+                  </div>
+
+                  <v-table density="compact" hover>
+                    <thead>
+                    <tr>
+                      <th>{{ t('account.bot.manage.management.memberName') }}</th>
+                      <th>{{ t('account.bot.manage.management.memberOpenid') }}</th>
+                      <th>{{ t('account.bot.manage.management.addedAt') }}</th>
+                      <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="item in blocklist" :key="item.id">
+                      <td>{{ item.memberName || '-' }}</td>
+                      <td class="text-caption">{{ item.memberOpenid }}</td>
+                      <td class="text-caption"><TimeView :time="item.createdTime"></TimeView></td>
+                      <td class="text-right">
+                        <v-btn size="small" variant="text" color="error"
+                               @click="onRemoveBlocklist(item.memberOpenid)">
+                          {{ t('account.bot.manage.management.remove') }}
+                        </v-btn>
+                      </td>
+                    </tr>
+                    <tr v-if="!blocklistLoading && blocklist.length === 0">
+                      <td colspan="4" class="text-center py-8 opacity-60">
+                        {{ t('account.bot.manage.management.empty') }}
+                      </td>
+                    </tr>
+                    </tbody>
+                  </v-table>
+
+                  <template v-if="isBotAdmin">
+                    <v-divider class="my-6" opacity=".08"></v-divider>
+
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <div>
+                        <p class="text-subtitle-2 font-weight-bold mb-1">{{ t('account.bot.manage.management.join.title') }}</p>
+                        <p class="text-caption opacity-60 mb-0">{{ t('account.bot.manage.management.join.desc') }}</p>
+                      </div>
+                      <v-icon-btn variant="tonal" rounded="10" icon="mdi-refresh"
+                                  :title="t('account.bot.manage.refresh')"
+                                  :loading="joinLoading" @click="onLoadJoinRequests"></v-icon-btn>
+                    </div>
+
+                    <v-table density="compact" hover class="mt-3">
+                      <thead>
+                      <tr>
+                        <th>{{ t('account.bot.manage.management.join.member') }}</th>
+                        <th>{{ t('account.bot.manage.management.join.verify') }}</th>
+                        <th>{{ t('account.bot.manage.management.join.appliedAt') }}</th>
+                        <th></th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr v-for="item in joinRequests" :key="item.join_request_id || item.member_openid">
+                        <td>{{ item.username || item.member_openid }}</td>
+                        <td class="text-caption">{{ item.verify_info?.verify_message || '-' }}</td>
+                        <td class="text-caption">{{ item.apply_at || '-' }}</td>
+                        <td class="text-right">
+                          <v-btn size="small" variant="text" color="success"
+                                 @click="onApproveJoinRequest(item, 'approve')">
+                            {{ t('account.bot.manage.management.join.approve') }}
+                          </v-btn>
+                          <v-btn size="small" variant="text" color="error"
+                                 @click="onApproveJoinRequest(item, 'decline')">
+                            {{ t('account.bot.manage.management.join.decline') }}
+                          </v-btn>
+                        </td>
+                      </tr>
+                      <tr v-if="!joinLoading && joinRequests.length === 0">
+                        <td colspan="4" class="text-center py-6 opacity-60">
+                          {{ t('account.bot.manage.management.join.empty') }}
+                        </td>
+                      </tr>
+                      </tbody>
+                    </v-table>
+
+                    <v-divider class="my-6" opacity=".08"></v-divider>
+
+                    <div class="d-flex align-center justify-space-between mb-1">
+                      <div>
+                        <p class="text-subtitle-2 font-weight-bold mb-1">{{ t('account.bot.manage.management.mute.title') }}</p>
+                        <p class="text-caption opacity-60 mb-0">
+                          {{ t('account.bot.manage.management.mute.desc', {
+                            mode: t(`account.bot.manage.management.mute.mode.${muteState?.globalRule?.mode || 'none'}`)
+                          }) }}
+                        </p>
+                      </div>
+                      <v-icon-btn variant="tonal" rounded="10" icon="mdi-refresh"
+                                  :title="t('account.bot.manage.refresh')"
+                                  :loading="muteLoading" @click="onLoadMuteState"></v-icon-btn>
+                    </div>
+
+                    <div class="d-flex flex-wrap ga-2 mt-3 mb-3">
+                      <v-combobox v-model="muteOpenid"
+                                  :items="members"
+                                  item-value="openid"
+                                  :item-title="memberTitle"
+                                  :label="t('account.bot.manage.management.memberSearch')"
+                                  :no-data-text="membersAvailable ? t('account.bot.manage.management.memberEmpty') : t('account.bot.manage.management.memberUnavailable')"
+                                  :loading="membersLoading"
+                                  density="compact" variant="outlined" hide-details
+                                  style="max-width: 320px;"></v-combobox>
+                      <v-text-field v-model.number="muteMinutes" type="number"
+                                    :label="t('account.bot.manage.management.mute.minutes')"
+                                    density="compact" variant="outlined" hide-details
+                                    style="max-width: 180px;"></v-text-field>
+                      <v-btn color="amber" variant="flat" :loading="muteSaving"
+                             :disabled="!muteOpenid.trim()" @click="onSetMemberMute(muteOpenid, muteMinutes)">
+                        {{ t('account.bot.manage.management.mute.apply') }}
+                      </v-btn>
+                    </div>
+
+                    <v-table density="compact" hover>
+                      <thead>
+                      <tr>
+                        <th>{{ t('account.bot.manage.management.join.member') }}</th>
+                        <th>{{ t('account.bot.manage.management.mute.expireAt') }}</th>
+                        <th></th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      <tr v-for="item in muteState?.members || []" :key="item.member_openid">
+                        <td>{{ item.username || item.member_openid }}</td>
+                        <td class="text-caption">{{ item.mute_expire_at }}</td>
+                        <td class="text-right">
+                          <v-btn size="small" variant="text" color="success"
+                                 :loading="muteSaving" @click="onSetMemberMute(item.member_openid, 0)">
+                            {{ t('account.bot.manage.management.mute.unmute') }}
+                          </v-btn>
+                        </td>
+                      </tr>
+                      <tr v-if="!muteLoading && (muteState?.members || []).length === 0">
+                        <td colspan="3" class="text-center py-6 opacity-60">
+                          {{ t('account.bot.manage.management.mute.empty') }}
+                        </td>
+                      </tr>
+                      </tbody>
+                    </v-table>
+                  </template>
+                </div>
               </template>
             </v-card-text>
 
             <v-divider opacity=".08"></v-divider>
             <v-card-actions class="px-4 py-3">
-              <v-btn variant="tonal" prepend-icon="mdi-refresh" :loading="refreshing" @click="onRefresh">
-                {{ t('account.bot.manage.refresh') }}
-              </v-btn>
+              <v-icon-btn variant="tonal"
+                          rounded="10"
+                          icon="mdi-refresh"
+                          :title="t('account.bot.manage.refresh')"
+                          :loading="refreshing" @click="onRefresh">
+              </v-icon-btn>
 
               <v-spacer></v-spacer>
 
@@ -763,12 +1014,5 @@ onUnmounted(() => {
 
 .quota-block {
   padding: 12px 0 20px;
-}
-
-.command-result {
-  white-space: pre-wrap;
-  word-break: break-word;
-  font-size: 12px;
-  margin: 0;
 }
 </style>

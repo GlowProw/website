@@ -995,7 +995,7 @@ defineOptions({
                         :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
                         variant="outlined"
                         size="small">
-                      {{ item.title }}
+                      {{ (item as any).title }}
                     </v-chip>
                     <span
                         v-if="index === 2"
@@ -1009,7 +1009,7 @@ defineOptions({
                         :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
                         variant="tonal"
                         size="small">
-                      {{ item.title }}
+                      {{ (item as any).title }}
                     </v-chip>
                   </template>
                 </v-select>
@@ -1115,11 +1115,11 @@ defineOptions({
                       </template>
                       <template v-slot:append>
                         <ItemSlotBase size="30px" :padding="0">
-                          <SetIconWidget :id="(item.raw ?? item).value" :is-open-detail="false" :is-show-tooltip="false" :is-show-open-detail="false"></SetIconWidget>
+                          <SetIconWidget :id="((item as any).raw ?? item).value" :is-open-detail="false" :is-show-tooltip="false" :is-show-open-detail="false"></SetIconWidget>
                         </ItemSlotBase>
                       </template>
                       <template v-slot:title>
-                        {{ item.title || item.value }}
+                        {{ (item as any).title || item.value }}
                       </template>
                     </v-list-item>
                   </template>

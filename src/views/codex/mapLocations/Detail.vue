@@ -25,6 +25,7 @@ import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
 import Banner from "@/components/Banner.vue";
@@ -180,6 +181,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
+              <CollectionToggle target-type="mapLocation" :target-id="mapLocationDetailData.id || (route.params.id as string)"></CollectionToggle>
               <ShareWidget type="mapLocation" :target-id="mapLocationDetailData.id || (route.params.id as string)"/>
             </div>
           </v-col>

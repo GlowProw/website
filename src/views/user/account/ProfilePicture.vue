@@ -13,7 +13,7 @@ import "cropperjs/dist/cropper.css";
 
 import UserAvatar from "@/components/UserAvatar.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import {normalizeAvatarUrl} from "@/assets/sripts/avatar";
+import {extractPresetId, normalizeAvatarUrl} from "@/assets/sripts/avatar";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
@@ -125,12 +125,28 @@ const onAvatarChanged = (url: string) => {
 }
 
 /**
+ * 当前头像对应的预设 ID，非预设头像时为空串
+ */
+const currentPresetId = computed<string>(() => {
+  const raw = userAccountData.value?.userAvatar || userAccountData.value?.attr?.avatar || ''
+  return extractPresetId(raw)
+})
+
+/**
  * 打开头像更换弹窗，重置到选方式步骤
  */
 const openDialog = () => {
   dialogStep.value = 'select'
   presetSelected.value = ''
   dialogOpen.value = true
+}
+
+/**
+ * 进入预设头像步骤，并把当前正在使用的预设头像回显为选中态
+ */
+const onSelectPresetStep = () => {
+  presetSelected.value = currentPresetId.value
+  dialogStep.value = 'preset'
 }
 
 /**
@@ -517,7 +533,7 @@ defineOptions({
                 variant="tonal"
                 class="select-option pa-4 cursor-pointer"
                 rounded="lg"
-                @click="dialogStep = 'preset'; presetSelected = ''">
+                @click="onSelectPresetStep">
               <div class="d-flex align-center ga-4">
                 <v-avatar color="" variant="tonal" size="44" rounded="lg">
                   <v-icon icon="mdi-view-grid-outline" size="22"/>

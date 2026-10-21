@@ -25,6 +25,7 @@ import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vu
 import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 import CommoditieDescription from "@/components/snbWidget/commoditieDescription.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -194,6 +195,7 @@ const onCodexHistory = () => {
                 </LikeWidget>
               </v-btn>
 
+              <CollectionToggle target-type="commoditie" :target-id="commoditieDetailData.id"></CollectionToggle>
               <ShareWidget type="commoditie" :target-id="commoditieDetailData.id" />
             </div>
           </v-col>

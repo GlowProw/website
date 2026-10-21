@@ -37,6 +37,7 @@ import ByEventWidget from "@/components/ByEventWidget.vue";
 import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import ItemAmmunitionType from "@/components/snbWidget/itemAmmunitionType.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
 
@@ -244,6 +245,8 @@ const onAddCalculator = () => {
               <v-btn :class="getCollectStatus ? 'text-amber' : ''" border variant="text" @click="onStarItem(itemDetailData)">
                 <v-icon :icon="`mdi-${getCollectStatus ? 'star' : 'star-outline'}`"></v-icon>
               </v-btn>
+
+              <CollectionToggle target-type="item" :target-id="itemDetailData.id"></CollectionToggle>
 
               <v-btn v-if="authStore.isLogin" border>
                 <LikeWidget :isShowCount="true"

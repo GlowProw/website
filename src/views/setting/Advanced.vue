@@ -80,14 +80,14 @@
               <v-list-item v-bind="props">
                 <template v-slot:title>
                   <div class="d-flex align-center ga-2">
-                    <span>{{ (item.raw ?? item).title }}</span>
-                    <v-chip v-if="(item.raw ?? item).recommend" size="x-small" color="success" variant="tonal">
+                    <span>{{ ((item as any).raw ?? item).title }}</span>
+                    <v-chip v-if="((item as any).raw ?? item).recommend" size="x-small" color="success" variant="tonal">
                       {{ t('setting.advanced.captcha.recommend') }}
                     </v-chip>
                   </div>
                 </template>
                 <template v-slot:subtitle>
-                  <span class="text-caption opacity-60">{{ (item.raw ?? item).subtitle }}</span>
+                  <span class="text-caption opacity-60">{{ ((item as any).raw ?? item).subtitle }}</span>
                 </template>
               </v-list-item>
             </template>

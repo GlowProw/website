@@ -15,6 +15,7 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -162,6 +163,7 @@ const onCodexHistory = (id: string) => {
                 </template>
               </LikeWidget>
             </v-btn>
+            <CollectionToggle target-type="empireSkill" :target-id="empireSkillDetailData.id"></CollectionToggle>
             <ShareWidget type="empireSkill" :target-id="empireSkillDetailData.id" />
           </v-col>
         </v-row>

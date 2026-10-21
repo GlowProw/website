@@ -7,6 +7,7 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import type {BotInstanceOption, BotPlatformOption} from "@/assets/types/Bot";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t} = useI18n(),
     router = useRouter(),
@@ -16,8 +17,7 @@ const {t} = useI18n(),
     form = ref({
       platform: 'qq',
       botId: null as number | null,
-      groupNumber: '',
-      password: ''
+      groupNumber: ''
     }),
     bindCode = ref(''),
     bindTtl = ref(0),
@@ -46,10 +46,12 @@ const onLoad = async () => {
   loading.value = true
   try {
     const platformResult = await apis.botApi().getPlatforms()
+
     platforms.value = platformResult.data?.data || []
     if (platforms.value.length > 0) {
       form.value.platform = platforms.value[0].value
     }
+
     await onLoadBots()
   } catch (e) {
     if ((e as any)?.code === 'bot.subscriptionRequired') {
@@ -67,6 +69,7 @@ const onLoad = async () => {
  */
 const onLoadBots = async () => {
   const result = await apis.botApi().getBots(form.value.platform)
+
   bots.value = result.data?.data || []
   form.value.botId = bots.value[0]?.id || null
 }
@@ -75,7 +78,7 @@ const onLoadBots = async () => {
  * 生成群绑定验证码
  */
 const onCreateBindCode = async () => {
-  if (!form.value.botId || !form.value.groupNumber || form.value.password.length < 6) {
+  if (!form.value.botId || !form.value.groupNumber) {
     notice.error(t('account.bot.guide.formInvalid'))
     return
   }
@@ -83,14 +86,14 @@ const onCreateBindCode = async () => {
   try {
     const result = await apis.botApi().createBindCode({
       botId: form.value.botId,
-      groupNumber: form.value.groupNumber.trim(),
-      password: form.value.password
+      groupNumber: form.value.groupNumber.trim()
     })
+
     bindCode.value = result.data?.data?.code || ''
     bindTtl.value = result.data?.data?.ttlMinutes || 30
     botJoined.value = result.data?.data?.botJoined ?? null
     codeDialog.value = true
-    notice.success(t('account.bot.guide.codeCreated'))
+    // notice.success(t('account.bot.guide.codeCreated'))
   } catch (e) {
     handleApiError(e, notice, t, {component: 'BotGuide'})
   } finally {
@@ -103,8 +106,11 @@ const onCreateBindCode = async () => {
  */
 const onCopyCode = async () => {
   try {
+
     await navigator.clipboard.writeText(`/群组绑定 ${bindCode.value}`)
-    notice.success(t('basic.tips.copySuccess'))
+
+    notice.success(t('basic.tips.copySuccess'), {mode: 'minimal'})
+
   } catch {
     notice.error(t('basic.tips.copyFailed'))
   }
@@ -116,10 +122,14 @@ const onCopyCode = async () => {
 const onCheckBound = async () => {
   try {
     const result = await apis.botApi().getStatus()
+
     if ((result.data?.data?.groups || 0) > 0) {
-      notice.success(t('account.bot.guide.bound'))
+
+      notice.success(t('account.bot.guide.bound'), {mode: 'minimal'})
       codeDialog.value = false
-      router.push({name: 'AccountBotManage'})
+
+      await router.push({name: 'AccountBotManage'})
+
     } else {
       notice.info(t('account.bot.guide.notYet'))
     }
@@ -134,35 +144,37 @@ onMounted(onLoad)
 <template>
   <v-row>
     <v-col cols="12" lg="3">
-      <p>{{ t('account.bot.guide.subtitle') }}</p>
-      <p class="mt-2 mb-4">{{ t('account.bot.guide.intro') }}</p>
+      <AffixContainerView>
+        <p class="opacity-60">{{ t('account.bot.guide.subtitle') }}</p>
+        <p class="opacity-60 mt-2 mb-4">{{ t('account.bot.guide.intro') }}</p>
 
-      <v-btn variant="text" block border to="/apps/qq-bot" target="_blank">
-        {{ t('account.bot.guide.openBotDoc') }}
-        <v-icon icon="mdi-open-in-new" size="16" class="ml-1"></v-icon>
-      </v-btn>
+        <v-btn variant="text" block border to="/apps/qq-bot" target="_blank">
+          {{ t('account.bot.guide.openBotDoc') }}
+          <v-icon icon="mdi-open-in-new" size="16" class="ml-1"></v-icon>
+        </v-btn>
+      </AffixContainerView>
     </v-col>
     <v-col cols="12" lg="9">
-      <v-row class="mb-4">
+      <v-row class="mb-10">
         <v-col cols="12" md="4">
           <div class="step-card">
-            <span class="step-index">1</span>
-            <p class="step-title">{{ t('account.bot.guide.step1Title') }}</p>
-            <p class="text-caption opacity-60 mb-0">{{ t('account.bot.guide.step1Desc') }}</p>
+            <span class="step-index text-h1 text-amber opacity-10">#1</span>
+            <p class="step-title text-amber">{{ t('account.bot.guide.step1Title') }}</p>
+            <p class="mb-0">{{ t('account.bot.guide.step1Desc') }}</p>
           </div>
         </v-col>
         <v-col cols="12" md="4">
           <div class="step-card">
-            <span class="step-index">2</span>
-            <p class="step-title">{{ t('account.bot.guide.step2Title') }}</p>
-            <p class="text-caption opacity-60 mb-0">{{ t('account.bot.guide.step2Desc') }}</p>
+            <span class="step-index text-h1 text-amber opacity-10">#2</span>
+            <p class="step-title text-amber">{{ t('account.bot.guide.step2Title') }}</p>
+            <p class="mb-0">{{ t('account.bot.guide.step2Desc') }}</p>
           </div>
         </v-col>
         <v-col cols="12" md="4">
           <div class="step-card">
-            <span class="step-index">3</span>
-            <p class="step-title">{{ t('account.bot.guide.step3Title') }}</p>
-            <p class="text-caption opacity-60 mb-0">{{ t('account.bot.guide.step3Desc') }}</p>
+            <span class="step-index text-h1 text-amber opacity-10">#3</span>
+            <p class="step-title text-amber">{{ t('account.bot.guide.step3Title') }}</p>
+            <p class="mb-0">{{ t('account.bot.guide.step3Desc') }}</p>
           </div>
         </v-col>
       </v-row>
@@ -181,8 +193,6 @@ onMounted(onLoad)
                 item-title="label"
                 item-value="value"
                 :label="t('account.bot.guide.platform')"
-                variant="filled"
-                density="comfortable"
                 @update:model-value="onLoadBots"></v-select>
           </v-col>
           <v-col cols="12" md="6">
@@ -193,29 +203,15 @@ onMounted(onLoad)
                 item-value="id"
                 :label="t('account.bot.guide.bot')"
                 variant="filled"
-                density="comfortable"></v-select>
+                clearable></v-select>
           </v-col>
           <v-col cols="12" md="6">
             <v-text-field
+                type="number"
                 v-model="form.groupNumber"
                 :label="t('account.bot.guide.groupNumber')"
                 variant="filled"
-                density="comfortable"></v-text-field>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-text-field
-                v-model="form.password"
-                type="password"
-                :label="t('account.bot.guide.password')"
-                :hint="t('account.bot.guide.passwordHint')"
-                persistent-hint
-                variant="filled"
-                density="comfortable"></v-text-field>
-
-            <v-alert variant="tonal" color="amber" density="compact" class="mt-6">
-              <p class="text-subtitle-2 font-weight-bold mb-1">{{ t('account.bot.guide.managePasswordTitle') }}</p>
-              <p class="text-caption mb-0">{{ t('account.bot.guide.managePasswordDesc') }}</p>
-            </v-alert>
+                clearable></v-text-field>
           </v-col>
         </v-row>
 
@@ -227,25 +223,22 @@ onMounted(onLoad)
       </AffixBoxHasTitleView>
 
       <v-dialog v-model="codeDialog" width="520">
-        <v-card>
-          <v-card-title class="d-flex align-center justify-space-between">
-            <span>{{ t('account.bot.guide.codeDialogTitle') }}</span>
-            <v-btn icon variant="text" @click="codeDialog = false">
-              <v-icon icon="mdi-close"></v-icon>
-            </v-btn>
+        <v-card border>
+          <v-card-title class="py-10 text-center bg-black mx-n5">
+            <v-icon size="80">mdi-code-tags</v-icon>
+            <p>{{ t('account.bot.guide.codeDialogTitle') }}</p>
           </v-card-title>
           <v-divider opacity=".08"></v-divider>
           <v-card-text>
             <p class="mb-3">{{ t('account.bot.guide.codeHint', {minutes: bindTtl}) }}</p>
 
-            <v-card variant="tonal" color="amber" class="pa-4">
-              <div class="d-flex align-center ga-3 flex-wrap">
-                <code class="text-h5">/群组绑定 {{ bindCode }}</code>
-                <v-btn size="small" variant="text" color="amber" @click="onCopyCode">
+            <v-text-field readonly hide-spin-buttons hide-details :value="`/群组绑定 ${bindCode}`">
+              <template v-slot:append-inner>
+                <v-btn variant="text" color="amber" @click="onCopyCode">
                   {{ t('account.bot.guide.copyCommand') }}
                 </v-btn>
-              </div>
-            </v-card>
+              </template>
+            </v-text-field>
 
             <v-alert v-if="botJoined === false" variant="tonal" color="orange" density="compact" class="mt-4">
               {{ t('account.bot.guide.botNotJoined') }}
@@ -253,6 +246,7 @@ onMounted(onLoad)
             <v-alert v-else-if="botJoined === true" variant="tonal" color="success" density="compact" class="mt-4">
               {{ t('account.bot.guide.botJoined') }}
             </v-alert>
+
 
             <p class="text-caption opacity-70 mt-4 mb-0">{{ t('account.bot.guide.codeUsage') }}</p>
           </v-card-text>
@@ -288,23 +282,14 @@ onMounted(onLoad)
 @import "@/assets/styles/link";
 
 .step-card {
+  position: relative;
   height: 100%;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
+  padding: 50px 18px 0 18px;
 
   .step-index {
-    display: inline-flex;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    align-items: center;
-    justify-content: center;
-    background: rgba(255, 193, 7, 0.16);
-    color: #ffc107;
-    font-weight: 700;
-    margin-bottom: 10px;
+    position: absolute;
+    left: 0;
+    top: -40px;
   }
 
   .step-title {

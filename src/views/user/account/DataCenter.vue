@@ -89,6 +89,15 @@ const metricCards = computed(() => [
     color: 'teal',
     clickable: false,
     href: {name: 'AccountAssemblys'} as any,
+  },
+  {
+    metric: 'collection' as const,
+    title: t('account.dataCenter.overview.collected'),
+    value: overview.value?.collectionCount || 0,
+    icon: 'mdi-check-decagram',
+    color: 'indigo',
+    clickable: false,
+    href: {name: 'AccountCollectionStats'} as any,
   }
 ]);
 

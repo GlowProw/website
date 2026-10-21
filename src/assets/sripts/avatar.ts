@@ -46,3 +46,26 @@ export function isPresetAvatar(avatar?: string | null): boolean {
   if (trimmed.startsWith('preset:')) return true;
   return Boolean(PRESET_AVATARS_MAP[trimmed]);
 }
+
+/**
+ * 从预设头像标识符或路径解析出预设 ID
+ * 例如 "preset:kraken" -> "kraken"、"/images/avatars/kraken.png" -> "kraken"
+ *
+ * @param {string | null | undefined} avatar 头像地址或预设ID
+ * @returns {string} 预设 ID，非预设头像时返回空串
+ */
+export function extractPresetId(avatar?: string | null): string {
+  if (!avatar) return '';
+  const trimmed = String(avatar).trim();
+  if (!trimmed) return '';
+
+  if (trimmed.startsWith('preset:')) {
+    return trimmed.slice(7).trim();
+  }
+
+  // 兼容直接传入已知预设 ID 或静态资源路径
+  const matched = Object.keys(PRESET_AVATARS_MAP).find(
+    (id) => id === trimmed || PRESET_AVATARS_MAP[id] === trimmed
+  );
+  return matched || '';
+}

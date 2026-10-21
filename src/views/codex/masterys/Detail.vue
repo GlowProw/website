@@ -12,6 +12,7 @@ import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
@@ -290,6 +291,7 @@ const onStarMastery = (data: Mastery) => {
                 <v-icon icon="mdi-transit-connection-variant"></v-icon>
               </v-btn>
 
+              <CollectionToggle target-type="mastery" :target-id="masteryDetailData.id"></CollectionToggle>
               <ShareWidget :target-id="masteryDetailData.id" type="mastery"/>
             </div>
           </v-col>
