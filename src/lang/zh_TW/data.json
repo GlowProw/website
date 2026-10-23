@@ -196,8 +196,23 @@
       "today": "今日"
     },
     "preload": {
-      "remoteI18n": "從遠端載入文本資料...",
+      "remoteI18n": "從遠端載入文字資料...",
+      "siteAssets": "等待站點資源載入完成...",
       "default": "正在載入資源..."
+    },
+    "review": {
+      "pendingTitle": "內容審核中",
+      "pendingDetail": "內容已提交，審核期間僅自己可見。",
+      "rejectedTitle": "內容未通過審核",
+      "rejectedDetail": "發佈失敗，請根據原因修改後重試。",
+      "reason": "原因：{reason}",
+      "unknownReason": "未提供具體原因"
+    },
+    "supportPrompt": {
+      "title": "嗨船長",
+      "detail": "嗨船長，你覺得 {name} 如何？如果它幫到了你，可以到訂閱頁支持我們。",
+      "later": "暫不",
+      "subscribe": "前往訂閱"
     },
     "tips": {
       "quota": {
@@ -960,17 +975,32 @@
         "collected": "已取得",
         "catalog": "圖鑑總數",
         "completion": "收集完成度",
-        "lastCollected": "最近取得"
+        "lastCollected": "最近取得",
+        "lastCollectedHint": "最近一次標記時間",
+        "localMarks": "本地標記 {count} 項",
+        "sync": "同步"
+      },
+      "sync": {
+        "result": "同步完成：上傳 {upload} 項，下載 {download} 項",
+        "none": "本地標記與帳戶收藏已一致",
+        "failed": "同步失敗，請稍後重試"
+      },
+      "syncDialog": {
+        "title": "發現本地標記",
+        "text": "偵測到你在未登入時標記過 {count} 個物品，可以將其同步到目前帳戶。",
+        "keep": "同步後本地標記仍會保留，並優先於帳戶收藏展示。",
+        "confirm": "立即同步",
+        "later": "稍後再同步"
       },
       "trend": {
         "title": "收集趨勢",
         "range": "時間範圍",
-        "range12": "12 週",
-        "range26": "26 週",
-        "range52": "52 週",
-        "added": "每週新增",
+        "range7": "近 7 天",
+        "range30": "近 30 天",
+        "range90": "近 90 天",
+        "added": "每日新增",
         "addedUnit": "件",
-        "addedMax": "單週最高",
+        "addedMax": "單日最高",
         "cumulative": "累計收集",
         "totalUnit": "件",
         "noData": "所選時間範圍內暫無新增"
@@ -1024,7 +1054,12 @@
         "mastery": "精通",
         "signin": "簽到",
         "teamup": "組隊",
-        "subscription": "贊助訂閱"
+        "subscription": "贊助訂閱",
+        "comment": "評論/回覆",
+        "codex": "圖鑑",
+        "personalization": "個性化",
+        "security": "安全",
+        "bot": "機器人"
       },
       "status": {
         "locked": "未達成",
@@ -1036,7 +1071,11 @@
         "mastery": "累計發布 {count} 份精通",
         "teamup": "累計發布 {count} 次組隊",
         "level": "賬戶等級達到 {level} 級",
-        "subscription": "{tier} 檔位贊助"
+        "subscription": "{tier} 檔位贊助",
+        "comment": "發表 {count} 條評論或回覆",
+        "codex": "累計收藏 {count} 件圖鑑",
+        "codexSeason": "集齊任意一個賽季的全部圖鑑",
+        "once": "完成一次即可"
       },
       "levels": {
         "outcast": {
@@ -1288,6 +1327,58 @@
         "signin_level_25": {
           "name": "黃金魁首·巔峰",
           "desc": "簽到累積足夠積分，賬戶等級升至 25 級。"
+        },
+        "comment_first": {
+          "name": "初次發聲",
+          "desc": "發布你的第一條評論或回覆，加入碼頭的討論。"
+        },
+        "codex_100": {
+          "name": "圖鑑新手",
+          "desc": "累計收藏 100 件圖鑑，開始整理自己的航海筆記。"
+        },
+        "codex_200": {
+          "name": "圖鑑學徒",
+          "desc": "累計收藏 200 件圖鑑，對海域的了解日漸深入。"
+        },
+        "codex_500": {
+          "name": "圖鑑學者",
+          "desc": "累計收藏 500 件圖鑑，你的記錄足以編成一本手冊。"
+        },
+        "codex_1000": {
+          "name": "圖鑑宗師",
+          "desc": "累計收藏 1000 件圖鑑，沒有人比你更熟悉這片海域。"
+        },
+        "codex_season_complete": {
+          "name": "賽季全收集",
+          "desc": "集齊任意一個賽季的全部圖鑑，每個賽季都可獲得一次。"
+        },
+        "avatar_set": {
+          "name": "全新面孔",
+          "desc": "設定屬於自己的頭像，讓其他船長記住你。"
+        },
+        "alias_changed": {
+          "name": "揚名立萬",
+          "desc": "更改一次別名，換上更響亮的名號。"
+        },
+        "description_set": {
+          "name": "自我介紹",
+          "desc": "為自己的賬戶新增一段個人描述。"
+        },
+        "twofa_bound": {
+          "name": "雙重保險",
+          "desc": "首次啟用兩步驗證，為賬戶加一道可靠防線。"
+        },
+        "oauth_first_bind": {
+          "name": "互聯互通",
+          "desc": "首次綁定任意第三方平台賬戶，登入從此更便捷。"
+        },
+        "qq_bot_bound": {
+          "name": "機器人生力軍",
+          "desc": "首次綁定 QQ 平台機器人，把社群訊息帶到聊天視窗。"
+        },
+        "bot_bound": {
+          "name": "社群艦隊",
+          "desc": "首次將任意平台的機器人成功綁定到社群群組。"
         }
       }
     },
@@ -2062,6 +2153,7 @@
     "title": "手稿",
     "description": "嗨，船长, 要看看我的宝贝嘛",
     "cabinetHistoryTitle": "游览历史",
+    "cabinetHistoryEmpty": "還沒有遊覽記錄",
     "more": "更多",
     "sidebar": "侧边栏",
     "filter": {
@@ -2337,6 +2429,8 @@
       "collectedOn": "已標記為已取得",
       "collectedOff": "已取消已取得標記",
       "collectedFailed": "操作失敗，請稍後重試",
+      "collectionLocalSaved": "已在本地記錄，登入後可同步到帳戶",
+      "collectionToggleTip": "標記或取消已取得，登入後會同步到帳戶",
       "gearScore": "分数",
       "rarity": "稀有度",
       "dateAdded": "添加日期",
@@ -3767,7 +3861,12 @@
       "descriptionPlaceholder": "輸入描述內容",
       "extra": "額外",
       "tags": "標籤",
-      "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤"
+      "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤",
+      "reward": {
+        "title": "獲得帳戶積分 +{points}",
+        "detail": "基礎 {base} · 精通 {mastery} · 輪盤 {wheel} · 船艙 {warehouse}",
+        "boost": "本月第 {count} 份，積分 3 倍激勵"
+      }
     },
     "selectWeaponDirection": "選擇武器方向",
     "unnamed": "未命名配裝",
@@ -4383,6 +4482,8 @@
       "toggleMessagesDesc": "快速展開或收起私信與通知面板",
       "toggleHeaderMenu": "導航選單",
       "toggleHeaderMenuDesc": "快速展開或收起全站導航抽屜選單",
+      "toggleCodexHistory": "游览历史",
+      "toggleCodexHistoryDesc": "快速展開或收起游览历史抽屜",
       "closeModal": "關閉當前彈窗",
       "closeModalDesc": "關閉正在顯示的模態框與抽屜",
       "pressCombination": "請按組合鍵",
@@ -4553,6 +4654,10 @@
       "smugglers-report": {
         "title": "鑑賞家",
         "description": "社區共同推薦每週購買指南"
+      },
+      "statistics": {
+        "title": "事態",
+        "description": "查看全站圖鑑、簽到與賽季數據的公開統計"
       },
       "assembly": {
         "title": "船只配装厂",
@@ -4759,6 +4864,70 @@
       "label": {
         "username": "帳戶id",
         "password": "密碼"
+      }
+    }
+  },
+  "statistics": {
+    "title": "事態",
+    "group": "統計",
+    "common": {
+      "asOf": "數據截至",
+      "updated": "最後更新",
+      "range": "統計範圍",
+      "period": "統計區間",
+      "comparePrevious": "較上期",
+      "currentPeriod": "當前區間",
+      "previousPeriod": "上一區間",
+      "previousValue": "上期",
+      "noData": "暫無數據"
+    },
+    "range": {
+      "7": "近 7 天",
+      "30": "近 1 個月",
+      "90": "近 3 個月"
+    },
+    "season": {
+      "title": "賽季統計",
+      "summary": {
+        "entries": "圖鑑條目",
+        "seasons": "收錄賽季",
+        "collections": "全站收藏"
+      },
+      "bySeason": "各賽季明細",
+      "view": "檢視",
+      "detailTitle": "賽季圖鑑明細",
+      "startDate": "賽季開始",
+      "entriesCount": "條目",
+      "collectedCount": "累計收藏"
+    },
+    "codex": {
+      "title": "圖鑑統計",
+      "metrics": {
+        "collections": "收藏總量",
+        "collectors": "收藏人數",
+        "dailyAverage": "日均收藏",
+        "coveredTypes": "覆蓋圖鑑種類"
+      },
+      "trend": "每日收藏趨勢",
+      "byType": "圖鑑種類分佈"
+    },
+    "signin": {
+      "title": "簽到統計",
+      "metrics": {
+        "signins": "簽到總量",
+        "users": "簽到人數",
+        "dailyAverage": "日均簽到",
+        "makeup": "補簽總量"
+      },
+      "trend": "每日簽到趨勢",
+      "byPlatform": "簽到平台分佈",
+      "needLoginTitle": "需要登入查看",
+      "needLoginDesc": "簽到統計包含帳戶資料，請先登入後再查看。",
+      "needLoginAction": "去登入",
+      "platforms": {
+        "web": "網站",
+        "qq": "QQ",
+        "qq-bot": "QQ 機器人"
       }
     }
   },
@@ -5099,7 +5268,8 @@
     "cancel": "取消",
     "close": "關閉",
     "confirm": "確認",
-    "confirmDelete": "確認刪除"
+    "confirmDelete": "確認刪除",
+    "delete": "刪除"
   },
   "team": {
     "title": "組隊招募"

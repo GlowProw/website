@@ -920,27 +920,14 @@ const refreshAll = async () => {
           <!-- 鉴赏家 E -->
 
           <!-- 当前可用掉宝 S -->
-          <v-col cols="12" v-if="showDrop" class="mt-10">
+          <v-col cols="12" v-if="showDrop && activeCampaigns.length > 0" class="mt-10">
             <AffixBoxHasTitleView class="section-card h-100" disabled-title>
               <template v-slot:title>
                 {{ t("dailyReport.drop.title") }}
               </template>
 
-              <!-- 加载中状态 -->
-              <div v-if="dropLoading" class="py-8 text-center">
-                <Loading size="36"></Loading>
-              </div>
-
-              <!-- 空状态 -->
-              <div
-                  v-else-if="activeCampaigns.length === 0"
-                  class="py-8 text-center text-medium-emphasis">
-                <v-icon icon="mdi-gift-off-outline" size="40" class="mb-2 opacity-30"></v-icon>
-                <p class="text-caption mb-0">{{ t("dailyReport.drop.noDrops") }}</p>
-              </div>
-
               <!-- 掉宝卡片列表 -->
-              <div v-else class="d-flex flex-column ga-4 mx-n5">
+              <div class="d-flex flex-column ga-4 mx-n5">
                 <DropWidget
                     v-for="campaign in activeCampaigns"
                     :key="campaign.id || campaign.campaignId"

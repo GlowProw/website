@@ -6,6 +6,7 @@ import {apis} from '@/assets/sripts'
 import {VOtpInput} from 'vuetify/components/VOtpInput'
 import {handleApiError} from '@/assets/sripts/error_handler'
 import {ApiError} from '@/assets/types/Api'
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {t} = useI18n()
 const notice = useNoticeStore()
@@ -200,70 +201,15 @@ const onReset = () => {
 
 <template>
   <div class="twofactor-page">
-    <!-- 页面头部 S -->
-    <div class="d-flex align-start flex-wrap ga-3 mb-4">
-      <v-avatar size="48" color="amber" variant="tonal" class="flex-shrink-0">
-        <v-icon icon="mdi-shield-lock-outline" size="28"/>
-      </v-avatar>
-
-      <div class="flex-grow-1" style="min-width: 240px">
-        <div class="d-flex align-center flex-wrap ga-2">
-          <h2 class="text-h6 font-weight-bold">{{ t('account.twoFactor.title') }}</h2>
-          <v-chip :color="enabled ? 'green' : 'grey'" variant="tonal" size="small">
-            <v-icon start size="14">{{ enabled ? 'mdi-check-circle' : 'mdi-circle-outline' }}</v-icon>
-            {{ enabled ? t('account.twoFactor.statusOn') : t('account.twoFactor.statusOff') }}
-          </v-chip>
-        </div>
-        <p class="text-caption opacity-60 mt-1 mb-0">{{ t('account.twoFactor.description') }}</p>
-      </div>
-
-      <v-btn icon="mdi-refresh"
-             variant="text"
-             size="small"
-             :loading="loading"
-             :title="t('basic.button.refresh')"
-             @click="onLoadStatus"/>
-    </div>
-    <!-- 页面头部 E -->
-
-    <!-- 功能说明 S -->
-    <v-card border class="pa-5 mb-4">
-      <div class="d-flex align-center ga-2 mb-2">
-        <v-icon icon="mdi-information-outline" color="amber" size="20"/>
-        <span class="text-subtitle-1 font-weight-medium">{{ t('account.twoFactor.introTitle') }}</span>
-      </div>
-
-      <p class="text-body-2 opacity-80 mb-4">{{ t('account.twoFactor.introDesc') }}</p>
-
-      <v-row density="compact">
-        <v-col v-for="item in features" :key="item.icon" cols="12" md="4">
-          <div class="d-flex ga-3">
-            <v-icon :icon="item.icon" color="amber" size="22" class="mt-1 flex-shrink-0"/>
-            <div>
-              <div class="text-body-2 font-weight-medium">{{ item.title }}</div>
-              <div class="text-caption opacity-60">{{ item.desc }}</div>
-            </div>
-          </div>
-        </v-col>
-      </v-row>
-    </v-card>
-    <!-- 功能说明 E -->
-
     <v-row>
       <!-- 主操作区 S -->
       <v-col cols="12" lg="8">
-        <v-card border class="pa-5 h-100">
-          <!-- 卡片标题 S -->
-          <div class="d-flex align-center justify-space-between mb-4">
-            <span class="text-subtitle-1 font-weight-medium">
-              {{ step === 'setup' ? t('account.twoFactor.enable') : step === 'done' ? t('account.twoFactor.enabled') : t('account.twoFactor.statusTitle') }}
-            </span>
+        <AffixBoxHasTitleView>
+          <template v-slot:title>
+            {{ step === 'setup' ? t('account.twoFactor.enable') : step === 'done' ? t('account.twoFactor.enabled') : t('account.twoFactor.statusTitle') }}
+          </template>
 
-            <v-btn v-if="step === 'setup'" size="small" variant="text" @click="onReset">
-              {{ t('basic.button.cancel') }}
-            </v-btn>
-          </div>
-          <!-- 卡片标题 E -->
+
 
           <!-- 状态与操作 S -->
           <div v-if="step === 'idle'" class="d-flex align-start flex-wrap ga-4">
@@ -395,33 +341,39 @@ const onReset = () => {
                              variant="solo-filled"
                              :label="t('account.twoFactor.verifyCode')"
                              :disabled="passwordLoading"
-                             class="mb-3"
+                             class="mb-3 ml-n2"
                              style="max-width: 320px"/>
 
-                <v-btn variant="flat"
-                       color="amber"
-                       :loading="passwordLoading"
-                       :disabled="verifyCode.length !== 6"
-                       @click="onConfirmEnable">
-                  {{ t('account.twoFactor.confirmEnable') }}
-                </v-btn>
+                <div class="d-flex ga-2">
+                  <v-btn variant="flat"
+                         color="amber"
+                         :loading="passwordLoading"
+                         :disabled="verifyCode.length !== 6"
+                         @click="onConfirmEnable">
+                    {{ t('account.twoFactor.confirmEnable') }}
+                  </v-btn>
+
+                  <v-btn v-if="step === 'setup'" border variant="text" @click="onReset">
+                    {{ t('basic.button.cancel') }}
+                  </v-btn>
+                </div>
               </div>
             </div>
             <!-- 步骤 3 E -->
           </div>
           <!-- 三步设置流程 E -->
-        </v-card>
+        </AffixBoxHasTitleView>
       </v-col>
       <!-- 主操作区 E -->
 
       <!-- 流程说明 S -->
       <v-col cols="12" lg="4">
-        <v-card border class="pa-5 h-100">
-          <div class="d-flex align-center ga-2 mb-1">
-            <v-icon icon="mdi-map-marker-path" color="amber" size="20"/>
-            <span class="text-subtitle-1 font-weight-medium">{{ t('account.twoFactor.flowTitle') }}</span>
-          </div>
-          <p class="text-caption opacity-60 mb-4">{{ t('account.twoFactor.flowHint') }}</p>
+        <AffixBoxHasTitleView>
+          <template v-slot:title>
+            {{ t('account.twoFactor.flowTitle') }}
+          </template>
+
+          <p class="mb-4">{{ t('account.twoFactor.flowHint') }}</p>
 
           <div v-for="(item, index) in flowSteps" :key="item.key" class="flow-item">
             <div class="flow-index">{{ index + 1 }}</div>
@@ -430,22 +382,43 @@ const onReset = () => {
               <div class="text-caption opacity-60">{{ item.desc }}</div>
             </div>
           </div>
-        </v-card>
+        </AffixBoxHasTitleView>
       </v-col>
       <!-- 流程说明 E -->
     </v-row>
 
     <!-- 常见问题 S -->
-    <v-card border class="pa-5 mt-4">
-      <div class="d-flex align-center ga-2 mb-3">
-        <v-icon icon="mdi-help-circle-outline" color="amber" size="20"/>
-        <span class="text-subtitle-1 font-weight-medium">{{ t('account.twoFactor.faqTitle') }}</span>
-      </div>
+    <v-row border class="pa-5 mt-4">
+      <v-col cols="12" lg="3" class="d-flex flex-column align-start">
+        <p class="text-h5">{{ t('account.twoFactor.faqTitle') }}</p>
+        <p class="mt-2 opacity-60">{{ t('account.twoFactor.description') }}</p>
+      </v-col>
+      <v-col cols="12" lg="9">
+        <v-expansion-panels variant="accordion" flat rounded gap="10">
+          <v-expansion-panel rounded="30" :title="t('account.twoFactor.introTitle')">
+            <template v-slot:text>
+              <!-- 功能说明 S -->
+              <p class="mb-4">{{ t('account.twoFactor.introDesc') }}</p>
 
-      <v-expansion-panels variant="accordion" flat bg-color="transparent">
-        <v-expansion-panel v-for="item in faqItems" :key="item.key" :title="item.q" :text="item.a"/>
-      </v-expansion-panels>
-    </v-card>
+              <v-row class="">
+                <v-col v-for="item in features" :key="item.icon" cols="12" md="4">
+                  <div class="d-flex ga-3">
+                    <v-icon :icon="item.icon" color="amber" size="22" class="mt-1 flex-shrink-0"/>
+                    <div>
+                      <div class="font-weight-medium">{{ item.title }}</div>
+                      <div class="opacity-60">{{ item.desc }}</div>
+                    </div>
+                  </div>
+                </v-col>
+              </v-row>
+              <!-- 功能说明 E -->
+            </template>
+          </v-expansion-panel>
+
+          <v-expansion-panel rounded="30" v-for="item in faqItems" :key="item.key" :title="item.q" :text="item.a"/>
+        </v-expansion-panels>
+      </v-col>
+    </v-row>
     <!-- 常见问题 E -->
 
     <!-- 密码确认 S -->
@@ -553,7 +526,6 @@ const onReset = () => {
   min-width: 0;
 }
 
-/* 右侧启用流程 */
 .flow-item {
   position: relative;
   display: flex;

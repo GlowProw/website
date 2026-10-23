@@ -2,6 +2,7 @@
 import {computed, onMounted, ref, watch} from "vue";
 import {apis, storage} from "@/assets/sripts/index";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import {notifyReviewResult} from "@/assets/sripts/review";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useI18n} from "vue-i18n";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -787,10 +788,13 @@ const onCreateCommend = async () => {
     createCommentLoading.value = true
     const reportId = selectedSmugglersReport.value?.id
     if (!reportId) return
-    await apis.smugglersApi().addReportComment(reportId, {
+    const result = await apis.smugglersApi().addReportComment(reportId, {
       content: smugglersReportComment.value.content as string
     })
-    notice.success(t('smugglersReport.account.commentSuccess'))
+    const d = result.data
+    if (!notifyReviewResult(d.data?.review, notice, t)) return
+    if (!d.data?.review || d.data.review.status === 'approved')
+      notice.success(t('smugglersReport.account.commentSuccess'))
     storage.local.rem(`${COMMENT_DRAFT_PREFIX}${reportId}`)
     hasCommentDraft.value = false
     await getSmugglersReportList()
@@ -815,10 +819,13 @@ const onEditCommend = async () => {
     const reportId = selectedSmugglersReport.value?.id
     const commentId = selectedSmugglersReport.value?.userComment?.id
     if (!reportId || !commentId) return
-    await apis.smugglersApi().editReportComment(reportId, commentId, {
+    const result = await apis.smugglersApi().editReportComment(reportId, commentId, {
       content: smugglersReportComment.value.content as string
     })
-    notice.success(t('smugglersReport.account.commentEditSuccess'))
+    const d = result.data
+    if (!notifyReviewResult(d.data?.review, notice, t)) return
+    if (!d.data?.review || d.data.review.status === 'approved')
+      notice.success(t('smugglersReport.account.commentEditSuccess'))
     storage.local.rem(`${COMMENT_DRAFT_PREFIX}${reportId}`)
     hasCommentDraft.value = false
     await getSmugglersReportList()

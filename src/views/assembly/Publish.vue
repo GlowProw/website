@@ -5,6 +5,7 @@ import {useI18n} from "vue-i18n";
 import {apis, storageIntermediateTransfer} from "@/assets/sripts";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import {notifyReviewResult} from "@/assets/sripts/review";
 import {useNoticeStore} from "~/stores/noticeStore";
 
 import Textarea from "@/components/textarea/index.vue"
@@ -230,6 +231,9 @@ const onEdit = async () => {
       category: 'assembly'
     })
 
+    // 描述审核结果单独提示，被拒时保留旧描述
+    notifyReviewResult(d.data?.descriptionReview, notice, t)
+
     await router.push(`/assembly/browse/${editPublishData.uuid}/detail`)
 
     notice.success(t(`basic.tips.${d.code}`))
@@ -257,6 +261,31 @@ const onPublish = async () => {
       saveType: StorageIntermediateTransferSaveType.Data,
       category: 'assembly'
     })
+
+    // 发布积分提示：基础、附加内容与月度 3 倍激励
+    const reward = d.data?.reward;
+    if (reward?.total > 0) {
+      const lines = [
+        t('basic.assembly.publish.reward.detail', {
+          base: reward.base,
+          mastery: reward.mastery,
+          wheel: reward.wheel,
+          warehouse: reward.warehouse
+        })
+      ];
+
+      if (reward.multiplier > 1) {
+        lines.push(t('basic.assembly.publish.reward.boost', {count: reward.monthCount}));
+      }
+
+      notice.success(lines.join(' · '), {
+        title: t('basic.assembly.publish.reward.title', {points: reward.total}),
+        timeout: 8000
+      });
+    }
+
+    // 描述审核结果单独提示，未通过时详情页不展示描述
+    notifyReviewResult(d.data?.descriptionReview, notice, t)
 
     await router.push(
         d.data['assembly.uuid'] ?

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppMessageWidget from '@/components/AppMessageWidget.vue'
+import GlobalSupportPrompt from '@/components/GlobalSupportPrompt.vue'
 import {computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch} from "vue";
 import {useI18n} from 'vue-i18n';
 import {useRoute} from "vue-router";
@@ -15,7 +16,7 @@ import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
 import {setupGlobalHotkeys} from "@/assets/sripts/global_hotkeys";
 
 const GlobalPreloadOverlay = defineAsyncComponent(() => import('@/components/GlobalPreloadOverlay.vue'));
-const isClient = ref(false);
+const isClient = ref(true);
 
 const {t, locale} = useI18n();
 const reminderStore = useReminderStore();
@@ -98,10 +99,49 @@ watch(
     {immediate: true}
 );
 
+/**
+ * 等待站点资源加载完成
+ * 依次等待页面 load、字体就绪与首屏图片加载，每段都带超时兜底，避免异常网络下遮罩一直不消失
+ */
+const waitForSiteAssets = async () => {
+  if (typeof window === 'undefined') return;
+
+  /**
+   * 给等待过程加超时，超时后视为完成
+   */
+  const withTimeout = (task: Promise<unknown>, timeout: number) =>
+      Promise.race([task, new Promise<void>(resolve => window.setTimeout(resolve, timeout))]);
+
+  if (document.readyState !== 'complete') {
+    await withTimeout(new Promise<void>(resolve => {
+      window.addEventListener('load', () => resolve(), {once: true});
+    }), 8000);
+  }
+
+  if (document.fonts?.ready) {
+    await withTimeout(document.fonts.ready, 8000);
+  }
+
+  const pendingImages = Array.from(document.images).filter(img => !img.complete);
+  if (pendingImages.length > 0) {
+    await withTimeout(Promise.all(pendingImages.map(img => new Promise<void>(resolve => {
+      img.addEventListener('load', () => resolve(), {once: true});
+      img.addEventListener('error', () => resolve(), {once: true});
+    }))), 8000);
+  }
+};
+
 onMounted(async () => {
   isClient.value = true;
   cleanupHotkeys = setupGlobalHotkeys();
   document.addEventListener('visibilitychange', handleVisibilityChange);
+  preloadStore.registerTask({
+    id: 'site-assets',
+    phase: t('basic.preload.siteAssets') || '等待站点资源加载完成...',
+    run: async () => {
+      await waitForSiteAssets();
+    }
+  });
   preloadStore.registerTask({
     id: 'remote-i18n',
     phase: t('basic.preload.remoteI18n') || '从远程加载文本数据...',
@@ -178,5 +218,6 @@ const handleVisibilityChange = () => {
   <GlobalPreloadOverlay v-if="isClient"/>
 
   <AppMessageWidget></AppMessageWidget>
+  <GlobalSupportPrompt/>
   <router-view></router-view>
 </template>

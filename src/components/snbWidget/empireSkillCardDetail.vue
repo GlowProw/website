@@ -25,7 +25,14 @@ const props = withDefaults(defineProps<{
 const {t} = useI18nUtils();
 const router = useRouter();
 
-const skill = computed(() => EmpireSkills[props.id]);
+const skill = computed(() => EmpireSkills[props.id]
+    || Object.values(EmpireSkills).find(item => item.id === props.id)
+    || null);
+
+/**
+ * 技能基础 id，同一技能在不同阵营存在多个唯一键，文案需按基础 id 读取
+ */
+const baseId = computed(() => skill.value?.id || props.id);
 
 defineOptions({
   name: "EmpireSkillCardDetail"
@@ -43,7 +50,7 @@ defineOptions({
       </div>
 
       <h2 class="font-weight-bold text-amber">
-        <EmpireSkillName :id="props.id"></EmpireSkillName>
+        <EmpireSkillName :id="baseId"></EmpireSkillName>
       </h2>
       <p class="text-caption text-grey mb-1">{{ props.id }}</p>
 
@@ -55,7 +62,7 @@ defineOptions({
     <div class="demo-reel-content background-flavor overflow-auto pa-6">
       <template v-if="isShowDescription">
         <div class="mb-4 description">
-          <EmpireSkillDescription :id="props.id" />
+          <EmpireSkillDescription :id="baseId" />
         </div>
       </template>
     </div>

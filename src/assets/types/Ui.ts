@@ -2,6 +2,7 @@
  * 纯视觉 / 通用 UI 组件的内部类型
  */
 import type {CSSProperties} from "vue";
+import type {PublicSeasonSummary} from "@/assets/types/Statistics";
 
 // DateRangePicker.vue
 
@@ -267,6 +268,21 @@ export interface SwipeDrawerProps {
   lockScroll?: boolean
   // 边缘起手热区宽度（px），鼠标按住或触摸该区域向关闭方向滑动可收起
   edgeWidth?: number
+}
+
+// SeasonItemsDialog.vue
+
+export interface SeasonItemsDialogProps {
+  modelValue: boolean;
+  season: PublicSeasonSummary | null;
+}
+
+// CodexHistory.vue
+export interface CodexHistoryProps {
+  // 是否显示自带的标题工具栏，嵌入抽屉时由外层提供标题
+  isShowHeader?: boolean
+  // 没有浏览记录时是否显示空状态提示
+  isShowEmpty?: boolean
 }
 
 // CountUp.vue

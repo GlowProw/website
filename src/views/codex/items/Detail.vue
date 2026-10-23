@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
-import {Item, Items} from "glow-prow-data/src/entity/Items";
-import {computed, onMounted, ref, type Ref, watch} from "vue";
+import {Items} from "glow-prow-data/src/entity/Items";
+import {computed, onMounted} from "vue";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
@@ -14,11 +14,10 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
-import {number, rarity, storage, storageCollect, getAppUrl} from "@/assets/sripts";
+import {number, rarity, storage, getAppUrl} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
-import {StorageCollectType} from "@/assets/sripts/storage_collect";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import {useHead} from "@unhead/vue";
@@ -64,12 +63,6 @@ const
 const
     id = computed(() => (route.params.id as string) || ''),
     itemDetailData = computed(() => (id.value ? items[id.value] : null)),
-    isCollect = ref(false),
-
-    getCollectStatus = computed(() => {
-      if (!itemDetailData.value || !itemDetailData.value.id) return false;
-      return !!storageCollect.get(itemDetailData.value.id, StorageCollectType.Item).data
-    }),
     requiredRank = computed(() => {
       const r = sanitizeString(itemDetailData.value?.requiredRank)
       return asString([
@@ -170,22 +163,6 @@ const onCodexHistory = () => {
 }
 
 /**
- * 收藏物品
- */
-const onStarItem = (data: Item) => {
-  isCollect.value = !isCollect.value;
-
-  if (isCollect.value)
-    return storageCollect.delete(data.id, StorageCollectType.Item)
-
-  storageCollect.updata(
-      {collectTime: new Date().getTime()}
-      , StorageCollectType.Item,
-      data.id
-  )
-}
-
-/**
  * 添加到量化
  */
 const onAddCalculator = () => {
@@ -242,10 +219,6 @@ const onAddCalculator = () => {
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <div class="d-flex ga-2">
-              <v-btn :class="getCollectStatus ? 'text-amber' : ''" border variant="text" @click="onStarItem(itemDetailData)">
-                <v-icon :icon="`mdi-${getCollectStatus ? 'star' : 'star-outline'}`"></v-icon>
-              </v-btn>
-
               <CollectionToggle target-type="item" :target-id="itemDetailData.id"></CollectionToggle>
 
               <v-btn v-if="authStore.isLogin" border>

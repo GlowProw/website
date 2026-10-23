@@ -11,14 +11,16 @@
         <v-icon size="80" icon="mdi-cog" class="ml-2"></v-icon>
       </v-card-title>
 
-      <v-tabs v-model="activeTab" color="amber" density="comfortable" class="border-b px-4">
-        <v-tab value="general">
-          {{ t('map.generalSettings') }}
-        </v-tab>
-        <v-tab value="zoom">
-          {{ t('map.markerZoomSettings') }}
-        </v-tab>
-      </v-tabs>
+      <v-card-item class="border-b pa-0">
+        <v-tabs v-model="activeTab" color="amber" density="comfortable" class="">
+          <v-tab value="general">
+            {{ t('map.generalSettings') }}
+          </v-tab>
+          <v-tab value="zoom">
+            {{ t('map.markerZoomSettings') }}
+          </v-tab>
+        </v-tabs>
+      </v-card-item>
 
       <v-card-text class="pa-4 pa-md-6" style="max-height: 65vh">
         <!-- 常规设置 S -->

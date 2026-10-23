@@ -201,16 +201,25 @@ defineOptions({
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           ref="targetElement"
-          width="100%"
-          height="100%"
           v-bind="activatorProps"
-          :to="isOpenDetail ? `/codex/mapLocation/${props?.id}` : ''"
+          variant="tonal"
+          color="transparent"
+          :to="isOpenDetail && effectiveId ? `/codex/mastery/${effectiveId}` : undefined"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
-              'prohibit-drag',
-              `ma-${computedMargin}`,
-              `pa-${computedPadding}`,
-          ]">
+              'mastery-icon-container prohibit-drag',
+              'd-flex align-center justify-center position-relative text-decoration-none',
+              bgGradientClass,
+              computedMarginClass,
+              computedPaddingClass,
+              {
+                'cursor-pointer': isOpenDetail && effectiveId,
+                'with-bg': withBackground,
+                'shape-diamond': withBackground && effectiveRole === 'seasonalPerk',
+                'shape-circle': withBackground && effectiveRole !== 'seasonalPerk',
+              }
+          ]"
+          :style="containerStyle">
         <div class="d-flex align-center justify-center w-100 h-100 position-relative">
           <v-img
               v-if="iconUrl && !isImgError"

@@ -71,6 +71,23 @@ const
     // 稀有度
     rarityColorConfig = rarity.color,
 
+    // 图鉴条目类型与收藏目标类型的映射，用于列表图标右上角收藏角标
+    collectKinds: Record<string, string> = {
+      Ship: 'ship',
+      Item: 'item',
+      Commodity: 'commoditie',
+      Material: 'material',
+      Cosmetic: 'cosmetic',
+      Set: 'set',
+      Ultimate: 'ultimate',
+      Mod: 'mod',
+      TreasureMap: 'treasureMap',
+      MapLocation: 'mapLocation',
+      Npc: 'npc',
+      EmpireSkill: 'empireSkill',
+      Mastery: 'mastery'
+    },
+
     route = useRoute(),
     router = useRouter(),
     slots = useSlots(),
@@ -411,7 +428,16 @@ const onProcessedData = computed(() => {
             d = d.concat(Object.values(npcs))
             break;
           case "empireSkill":
-            d = d.concat(Object.values(empireSkills).filter((i: any) => i.id !== 'root'))
+            // 同一技能在不同阵营会以「技能id-阵营」作为唯一键，列表需要保留该键才能定位到技能本体
+            // 数据对象是类实例，直接补挂键即可，避免复制或包裹导致原型 getter 失效
+            d = d.concat(
+                Object.entries(empireSkills)
+                    .filter(([, i]: [string, any]) => i.id !== 'root')
+                    .map(([key, i]: [string, any]) => {
+                      i._skillKey = key
+                      return i
+                    })
+            )
             break;
           case "quest":
             d = d.concat(Object.values(Quests))
@@ -1218,7 +1244,8 @@ defineOptions({
       <v-row class="list" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in data" :key="i.id" :width="size" variant="text">
           <div class="position-relative d-flex justify-center">
-            <ItemSlotBase :size="`${baseSize}px`" class="position-relative">
+            <ItemSlotBase :size="`${baseSize}px`" class="position-relative" :collect-id="i.id"
+                          :collect-type="collectKinds[i._typeStringName]">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
               <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
@@ -1231,7 +1258,7 @@ defineOptions({
               <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
-              <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
+              <EmpireSkillIconWidget :id="i.id" :skill-key="i._skillKey" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
               <MasteryIconWidget :id="i.id" :name="i.skill" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
               <QuestIconWidget :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestIconWidget>
             </ItemSlotBase>
@@ -1271,7 +1298,8 @@ defineOptions({
       <v-row class="list" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in onProcessedData" :key="i.id" :width="size" variant="text">
           <div class="position-relative d-flex justify-center">
-            <ItemSlotBase :size="`${baseSize}px`" class="position-relative">
+            <ItemSlotBase :size="`${baseSize}px`" class="position-relative" :collect-id="i.id"
+                          :collect-type="collectKinds[i._typeStringName]">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
               <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
@@ -1284,7 +1312,7 @@ defineOptions({
               <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
-              <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
+              <EmpireSkillIconWidget :id="i.id" :skill-key="i._skillKey" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
               <MasteryIconWidget :id="i.id" :name="i.id" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
               <QuestIconWidget :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestIconWidget>
             </ItemSlotBase>

@@ -196,7 +196,22 @@
     },
     "preload": {
       "remoteI18n": "Loading remote translations...",
+      "siteAssets": "Waiting for site assets...",
       "default": "Loading assets..."
+    },
+    "review": {
+      "pendingTitle": "Content under review",
+      "pendingDetail": "Submitted. Only you can see it while it is under review.",
+      "rejectedTitle": "Content rejected",
+      "rejectedDetail": "Publishing failed. Please revise and try again.",
+      "reason": "Reason: {reason}",
+      "unknownReason": "No specific reason provided"
+    },
+    "supportPrompt": {
+      "title": "Ahoy captain",
+      "detail": "Ahoy captain, what do you think of {name}? If it has helped you, you can support us on the subscription page.",
+      "later": "Not now",
+      "subscribe": "Go to subscription"
     },
     "tips": {
       "permissionDenied": "Permission denied",
@@ -978,17 +993,32 @@
         "collected": "Collected",
         "catalog": "Total Entries",
         "completion": "Completion",
-        "lastCollected": "Last Collected"
+        "lastCollected": "Last Collected",
+        "lastCollectedHint": "Last marked at",
+        "localMarks": "{count} local marks",
+        "sync": "Sync"
+      },
+      "sync": {
+        "result": "Sync complete: {upload} uploaded, {download} downloaded",
+        "none": "Local marks and account collection are already in sync",
+        "failed": "Sync failed, please try again later"
+      },
+      "syncDialog": {
+        "title": "Local marks found",
+        "text": "You marked {count} entries before signing in. Sync them to this account now?",
+        "keep": "Local marks are kept after syncing and take priority over account collection.",
+        "confirm": "Sync now",
+        "later": "Later"
       },
       "trend": {
         "title": "Collection Trend",
         "range": "Range",
-        "range12": "12 weeks",
-        "range26": "26 weeks",
-        "range52": "52 weeks",
-        "added": "Added per week",
+        "range7": "Last 7 days",
+        "range30": "Last 30 days",
+        "range90": "Last 90 days",
+        "added": "Added per day",
         "addedUnit": "items",
-        "addedMax": "Peak week",
+        "addedMax": "Peak day",
         "cumulative": "Cumulative collected",
         "totalUnit": "items",
         "noData": "No additions in the selected range"
@@ -1042,7 +1072,12 @@
         "mastery": "Mastery",
         "signin": "Check-in",
         "teamup": "Team-up",
-        "subscription": "Sponsorship"
+        "subscription": "Sponsorship",
+        "comment": "Comments/Replies",
+        "codex": "Codex",
+        "personalization": "Personalization",
+        "security": "Security",
+        "bot": "Bots"
       },
       "status": {
         "locked": "Locked",
@@ -1054,7 +1089,11 @@
         "mastery": "Publish {count} mastery build(s) in total",
         "teamup": "Publish {count} team-up(s) in total",
         "level": "Reach account level {level}",
-        "subscription": "Sponsor at the {tier} tier"
+        "subscription": "Sponsor at the {tier} tier",
+        "comment": "Post {count} comment(s) or reply",
+        "codex": "Collect {count} codex entries in total",
+        "codexSeason": "Complete every codex entry of any season",
+        "once": "Complete once"
       },
       "levels": {
         "outcast": {
@@ -1306,6 +1345,58 @@
         "signin_level_25": {
           "name": "Gold Kingpin Apex",
           "desc": "Earn enough check-in points to reach account level 25."
+        },
+        "comment_first": {
+          "name": "First Word",
+          "desc": "Post your first comment or reply and join the dockside conversation."
+        },
+        "codex_100": {
+          "name": "Codex Novice",
+          "desc": "Collect 100 codex entries and start keeping your own logbook."
+        },
+        "codex_200": {
+          "name": "Codex Apprentice",
+          "desc": "Collect 200 codex entries and grow your knowledge of the seas."
+        },
+        "codex_500": {
+          "name": "Codex Scholar",
+          "desc": "Collect 500 codex entries, enough to fill a full handbook."
+        },
+        "codex_1000": {
+          "name": "Codex Grandmaster",
+          "desc": "Collect 1000 codex entries. No one knows these waters better."
+        },
+        "codex_season_complete": {
+          "name": "Season Completionist",
+          "desc": "Complete every codex entry of any season. Awarded once per season."
+        },
+        "avatar_set": {
+          "name": "New Face",
+          "desc": "Set an avatar so other captains remember you."
+        },
+        "alias_changed": {
+          "name": "Making a Name",
+          "desc": "Change your alias once and sail under a louder name."
+        },
+        "description_set": {
+          "name": "Introduce Yourself",
+          "desc": "Add a personal description to your account."
+        },
+        "twofa_bound": {
+          "name": "Double Locked",
+          "desc": "Enable two-factor authentication for the first time."
+        },
+        "oauth_first_bind": {
+          "name": "Linked In",
+          "desc": "Bind any third-party platform account for the first time."
+        },
+        "qq_bot_bound": {
+          "name": "Bot Recruit",
+          "desc": "Bind the QQ platform bot for the first time."
+        },
+        "bot_bound": {
+          "name": "Community Fleet",
+          "desc": "Bind a bot from any platform to a community group for the first time."
         }
       }
     },
@@ -2103,6 +2194,7 @@
     "title": "Codex",
     "description": "Ahoy, Captain, wanna check out my treasures?",
     "cabinetHistoryTitle": "Browsing History",
+    "cabinetHistoryEmpty": "No browsing history yet",
     "more": "More",
     "sidebar": "Sidebar",
     "filter": {
@@ -2378,6 +2470,8 @@
       "collectedOn": "Marked as obtained",
       "collectedOff": "Obtained mark removed",
       "collectedFailed": "Operation failed, please try again",
+      "collectionLocalSaved": "Saved locally, sync it to your account after signing in",
+      "collectionToggleTip": "Mark or unmark as obtained, synced to your account when signed in",
       "gearScore": "Gear Score",
       "rarity": "Rarity",
       "dateAdded": "Date Added",
@@ -3732,7 +3826,12 @@
       "descriptionPlaceholder": "Enter description",
       "extra": "Extra",
       "tags": "Tags",
-      "tagsPlaceholder": "Type tag and press Enter to create a new tag"
+      "tagsPlaceholder": "Type tag and press Enter to create a new tag",
+      "reward": {
+        "title": "Account points +{points}",
+        "detail": "Base {base} · Mastery {mastery} · Wheel {wheel} · Warehouse {warehouse}",
+        "boost": "5th publish this month, 3x points bonus"
+      }
     },
     "selectWeaponDirection": "Select Weapon Direction",
     "unnamed": "Unnamed Loadout",
@@ -4382,6 +4481,8 @@
       "toggleMessagesDesc": "Toggle messages and notifications drawer",
       "toggleHeaderMenu": "Navigation Menu",
       "toggleHeaderMenuDesc": "Toggle header navigation drawer menu",
+      "toggleCodexHistory": "Browsing History",
+      "toggleCodexHistoryDesc": "Toggle browsing history drawer",
       "closeModal": "Close Dialog",
       "closeModalDesc": "Close currently active modal or drawer",
       "pressCombination": "Press key combination",
@@ -4561,6 +4662,10 @@
       "stateOfWar": {
         "title": "State of War",
         "description": "Track faction asset score and regional war dominance in Season"
+      },
+      "statistics": {
+        "title": "Statistics",
+        "description": "Browse public site-wide statistics for codex, sign-ins and seasons"
       },
       "assembly": {
         "title": "Ship Assembly Workshop",
@@ -4755,6 +4860,70 @@
       "localTimeZoneName": "Local Time Zone",
       "localeTime": "Local Time",
       "localeTimeDescription": "Time data converted according to the local time zone and locale environment"
+    }
+  },
+  "statistics": {
+    "title": "Statistics",
+    "group": "Statistics",
+    "common": {
+      "asOf": "Data as of",
+      "updated": "Last updated",
+      "range": "Range",
+      "period": "Period",
+      "comparePrevious": "vs previous",
+      "currentPeriod": "Current period",
+      "previousPeriod": "Previous period",
+      "previousValue": "Previous",
+      "noData": "No data"
+    },
+    "range": {
+      "7": "Last 7 days",
+      "30": "Last month",
+      "90": "Last 3 months"
+    },
+    "season": {
+      "title": "Season Statistics",
+      "summary": {
+        "entries": "Codex entries",
+        "seasons": "Seasons covered",
+        "collections": "Site collections"
+      },
+      "bySeason": "Season breakdown",
+      "view": "View",
+      "detailTitle": "Season codex details",
+      "startDate": "Season start",
+      "entriesCount": "Entries",
+      "collectedCount": "Total collections"
+    },
+    "codex": {
+      "title": "Codex Statistics",
+      "metrics": {
+        "collections": "Total collections",
+        "collectors": "Collectors",
+        "dailyAverage": "Daily average",
+        "coveredTypes": "Covered categories"
+      },
+      "trend": "Daily collection trend",
+      "byType": "Category distribution"
+    },
+    "signin": {
+      "title": "Sign-in Statistics",
+      "metrics": {
+        "signins": "Total sign-ins",
+        "users": "Signed-in users",
+        "dailyAverage": "Daily average",
+        "makeup": "Make-up sign-ins"
+      },
+      "trend": "Daily sign-in trend",
+      "byPlatform": "Platform distribution",
+      "needLoginTitle": "Sign in to view",
+      "needLoginDesc": "Sign-in statistics contain account data. Please sign in first.",
+      "needLoginAction": "Sign in",
+      "platforms": {
+        "web": "Website",
+        "qq": "QQ",
+        "qq-bot": "QQ Bot"
+      }
     }
   },
   "stateOfWar": {
@@ -5104,7 +5273,8 @@
     "cancel": "Cancel",
     "close": "Close",
     "confirm": "Confirm",
-    "confirmDelete": "Confirm deletion"
+    "confirmDelete": "Confirm deletion",
+    "delete": "Delete"
   },
   "team": {
     "title": "Team Up"

@@ -84,6 +84,17 @@ const DEFAULT_HOTKEYS: HotkeyItem[] = [
     defaultMode: 'press',
   },
   {
+    id: 'toggleCodexHistory',
+    nameKey: 'setting.hotkeys.toggleCodexHistory',
+    descriptionKey: 'setting.hotkeys.toggleCodexHistoryDesc',
+    category: 'global',
+    categoryKey: 'setting.hotkeys.categoryGlobal',
+    defaultKey: isMacClient ? 'option+c' : 'alt+c',
+    currentKey: isMacClient ? 'option+c' : 'alt+c',
+    mode: 'press',
+    defaultMode: 'press',
+  },
+  {
     id: 'closeModal',
     nameKey: 'setting.hotkeys.closeModal',
     descriptionKey: 'setting.hotkeys.closeModalDesc',

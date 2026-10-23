@@ -229,21 +229,20 @@ export default class AppCodexNav {
             prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
-            type: 'divider',
-            class: 'my-2'
-        },
-        {
             title: 'codex.treasureMaps.title',
-            to: `/${this.lang}/codex/treasureMaps`
+            to: `/${this.lang}/codex/treasureMaps`,
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.mapLocations.title',
             to: `/${this.lang}/codex/mapLocations`,
+            prependIcon: 'mdi-format-list-bulleted-type',
             badge: 'BETA'
         },
         {
             title: 'codex.npcs.title',
             to: `/${this.lang}/codex/npcs`,
+            prependIcon: 'mdi-format-list-bulleted-type',
             badge: 'BETA'
         },
         {

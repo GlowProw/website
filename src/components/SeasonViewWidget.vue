@@ -9,8 +9,6 @@ const seasonVideos = import.meta.glob('@/assets/videos/*.*', {eager: true}),
     seasonImages = import.meta.glob('@/assets/images/snb/season/*.*', {eager: true})
 
 const {serializationMap} = useAssetsStore(),
-    {t} = useI18n(),
-    {mobile} = useDisplay(),
     props = defineProps<{ data: Season | unknown }>()
 
 let images = ref({}),

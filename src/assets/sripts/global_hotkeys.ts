@@ -1,6 +1,7 @@
 import { useHotkeysStore } from '~/stores/hotkeysStore';
 import { useAppStore } from '~/stores/appStore';
 import { useMessagesDrawerStore } from '~/stores/messagesDrawerStore';
+import { useCodexHistoryDrawerStore } from '~/stores/codexHistoryDrawerStore';
 
 // 检测是否为苹果系统设备
 export const isMacDevice = typeof navigator !== 'undefined' && /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent || '');
@@ -66,6 +67,7 @@ export function setupGlobalHotkeys(): () => void {
     const hotkeysStore = useHotkeysStore();
     const appStore = useAppStore();
     const messagesDrawerStore = useMessagesDrawerStore();
+    const codexHistoryDrawerStore = useCodexHistoryDrawerStore();
 
     const pressedKey = normalizeKeyboardEvent(e);
     const inEditable = isEditableElement(e.target);
@@ -76,6 +78,11 @@ export function setupGlobalHotkeys(): () => void {
       if (appStore.globalSearchDrawer) {
         e.preventDefault();
         appStore.globalSearchDrawer = false;
+        return;
+      }
+      if (codexHistoryDrawerStore.open) {
+        e.preventDefault();
+        codexHistoryDrawerStore.setOpen(false);
         return;
       }
       if (messagesDrawerStore.open) {
@@ -104,6 +111,20 @@ export function setupGlobalHotkeys(): () => void {
       if (nextState) {
         appStore.headerDrawer = false;
         messagesDrawerStore.setOpen(false);
+      }
+      return;
+    }
+
+    // 游览历史抽屉呼出与收起
+    const codexHistoryKey = hotkeysStore.getKey('toggleCodexHistory');
+    if (codexHistoryKey && pressedKey === codexHistoryKey) {
+      e.preventDefault();
+      const nextState = !codexHistoryDrawerStore.open;
+      codexHistoryDrawerStore.setOpen(nextState);
+      if (nextState) {
+        appStore.globalSearchDrawer = false;
+        messagesDrawerStore.setOpen(false);
+        appStore.headerDrawer = false;
       }
       return;
     }

@@ -582,7 +582,11 @@ export function useI18nReadName() {
         }
     }
 
-    const empireSkill = (id: string) => {
+    const empireSkill = (rawId: string) => {
+        // 同一技能在不同阵营共享基础 id，唯一键形如「技能id-阵营」，文案统一按基础 id 读取
+        const matchedSkill = empireSkills[rawId] || Object.values(empireSkills).find(item => item.id === rawId);
+        const id = matchedSkill?.id || rawId;
+
         let keysName = [
             `snb.empireSkills.${id}.name`,
             `snb.empireSkills.${sanitizeString(id).cleaned}.name`,
@@ -603,7 +607,7 @@ export function useI18nReadName() {
                 return (translatedName || id || '').trim();
             },
             description: (lang?: string, stage?: number): string => {
-                const skill = empireSkills[id];
+                const skill = empireSkills[id] || matchedSkill;
                 if (!skill) return '';
                 const factionName = t(`snb.factions.${skill.type}.name`);
                 const interpolateParams = { ...(skill.attr || {}), faction: factionName };

@@ -3,12 +3,12 @@ import {Commodities, Cosmetics, Items, MapLocations, Materials, Modifications, S
 import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
-import {storageCollect} from "@/assets/sripts/index";
-import {StorageCollectType} from "@/assets/sripts/storage_collect";
 import {AssemblyClassificationShowListProps, AvailableDataStructure, GroupedData} from "@/assets/types";
+import {useCollectionStore} from "~/stores/collectionStore";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
+import CollectionToggle from "@/components/CollectionToggle.vue";
 
 import EmptyView from "@/components/EmptyView.vue";
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
@@ -50,6 +50,7 @@ const props = withDefaults(
 
 const {asString, sanitizeString} = useI18nUtils()
 const {t} = useI18n()
+const collectionStore = useCollectionStore()
 const resultData = ref<GroupedData[]>([])
 const emit = defineEmits(['update:modelValue', 'clickSelectItem'])
 
@@ -187,21 +188,33 @@ watch([() => props.tags, () => props.filterFun], () => {
 onMounted(() => {
   sortBy.value = props.sortBy;
   filterType.value = props.filterType;
+  collectionStore.onLoadAccount()
   loadStarData()
   updateData()
 })
 
+// 收藏状态变化时刷新「我的最爱」列表
+watch([() => collectionStore.localMap, () => collectionStore.accountMap], () => {
+  loadStarData()
+}, {deep: true})
+
 /**
- * 加载收藏数据
+ * 加载收藏数据，本地标记优先，其次为账户已取得记录
  */
 const loadStarData = () => {
-  const collects = storageCollect.gets(StorageCollectType.Item)
-  if (collects.code === 0) {
-    starData.value = collects.data.map(i => ({
-      ...rawData.value[i.id],
-      name: handleIDataName(i.id)
-    }))
-  }
+  const merged = new Map<string, number>()
+  const account = (collectionStore.accountMap['item'] || {}) as Record<string, number>
+  const local = (collectionStore.localMap['item'] || {}) as Record<string, number>
+
+  for (const [id, time] of Object.entries(account)) merged.set(id, Number(time))
+  for (const [id, time] of Object.entries(local)) merged.set(id, Number(time))
+
+  starData.value = Array.from(merged.keys())
+      .filter(id => rawData.value[id])
+      .map(id => ({
+        ...rawData.value[id],
+        name: handleIDataName(id)
+      }))
 };
 
 /**
@@ -287,32 +300,23 @@ const onClickEvent = (data: AvailableDataStructure) => {
 };
 
 /**
- * 收藏物品
+ * 收藏状态变化时同步「我的最爱」列表
+ * @param data 目标数据
+ * @param collected 是否已取得
  */
-const onStarItem = (data: AvailableDataStructure) => {
+const onCollectChange = (data: AvailableDataStructure, collected: boolean) => {
   const index = starData.value.findIndex(i => i.id === data.id)
 
-  if (index >= 0) {
-    storageCollect.delete(data.id, StorageCollectType.Item)
-    starData.value.splice(index, 1)
-  } else {
-    storageCollect.updata(
-        {collectTime: Date.now()},
-        StorageCollectType.Item,
-        data.id)
-
-    starData.value.push({
-      ...rawData.value[data.id],
-      name: handleIDataName(data.id)
-    })
+  if (!collected) {
+    if (index >= 0) starData.value.splice(index, 1)
+    return
   }
-};
 
-/**
- * 是否收藏品
- */
-const isCollect = (id: string) => {
-  return starData.value.some(i => i.id === id)
+  if (index >= 0) return
+  starData.value.push({
+    ...rawData.value[data.id],
+    name: handleIDataName(data.id)
+  })
 };
 
 /**
@@ -419,12 +423,10 @@ defineOptions({name: 'AssemblyClassificationShowList'})
                 </template>
               </div>
               <div class="ml-auto">
-                <v-btn
-                    @click.stop="onStarItem(castToAny(j))"
-                    :icon="isCollect(j.id) ? 'mdi-star' : 'mdi-star-outline'"
-                    :color="isCollect(j.id) ? 'amber' : ''"
-                    size="small"
-                    variant="text"></v-btn>
+                <CollectionToggle type="icon"
+                                 target-type="item"
+                                 :target-id="j.id"
+                                 @change="onCollectChange(castToAny(j), $event.collected)"></CollectionToggle>
               </div>
             </div>
           </v-col>
@@ -752,14 +754,10 @@ defineOptions({name: 'AssemblyClassificationShowList'})
                   <div class="d-flex justify-center">
                     <ItemDamageTypeWidget :data="item" sizeType="mini"></ItemDamageTypeWidget>
                   </div>
-                  <v-btn
-                      class="text-amber"
-                      density="compact"
-                      icon
-                      variant="text"
-                      @click.stop="onStarItem(castToAny(item))">
-                    <v-icon :icon="`mdi-${isCollect(item.id) ? 'star' : 'star-outline'}`" size="15"></v-icon>
-                  </v-btn>
+                  <CollectionToggle type="icon"
+                                   target-type="item"
+                                   :target-id="item.id"
+                                   @change="onCollectChange(castToAny(item), $event.collected)"></CollectionToggle>
                 </div>
               </v-col>
             </v-row>

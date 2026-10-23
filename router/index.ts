@@ -89,6 +89,11 @@ const SmugglersReportDetailPage = () => import('@/views/smugglers/View.vue');
 const StateOfWarPage = () => import('@/views/stateOfWar/Index.vue');
 const StateOfWarViewPage = () => import('@/views/stateOfWar/View.vue');
 const SettingPage = () => import('@/views/setting/Index.vue');
+const StatisticsPage = () => import('@/views/statistics/Index.vue');
+const StatisticsViewPage = () => import('@/views/statistics/View.vue');
+const StatisticsSeasonPage = () => import('@/views/statistics/Season.vue');
+const StatisticsCodexPage = () => import('@/views/statistics/Codex.vue');
+const StatisticsSigninPage = () => import('@/views/statistics/Signin.vue');
 const SettingViewPage = () => import('@/views/setting/View.vue');
 const SettingAdPage = () => import('@/views/setting/Ad.vue');
 const SettingRoutinePage = () => import('@/views/setting/Routine.vue');
@@ -533,6 +538,46 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                         ]
                     },
 
+                ]
+            },
+        ]
+    },
+    {
+        path: '/statistics',
+        name: 'Statistics',
+        component: StatisticsPage,
+        redirect: to => ({ name: 'StatisticsView', params: { lang: to.params.lang } }),
+        children: [
+            {
+                path: '',
+                name: 'StatisticsView',
+                component: StatisticsViewPage,
+                redirect: to => ({ name: 'StatisticsSeason', params: { lang: to.params.lang } }),
+                children: [
+                    {
+                        path: 'season',
+                        name: 'StatisticsSeason',
+                        component: StatisticsSeasonPage,
+                        meta: {
+                            title: 'statistics.season.title'
+                        }
+                    },
+                    {
+                        path: 'codex',
+                        name: 'StatisticsCodex',
+                        component: StatisticsCodexPage,
+                        meta: {
+                            title: 'statistics.codex.title'
+                        }
+                    },
+                    {
+                        path: 'signin',
+                        name: 'StatisticsSignin',
+                        component: StatisticsSigninPage,
+                        meta: {
+                            title: 'statistics.signin.title'
+                        }
+                    },
                 ]
             },
         ]

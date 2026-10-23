@@ -489,17 +489,25 @@ defineOptions({
                 cols="auto"
                 v-for="(i, index) in panel.items"
                 :key="index">
-              <ItemSlotBase size="99px" class="d-flex justify-center align-center">
-                <template v-if="i && i.data">
-                  <MaterialIconWidget v-if="i.data._typeStringName == 'Material'" :id="i.data.id"></MaterialIconWidget>
-                  <CommoditieIconWidget v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieIconWidget>
-                  <ItemIconWidget v-else :id="i.data.id"></ItemIconWidget>
-                </template>
+              <div class="d-flex flex-column align-center">
+                <ItemSlotBase size="99px" class="d-flex justify-center align-center">
+                  <template v-if="i && i.data">
+                    <MaterialIconWidget v-if="i.data._typeStringName == 'Material'" :id="i.data.id"></MaterialIconWidget>
+                    <CommoditieIconWidget v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieIconWidget>
+                    <ItemIconWidget v-else :id="i.data.id"></ItemIconWidget>
+                  </template>
 
-                <template v-else>
-                  <v-icon class="opacity-20" size="30">mdi-help</v-icon>
-                </template>
-              </ItemSlotBase>
+                  <template v-else>
+                    <v-icon class="opacity-20" size="30">mdi-help</v-icon>
+                  </template>
+                </ItemSlotBase>
+                <div v-if="i && i.data"
+                     class="text-caption text-center text-truncate mt-1"
+                     style="width: 99px"
+                     :title="readEntityName(i.data.id)">
+                  {{ readEntityName(i.data.id) }}
+                </div>
+              </div>
             </v-col>
           </v-row>
         </v-col>
@@ -512,17 +520,25 @@ defineOptions({
           cols="auto"
           v-for="(i, index) in currentDisplayItems"
           :key="index">
-        <ItemSlotBase size="99px" class="d-flex justify-center align-center">
-          <template v-if="i && i.data">
-            <MaterialIconWidget v-if="i.data._typeStringName == 'Material'" :id="i.data.id"></MaterialIconWidget>
-            <CommoditieIconWidget v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieIconWidget>
-            <ItemIconWidget v-else :id="i.data.id"></ItemIconWidget>
-          </template>
+        <div class="d-flex flex-column align-center">
+          <ItemSlotBase size="99px" class="d-flex justify-center align-center">
+            <template v-if="i && i.data">
+              <MaterialIconWidget v-if="i.data._typeStringName == 'Material'" :id="i.data.id"></MaterialIconWidget>
+              <CommoditieIconWidget v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieIconWidget>
+              <ItemIconWidget v-else :id="i.data.id"></ItemIconWidget>
+            </template>
 
-          <template v-else>
-            <v-icon class="opacity-20" size="30">mdi-help</v-icon>
-          </template>
-        </ItemSlotBase>
+            <template v-else>
+              <v-icon class="opacity-20" size="30">mdi-help</v-icon>
+            </template>
+          </ItemSlotBase>
+          <div v-if="i && i.data"
+               class="text-caption text-center text-truncate mt-1"
+               style="width: 99px"
+               :title="readEntityName(i.data.id)">
+            {{ readEntityName(i.data.id) }}
+          </div>
+        </div>
       </v-col>
     </v-row>
   </div>

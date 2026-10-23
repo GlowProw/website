@@ -18,13 +18,21 @@ const loading = ref(true),
     ladderRef = ref<InstanceType<typeof HorizontalScrollList> | null>(null)
 
 // 成就分类的固定展示顺序与图标
-const categoryOrder: AchievementCategory[] = ['assembly', 'mastery', 'signin', 'teamup', 'subscription']
+const categoryOrder: AchievementCategory[] = [
+  'assembly', 'mastery', 'signin', 'teamup', 'subscription',
+  'comment', 'codex', 'personalization', 'security', 'bot'
+]
 const categoryIcons: Record<AchievementCategory, string> = {
   assembly: 'mdi-package-variant-closed',
   mastery: 'mdi-sword-cross',
   signin: 'mdi-calendar-check',
   teamup: 'mdi-account-group-outline',
-  subscription: 'mdi-crown-outline'
+  subscription: 'mdi-crown-outline',
+  comment: 'mdi-comment-text-outline',
+  codex: 'mdi-book-open-variant',
+  personalization: 'mdi-account-edit-outline',
+  security: 'mdi-shield-lock-outline',
+  bot: 'mdi-robot-outline'
 }
 
 // 按分类分组后的成就列表
@@ -97,6 +105,15 @@ const requirementText = (item: AchievementItem): string => {
   if (item.category === 'mastery') return t('account.achievements.requirement.mastery', {count: item.requirement})
   if (item.category === 'teamup') return t('account.achievements.requirement.teamup', {count: item.requirement})
   if (item.category === 'signin') return t('account.achievements.requirement.level', {level: item.requirement})
+  if (item.category === 'comment') return t('account.achievements.requirement.comment', {count: item.requirement})
+  if (item.category === 'codex') {
+    return item.key === 'codex_season_complete'
+        ? t('account.achievements.requirement.codexSeason')
+        : t('account.achievements.requirement.codex', {count: item.requirement})
+  }
+  if (['personalization', 'security', 'bot'].includes(item.category)) {
+    return t('account.achievements.requirement.once')
+  }
 
   const tier = item.key.split('_').pop() || ''
   const tierKey = `subscription.tiers.${tier}.name`

@@ -16,9 +16,16 @@ import QuestIconWidget from "@/components/snbWidget/questIconWidget.vue";
 import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import {onMounted, ref} from "vue";
 import {storage} from "@/assets/sripts/index";
+import {getCodexDetailPath} from "@/assets/sripts/codex_detail";
 import {useI18n} from "vue-i18n";
+import type {CodexHistoryProps} from "@/assets/types/Ui";
 
 const {t} = useI18n();
+
+withDefaults(defineProps<CodexHistoryProps>(), {
+    isShowHeader: true,
+    isShowEmpty: false
+});
 
 let codexHistorys = ref<any[]>([]);
 
@@ -47,11 +54,17 @@ const onCleaningHistory = () => {
   codexHistorys.value = [];
   return storage.session.rem(name);
 };
+
+/**
+ * 生成浏览记录对应的详情页地址
+ * @param item 浏览记录
+ */
+const detailPath = (item: any) => getCodexDetailPath(item.category, item.id)
 </script>
 
 <template>
   <div class="w-100 mb-10" v-if="codexHistorys.length > 0">
-    <v-toolbar class="py-0 px-5 bg-transparent">
+    <v-toolbar class="py-0 px-5 bg-transparent" v-if="isShowHeader">
       <v-row align="center">
         <v-col cols="auto" class="font-weight-bold text-amber">
           <v-icon>mdi-history</v-icon>
@@ -70,24 +83,31 @@ const onCleaningHistory = () => {
 
     <v-row class="px-5">
       <v-col cols="auto" v-for="(i, index) in codexHistorys" :key="index">
-        <ItemSlotBase size="120px">
-          <ShipIconWidget :id="i.id" v-if="i.category == 'ship'"></ShipIconWidget>
-          <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
-          <CommoditieIconWidget :id="i.id" v-if="i.category == 'commoditie'"></CommoditieIconWidget>
-          <UltimateIconWidget :id="i.id" v-if="i.category == 'ultimate'"></UltimateIconWidget>
-          <MaterialIconWidget :id="i.id" v-if="i.category == 'material'"></MaterialIconWidget>
-          <MapLocationIconWidget :id="i.id" v-if="i.category == 'mapLocation'"></MapLocationIconWidget>
-          <TreasureMapIconWidget :id="i.id" v-if="i.category == 'treasureMap'"></TreasureMapIconWidget>
-          <SetIconWidget :id="i.id" v-if="i.category == 'set'"></SetIconWidget>
-          <CosmeticIconWidget :id="i.id" v-if="i.category == 'cosmetic'"></CosmeticIconWidget>
-          <ModIconWidget :id="i.id" v-if="i.category == 'modification'"></ModIconWidget>
-          <NpcIconWidget :id="i.id" v-if="i.category == 'npc'"></NpcIconWidget>
-          <EmpireSkillIconWidget :id="i.id" v-if="i.category == 'empireSkill'"></EmpireSkillIconWidget>
-          <MasteryIconWidget :id="i.id" v-if="i.category == 'mastery'"></MasteryIconWidget>
-          <QuestIconWidget :id="i.id" v-if="i.category == 'quest'"></QuestIconWidget>
-        </ItemSlotBase>
+        <router-link :to="detailPath(i)" class="codex-history-link d-block">
+          <ItemSlotBase size="120px">
+            <ShipIconWidget :id="i.id" v-if="i.category == 'ship'"></ShipIconWidget>
+            <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
+            <CommoditieIconWidget :id="i.id" v-if="i.category == 'commoditie'"></CommoditieIconWidget>
+            <UltimateIconWidget :id="i.id" v-if="i.category == 'ultimate'"></UltimateIconWidget>
+            <MaterialIconWidget :id="i.id" v-if="i.category == 'material'"></MaterialIconWidget>
+            <MapLocationIconWidget :id="i.id" v-if="i.category == 'mapLocation'"></MapLocationIconWidget>
+            <TreasureMapIconWidget :id="i.id" v-if="i.category == 'treasureMap'"></TreasureMapIconWidget>
+            <SetIconWidget :id="i.id" v-if="i.category == 'set'"></SetIconWidget>
+            <CosmeticIconWidget :id="i.id" v-if="i.category == 'cosmetic'"></CosmeticIconWidget>
+            <ModIconWidget :id="i.id" v-if="i.category == 'modification'"></ModIconWidget>
+            <NpcIconWidget :id="i.id" v-if="i.category == 'npc'"></NpcIconWidget>
+            <EmpireSkillIconWidget :id="i.id" v-if="i.category == 'empireSkill'"></EmpireSkillIconWidget>
+            <MasteryIconWidget :id="i.id" v-if="i.category == 'mastery'"></MasteryIconWidget>
+            <QuestIconWidget :id="i.id" v-if="i.category == 'quest'"></QuestIconWidget>
+          </ItemSlotBase>
+        </router-link>
       </v-col>
     </v-row>
+  </div>
+
+  <div v-else-if="isShowEmpty" class="text-center text-medium-emphasis pa-8">
+    <v-icon icon="mdi-history" size="48" class="mb-3"/>
+    <p>{{ t('codex.cabinetHistoryEmpty') }}</p>
   </div>
 </template>
 

@@ -77,13 +77,27 @@ export interface CollectionStatsResult {
 }
 
 /**
- * 按周聚合的收藏趋势
+ * 按日聚合的收藏趋势
  */
-export interface CollectionWeekStat {
-    start: string;
+export interface CollectionDayStat {
+    date: string;
     label: string;
     added: number;
     cumulative: number;
+}
+
+/**
+ * 收藏概览指标卡片
+ */
+export interface CollectionMetricCard {
+    key: 'collected' | 'catalog' | 'completion' | 'lastCollected';
+    title: string;
+    value: number | string;
+    icon: string;
+    color: string;
+    series: number[];
+    unit?: string;
+    detail?: string;
 }
 
 /**

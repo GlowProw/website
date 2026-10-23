@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import {onMounted, ref, watch} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
-import {useRoute, useRouter} from 'vue-router'
-import {useCollectionApi} from '@/assets/sripts/api/collection_service'
 import {useAuthStore} from '~/stores/userAccountStore'
 import {useNoticeStore} from '~/stores/noticeStore'
+import {useCollectionStore} from '~/stores/collectionStore'
+import type {CollectionToggleChange, CollectionToggleType} from '@/assets/types/Collection'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   /**
    * 图鉴目标类型，如 item、ship、material
    */
@@ -15,68 +15,96 @@ const props = defineProps<{
    * 目标唯一 ID
    */
   targetId: string
+  /**
+   * 展示形态：详情页按钮、列表小图标、图标右上角角标
+   */
+  type?: CollectionToggleType
+}>(), {
+  type: 'button'
+})
+
+const emit = defineEmits<{
+  change: [payload: CollectionToggleChange]
 }>()
 
 const {t} = useI18n()
-const router = useRouter()
-const route = useRoute()
 const authStore = useAuthStore()
 const noticeStore = useNoticeStore()
-const collectionApi = useCollectionApi()
+const collectionStore = useCollectionStore()
 
-const isCollected = ref(false)
 const saving = ref(false)
 
 /**
- * 读取当前目标的已取得状态
+ * 当前目标的已取得状态，本地标记优先于账户记录
  */
-const onLoad = async () => {
-  if (!authStore.isLogin || !props.targetId) {
-    isCollected.value = false
-    return
-  }
-  try {
-    const result = await collectionApi.getCollectionStatus(props.targetType, props.targetId)
-    isCollected.value = Boolean((result.data.data as { collected: boolean })?.collected)
-  } catch {
-    // 状态读取失败时保持未取得，不打断详情页其它内容
-  }
-}
+const isCollected = computed(() => collectionStore.isCollected(props.targetType, props.targetId))
 
 /**
- * 切换已取得状态，接口失败时回滚本地状态
+ * 切换已取得状态，未登录时只记录在本地
  */
 const onToggle = async () => {
-  // 未登录时保留按钮可点击，先引导到登录页并在登录后回到当前详情
-  if (!authStore.isLogin) {
-    router.push({name: 'signin', query: {backUrl: route.fullPath}})
-    return
-  }
   if (!props.targetId || saving.value) return
-  const next = !isCollected.value
-  isCollected.value = next
+
   saving.value = true
   try {
-    await collectionApi.setCollection(props.targetType, props.targetId, next)
-    noticeStore.success(next ? t('codex.item.collectedOn') : t('codex.item.collectedOff'))
+    const collected = await collectionStore.onToggle(props.targetType, props.targetId)
+    if (authStore.isLogin) {
+      noticeStore.success(collected ? t('codex.item.collectedOn') : t('codex.item.collectedOff'), {mode: 'minimal'})
+    } else {
+      noticeStore.success(t('codex.item.collectionLocalSaved'), {mode: 'minimal'})
+    }
+    emit('change', {targetType: props.targetType, targetId: props.targetId, collected})
   } catch (e: any) {
-    isCollected.value = !next
     noticeStore.error(e?.message || t('codex.item.collectedFailed'))
   } finally {
     saving.value = false
   }
 }
 
-onMounted(onLoad)
-watch(() => [props.targetType, props.targetId], onLoad)
+onMounted(() => collectionStore.onLoadAccount())
+watch(() => [props.targetType, props.targetId], () => collectionStore.onLoadAccount())
 </script>
 
 <template>
-  <v-btn v-tooltip:bottom="t('codex.item.collected')"
+  <div v-if="props.type === 'corner'" class="collection-toggle-corner">
+    <v-btn v-if="authStore.isLogin"
+           v-tooltip:bottom="t('codex.item.collectionToggleTip')"
+           :class="isCollected ? 'text-amber' : ''"
+           :loading="saving"
+           icon
+           size="x-small"
+           variant="text"
+           @click.stop="onToggle">
+      <v-icon size="16" :icon="`mdi-${isCollected ? 'star' : 'star-outline'}`"></v-icon>
+    </v-btn>
+  </div>
+
+  <v-btn v-else-if="props.type === 'icon'"
+         v-tooltip:bottom="t('codex.item.collectionToggleTip')"
+         :color="isCollected ? 'amber' : ''"
+         :icon="`mdi-${isCollected ? 'star' : 'star-outline'}`"
+         :loading="saving"
+         border
+         variant="flat"
+         @click.stop="onToggle"></v-btn>
+
+  <v-btn v-else
+         v-tooltip:bottom="t('codex.item.collectionToggleTip')"
          :class="isCollected ? 'text-amber' : ''"
          :loading="saving"
          border
-         @click="onToggle">
-    <v-icon :icon="`mdi-${isCollected ? 'check-decagram' : 'check-decagram-outline'}`"></v-icon>
+         variant="flat"
+         @click.stop="onToggle">
+    <v-icon :icon="`mdi-${isCollected ? 'star' : 'star-outline'}`"></v-icon>
   </v-btn>
 </template>
+
+<style scoped lang="less">
+.collection-toggle-corner {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 12;
+  line-height: 1;
+}
+</style>

@@ -14,6 +14,7 @@ import languages from "@/config/languages";
 import {apis} from "@/assets/sripts";
 import {useRules} from "@/assets/sripts/rules_user";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import {notifyReviewResult} from "@/assets/sripts/review";
 import PasswordStrength from "@/components/PasswordStrength.vue";
 
 const authStore = useAuthStore(),
@@ -132,6 +133,10 @@ const onSaveAccountAttr = async () => {
     }
 
     const result = await apis.userApi().updateMeAttr(attr)
+
+    // 个人描述需要审核，未通过时公开主页不展示
+    notifyReviewResult(result.data?.data?.introductionReview, notice, t)
+
     notice.success(t(`basic.tips.${result.code}`))
   } catch (e) {
     handleApiError(e, notice, t, {component: 'Information'})

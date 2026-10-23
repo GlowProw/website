@@ -7,6 +7,7 @@ import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import {notifyReviewResult} from "@/assets/sripts/review";
 
 import Textarea from "@/components/textarea/index.vue"
 import EmptyView from "@/components/EmptyView.vue";
@@ -144,19 +145,26 @@ const onPushComment = async () => {
         }),
         d = result.data;
 
-    commentListData.value.push({
-      id: d.data.id,
-      username: 'Me',
-      createdTime: new Date(),
-      content: content.value
-    })
+    // 审查结果决定是否落地展示，被拒时弹窗说明原因
+    const review = d.data?.review
+    const accepted = notifyReviewResult(review, notice, t)
 
-    content.value = ''
-    captcha.value = {}
-    captchaOneUpdateEvent.value = false
-    captchaRef.value?.refreshCaptcha?.()
+    if (accepted) {
+      commentListData.value.push({
+        id: d.data.id,
+        username: 'Me',
+        createdTime: new Date(),
+        content: content.value
+      })
 
-    notice.success('basic.tips.comment.ok')
+      content.value = ''
+      captcha.value = {}
+      captchaOneUpdateEvent.value = false
+      captchaRef.value?.refreshCaptcha?.()
+
+      if (!review || review.status === 'approved')
+        notice.success('basic.tips.comment.ok')
+    }
   } catch (e) {
     handleApiError(e, notice, t, {component: 'CommentWidget'})
   } finally {
@@ -205,8 +213,12 @@ const onEditComment = async (data: any) => {
         }),
         d = result.data;
 
-    data.content = data.editContent;
-    notice.success(t(`basic.tips.${d.code}`))
+    const review = d.data?.review
+    if (notifyReviewResult(review, notice, t)) {
+      data.content = data.editContent;
+      if (!review || review.status === 'approved')
+        notice.success(t(`basic.tips.${d.code}`))
+    }
   } catch (e) {
     handleApiError(e, notice, t, {component: 'CommentWidget'})
   } finally {
@@ -270,6 +282,13 @@ defineOptions({
                   <TimeView :time="i.createdTime"></TimeView>
                 </v-col>
               </v-row>
+              <v-chip v-if="Number(i.reviewStatus) === 1 || Number(i.reviewStatus) === 2"
+                      size="x-small"
+                      :color="Number(i.reviewStatus) === 1 ? 'amber' : 'red'"
+                      variant="tonal"
+                      class="mb-2">
+                {{ Number(i.reviewStatus) === 1 ? t('basic.review.pendingTitle') : t('basic.review.rejectedTitle') }}
+              </v-chip>
               <v-card variant="text" class="px-0 pb-2" :class="[i.isEdit ? 'mt-5' : '']">
                 <Textarea :model-value="i.content" :min-height="'80px'"
                           :placeholder="props.placeholder"

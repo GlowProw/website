@@ -196,7 +196,22 @@
     },
     "preload": {
       "remoteI18n": "从远程加载文本数据...",
+      "siteAssets": "等待站点资源加载完成...",
       "default": "正在加载资源..."
+    },
+    "review": {
+      "pendingTitle": "内容审核中",
+      "pendingDetail": "内容已提交，审核期间仅自己可见。",
+      "rejectedTitle": "内容未通过审核",
+      "rejectedDetail": "发布失败，请根据原因修改后重试。",
+      "reason": "原因：{reason}",
+      "unknownReason": "未提供具体原因"
+    },
+    "supportPrompt": {
+      "title": "嗨船长",
+      "detail": "嗨船长，你觉得 {name} 如何？如果它帮到了你，可以到订阅页支持我们。",
+      "later": "暂不",
+      "subscribe": "前往订阅"
     },
     "tips": {
       "permissionDenied": "权限不足",
@@ -979,17 +994,32 @@
         "collected": "已取得",
         "catalog": "图鉴总数",
         "completion": "收集完成度",
-        "lastCollected": "最近取得"
+        "lastCollected": "最近取得",
+        "lastCollectedHint": "最近一次标记时间",
+        "localMarks": "本地标记 {count} 项",
+        "sync": "同步"
+      },
+      "sync": {
+        "result": "同步完成：上传 {upload} 项，下载 {download} 项",
+        "none": "本地标记与账户收藏已一致",
+        "failed": "同步失败，请稍后重试"
+      },
+      "syncDialog": {
+        "title": "发现本地标记",
+        "text": "检测到你在未登录时标记过 {count} 个物品，可以将其同步到当前账户。",
+        "keep": "同步后本地标记仍会保留，并优先于账户收藏展示。",
+        "confirm": "立即同步",
+        "later": "稍后再同步"
       },
       "trend": {
         "title": "收集趋势",
         "range": "时间范围",
-        "range12": "12 周",
-        "range26": "26 周",
-        "range52": "52 周",
-        "added": "每周新增",
+        "range7": "近 7 天",
+        "range30": "近 30 天",
+        "range90": "近 90 天",
+        "added": "每日新增",
         "addedUnit": "件",
-        "addedMax": "单周最高",
+        "addedMax": "单日最高",
         "cumulative": "累计收集",
         "totalUnit": "件",
         "noData": "所选时间范围内暂无新增"
@@ -1043,7 +1073,12 @@
         "mastery": "精通",
         "signin": "签到",
         "teamup": "组队",
-        "subscription": "赞助订阅"
+        "subscription": "赞助订阅",
+        "comment": "评论/回复",
+        "codex": "图鉴",
+        "personalization": "个性化",
+        "security": "安全",
+        "bot": "机器人"
       },
       "status": {
         "locked": "未达成",
@@ -1055,7 +1090,11 @@
         "mastery": "累计发布 {count} 份精通",
         "teamup": "累计发布 {count} 次组队",
         "level": "账户等级达到 {level} 级",
-        "subscription": "{tier} 档位赞助"
+        "subscription": "{tier} 档位赞助",
+        "comment": "发表 {count} 条评论或回复",
+        "codex": "累计收藏 {count} 件图鉴",
+        "codexSeason": "集齐任意一个赛季的全部图鉴",
+        "once": "完成一次即可"
       },
       "levels": {
         "outcast": {
@@ -1307,6 +1346,58 @@
         "signin_level_25": {
           "name": "黄金魁首·巅峰",
           "desc": "签到积累足够积分，账户等级升至 25 级。"
+        },
+        "comment_first": {
+          "name": "初次发声",
+          "desc": "发布你的第一条评论或回复，加入码头的讨论。"
+        },
+        "codex_100": {
+          "name": "图鉴新手",
+          "desc": "累计收藏 100 件图鉴，开始整理自己的航海笔记。"
+        },
+        "codex_200": {
+          "name": "图鉴学徒",
+          "desc": "累计收藏 200 件图鉴，对海域的了解日渐深入。"
+        },
+        "codex_500": {
+          "name": "图鉴学者",
+          "desc": "累计收藏 500 件图鉴，你的记录足以编成一本手册。"
+        },
+        "codex_1000": {
+          "name": "图鉴宗师",
+          "desc": "累计收藏 1000 件图鉴，没有人比你更熟悉这片海域。"
+        },
+        "codex_season_complete": {
+          "name": "赛季全收集",
+          "desc": "集齐任意一个赛季的全部图鉴，每个赛季都可获得一次。"
+        },
+        "avatar_set": {
+          "name": "全新面孔",
+          "desc": "设置属于自己的头像，让其他船长记住你。"
+        },
+        "alias_changed": {
+          "name": "扬名立万",
+          "desc": "更改一次别名，换上更响亮的名号。"
+        },
+        "description_set": {
+          "name": "自我介绍",
+          "desc": "为自己的账户添加一段个人描述。"
+        },
+        "twofa_bound": {
+          "name": "双重保险",
+          "desc": "首次启用两步验证，为账户加一道可靠防线。"
+        },
+        "oauth_first_bind": {
+          "name": "互联互通",
+          "desc": "首次绑定任意第三方平台账户，登录从此更便捷。"
+        },
+        "qq_bot_bound": {
+          "name": "机器人生力军",
+          "desc": "首次绑定 QQ 平台机器人，把社区消息带到聊天窗口。"
+        },
+        "bot_bound": {
+          "name": "社区舰队",
+          "desc": "首次将任意平台的机器人成功绑定到社区群组。"
         }
       }
     },
@@ -2105,6 +2196,7 @@
     "title": "手稿",
     "description": "嗨，船长, 要看看我的宝贝嘛",
     "cabinetHistoryTitle": "游览历史",
+    "cabinetHistoryEmpty": "还没有游览记录",
     "more": "更多",
     "sidebar": "侧边栏",
     "filter": {
@@ -2383,6 +2475,8 @@
       "collectedOn": "已标记为已取得",
       "collectedOff": "已取消已取得标记",
       "collectedFailed": "操作失败，请稍后重试",
+      "collectionLocalSaved": "已在本地记录，登录后可同步到账户",
+      "collectionToggleTip": "标记或取消已取得，登录后会同步到账户",
       "gearScore": "分数",
       "rarity": "稀有度",
       "dateAdded": "添加日期",
@@ -3728,7 +3822,12 @@
       "descriptionPlaceholder": "输入描述内容",
       "extra": "额外",
       "tags": "标签",
-      "tagsPlaceholder": "输入标签敲下回车键，即可创建新标签"
+      "tagsPlaceholder": "输入标签敲下回车键，即可创建新标签",
+      "reward": {
+        "title": "获得账户积分 +{points}",
+        "detail": "基础 {base} · 精通 {mastery} · 轮盘 {wheel} · 船仓 {warehouse}",
+        "boost": "本月第 {count} 份，积分 3 倍激励"
+      }
     },
     "selectWeaponDirection": "选择武器方向",
     "unnamed": "未命名配装",
@@ -4388,6 +4487,8 @@
       "toggleMessagesDesc": "快速展开或收起私信与通知面板",
       "toggleHeaderMenu": "导航菜单",
       "toggleHeaderMenuDesc": "快速展开或收起全站导航抽屉菜单",
+      "toggleCodexHistory": "游览历史",
+      "toggleCodexHistoryDesc": "快速展开或收起游览历史抽屉",
       "closeModal": "关闭当前弹窗",
       "closeModalDesc": "关闭正在显示的模态框与抽屉",
       "pressCombination": "请按组合键",
@@ -4568,6 +4669,10 @@
       "stateOfWar": {
         "title": "战争状态",
         "description": "查看赛季各区域阵营战事资源分布与对抗状态"
+      },
+      "statistics": {
+        "title": "事态",
+        "description": "查看全站图鉴、签到与赛季数据的公开统计"
       },
       "assembly": {
         "title": "船只配装厂",
@@ -4761,6 +4866,70 @@
       "localTimeZoneName": "当地时区",
       "localeTime": "当地时间(已转化)",
       "localeTimeDescription": "根据系统当地时区，以及语种环境转换后的时间数据"
+    }
+  },
+  "statistics": {
+    "title": "事态",
+    "group": "统计",
+    "common": {
+      "asOf": "数据截至",
+      "updated": "最后更新",
+      "range": "统计范围",
+      "period": "统计区间",
+      "comparePrevious": "较上期",
+      "currentPeriod": "当前区间",
+      "previousPeriod": "上一区间",
+      "previousValue": "上期",
+      "noData": "暂无数据"
+    },
+    "range": {
+      "7": "近 7 天",
+      "30": "近 1 个月",
+      "90": "近 3 个月"
+    },
+    "season": {
+      "title": "赛季统计",
+      "summary": {
+        "entries": "图鉴条目",
+        "seasons": "收录赛季",
+        "collections": "全站收藏"
+      },
+      "bySeason": "各赛季明细",
+      "view": "查看",
+      "detailTitle": "赛季图鉴明细",
+      "startDate": "赛季开始",
+      "entriesCount": "条目",
+      "collectedCount": "累计收藏"
+    },
+    "codex": {
+      "title": "图鉴统计",
+      "metrics": {
+        "collections": "收藏总量",
+        "collectors": "收藏人数",
+        "dailyAverage": "日均收藏",
+        "coveredTypes": "覆盖图鉴种类"
+      },
+      "trend": "每日收藏趋势",
+      "byType": "图鉴种类分布"
+    },
+    "signin": {
+      "title": "签到统计",
+      "metrics": {
+        "signins": "签到总量",
+        "users": "签到人数",
+        "dailyAverage": "日均签到",
+        "makeup": "补签总量"
+      },
+      "trend": "每日签到趋势",
+      "byPlatform": "签到平台分布",
+      "needLoginTitle": "需要登录查看",
+      "needLoginDesc": "签到统计包含账户数据，请先登录后再查看。",
+      "needLoginAction": "去登录",
+      "platforms": {
+        "web": "网站",
+        "qq": "QQ",
+        "qq-bot": "QQ 机器人"
+      }
     }
   },
   "stateOfWar": {
@@ -5110,7 +5279,8 @@
     "cancel": "取消",
     "close": "关闭",
     "confirm": "确认",
-    "confirmDelete": "确认删除"
+    "confirmDelete": "确认删除",
+    "delete": "删除"
   },
   "team": {
     "title": "组队招募"

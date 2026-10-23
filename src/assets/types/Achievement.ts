@@ -11,7 +11,17 @@ export interface AccountLevel {
     threshold: number;
 }
 
-export type AchievementCategory = 'assembly' | 'mastery' | 'signin' | 'teamup' | 'subscription';
+export type AchievementCategory =
+    | 'assembly'
+    | 'mastery'
+    | 'signin'
+    | 'teamup'
+    | 'subscription'
+    | 'comment'
+    | 'codex'
+    | 'personalization'
+    | 'security'
+    | 'bot';
 
 export type AchievementMode = 'active' | 'passive';
 

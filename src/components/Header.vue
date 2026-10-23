@@ -10,6 +10,7 @@ import {useAppStore} from "~/stores/appStore";
 import HeaderAccount from "@/components/HeaderAccount.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import GlobalSearchDrawer from "@/components/GlobalSearchDrawer.vue";
+import CodexHistoryDrawer from "@/components/CodexHistoryDrawer.vue";
 import MessagesDrawer from "@/components/messages/MessagesDrawer.vue";
 
 const {t} = useI18n(),
@@ -53,6 +54,10 @@ defineOptions({
         <HeaderAccount type="header"></HeaderAccount>
 
         <v-divider class="mx-2" inset vertical></v-divider>
+
+        <CodexHistoryDrawer>
+          <v-btn icon="mdi-history"></v-btn>
+        </CodexHistoryDrawer>
 
         <GlobalSearchDrawer>
           <v-btn icon="mdi-magnify"></v-btn>

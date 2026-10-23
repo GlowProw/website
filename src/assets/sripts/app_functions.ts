@@ -72,6 +72,12 @@ export default class AppFuns {
                 to: `/${lang}/stateOfWar`
             },
             {
+                title: 'header.functions.statistics.title',
+                icon: 'mdi-chart-box-outline',
+                description: 'header.functions.statistics.description',
+                to: `/${lang}/statistics`
+            },
+            {
                 title: 'header.functions.empire-skill-simulation.title',
                 icon: 'mdi-hexagram-outline',
                 description: 'header.functions.empire-skill-simulation.description',

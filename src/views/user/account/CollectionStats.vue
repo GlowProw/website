@@ -17,28 +17,34 @@ import {
   Ultimates,
   Seasons
 } from "glow-prow-data";
-import {Apis} from "@/assets/sripts/api";
 import type {
+  CollectionDayStat,
+  CollectionMetricCard,
+  CollectionRecord,
   CollectionSeasonStat,
-  CollectionStatsResult,
   CollectionTypeStat,
-  CollectionWeekStat
+  StatsRange
 } from "@/assets/types/Stats";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Loading from "@/components/Loading.vue";
-import BySeasonCardWidget from "@/components/BySeasonCardWidget.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import SeasonName from "@/components/snbWidget/seasonName.vue";
-
-type WeekRange = '12' | '26' | '52';
+import {VSparkline} from "vuetify/components/VSparkline";
+import {useAuthStore} from "~/stores/userAccountStore";
+import {useCollectionStore} from "~/stores/collectionStore";
+import {useNoticeStore} from "~/stores/noticeStore";
 
 const {t, te} = useI18n(),
-    collectionApi = Apis.collectionApi(),
+    authStore = useAuthStore(),
+    noticeStore = useNoticeStore(),
+    collectionStore = useCollectionStore(),
     loading = ref(true),
-    stats = ref<CollectionStatsResult | null>(null),
-    range = ref<WeekRange>('12')
+    range = ref<StatsRange>('30'),
+    syncDialog = ref(false),
+    cardHoverIndexMap = ref<Record<string, number | null>>({}),
+    syncing = computed(() => collectionStore.syncing)
 
-const seasons = Seasons;
+const seasonData = Seasons;
 
 /**
  * 展平专精赛季树，按节点 ID 建立索引
@@ -75,35 +81,23 @@ const collectionKinds: Array<{ key: string; entries: Record<string, any> }> = [
 const kindEntries = new Map(collectionKinds.map(kind => [kind.key, kind.entries]))
 
 /**
- * 计算某个日期所在周的周一零点
- * @param date 基准日期
- */
-const startOfWeek = (date: Date): Date => {
-  const result = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-  const weekday = (result.getDay() + 6) % 7
-  result.setDate(result.getDate() - weekday)
-  return result
-}
-
-/**
  * 格式化为两位数字
  * @param value 数值
  */
 const pad = (value: number): string => String(value).padStart(2, '0')
 
 /**
- * 加载收藏统计原始记录
+ * 加载收藏数据，登录态读取账户记录，未登录仅展示本地标记
  */
 const onLoad = async () => {
   loading.value = true
   try {
-    const result = await collectionApi.getCollectionStats('all')
-    stats.value = result.data.data as CollectionStatsResult
-  } catch {
-    stats.value = null
+    if (authStore.isLogin) await collectionStore.onLoadAccount(true)
   } finally {
     loading.value = false
   }
+
+  if (authStore.isLogin && collectionStore.pendingLocalCount > 0) syncDialog.value = true
 }
 
 /**
@@ -116,9 +110,35 @@ const kindName = (kind: string): string => {
 }
 
 /**
+ * 合并账户记录与本地标记，同一条目以本地时间为准
+ */
+const mergedRecords = computed<CollectionRecord[]>(() => {
+  const merged = new Map<string, CollectionRecord>()
+
+  const pushRecord = (targetType: string, targetId: string, time: number) => {
+    if (!targetType || !targetId) return
+    merged.set(`${targetType}:${targetId}`, {
+      targetType,
+      targetId,
+      createdTime: new Date(time || Date.now()).toISOString()
+    })
+  }
+
+  for (const [kind, records] of Object.entries(collectionStore.accountMap)) {
+    for (const [id, time] of Object.entries(records)) pushRecord(kind, id, time)
+  }
+
+  for (const [kind, records] of Object.entries(collectionStore.localMap)) {
+    for (const [id, time] of Object.entries(records)) pushRecord(kind, id, time)
+  }
+
+  return Array.from(merged.values())
+})
+
+/**
  * 已取得物品总数
  */
-const totalCollected = computed(() => stats.value?.total || 0)
+const totalCollected = computed(() => mergedRecords.value.length)
 
 /**
  * 图鉴可收集条目总数，按全部图鉴种类汇总
@@ -140,8 +160,11 @@ const completion = computed(() => {
  * 最近一次取得时间
  */
 const lastCollected = computed(() => {
-  const value = stats.value?.lastCollectedAt
-  return value ? new Date(value).toLocaleString() : '-'
+  const times = mergedRecords.value
+      .map(record => new Date(record.createdTime).getTime())
+      .filter(time => !Number.isNaN(time) && time > 0)
+  if (!times.length) return '-'
+  return new Date(Math.max(...times)).toLocaleString()
 })
 
 /**
@@ -154,7 +177,7 @@ const kindStats = computed<CollectionTypeStat[]>(() => {
   })
 
   const collected = new Map<string, Set<string>>()
-  for (const record of stats.value?.records || []) {
+  for (const record of mergedRecords.value) {
     if (!record.targetType || !kindEntries.get(record.targetType)?.[record.targetId]) continue
     if (!collected.has(record.targetType)) collected.set(record.targetType, new Set())
     collected.get(record.targetType)!.add(record.targetId)
@@ -180,7 +203,7 @@ const kindStats = computed<CollectionTypeStat[]>(() => {
 const seasonStats = computed<CollectionSeasonStat[]>(() => {
   const buckets = new Map<string, {start: number; collected: number; types: Map<string, number>}>()
 
-  for (const record of stats.value?.records || []) {
+  for (const record of mergedRecords.value) {
     const entity = kindEntries.get(record.targetType)?.[record.targetId]
     const season = entity?.bySeason?.id
     if (!season) continue
@@ -209,32 +232,31 @@ const seasonStats = computed<CollectionSeasonStat[]>(() => {
 })
 
 /**
- * 按周聚合的新增与累计数量
+ * 按日聚合的新增与累计数量，区间以今天为最后一天
  */
-const weeks = computed<CollectionWeekStat[]>(() => {
+const daily = computed<CollectionDayStat[]>(() => {
   const count = Number(range.value)
-  const records = stats.value?.records || []
-  const times = records
+  const times = mergedRecords.value
       .map(record => new Date(record.createdTime).getTime())
       .filter(time => !Number.isNaN(time))
 
-  const currentWeek = startOfWeek(new Date())
-  const firstWeek = new Date(currentWeek)
-  firstWeek.setDate(firstWeek.getDate() - (count - 1) * 7)
+  const now = new Date()
+  const firstDay = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  firstDay.setDate(firstDay.getDate() - (count - 1))
 
-  let cumulative = times.filter(time => time < firstWeek.getTime()).length
-  const result: CollectionWeekStat[] = []
+  let cumulative = times.filter(time => time < firstDay.getTime()).length
+  const result: CollectionDayStat[] = []
 
   for (let i = 0; i < count; i++) {
-    const start = new Date(firstWeek)
-    start.setDate(start.getDate() + i * 7)
+    const start = new Date(firstDay)
+    start.setDate(start.getDate() + i)
     const end = new Date(start)
-    end.setDate(end.getDate() + 7)
+    end.setDate(end.getDate() + 1)
 
     const added = times.filter(time => time >= start.getTime() && time < end.getTime()).length
     cumulative += added
     result.push({
-      start: `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`,
+      date: `${start.getFullYear()}-${pad(start.getMonth() + 1)}-${pad(start.getDate())}`,
       label: `${pad(start.getMonth() + 1)}/${pad(start.getDate())}`,
       added,
       cumulative
@@ -245,25 +267,76 @@ const weeks = computed<CollectionWeekStat[]>(() => {
 })
 
 /**
+ * 当前时间范围对应的文案 key
+ */
+const rangeLabel = computed(() => t(`account.collectionStats.trend.range${range.value}`))
+
+/**
+ * 概览指标卡片，指标构成与数据中心保持一致
+ */
+const metricCards = computed<CollectionMetricCard[]>(() => [
+  {
+    key: 'collected',
+    title: t('account.collectionStats.overview.collected'),
+    value: totalCollected.value,
+    icon: 'mdi-check-decagram',
+    color: 'amber',
+    series: daily.value.map(day => day.added),
+    unit: t('account.collectionStats.trend.addedUnit'),
+    detail: rangeLabel.value
+  },
+  {
+    key: 'catalog',
+    title: t('account.collectionStats.overview.catalog'),
+    value: catalogCount.value,
+    icon: 'mdi-bookshelf',
+    color: 'blue',
+    series: daily.value.map(day => day.cumulative),
+    unit: t('account.collectionStats.trend.totalUnit'),
+    detail: rangeLabel.value
+  },
+  {
+    key: 'completion',
+    title: t('account.collectionStats.overview.completion'),
+    value: `${completion.value}%`,
+    icon: 'mdi-chart-donut',
+    color: 'green',
+    series: daily.value.map(day => Math.round(day.cumulative / Math.max(1, catalogCount.value) * 100)),
+    unit: '%',
+    detail: rangeLabel.value
+  },
+  {
+    key: 'lastCollected',
+    title: t('account.collectionStats.overview.lastCollected'),
+    value: lastCollected.value,
+    icon: 'mdi-clock-outline',
+    color: 'purple',
+    series: daily.value.map(day => day.added),
+    unit: t('account.collectionStats.trend.addedUnit'),
+    detail: t('account.collectionStats.overview.lastCollectedHint')
+  }
+])
+
+/**
  * 新增折线图纵轴最大值，避免全零时无法计算坐标
  */
-const addedMax = computed(() => Math.max(1, ...weeks.value.map(week => week.added)))
+const addedMax = computed(() => Math.max(1, ...daily.value.map(day => day.added)))
 
 /**
  * 累计柱状图纵轴最大值
  */
-const cumulativeMax = computed(() => Math.max(1, ...weeks.value.map(week => week.cumulative)))
+const cumulativeMax = computed(() => Math.max(1, ...daily.value.map(day => day.cumulative)))
 
 /**
  * 折线图各数据点坐标
  */
 const chartPoints = computed(() => {
   const width = 720, height = 180, padding = 12
-  const step = weeks.value.length > 1 ? (width - padding * 2) / (weeks.value.length - 1) : 0
-  return weeks.value.map((week, index) => ({
+  const step = daily.value.length > 1 ? (width - padding * 2) / (daily.value.length - 1) : 0
+  return daily.value.map((day, index) => ({
     x: padding + index * step,
-    y: height - padding - (week.added / addedMax.value) * (height - padding * 2),
-    week
+    y: height - padding - (day.added / addedMax.value) * (height - padding * 2),
+    day
   }))
 })
 
@@ -286,26 +359,64 @@ const areaPath = computed(() => {
 })
 
 /**
- * 横轴标签显示间隔，避免周数过多时文字重叠
+ * 横轴标签显示间隔，避免天数过多时文字重叠
  */
-const labelStep = computed(() => Math.ceil(weeks.value.length / 8))
-
-/**
- * 切换统计时间范围
- * @param value 周数范围
- */
-const onRangeChange = (value: unknown) => {
-  range.value = String(value) as WeekRange
-}
+const labelStep = computed(() => Math.ceil(daily.value.length / 8))
 
 /**
  * 每周新增是否存在数据
  */
-const hasAdded = computed(() => weeks.value.some(week => week.added > 0))
+const hasAdded = computed(() => daily.value.some(day => day.added > 0))
+
+/**
+ * 记录卡片当前悬浮的数据点
+ * @param key 指标名
+ * @param index 数据点序号
+ */
+const onCardHover = (key: string, index: number | null | undefined) => {
+  cardHoverIndexMap.value[key] = index !== undefined ? index : null
+}
+
+/**
+ * 获取卡片悬浮位置的数据点，未悬浮时返回 null
+ * @param card 指标卡片
+ */
+const getCardHoverPoint = (card: CollectionMetricCard) => {
+  const index = cardHoverIndexMap.value[card.key]
+  if (index === null || index === undefined) return null
+
+  const day = daily.value[index]
+  if (!day || card.series[index] === undefined) return null
+
+  return {
+    day,
+    value: card.series[index]
+  }
+}
+
+/**
+ * 双向同步本地标记与账户收藏
+ */
+const onSync = async () => {
+  try {
+    const result = await collectionStore.onSync()
+    if (result.uploaded || result.downloaded) {
+      noticeStore.success(t('account.collectionStats.sync.result', {
+        upload: result.uploaded,
+        download: result.downloaded
+      }))
+    } else {
+      noticeStore.info(t('account.collectionStats.sync.none'))
+    }
+    syncDialog.value = false
+  } catch {
+    noticeStore.error(t('account.collectionStats.sync.failed'))
+  }
+}
 
 onMounted(onLoad)
 
-const getSeasonData = (bySeasonName: string) => seasons[bySeasonName]
+const getSeasonData = (bySeasonName: string) => seasonData[bySeasonName]
 
 defineOptions({
   name: 'AccountCollectionStats'
@@ -319,7 +430,7 @@ defineOptions({
     </div>
 
     <template v-else>
-      <AffixBoxHasTitleView v-if="!stats">
+      <AffixBoxHasTitleView v-if="!mergedRecords.length" class="mb-8">
         <div class="text-center opacity-60 py-12">
           {{ t('account.collectionStats.empty.title') }}
         </div>
@@ -329,61 +440,96 @@ defineOptions({
       </AffixBoxHasTitleView>
 
       <template v-else>
-        <AffixBoxHasTitleView class="mb-8">
-          <v-row density="compact">
-            <v-col cols="12" sm="6" md="3" v-for="card in [
-              {
-                key: 'collected',
-                value: totalCollected.toLocaleString(),
-                icon: 'mdi-check-decagram',
-                color: 'amber'
-              },
-              {
-                key: 'catalog',
-                value: catalogCount.toLocaleString(),
-                icon: 'mdi-bookshelf',
-                color: 'blue'
-              },
-              {
-                key: 'completion',
-                value: `${completion}%`,
-                icon: 'mdi-chart-donut',
-                color: 'green'
-              },
-              {
-                key: 'lastCollected',
-                value: lastCollected,
-                icon: 'mdi-clock-outline',
-                color: 'purple'
-              }
-            ]" :key="card.key">
-              <v-card border rounded="lg" variant="text" class="pa-5 h-100"
-                      :style="`background-color: color-mix(in srgb, ${card.color} 16%, #000 72%)`">
-                <div class="d-flex align-center ga-2 opacity-60 mb-2">
-                  <v-icon :color="card.color" size="18">{{ card.icon }}</v-icon>
-                  <span>{{ t(`account.collectionStats.overview.${card.key}`) }}</span>
-                </div>
-                <div class="text-h5 font-weight-bold" :class="`text-${card.color}`">{{ card.value }}</div>
-              </v-card>
+        <!-- 概览卡片区 S -->
+        <v-card variant="text">
+          <v-row class="mb-3">
+            <v-col cols="12" lg="auto">
+              <div class="d-flex align-center ga-2">
+                <span class="opacity-60">{{ t('account.collectionStats.trend.range') }}:</span>
+                <v-btn-toggle v-model="range" density="compact" variant="tonal" color="amber">
+                  <v-btn value="7">{{ t('account.collectionStats.trend.range7') }}</v-btn>
+                  <v-btn value="30">{{ t('account.collectionStats.trend.range30') }}</v-btn>
+                  <v-btn value="90">{{ t('account.collectionStats.trend.range90') }}</v-btn>
+                </v-btn-toggle>
+              </div>
+            </v-col>
+            <v-spacer class="hidden-sm hidden-md"></v-spacer>
+            <v-col cols="12" lg="auto">
+              <span class="opacity-60 ml-auto">
+                {{ t('account.collectionStats.overview.localMarks', {count: collectionStore.localCount}) }}
+              </span>
             </v-col>
           </v-row>
 
-          <template v-slot:title>
-            {{ t('account.collectionStats.overview.title') }}
-          </template>
-        </AffixBoxHasTitleView>
+          <v-row density="compact" class="mt-2 mb-5" :gap="15">
+            <v-col cols="12" sm="6" md="4" lg="4" v-for="card in metricCards" :key="card.key">
+              <v-card
+                  border
+                  rounded="lg"
+                  variant="text"
+                  min-height="150px"
+                  class="d-flex flex-column justify-center h-100"
+                  :style="`background-color: color-mix(in srgb, ${card.color} 20%, #000 70%)`">
+                <div style="opacity: .05; font-size: 7.2rem; position: absolute; left: 0; bottom: 0">
+                  <v-icon :icon="card.icon" :color="card.color" class="mr-1"></v-icon>
+                </div>
+
+                <v-row>
+                  <v-col cols="5" class="px-6 py-3">
+                    <div class="opacity-60 mb-1 d-flex align-center ga-1">
+                      <span class="u singe-line">{{ card.title }}</span>
+                      <v-btn v-if="card.key === 'collected'"
+                             density="compact"
+                             variant="text"
+                             border
+                             size="smail"
+                             color="amber"
+                             :loading="syncing"
+                             @click.stop="onSync">
+                        {{ t('account.collectionStats.overview.sync') }}
+                      </v-btn>
+                    </div>
+
+                    <div class="text-h4 font-weight-bold singe-line" :class="`text-${card.color}`">
+                      <template v-if="getCardHoverPoint(card)">
+                        {{ getCardHoverPoint(card)?.value.toLocaleString() }}{{ card.unit }}
+                      </template>
+                      <template v-else>
+                        {{ typeof card.value === 'number' ? card.value.toLocaleString() : card.value }}
+                      </template>
+                    </div>
+                    <div class="opacity-40 mt-1">
+                      <template v-if="getCardHoverPoint(card)">
+                        {{ getCardHoverPoint(card)?.day.date }}
+                      </template>
+                      <template v-else>
+                        {{ card.detail }}
+                      </template>
+                    </div>
+                  </v-col>
+
+                  <v-col>
+                    <v-sparkline
+                        :model-value="card.series.length ? card.series : [0, 0, 0, 0, 0, 0, 0]"
+                        :color="card.color"
+                        height="200"
+                        line-width="2"
+                        marker-size="10"
+                        min="0"
+                        padding="10"
+                        smooth="0"
+                        interactive
+                        @update:current-index="onCardHover(card.key, $event)"
+                        @mouseleave="onCardHover(card.key, null)"></v-sparkline>
+                  </v-col>
+                </v-row>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card>
+        <!-- 概览卡片区 E -->
 
         <AffixBoxHasTitleView class="mb-8">
-          <div class="d-flex flex-wrap align-center ga-2 mb-4">
-            <span class="opacity-60">{{ t('account.collectionStats.trend.range') }}:</span>
-            <v-btn-toggle :model-value="range" density="compact" variant="tonal" color="amber"
-                          @update:model-value="onRangeChange">
-              <v-btn value="12">{{ t('account.collectionStats.trend.range12') }}</v-btn>
-              <v-btn value="26">{{ t('account.collectionStats.trend.range26') }}</v-btn>
-              <v-btn value="52">{{ t('account.collectionStats.trend.range52') }}</v-btn>
-            </v-btn-toggle>
-          </div>
-
           <v-row>
             <v-col cols="12" lg="6">
               <div class="d-flex align-center ga-2 mb-2">
@@ -408,10 +554,10 @@ defineOptions({
                         vector-effect="non-scaling-stroke"/>
                 </svg>
                 <div class="d-flex mt-1">
-              <span v-for="(week, index) in weeks" :key="week.start"
+              <span v-for="(day, index) in daily" :key="day.date"
                     class="text-caption opacity-40 flex-grow-1 text-center"
-                    :style="{visibility: index % labelStep === 0 || index === weeks.length - 1 ? 'visible' : 'hidden'}">
-                {{ week.label }}
+                    :style="{visibility: index % labelStep === 0 || index === daily.length - 1 ? 'visible' : 'hidden'}">
+                {{ day.label }}
               </span>
                 </div>
                 <div class="text-caption opacity-40 mt-1">
@@ -430,18 +576,18 @@ defineOptions({
               </div>
 
               <div class="cumulative-chart d-flex align-end ga-1">
-                <div v-for="week in weeks" :key="week.start"
+                <div v-for="day in daily" :key="day.date"
                      class="cumulative-bar flex-grow-1"
-                     :title="`${week.start} · +${week.added} / ${week.cumulative}`">
+                     :title="`${day.date} · +${day.added} / ${day.cumulative}`">
                   <div class="cumulative-bar__fill"
-                       :style="{height: `${week.cumulative / cumulativeMax * 100}%`}"></div>
+                       :style="{height: `${day.cumulative / cumulativeMax * 100}%`}"></div>
                 </div>
               </div>
               <div class="d-flex mt-1">
-                <span v-for="(week, index) in weeks" :key="week.start"
+                <span v-for="(day, index) in daily" :key="day.date"
                       class="text-caption opacity-40 flex-grow-1 text-center"
-                      :style="{visibility: index % labelStep === 0 || index === weeks.length - 1 ? 'visible' : 'hidden'}">
-                  {{ week.label }}
+                      :style="{visibility: index % labelStep === 0 || index === daily.length - 1 ? 'visible' : 'hidden'}">
+                  {{ day.label }}
                 </span>
               </div>
             </v-col>
@@ -505,6 +651,28 @@ defineOptions({
         </AffixBoxHasTitleView>
       </template>
     </template>
+
+    <!-- 匿名标记同步提醒 S -->
+    <v-dialog v-model="syncDialog" max-width="500">
+      <v-card border rounded="lg">
+        <v-card-title class="d-flex align-center ga-2">
+          <v-icon color="amber" icon="mdi-star-circle-outline"></v-icon>
+          {{ t('account.collectionStats.syncDialog.title') }}
+        </v-card-title>
+        <v-card-text>
+          <p>{{ t('account.collectionStats.syncDialog.text', {count: collectionStore.pendingLocalCount}) }}</p>
+          <p class="text-caption opacity-40 mt-2">{{ t('account.collectionStats.syncDialog.keep') }}</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn variant="text" @click="syncDialog = false">{{ t('account.collectionStats.syncDialog.later') }}</v-btn>
+          <v-btn color="amber" variant="flat" :loading="syncing" @click="onSync">
+            {{ t('account.collectionStats.syncDialog.confirm') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- 匿名标记同步提醒 E -->
   </div>
 </template>
 
