@@ -1,32 +1,6 @@
 {
   "rewrites": [
-    { "source": "/assets/**", "destination": "/assets/$1" },
-    { "source": "/static/**", "destination": "/static/$1" },
-    { "source": "/images/**", "destination": "/images/$1" },
-    { "source": "/lang/**", "destination": "/lang/$1" },
-    { "source": "/openApi/**", "destination": "/openApi/$1" },
-    { "source": "/treasureMaps/**", "destination": "/treasureMaps/$1" },
-    { "source": "/version.json", "destination": "/version.json" },
-    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
-    { "source": "/robots.txt", "destination": "/robots.txt" },
-    { "source": "/ads.txt", "destination": "/ads.txt" },
-    { "source": "/favicon.ico", "destination": "/favicon.ico" },
-    { "source": "/favicon.svg", "destination": "/favicon.svg" },
-    { "source": "/logo-format.gif", "destination": "/logo-format.gif" },
-    { "source": "/manifest.webmanifest", "destination": "/manifest.webmanifest" },
-    { "source": "/manifest.zh-CN.webmanifest", "destination": "/manifest.zh-CN.webmanifest" },
-    { "source": "/manifest.zh-TW.webmanifest", "destination": "/manifest.zh-TW.webmanifest" },
-    { "source": "/manifest.en-US.webmanifest", "destination": "/manifest.en-US.webmanifest" },
-    { "source": "/2b62795cf566484f8bc243e7055ae616.txt", "destination": "/2b62795cf566484f8bc243e7055ae616.txt" },
-    { "source": "/WW_verify_HnH1pdutwpAkO0XY.txt", "destination": "/WW_verify_HnH1pdutwpAkO0XY.txt" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "status": 200
-    }
+    { "source": "/*", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -116,4 +90,3 @@
     }
   ]
 }
-

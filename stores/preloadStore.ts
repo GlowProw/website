@@ -17,7 +17,13 @@ export const usePreloadStore = defineStore('preload', () => {
     /**
      * 全局 loading：true 时 App.vue 显示全屏遮罩
      */
-    const appLoading: Ref<boolean> = ref(false);
+    const appLoading: Ref<boolean> = ref(true);
+
+    /**
+     * 页面文档就绪标志：document.readyState 达到 interactive 或 complete 后置 true
+     * 与 appLoading 共同决定遮罩是否显示
+     */
+    const pageReady: Ref<boolean> = ref(false);
 
     /**
      * 当前执行阶段文案 —— i18n key 或直接字符串
@@ -50,46 +56,53 @@ export const usePreloadStore = defineStore('preload', () => {
         return t;
     };
 
+    // 标记 runAll 是否正在执行，避免重复触发时并发跑同一批任务
+    let isRunning = false;
+
     /**
      * 运行所有 pending 任务（串行，不中断；失败会记录但继续下一个）
      **/
     const runAll = async (): Promise<void> => {
-        if (appLoading.value) return; // 防重入
+        if (isRunning) return;
+        isRunning = true;
         appLoading.value = true;
         currentPhase.value = '';
 
-        for (const task of tasks.value) {
-            task.status = 'running';
-            currentPhase.value = task.phase;
-            try {
-                await task.run();
-                task.status = 'done';
-                task.lastError = undefined;
-            } catch (err: any) {
-                task.status = 'failed';
-                task.lastError = err;
-                const errMsg = err?.message || String(err);
-                errors.value.unshift({
-                    taskId: task.id,
-                    phase: task.phase,
-                    message: errMsg,
-                    timestamp: Date.now()
-                });
-                if (errors.value.length > 20) errors.value.pop();
+        try {
+            for (const task of tasks.value) {
+                task.status = 'running';
+                currentPhase.value = task.phase;
+                try {
+                    await task.run();
+                    task.status = 'done';
+                    task.lastError = undefined;
+                } catch (err: any) {
+                    task.status = 'failed';
+                    task.lastError = err;
+                    const errMsg = err?.message || String(err);
+                    errors.value.unshift({
+                        taskId: task.id,
+                        phase: task.phase,
+                        message: errMsg,
+                        timestamp: Date.now()
+                    });
+                    if (errors.value.length > 20) errors.value.pop();
 
-                // 写入 error_logger
-                logError(
-                    ERROR_CODES.GP_NET_001,
-                    `[Preload:${task.id}] ${errMsg}`,
-                    err?.stack,
-                    'preloadStore',
-                    { phase: task.phase }
-                );
+                    // 写入 error_logger
+                    logError(
+                        ERROR_CODES.GP_NET_001,
+                        `[Preload:${task.id}] ${errMsg}`,
+                        err?.stack,
+                        'preloadStore',
+                        { phase: task.phase }
+                    );
+                }
             }
+        } finally {
+            currentPhase.value = '';
+            appLoading.value = false;
+            isRunning = false;
         }
-
-        currentPhase.value = '';
-        appLoading.value = false;
     };
 
     /**
@@ -159,6 +172,7 @@ export const usePreloadStore = defineStore('preload', () => {
     return {
         // state
         appLoading,
+        pageReady,
         currentPhase,
         tasks,
         errors,

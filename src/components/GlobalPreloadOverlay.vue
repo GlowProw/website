@@ -7,7 +7,7 @@ const {t} = useI18n();
 </script>
 
 <template>
-  <div v-if="preloadStore.appLoading" class="global-preload-mask bg-black">
+  <div v-if="preloadStore.appLoading || !preloadStore.pageReady" class="global-preload-mask bg-black">
     <div class="portal-up-window h-screen">
       <div class="global-preload-inner mt-n16">
         <div class="d-flex flex-column justify-center align-center">

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import AppMessageWidget from '@/components/AppMessageWidget.vue'
 import GlobalSupportPrompt from '@/components/GlobalSupportPrompt.vue'
-import {computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch} from "vue";
+import GlobalPreloadOverlay from '@/components/GlobalPreloadOverlay.vue'
+import {computed, onMounted, onUnmounted, ref, watch} from "vue";
 import {useI18n} from 'vue-i18n';
 import {useRoute} from "vue-router";
 import {useHead} from "@unhead/vue";
@@ -15,7 +16,6 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
 import {setupGlobalHotkeys} from "@/assets/sripts/global_hotkeys";
 
-const GlobalPreloadOverlay = defineAsyncComponent(() => import('@/components/GlobalPreloadOverlay.vue'));
 const isClient = ref(true);
 
 const {t, locale} = useI18n();
@@ -133,6 +133,17 @@ const waitForSiteAssets = async () => {
 
 onMounted(async () => {
   isClient.value = true;
+
+  // 同步检测页面文档就绪状态，进入 onMounted 时已经是 interactive/complete
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        preloadStore.pageReady = true;
+      }, { once: true });
+    } else {
+      preloadStore.pageReady = true;
+    }
+  }
   cleanupHotkeys = setupGlobalHotkeys();
   document.addEventListener('visibilitychange', handleVisibilityChange);
   preloadStore.registerTask({
@@ -215,9 +226,9 @@ const handleVisibilityChange = () => {
 </script>
 
 <template>
-  <GlobalPreloadOverlay v-if="isClient"/>
+  <GlobalPreloadOverlay/>
+  <GlobalSupportPrompt/>
 
   <AppMessageWidget></AppMessageWidget>
-  <GlobalSupportPrompt/>
   <router-view></router-view>
 </template>

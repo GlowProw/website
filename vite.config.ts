@@ -243,6 +243,7 @@ const getRoutes = () => {
         'setting/log',
         'setting/subscriptions',
         'setting/advanced',
+        'setting/service-status',
         'space',
         'oauth',
         'apps',

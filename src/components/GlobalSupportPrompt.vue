@@ -11,10 +11,10 @@ const DISMISSED_KEY = 'app.supportPrompt.dismissedAt'
 const DWELL_KEY = 'app.supportPrompt.dwellMs'
 const PAGES_KEY = 'app.supportPrompt.pages'
 
-// 触发条件：访问 3 次、停留 2 分钟、浏览 5 个页面
-const MIN_VISITS = 3
+// 触发条件：访问 8 次、停留 2 分钟、浏览 6 个页面
+const MIN_VISITS = 8
 const MIN_DWELL_MS = 2 * 60 * 1000
-const MIN_PAGES = 5
+const MIN_PAGES = 6
 
 const {t} = useI18n()
 const route = useRoute()
