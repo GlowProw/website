@@ -78,7 +78,7 @@ const onSignIn = async () => {
   try {
     const result = await api.signIn()
     const data = result.data.data as { points: number; streakDays: number; bonusMakeup: number }
-    notice.success(t('account.signin.message.success', {points: data.points, streak: data.streakDays}))
+    notice.success(t('account.signin.message.success', {points: data.points, streak: data.streakDays, mode: 'minimal'}))
     if (data.bonusMakeup) {
       notice.info(t('account.signin.message.bonusMakeup'))
     }
@@ -108,7 +108,7 @@ const onMakeup = async () => {
   makingUp.value = true
   try {
     await api.makeupSignin(makeupDate.value)
-    notice.success(t('account.signin.message.makeupSuccess', {date: makeupDate.value}))
+    notice.success(t('account.signin.message.makeupSuccess', {date: makeupDate.value, mode: 'minimal'}))
     makeupDialog.value = false
     await onLoad()
   } catch (e: any) {
@@ -181,7 +181,7 @@ defineOptions({
               </div>
             </v-col>
 
-            <v-col cols="12" md="auto" class="d-flex justify-center">
+            <v-col cols="12" md="12" class="mt-2">
               <v-btn v-if="!status.todaySigned"
                      color="amber"
                      size="large"

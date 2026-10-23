@@ -10,6 +10,7 @@ import {ResetPasswordParams} from "@/assets/types/User";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import Silk from "@/components/Silk.vue";
 import HalfScreenBannerText from "@/components/HalfScreenBannerText.vue";
+import PasswordStrength from "@/components/PasswordStrength.vue";
 
 const router = useRouter(),
     route = useRoute(),
@@ -119,6 +120,7 @@ const onReset = async () => {
                     />
                   </template>
                 </v-text-field>
+                <PasswordStrength :password="form.newPassword" class="mb-2" />
               </v-col>
             </v-row>
 

@@ -4,8 +4,8 @@ import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {computed, onMounted, ref, watch} from "vue";
 import Loading from "@/components/Loading.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import ModCardDetail from "@/components/snbWidget/modCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 import {useAppStore} from "~/stores/appStore";
 import {Modifications} from "glow-prow-data";
 
@@ -31,7 +31,6 @@ const props = withDefaults(defineProps<{
     appStore = useAppStore(),
 
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
 
     mods = Modifications
 
@@ -88,21 +87,9 @@ const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
-  <v-tooltip v-model="modsData.model"
-             min-width="450"
-             max-width="450"
-             interactive
-             :disabled="!props.isShowTooltip"
-             :offset="[40, 0]"
-             scroll-strategy="close"
-             transition="opacity 300ms ease-in"
-             location="right top"
-             content-class="pa-0 bg-transparent"
-             :target="[tooltipPos.x, tooltipPos.y]">
+  <ItemCardTooltip :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           :to="isOpenDetail ? `/codex/modification/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           width="100%"
@@ -152,7 +139,7 @@ const computedMargin = useIconImageMargin(props.margin);
         <slot name="description"></slot>
       </template>
     </ModCardDetail>
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

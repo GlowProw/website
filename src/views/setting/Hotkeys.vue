@@ -5,7 +5,8 @@
  */
 import {computed, onBeforeUnmount, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
-import {type HotkeyItem, useHotkeysStore} from '~/stores/hotkeysStore'
+import {useHotkeysStore} from '~/stores/hotkeysStore'
+import type {HotkeyItem, HotkeyMode} from '@/assets/types/Hotkeys'
 import {useOS} from '@/assets/sripts/os'
 import {VHotkey} from 'vuetify/components/VHotkey'
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
@@ -38,11 +39,21 @@ const notify = (text: string, color = 'success') => {
 }
 
 /**
+ * 快捷键分组展示配置
+ */
+const groupList = computed(() => [
+  {key: 'workshop', titleKey: 'setting.hotkeys.groupWorkshop'},
+  {key: 'codex', titleKey: 'setting.hotkeys.groupCodex'},
+  {key: 'global', titleKey: 'setting.hotkeys.groupGlobal'},
+])
+
+/**
  * 按分类聚合快捷键列表
  */
 const categorizedHotkeys = computed(() => {
   const groups: Record<string, HotkeyItem[]> = {
     workshop: [],
+    codex: [],
     global: [],
   }
   for (const item of hotkeysStore.hotkeyList) {
@@ -53,6 +64,19 @@ const categorizedHotkeys = computed(() => {
   }
   return groups
 })
+
+/**
+ * 修改动作的触发方式
+ * @param item 目标快捷键项
+ * @param mode 按下立即触发或按住蓄力触发
+ */
+const onUpdateMode = (item: HotkeyItem, mode: unknown) => {
+  if (mode !== 'press' && mode !== 'hold') return
+  hotkeysStore.updateMode(item.id, mode as HotkeyMode)
+  notify(t('setting.hotkeys.modeUpdated', {
+    mode: t(mode === 'hold' ? 'setting.hotkeys.modeHold' : 'setting.hotkeys.modePress'),
+  }), 'success')
+}
 
 /**
  * 开始录制某个快捷键动作
@@ -169,101 +193,69 @@ defineOptions({
 
     <!-- 分组快捷键列表 -->
     <v-col cols="12" lg="8" class="setting-hotkeys-groups">
-      <!-- 工坊快捷键 S -->
-      <AffixBoxHasTitleView>
+      <AffixBoxHasTitleView v-for="group in groupList" :key="group.key">
         <template v-slot:title>
-          {{ t('setting.hotkeys.groupWorkshop') }}
+          {{ t(group.titleKey) }}
         </template>
 
         <div class="setting-hotkeys-group mb-6">
           <v-card class="setting-hotkeys-card">
             <v-list class="bg-transparent pa-0">
-              <template v-for="(item, idx) in categorizedHotkeys.workshop" :key="item.id">
+              <template v-for="(item, idx) in categorizedHotkeys[group.key]" :key="item.id">
                 <v-list-item class="py-3 px-4">
                   <v-list-item-title class="font-weight-medium text-white mb-1">
                     {{ t(item.nameKey) }}
                   </v-list-item-title>
                   <v-list-item-subtitle class="text-caption text-medium-emphasis">
-                    {{ t(item.descriptionKey) || t('setting.hotkeys.defaultDesc') }}
+                    {{ t(item.descriptionKey) }}
                   </v-list-item-subtitle>
 
                   <template #append>
-                    <v-btn
-                        v-if="recordingActionId === item.id"
-                        size="small"
-                        color="amber"
-                        variant="flat"
-                        class="setting-hotkeys-key-btn recording pulse-anim">
-                      {{ t('setting.hotkeys.pressCombination') }}
-                    </v-btn>
-                    <div
-                        v-else
-                        class="setting-hotkeys-badge-wrapper cursor-pointer"
-                        :title="t('setting.hotkeys.clickToRecord')"
-                        @click="startRecording(item)">
-                      <v-hotkey
-                          :keys="item.currentKey"
-                          display-mode="symbol"
-                          variant="elevated"
-                          :platform="currentPlatform"/>
+                    <div class="d-flex align-center ga-2">
+                      <v-btn-toggle
+                          :model-value="item.mode"
+                          mandatory
+                          density="compact"
+                          variant="outlined"
+                          divided
+                          class="setting-hotkeys-mode"
+                          @update:model-value="(value) => onUpdateMode(item, value)">
+                        <v-btn value="press" size="small" class="px-2">
+                          {{ t('setting.hotkeys.modePress') }}
+                        </v-btn>
+                        <v-btn value="hold" size="small" class="px-2">
+                          {{ t('setting.hotkeys.modeHold') }}
+                        </v-btn>
+                      </v-btn-toggle>
+
+                      <v-btn
+                          v-if="recordingActionId === item.id"
+                          size="small"
+                          color="amber"
+                          variant="flat"
+                          class="setting-hotkeys-key-btn recording pulse-anim">
+                        {{ t('setting.hotkeys.pressCombination') }}
+                      </v-btn>
+                      <div
+                          v-else
+                          class="setting-hotkeys-badge-wrapper cursor-pointer"
+                          :title="t('setting.hotkeys.clickToRecord')"
+                          @click="startRecording(item)">
+                        <v-hotkey
+                            :keys="item.currentKey"
+                            display-mode="symbol"
+                            variant="elevated"
+                            :platform="currentPlatform"/>
+                      </div>
                     </div>
                   </template>
                 </v-list-item>
-                <v-divider v-if="idx < categorizedHotkeys.workshop.length - 1"></v-divider>
+                <v-divider v-if="idx < categorizedHotkeys[group.key].length - 1"></v-divider>
               </template>
             </v-list>
           </v-card>
         </div>
       </AffixBoxHasTitleView>
-      <!-- 工坊快捷键 E -->
-
-      <!-- 全局通用快捷键 S -->
-      <AffixBoxHasTitleView>
-        <template v-slot:title>
-          {{ t('setting.hotkeys.groupGlobal') }}
-        </template>
-
-        <div class="setting-hotkeys-group mb-6">
-          <v-card class="setting-hotkeys-card">
-            <v-list class="bg-transparent pa-0">
-              <template v-for="(item, idx) in categorizedHotkeys.global" :key="item.id">
-                <v-list-item class="py-3 px-4">
-                  <v-list-item-title class="font-weight-medium text-white mb-1">
-                    {{ t(item.nameKey) }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption text-medium-emphasis">
-                    {{ t(item.descriptionKey) || t('setting.hotkeys.defaultDesc') }}
-                  </v-list-item-subtitle>
-
-                  <template #append>
-                    <v-btn
-                        v-if="recordingActionId === item.id"
-                        size="small"
-                        color="amber"
-                        variant="flat"
-                        class="setting-hotkeys-key-btn recording pulse-anim">
-                      {{ t('setting.hotkeys.pressCombination') }}
-                    </v-btn>
-                    <div
-                        v-else
-                        class="setting-hotkeys-badge-wrapper cursor-pointer"
-                        :title="t('setting.hotkeys.clickToRecord')"
-                        @click="startRecording(item)">
-                      <v-hotkey
-                          :keys="item.currentKey"
-                          display-mode="symbol"
-                          variant="elevated"
-                          :platform="currentPlatform"/>
-                    </div>
-                  </template>
-                </v-list-item>
-                <v-divider v-if="idx < categorizedHotkeys.global.length - 1"></v-divider>
-              </template>
-            </v-list>
-          </v-card>
-        </div>
-      </AffixBoxHasTitleView>
-      <!-- 全局通用快捷键 E -->
     </v-col>
 
     <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="2500" location="bottom end">

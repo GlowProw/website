@@ -25,7 +25,6 @@ import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import DropWidget from "@/components/DropWidget.vue";
 import SmugglersReportShowItemWidget from "@/components/SmugglersReportShowItemWidget.vue";
-import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import Textarea from "@/components/textarea/index.vue";
@@ -541,7 +540,7 @@ const refreshAll = async () => {
       <!-- 赛季与日报总览 S -->
       <div class="daily-header position-relative mb-10 px-5 pa-sm-6">
         <div class="position-relative z-1">
-          <v-row >
+          <v-row>
             <v-col cols="12" lg="6" class="d-flex ga-3">
               <div>
                 <div class="d-flex align-center ga-2 flex-wrap">
@@ -606,12 +605,12 @@ const refreshAll = async () => {
               </template>
 
               <!-- 阵营几比几 对决战报看板 S -->
-              <div class="faction-battle-banner pa-4 rounded-lg mb-4 border position-relative overflow-hidden">
+              <div class="faction-battle-banner px-4 rounded-lg mb-4 position-relative overflow-hidden">
                 <v-row align="center" justify="center" density="compact">
                   <!-- 阵营 A -->
                   <v-col cols="5" class="text-center pr-2">
                     <div class="d-flex flex-column align-center">
-                      <v-avatar size="44" class="faction-avatar border mb-2" :style="{ borderColor: factionAColor }">
+                      <v-avatar size="44" rounded="0" class="faction-avatar border mb-2" :style="{ borderColor: factionAColor }">
                         <FactionIconWidget :name="factionAKey" size="36"></FactionIconWidget>
                       </v-avatar>
                       <div class="text-subtitle-2 font-weight-bold text-truncate w-100 mb-1" :style="{ color: factionAColor }">
@@ -633,7 +632,7 @@ const refreshAll = async () => {
                   <!-- 阵营 B -->
                   <v-col cols="5" class="text-center pl-2">
                     <div class="d-flex flex-column align-center">
-                      <v-avatar size="44" class="faction-avatar border mb-2" :style="{ borderColor: factionBColor }">
+                      <v-avatar size="44" rounded="0" class="faction-avatar border mb-2" :style="{ borderColor: factionBColor }">
                         <FactionIconWidget :name="factionBKey" size="36"></FactionIconWidget>
                       </v-avatar>
                       <div class="text-subtitle-2 font-weight-bold text-truncate w-100 mb-1" :style="{ color: factionBColor }">
@@ -772,15 +771,14 @@ const refreshAll = async () => {
                 <!-- 活动卡片 -->
                 <v-card
                     variant="text"
-                    border
                     v-for="ev in parsedCalendarEvents.slice(0, 4)"
                     :key="ev.id + ev.startMs"
-                    class="event-item-card pa-3 transition-all"
+                    class="event-item-card pb-3 transition-all"
                     :class="{ 'is-active-event': ev.isOngoing }">
                   <div class="d-flex align-start justify-space-between ga-2 mb-2">
                     <div>
                       <div class="d-flex align-center ga-2 flex-wrap">
-                        <span class="text-h6 font-weight-bold text-amber-lighten-3">
+                        <span class="text-h6 font-weight-bold" :class="{'text-amber': ev.isOngoing}">
                           {{ ev.name }}
                         </span>
                         <v-chip
@@ -843,7 +841,7 @@ const refreshAll = async () => {
           </v-col>
 
           <!-- 鉴赏家 S -->
-          <v-col cols="12" lg="6" v-if="showConnoisseur" class="mt-10">
+          <v-col cols="12" lg="12" v-if="showConnoisseur" class="mt-10">
             <AffixBoxHasTitleView class="section-card h-100" disabled-title>
               <template v-slot:title>
                 {{ t("dailyReport.connoisseur.title") }}
@@ -868,7 +866,7 @@ const refreshAll = async () => {
                   <p class="text-subtitle-1 font-weight-bold text-amber-lighten-3 mb-1">
                     {{ connoisseurReport.title || t("smugglersReport.title") }}
                   </p>
-                  <p class="text-caption text-medium-emphasis mb-0">
+                  <p class="text-medium-emphasis mb-0">
                     {{ t("smugglersReport.view.startTime") }}:
                     <TimeView :time="connoisseurReport.startTime"></TimeView>
                     ~
@@ -878,19 +876,15 @@ const refreshAll = async () => {
                 </div>
 
                 <SmugglersReportShowItemWidget
+                    readonly
                     :data="connoisseurReport.content"></SmugglersReportShowItemWidget>
-
-                <v-divider class="my-5"></v-divider>
 
                 <p class="text-h6 text-amber mb-1">{{ t("smugglersReport.view.connoisseurs") }}</p>
                 <p class="opacity-60 text-caption mb-3">{{ t("smugglersReport.view.connoisseursDesc") }}</p>
 
-                <HorizontalScrollList :is-indicator="false" v-if="connoisseurComments.length > 0">
-                  <v-card
-                      v-for="(comment, index) in connoisseurComments"
-                      :key="index"
-                      tile
-                      variant="text">
+                <v-row v-if="connoisseurComments.length > 0">
+                  <v-col cols="4" v-for="(comment, index) in connoisseurComments"
+                         :key="index">
                     <v-card variant="text" width="360px" min-height="140px">
                       <v-row no-gutters>
                         <v-col cols="auto">
@@ -916,8 +910,8 @@ const refreshAll = async () => {
                         </v-col>
                       </v-row>
                     </v-card>
-                  </v-card>
-                </HorizontalScrollList>
+                  </v-col>
+                </v-row>
                 <EmptyView v-else></EmptyView>
               </template>
               <!-- 周报与评论 E -->
@@ -1028,12 +1022,7 @@ const refreshAll = async () => {
 }
 
 .event-item-card {
-  &:hover {
-    background: rgba(0, 0, 0, 0.5);
-  }
-
   &.is-active-event {
-    background: linear-gradient(90deg, rgba(255, 179, 0, 0.06) 0%, rgba(0, 0, 0, 0.4) 100%);
   }
 }
 

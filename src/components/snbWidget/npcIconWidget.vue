@@ -8,8 +8,8 @@ import {rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import NpcCardDetail from "@/components/snbWidget/npcCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 import {useAppStore} from "~/stores/appStore";
 import {Npc, Npcs} from "glow-prow-data";
 import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
@@ -23,7 +23,6 @@ const
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       data?: Npc,
       id?: string,
@@ -99,23 +98,11 @@ defineOptions({
 </script>
 
 <template>
-  <v-tooltip
+  <ItemCardTooltip
       v-if="i && i.id"
-      :disabled="!props.isShowTooltip"
-      :offset="[40, 0]"
-      scroll-strategy="close"
-      transition="opacity 300ms ease-in"
-      class="npc-card"
-      content-class="pa-0 bg-transparent"
-      interactive
-      location="right top"
-      max-width="450"
-      min-width="450"
-      :target="[tooltipPos.x, tooltipPos.y]">
+      :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           ref="targetElement"
           :class="[
               'prohibit-drag',
@@ -152,7 +139,7 @@ defineOptions({
         :data="props.data"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style lang="less" scoped>

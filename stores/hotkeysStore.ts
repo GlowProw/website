@@ -5,37 +5,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import Storage from '@/assets/sripts/storage';
-
-export interface HotkeyItem {
-  /**
-   * 动作唯一标识
-   */
-  id: string;
-  /**
-   * 动作名称多语言键
-   */
-  nameKey: string;
-  /**
-   * 动作描述多语言键
-   */
-  descriptionKey: string;
-  /**
-   * 动作所属类别
-   */
-  category: 'workshop' | 'global';
-  /**
-   * 类别名称多语言键
-   */
-  categoryKey: string;
-  /**
-   * 默认按键
-   */
-  defaultKey: string;
-  /**
-   * 当前生效按键
-   */
-  currentKey: string;
-}
+import type { HotkeyItem, HotkeyMode, PersistedHotkey } from '@/assets/types/Hotkeys';
 
 const storage = new Storage();
 const HOTKEYS_STORAGE_KEY = 'user.hotkeys.bindings';
@@ -55,6 +25,8 @@ const DEFAULT_HOTKEYS: HotkeyItem[] = [
     categoryKey: 'setting.hotkeys.categoryWorkshop',
     defaultKey: 's',
     currentKey: 's',
+    mode: 'hold',
+    defaultMode: 'hold',
   },
   {
     id: 'quickConfirm',
@@ -64,6 +36,19 @@ const DEFAULT_HOTKEYS: HotkeyItem[] = [
     categoryKey: 'setting.hotkeys.categoryWorkshop',
     defaultKey: 'f',
     currentKey: 'f',
+    mode: 'hold',
+    defaultMode: 'hold',
+  },
+  {
+    id: 'openItemDetail',
+    nameKey: 'setting.hotkeys.openItemDetail',
+    descriptionKey: 'setting.hotkeys.openItemDetailDesc',
+    category: 'codex',
+    categoryKey: 'setting.hotkeys.categoryCodex',
+    defaultKey: 'f',
+    currentKey: 'f',
+    mode: 'hold',
+    defaultMode: 'hold',
   },
   {
     id: 'quickSearch',
@@ -73,6 +58,8 @@ const DEFAULT_HOTKEYS: HotkeyItem[] = [
     categoryKey: 'setting.hotkeys.categoryGlobal',
     defaultKey: defaultSearchKey,
     currentKey: defaultSearchKey,
+    mode: 'press',
+    defaultMode: 'press',
   },
   {
     id: 'toggleMessages',
@@ -82,6 +69,8 @@ const DEFAULT_HOTKEYS: HotkeyItem[] = [
     categoryKey: 'setting.hotkeys.categoryGlobal',
     defaultKey: 'alt+m',
     currentKey: 'alt+m',
+    mode: 'press',
+    defaultMode: 'press',
   },
   {
     id: 'toggleHeaderMenu',
@@ -91,6 +80,8 @@ const DEFAULT_HOTKEYS: HotkeyItem[] = [
     categoryKey: 'setting.hotkeys.categoryGlobal',
     defaultKey: 'alt+h',
     currentKey: 'alt+h',
+    mode: 'press',
+    defaultMode: 'press',
   },
   {
     id: 'closeModal',
@@ -100,23 +91,42 @@ const DEFAULT_HOTKEYS: HotkeyItem[] = [
     categoryKey: 'setting.hotkeys.categoryGlobal',
     defaultKey: 'escape',
     currentKey: 'escape',
+    mode: 'press',
+    defaultMode: 'press',
   },
 ];
 
 /**
  * 从本地存储加载快捷键配置
+ * 兼容早期仅保存按键字符串的格式
  */
-function loadPersistedHotkeys(): Record<string, string> {
+function loadPersistedHotkeys(): Record<string, PersistedHotkey> {
   const d = storage.local.get(HOTKEYS_STORAGE_KEY);
   if (d.code < 0 || !d.data?.value) return {};
-  return typeof d.data.value === 'object' ? d.data.value : {};
+  const raw = d.data.value;
+  if (typeof raw !== 'object') return {};
+
+  const result: Record<string, PersistedHotkey> = {};
+  for (const [id, value] of Object.entries(raw as Record<string, any>)) {
+    if (typeof value === 'string') {
+      result[id] = {key: value, mode: 'press'};
+      continue;
+    }
+    if (value && typeof value === 'object' && typeof value.key === 'string') {
+      result[id] = {
+        key: value.key,
+        mode: value.mode === 'hold' ? 'hold' : 'press',
+      };
+    }
+  }
+  return result;
 }
 
 /**
- * 持久化快捷键字典到本地存储
- * @param mapping 动作 ID 与当前按键的映射表
+ * 持久化快捷键配置到本地存储
+ * @param mapping 动作 ID 与当前绑定配置的映射表
  */
-function savePersistedHotkeys(mapping: Record<string, string>) {
+function savePersistedHotkeys(mapping: Record<string, PersistedHotkey>) {
   storage.local.set(HOTKEYS_STORAGE_KEY, mapping);
 }
 
@@ -129,10 +139,14 @@ export const useHotkeysStore = defineStore('hotkeys', () => {
    */
   const init = () => {
     const saved = loadPersistedHotkeys();
-    hotkeyList.value = DEFAULT_HOTKEYS.map((item) => ({
-      ...item,
-      currentKey: (saved[item.id] || item.defaultKey).toLowerCase(),
-    }));
+    hotkeyList.value = DEFAULT_HOTKEYS.map((item) => {
+      const persisted = saved[item.id];
+      return {
+        ...item,
+        currentKey: (persisted?.key || item.defaultKey).toLowerCase(),
+        mode: persisted?.mode || item.defaultMode,
+      };
+    });
   };
 
   // 初始执行一次
@@ -158,6 +172,14 @@ export const useHotkeysStore = defineStore('hotkeys', () => {
   };
 
   /**
+   * 获取指定动作当前的触发方式
+   * @param actionId 动作唯一标识
+   */
+  const getMode = (actionId: string): HotkeyMode => {
+    return hotkeyList.value.find((item) => item.id === actionId)?.mode || 'press';
+  };
+
+  /**
    * 更新指定动作的快捷键绑定
    * @param actionId 动作唯一标识
    * @param newKey 新的按键（已格式化为小写）
@@ -166,25 +188,44 @@ export const useHotkeysStore = defineStore('hotkeys', () => {
     const formatted = newKey.trim().toLowerCase();
     if (!formatted) return { success: false };
 
-    // 检查按键冲突
-    const conflict = hotkeyList.value.find((item) => item.id !== actionId && item.currentKey === formatted);
-
     const target = hotkeyList.value.find((item) => item.id === actionId);
     if (!target) return { success: false };
 
-    target.currentKey = formatted;
+    // 仅在同一类别内判定冲突，不同类别的动作不会同时处于可用界面
+    const conflict = hotkeyList.value.find((item) =>
+        item.id !== actionId && item.currentKey === formatted && item.category === target.category);
 
-    // 持久化存储
-    const mapping: Record<string, string> = {};
-    for (const item of hotkeyList.value) {
-      mapping[item.id] = item.currentKey;
-    }
-    savePersistedHotkeys(mapping);
+    target.currentKey = formatted;
+    persist();
 
     return {
       success: true,
       conflictId: conflict?.id,
     };
+  };
+
+  /**
+   * 更新指定动作的触发方式
+   * @param actionId 动作唯一标识
+   * @param mode 按下立即触发或按住蓄力触发
+   */
+  const updateMode = (actionId: string, mode: HotkeyMode): boolean => {
+    const target = hotkeyList.value.find((item) => item.id === actionId);
+    if (!target) return false;
+    target.mode = mode;
+    persist();
+    return true;
+  };
+
+  /**
+   * 持久化当前全部快捷键配置
+   */
+  const persist = () => {
+    const mapping: Record<string, PersistedHotkey> = {};
+    for (const item of hotkeyList.value) {
+      mapping[item.id] = {key: item.currentKey, mode: item.mode};
+    }
+    savePersistedHotkeys(mapping);
   };
 
   /**
@@ -194,6 +235,7 @@ export const useHotkeysStore = defineStore('hotkeys', () => {
     hotkeyList.value = DEFAULT_HOTKEYS.map((item) => ({
       ...item,
       currentKey: item.defaultKey.toLowerCase(),
+      mode: item.defaultMode,
     }));
     savePersistedHotkeys({});
   };
@@ -202,7 +244,9 @@ export const useHotkeysStore = defineStore('hotkeys', () => {
     hotkeyList,
     keyMap,
     getKey,
+    getMode,
     updateKey,
+    updateMode,
     resetToDefaults,
   };
 });

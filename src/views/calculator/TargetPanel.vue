@@ -313,6 +313,8 @@ function onFileImport(e: Event) {
                 elevation="0"
                 density="comfortable"
                 tile
+                min="0"
+                max="900000"
                 variant="solo-filled"
                 hide-details
                 style="max-width: 80px;height: 47px;"/>

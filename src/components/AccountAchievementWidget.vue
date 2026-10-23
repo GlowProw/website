@@ -83,7 +83,7 @@ defineOptions({
 
 <template>
   <div v-if="loading" class="d-flex justify-center py-2">
-    <v-progress-circular indeterminate size="20" color="amber"/>
+    <Loading size="20"></Loading>
   </div>
 
   <div v-else-if="!summary || summary.hidden" class="text-caption opacity-50 py-1">
@@ -91,14 +91,14 @@ defineOptions({
   </div>
 
   <template v-else-if="summary.level">
-    <v-row>
+    <v-row dense>
       <v-col cols="auto">
-        <v-img :src="levelIcon(summary.level.key)" width="45" height="45" contain/>
+        <v-img :src="levelIcon(summary.level.key)" width="35" height="35" contain/>
       </v-col>
       <v-col>
         <div class="d-flex align-center flex-wrap ga-2">
-          <span class="text-body-2 font-weight-bold">{{ levelName(summary.level.key) }}</span>
-          <v-chip size="x-small" color="amber" variant="tonal">
+          <span class="text-caption font-weight-bold">{{ levelName(summary.level.key) }}</span>
+          <v-chip size="x-small" color="amber" variant="tonal" density="comfortable">
             {{ t('account.achievements.levelBadge', {level: romanLevel(summary.level.level)}) }}
           </v-chip>
         </div>
@@ -108,29 +108,24 @@ defineOptions({
                                color="amber" height="3" rounded/>
           </v-col>
 
-          <v-col cols="auto">
+          <v-col cols="auto" class="text-caption">
             {{ t('account.achievements.points', {points: summary.points || 0}) }}
           </v-col>
         </v-row>
-
-<!--        <div class="text-caption opacity-60 mt-3 mb-1">-->
-<!--          {{ t('account.achievements.widget.obtained', {count: summary.achievements?.length || 0}) }}-->
-<!--        </div>-->
-
-        <div v-if="summary.achievements?.length" class="achievement-list d-flex flex-wrap ga-2 gap-2">
-          <v-chip v-for="item in summary.achievements" :key="item.key" color="amber" variant="tonal">
-            {{ achievementName(item.key) }}
-          </v-chip>
-        </div>
-        <div v-else class="text-caption opacity-50">{{ t('account.achievements.widget.empty') }}</div>
       </v-col>
     </v-row>
+
+    <div v-if="summary.achievements?.length" class="achievement-list d-flex flex-wrap ga-1 gap-1">
+      <v-chip v-for="item in summary.achievements" :key="item.key" class="card-flavor text-black bg-amber" color="amber" density="compact" variant="tonal">
+        {{ achievementName(item.key) }}
+      </v-chip>
+    </div>
+    <div v-else class="text-caption opacity-50">{{ t('account.achievements.widget.empty') }}</div>
   </template>
 </template>
 
 <style scoped>
 .achievement-list {
-  max-height: 80px;
   overflow-y: auto;
 }
 </style>

@@ -52,7 +52,10 @@ export function useHttp(options: UseHttpOptions = {}) {
         (error) => {
             const status = error.response?.status;
             const code = error.response?.data?.code;
-            if (status === 401 || code === 'user.tokenExpired') {
+            // 仅在 token 明确过期，或无业务错误码的裸 401 时才注销。
+            // 带业务 code 的 401（如 signin.invalid、user.2fa.wrongPassword、2fa.invalidCode）
+            // 属于业务校验失败，不应触发全局注销，交由页面 catch 处理并提示用户。
+            if (code === 'user.tokenExpired' || (status === 401 && !code)) {
                 authStore.logout();
             }
             return Promise.reject(error);

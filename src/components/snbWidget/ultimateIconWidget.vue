@@ -3,12 +3,12 @@ import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {Ultimate, Ultimates} from "glow-prow-data"
 import {computed, onMounted, type Ref, ref} from "vue";
 import {useAppStore} from "~/stores/appStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import {rarity} from "@/assets/sripts/index";
 import {useRouter} from "vue-router";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import UltimateCardDetail from "@/components/snbWidget/ultimateCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -31,7 +31,6 @@ const props = withDefaults(defineProps<{
     router = useRouter(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     appStore = useAppStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     ultimatesMap = Ultimates,
 
     // 稀有度
@@ -84,20 +83,11 @@ const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
-  <v-tooltip
+  <ItemCardTooltip
       v-if="i && i.id"
-      :disabled="!props.isShowTooltip"
-      min-width="450"
-      max-width="450"
-      interactive
-      :offset="[30,10]"
-      location="right top"
-      content-class="pa-0 bg-transparent"
-      :target="[tooltipPos.x, tooltipPos.y]">
+      :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/ultimate/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
@@ -114,7 +104,7 @@ const computedMargin = useIconImageMargin(props.margin);
         :id="props.id"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

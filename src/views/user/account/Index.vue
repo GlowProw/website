@@ -57,7 +57,7 @@ const accountTabs = [
   },
 ]
 
-// 安全中心：平台绑定 + 登录设备
+// 安全中心：平台绑定 + 登录设备 + 两步验证
 const securityTabs = [
   {
     name: 'account.bindings.title',
@@ -68,6 +68,11 @@ const securityTabs = [
     name: 'account.sessions.title',
     value: 'AccountSessions',
     icon: 'mdi-devices'
+  },
+  {
+    name: 'account.twoFactor.title',
+    value: 'AccountTwoFactor',
+    icon: 'mdi-shield-lock-outline'
   },
 ]
 

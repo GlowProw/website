@@ -14,6 +14,7 @@ import languages from "@/config/languages";
 import {apis} from "@/assets/sripts";
 import {useRules} from "@/assets/sripts/rules_user";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import PasswordStrength from "@/components/PasswordStrength.vue";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
@@ -515,6 +516,7 @@ defineOptions({
                 variant="outlined"
                 density="compact">
             </v-text-field>
+            <PasswordStrength :password="passwordFromData.data.newPassword" class="mb-3" />
           </v-form>
         </v-card-text>
         <v-card-actions class="pa-4 border-t">

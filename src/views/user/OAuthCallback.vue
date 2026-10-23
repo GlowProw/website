@@ -14,6 +14,7 @@ import AffixContainerView from '@/components/AffixContainerView.vue';
 import Loading from '@/components/Loading.vue';
 import Captcha from '@/components/captcha/index.vue';
 import {CaptchaParams} from '@/assets/types/Captcha';
+import {setTrustToken} from '@/assets/sripts/two_fa_trust';
 
 const route = useRoute();
 const router = useRouter();
@@ -72,6 +73,14 @@ const bindForm = ref({
 
 const submitLoading = ref(false);
 
+// 第三方登录后仍需二次验证时的状态
+const twoFAOpen = ref(false);
+const twoFASetupToken = ref('');
+const twoFAUsername = ref('');
+const twoFACode = ref('');
+const twoFALoading = ref(false);
+const twoFATrustDevice = ref(true);
+
 // 当前第三方平台标识，ticket 失效时用于重新发起授权
 const oauthPlatform = ref('qq');
 
@@ -127,6 +136,51 @@ const onRestartOAuth = async () => {
 };
 
 /**
+ * 打开第三方登录的二次验证表单
+ * @param setupToken 后端签发的登录验证令牌
+ * @param username 账户登录名
+ */
+const onOpen2FA = (setupToken: string, username: string) => {
+  twoFASetupToken.value = setupToken;
+  twoFAUsername.value = username;
+  twoFACode.value = '';
+  twoFAOpen.value = true;
+};
+
+/**
+ * 提交第三方登录的二次验证
+ */
+const onSubmit2FA = async () => {
+  const code = twoFACode.value.trim().toUpperCase();
+  if (!code) return;
+
+  twoFALoading.value = true;
+  try {
+    const res = await apis.userApi().loginVerify2fa(twoFASetupToken.value, code, undefined, twoFATrustDevice.value);
+    const d = res.data?.data || res.data;
+    if (d?.trustToken) setTrustToken(d.trustToken);
+    authStore.setAccountToken(d);
+    notice.success(t('basic.tips.signin.success'), {mode: 'minimal'});
+
+    twoFAOpen.value = false;
+    twoFASetupToken.value = '';
+    twoFACode.value = '';
+
+    const backUrl = (route.query.backUrl as string) || '/';
+    await router.push(backUrl);
+  } catch (err: any) {
+    if (err?.code === '2fa.loginTokenExpired') {
+      errorMsg.value = errorText(err);
+      twoFAOpen.value = false;
+      return;
+    }
+    notice.error(errorText(err));
+  } finally {
+    twoFALoading.value = false;
+  }
+};
+
+/**
  * 处理补充注册验证码数据
  * @param data 验证码数据
  */
@@ -170,6 +224,13 @@ onMounted(async () => {
     if (result.code === 'oauth.bind.ok') {
       notice.success(t('basic.tips.signin.oauth.bindSuccess'), {mode: 'minimal'});
       return router.push('/account/security/bindings');
+    }
+
+    // 账户启用了两步验证 -> 先完成二次验证再登录
+    if (result.code === 'signin.2faRequired') {
+      onOpen2FA(result.data.setupToken, result.data.username || '');
+      loading.value = false;
+      return;
     }
 
     // 未找到绑定 -> 引导进入补充注册或绑定已有账号
@@ -265,6 +326,8 @@ const onCompleteBind = async () => {
       const backUrl = (route.query.backUrl as string) || '/';
 
       router.push(backUrl);
+    } else if (res?.data?.code === 'signin.2faRequired') {
+      onOpen2FA(res.data.data.setupToken, res.data.data.username || bindForm.value.username);
     } else {
       notice.error(res?.data?.message || t('basic.tips.signin.accountIncorrect'));
     }
@@ -325,6 +388,51 @@ const onBackRoute = () => {
               </div>
             </div>
             <!-- 加载 E -->
+
+            <!-- 两步验证 S -->
+            <div v-else-if="twoFAOpen">
+              <v-row class="py-2">
+                <v-col>
+                  <div class="d-flex align-center gap-2 mb-2">
+                    <v-icon icon="mdi-shield-lock" color="amber" />
+                    <span class="text-h6">{{ t('signin.2fa.title') }}</span>
+                  </div>
+                  <div class="text-caption text-grey mb-3">
+                    {{ t('signin.2fa.usernameHint', { username: twoFAUsername }) }}
+                  </div>
+                  <v-text-field v-model="twoFACode"
+                                variant="solo-filled"
+                                prepend-inner-icon="mdi-numeric"
+                                :label="t('signin.2fa.codeLabel')"
+                                placeholder="000000"
+                                maxlength="8"
+                                autocomplete="one-time-code"
+                                @keyup.enter="onSubmit2FA" />
+                  <div class="text-caption text-grey opacity-80">
+                    {{ t('signin.2fa.hint') }}
+                  </div>
+                  <v-checkbox v-model="twoFATrustDevice"
+                              density="compact"
+                              color="amber"
+                              hide-details
+                              :label="t('signin.2fa.trustDevice')"
+                              class="mt-2" />
+                </v-col>
+              </v-row>
+
+              <div class="py-2">
+                <v-btn class="bg-amber text-black" size="50" block variant="flat"
+                       :loading="twoFALoading"
+                       :disabled="!twoFACode.trim()"
+                       @click="onSubmit2FA">
+                  {{ t('signin.2fa.submit') }}
+                </v-btn>
+                <v-btn class="mt-2" size="50" block variant="text" @click="onBackRoute">
+                  {{ t('basic.button.cancel') }}
+                </v-btn>
+              </div>
+            </div>
+            <!-- 两步验证 E -->
 
             <!-- 授权失败 S -->
             <div v-else-if="errorMsg && !needComplete" class="text-center py-12">

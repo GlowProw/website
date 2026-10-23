@@ -11,7 +11,7 @@ import {useAssetsStore} from "~/stores/assetsStore";
 import Loading from "../Loading.vue";
 import {MapLocation, MapLocations} from "glow-prow-data";
 import {useAppStore} from "~/stores/appStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 
 // 悬浮详情卡片采用异步按需加载，避免首屏同步打包大组件
 const MapLocationCardDetail = defineAsyncComponent(() => import("@/components/snbWidget/mapLocationCardDetail.vue"));
@@ -22,7 +22,6 @@ const
     route = useRoute(),
     router = useRouter(),
     appStore = useAppStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     {t} = useI18n(),
     {raritys: raritysAssets} = assetsStore,
     props = withDefaults(defineProps<{
@@ -114,23 +113,11 @@ defineOptions({
 </script>
 
 <template>
-  <v-tooltip
+  <ItemCardTooltip
       v-if="i || props.id"
-      :disabled="!props.isShowTooltip"
-      :offset="[40, 0]"
-      scroll-strategy="close"
-      transition="opacity 300ms ease-in"
-      location="right top"
-      min-width="450"
-      max-width="450"
-      interactive
-      class="map-location-card"
-      content-class="pa-0 bg-transparent"
-      :target="[tooltipPos.x, tooltipPos.y]">
+      :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
@@ -170,7 +157,7 @@ defineOptions({
         :id="props.id"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

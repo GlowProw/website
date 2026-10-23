@@ -19,10 +19,12 @@ const {item: readItemName, material: readMaterialName, commoditie: readCommodity
 const props = withDefaults(defineProps<{
   data: any;
   activeCategory?: string;
+  readonly: boolean,
   categories?: string[];
 }>(), {
   data: () => ({}),
   activeCategory: 'weekly',
+  readonly: false,
   categories: undefined
 });
 
@@ -45,38 +47,48 @@ watch(currentTab, (val) => {
   emit('update:activeCategory', val);
 });
 
+// 分类元数据（标题映射）
+const categoryMeta = computed<Record<string, string>>(() => ({
+  weekly: t('smugglersReport.weekly'),
+  inSeason: t('smugglersReport.inSeason'),
+  common: t('smugglersReport.common'),
+  abyssal: t('smugglersReport.abyssal')
+}));
+
+// 已知分类顺序
+const knownCategoryKeys = ['weekly', 'inSeason', 'abyssal', 'common'];
+
+/**
+ * 计算有序的分类 key 列表
+ * 优先使用 data.categoryOrder，否则按已知顺序过滤非空分类
+ */
+const resolveOrderedKeys = (): string[] => {
+  if (Array.isArray(props.data?.categoryOrder) && props.data.categoryOrder.length > 0) {
+    return props.data.categoryOrder.filter((k: string) => knownCategoryKeys.includes(k));
+  }
+  return knownCategoryKeys.filter(key => {
+    const list = props.data?.[key];
+    return Array.isArray(list) && list.length > 0;
+  });
+};
+
 // 计算当前可展示的分类标签列表
 const availableTabs = computed(() => {
-  const categoryMeta: Record<string, string> = {
-    weekly: t('smugglersReport.weekly'),
-    inSeason: t('smugglersReport.inSeason'),
-    common: t('smugglersReport.common'),
-    abyssal: t('smugglersReport.abyssal')
-  };
-
   if (props.categories && props.categories.length > 0) {
     return props.categories.map(k => ({
       key: k,
-      title: categoryMeta[k] || k
+      title: categoryMeta.value[k] || k
     }));
   }
 
-  // 已保存过分类顺序时以它为准，否则按内容中非空分类数组识别
-  const known = ['weekly', 'inSeason', 'abyssal', 'common'];
-  let orderedKeys: string[];
-  if (Array.isArray(props.data?.categoryOrder) && props.data.categoryOrder.length > 0) {
-    orderedKeys = props.data.categoryOrder.filter((k: string) => known.includes(k));
-  } else {
-    const present = known.filter(key => {
-      const list = props.data?.[key];
-      return Array.isArray(list) && list.length > 0;
-    });
-    orderedKeys = present.length > 0 ? present : ['weekly'];
+  let orderedKeys = resolveOrderedKeys();
+  if (orderedKeys.length === 0) {
+    orderedKeys = ['weekly'];
   }
 
   return orderedKeys.map(k => ({
     key: k,
-    title: categoryMeta[k] || k
+    title: categoryMeta.value[k] || k
   }));
 });
 
@@ -244,13 +256,34 @@ const formatItemList = (rawList: any[] = [], isPadEmpty: boolean = true) => {
   return list.concat(supplementData);
 };
 
-// 当前选中分类的物品展示网格数据
+// 当前选中分类的物品展示网格数据（非 readonly 模式使用）
 const currentDisplayItems = computed(() => {
   // 筛选激活时仅展示命中项，不再补齐空槽位
   if (hasActiveFilters.value) {
     return formatItemList(filteredRawList.value, false);
   }
   return formatItemList(currentRawList.value);
+});
+
+// readonly 模式下按分类面板聚合展示数据
+const readonlyPanels = computed(() => {
+  let orderedKeys = resolveOrderedKeys();
+  if (orderedKeys.length === 0) {
+    orderedKeys = ['weekly'];
+  }
+
+  return orderedKeys
+      .map(key => {
+        const rawList = props.data?.[key];
+        const list = Array.isArray(rawList) ? rawList : [];
+        return {
+          key,
+          title: categoryMeta.value[key] || key,
+          items: formatItemList(list)
+        };
+      })
+      // 过滤掉完全没有任何有效物品的空面板
+      .filter(panel => panel.items.some((i: any) => i && i.data));
 });
 
 defineOptions({
@@ -260,186 +293,221 @@ defineOptions({
 
 <template>
   <div class="smugglers-report-show-widget">
-    <v-row class="align-center" no-gutters>
-      <v-col>
-        <v-tabs
-            v-model="currentTab"
-            height="50"
-            color="var(--main-color)"
-            :show-arrows="true">
-          <v-tab
-              v-for="tab in availableTabs"
-              :key="tab.key"
-              :value="tab.key"
-              active-color="primary"
-              class="text-h6">
-            {{ tab.title }}
-          </v-tab>
-        </v-tabs>
-      </v-col>
-      <v-col cols="auto">
-        <v-menu v-model="menuModel"
-                open-on-click
-                :close-on-content-click="false">
-          <template v-slot:activator="{ props }">
-            <div v-bind="props" class="cursor-pointer d-flex">
-              <v-icon>{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
-              <v-icon>mdi-dots-vertical</v-icon>
-            </div>
-          </template>
+    <!-- 非 readonly：tabs + 筛选菜单 -->
+    <template v-if="!readonly">
+      <v-row class="align-center" no-gutters>
+        <v-col>
+          <v-tabs
+              v-model="currentTab"
+              height="50"
+              color="var(--main-color)"
+              :show-arrows="true">
+            <v-tab
+                v-for="tab in availableTabs"
+                :key="tab.key"
+                :value="tab.key"
+                active-color="primary"
+                class="text-h6">
+              {{ tab.title }}
+            </v-tab>
+          </v-tabs>
+        </v-col>
+        <v-col cols="auto">
+          <v-menu v-model="menuModel"
+                  open-on-click
+                  :close-on-content-click="false">
+            <template v-slot:activator="{ props }">
+              <div v-bind="props" class="cursor-pointer d-flex">
+                <v-icon>{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
+                <v-icon>mdi-dots-vertical</v-icon>
+              </div>
+            </template>
 
-          <v-card border :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 480">
-            <v-card-title class="py-10 text-center bg-black mb-4">
-              <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
-            </v-card-title>
-            <div class="pa-5">
-              <v-row>
-                <v-col cols="12">
-                  <v-text-field :placeholder="t('basic.button.search')" hide-details
-                                variant="filled"
-                                density="comfortable"
-                                clearable
-                                @keydown.enter="onSearchItem"
-                                @click:clear="onSearchItem"
-                                v-model="filterData.inputWidgetKeyValue">
-                    <template v-slot:append-inner>
-                      <v-btn @click="onSearchItem" icon variant="text" density="comfortable">
-                        <v-icon icon="mdi-magnify"></v-icon>
-                      </v-btn>
-                    </template>
-                  </v-text-field>
-                </v-col>
-
-                <v-col cols="12">
-                  <div class="mb-2">{{ t('smugglersReport.filter.byType') }} ({{ typeFilterAvailableOptions.length || 0 }})</div>
-                  <v-select
-                      variant="filled"
-                      item-value="value"
-                      item-title="text"
-                      density="comfortable"
-                      v-model="filterData.types"
-                      :disabled="typeFilterAvailableOptions.length == 0"
-                      :placeholder="t('smugglersReport.filter.byType')"
-                      :counter="3"
-                      :eager="false"
-                      :glow="false"
-                      :items="typeFilterAvailableOptions"
-                      hide-details
-                      multiple
-                      chips
-                      clearable
-                  ></v-select>
-                </v-col>
-
-                <v-col cols="6">
-                  <div class="mb-2">{{ t('smugglersReport.filter.byRarity') }} ({{ rarityFilterAvailableOptions.length || 0 }})</div>
-                  <v-select
-                      variant="filled"
-                      item-value="value"
-                      item-title="text"
-                      density="comfortable"
-                      v-model="filterData.rarities"
-                      :disabled="rarityFilterAvailableOptions.length == 0"
-                      :placeholder="t('smugglersReport.filter.byRarity')"
-                      :counter="3"
-                      :eager="false"
-                      :glow="false"
-                      :items="rarityFilterAvailableOptions"
-                      hide-details
-                      multiple
-                      chips
-                      clearable>
-                    <template v-slot:item="{ item, props }">
-                      <v-list-item
-                          v-bind="props"
-                          :style="`color: ${rarityColorConfig[item.value]}`">
-                        <template v-slot:prepend>
-                          <v-checkbox
-                              class="pa-0 ma-0"
-                              density="compact"
-                              hide-spin-buttons
-                              hide-details
-                              :model-value="filterData.rarities.includes(item.value)"
-                              @click.stop
-                          ></v-checkbox>
-                        </template>
-                      </v-list-item>
-                    </template>
-
-                    <template v-slot:selection="{ item, index }">
-                      <v-chip
-                          v-if="index < 2"
-                          :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
-                          variant="outlined"
-                          size="small">
-                        {{ item.text }}
-                      </v-chip>
-                      <span
-                          v-if="index === 2"
-                          class="text-grey text-caption">
-                        +{{ filterData.rarities.length - 2 }} more
-                      </span>
-                    </template>
-
-                    <template v-slot:chip="{ item }">
-                      <v-chip
-                          :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
-                          variant="tonal"
-                          size="small">
-                        {{ item.text }}
-                      </v-chip>
-                    </template>
-                  </v-select>
-                </v-col>
-
-                <v-col cols="6">
-                  <div class="mb-2">{{ t('smugglersReport.filter.byCurrency') }} ({{ currencyFilterAvailableOptions.length || 0 }})</div>
-                  <v-select
-                      variant="filled"
-                      item-value="value"
-                      item-title="text"
-                      density="comfortable"
-                      v-model="filterData.currencies"
-                      :disabled="currencyFilterAvailableOptions.length == 0"
-                      :placeholder="t('smugglersReport.filter.byCurrency')"
-                      :counter="3"
-                      :eager="false"
-                      :glow="false"
-                      :items="currencyFilterAvailableOptions"
-                      hide-details
-                      multiple
-                      chips
-                      clearable
-                  ></v-select>
-                </v-col>
-              </v-row>
-
-              <v-card-actions class="mx-n4 mt-4 px-4">
+            <v-card border :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 480">
+              <v-card-title class="py-10 text-center bg-black mb-4">
+                <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
+              </v-card-title>
+              <div class="pa-5">
                 <v-row>
-                  <v-spacer></v-spacer>
-                  <v-col cols="auto" class="text-right d-flex ga-2">
-                    <v-btn @click="menuModel = false">
-                      {{ t('basic.button.cancel') }}
-                    </v-btn>
-                    <v-btn
-                        @click="onResetFilters"
-                        variant="outlined"
-                        color="error"
-                        :disabled="!hasActiveFilters"
-                        prepend-icon="mdi-refresh">
-                      {{ t('basic.button.reset') }}
-                    </v-btn>
+                  <v-col cols="12">
+                    <v-text-field :placeholder="t('basic.button.search')" hide-details
+                                  variant="filled"
+                                  density="comfortable"
+                                  clearable
+                                  @keydown.enter="onSearchItem"
+                                  @click:clear="onSearchItem"
+                                  v-model="filterData.inputWidgetKeyValue">
+                      <template v-slot:append-inner>
+                        <v-btn @click="onSearchItem" icon variant="text" density="comfortable">
+                          <v-icon icon="mdi-magnify"></v-icon>
+                        </v-btn>
+                      </template>
+                    </v-text-field>
+                  </v-col>
+
+                  <v-col cols="12">
+                    <div class="mb-2">{{ t('smugglersReport.filter.byType') }} ({{ typeFilterAvailableOptions.length || 0 }})</div>
+                    <v-select
+                        variant="filled"
+                        item-value="value"
+                        item-title="text"
+                        density="comfortable"
+                        v-model="filterData.types"
+                        :disabled="typeFilterAvailableOptions.length == 0"
+                        :placeholder="t('smugglersReport.filter.byType')"
+                        :counter="3"
+                        :eager="false"
+                        :glow="false"
+                        :items="typeFilterAvailableOptions"
+                        hide-details
+                        multiple
+                        chips
+                        clearable
+                    ></v-select>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <div class="mb-2">{{ t('smugglersReport.filter.byRarity') }} ({{ rarityFilterAvailableOptions.length || 0 }})</div>
+                    <v-select
+                        variant="filled"
+                        item-value="value"
+                        item-title="text"
+                        density="comfortable"
+                        v-model="filterData.rarities"
+                        :disabled="rarityFilterAvailableOptions.length == 0"
+                        :placeholder="t('smugglersReport.filter.byRarity')"
+                        :counter="3"
+                        :eager="false"
+                        :glow="false"
+                        :items="rarityFilterAvailableOptions"
+                        hide-details
+                        multiple
+                        chips
+                        clearable>
+                      <template v-slot:item="{ item, props }">
+                        <v-list-item
+                            v-bind="props"
+                            :style="`color: ${rarityColorConfig[item.value]}`">
+                          <template v-slot:prepend>
+                            <v-checkbox
+                                class="pa-0 ma-0"
+                                density="compact"
+                                hide-spin-buttons
+                                hide-details
+                                :model-value="filterData.rarities.includes(item.value)"
+                                @click.stop
+                            ></v-checkbox>
+                          </template>
+                        </v-list-item>
+                      </template>
+
+                      <template v-slot:selection="{ item, index }">
+                        <v-chip
+                            v-if="index < 2"
+                            :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
+                            variant="outlined"
+                            size="small">
+                          {{ item.text }}
+                        </v-chip>
+                        <span
+                            v-if="index === 2"
+                            class="text-grey text-caption">
+                          +{{ filterData.rarities.length - 2 }} more
+                        </span>
+                      </template>
+
+                      <template v-slot:chip="{ item }">
+                        <v-chip
+                            :style="`color: ${rarityColorConfig[item.value]}; border-color: ${rarityColorConfig[item.value]}`"
+                            variant="tonal"
+                            size="small">
+                          {{ item.text }}
+                        </v-chip>
+                      </template>
+                    </v-select>
+                  </v-col>
+
+                  <v-col cols="6">
+                    <div class="mb-2">{{ t('smugglersReport.filter.byCurrency') }} ({{ currencyFilterAvailableOptions.length || 0 }})</div>
+                    <v-select
+                        variant="filled"
+                        item-value="value"
+                        item-title="text"
+                        density="comfortable"
+                        v-model="filterData.currencies"
+                        :disabled="currencyFilterAvailableOptions.length == 0"
+                        :placeholder="t('smugglersReport.filter.byCurrency')"
+                        :counter="3"
+                        :eager="false"
+                        :glow="false"
+                        :items="currencyFilterAvailableOptions"
+                        hide-details
+                        multiple
+                        chips
+                        clearable
+                    ></v-select>
                   </v-col>
                 </v-row>
-              </v-card-actions>
-            </div>
-          </v-card>
-        </v-menu>
-      </v-col>
-    </v-row>
-    <v-divider thickness="2" class="mb-5"></v-divider>
 
-    <v-row class="justify-start">
+                <v-card-actions class="mx-n4 mt-4 px-4">
+                  <v-row>
+                    <v-spacer></v-spacer>
+                    <v-col cols="auto" class="text-right d-flex ga-2">
+                      <v-btn @click="menuModel = false">
+                        {{ t('basic.button.cancel') }}
+                      </v-btn>
+                      <v-btn
+                          @click="onResetFilters"
+                          variant="outlined"
+                          color="error"
+                          :disabled="!hasActiveFilters"
+                          prepend-icon="mdi-refresh">
+                        {{ t('basic.button.reset') }}
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-card-actions>
+              </div>
+            </v-card>
+          </v-menu>
+        </v-col>
+      </v-row>
+      <v-divider thickness="2" class="mb-5"></v-divider>
+    </template>
+
+    <!-- readonly：按分类面板遍历整个 data -->
+    <template v-if="readonly">
+      <v-row>
+        <v-col
+            v-for="panel in readonlyPanels"
+            :key="panel.key"
+            class="mb-6">
+          <div v-if="panel.title" class="text-h6 text-amber mb-3">{{ panel.title }}</div>
+          <v-divider thickness="2" class="mb-5"></v-divider>
+          <v-row class="justify-start">
+            <v-col
+                cols="auto"
+                v-for="(i, index) in panel.items"
+                :key="index">
+              <ItemSlotBase size="99px" class="d-flex justify-center align-center">
+                <template v-if="i && i.data">
+                  <MaterialIconWidget v-if="i.data._typeStringName == 'Material'" :id="i.data.id"></MaterialIconWidget>
+                  <CommoditieIconWidget v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieIconWidget>
+                  <ItemIconWidget v-else :id="i.data.id"></ItemIconWidget>
+                </template>
+
+                <template v-else>
+                  <v-icon class="opacity-20" size="30">mdi-help</v-icon>
+                </template>
+              </ItemSlotBase>
+            </v-col>
+          </v-row>
+        </v-col>
+      </v-row>
+    </template>
+
+    <!-- 非 readonly：保持原有单面板网格逻辑 -->
+    <v-row class="justify-start" v-else>
       <v-col
           cols="auto"
           v-for="(i, index) in currentDisplayItems"

@@ -3,8 +3,8 @@ import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {Quests, Questlog} from "glow-prow-data";
 import {computed} from "vue";
 import {useAppStore} from "~/stores/appStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import QuestCardDetail from "@/components/snbWidget/questCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -24,7 +24,6 @@ const props = withDefaults(defineProps<{
       padding: 1
     }),
     appStore = useAppStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     questMap = Quests as Record<string, Questlog>;
 
 let quest = computed(() => questMap[props.id] || null),
@@ -43,20 +42,11 @@ const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
-  <v-tooltip
+  <ItemCardTooltip
       v-if="quest"
-      :disabled="!props.isShowTooltip"
-      min-width="450"
-      max-width="450"
-      interactive
-      :offset="[30, 10]"
-      location="right top"
-      content-class="pa-0 bg-transparent"
-      :target="[tooltipPos.x, tooltipPos.y]">
+      :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/quest/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
@@ -75,7 +65,7 @@ const computedMargin = useIconImageMargin(props.margin);
         :id="props.id"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

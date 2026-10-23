@@ -95,7 +95,7 @@ defineOptions({
         <slot></slot>
       </div>
     </template>
-    <v-card border class="overflow-hidden" elevation="24" min-width="400" max-width="600" min-height="200">
+    <v-card class="border border-opacity-0 overflow-hidden elevation-24" elevation="24" min-width="400" max-width="600" min-height="200">
       <Banner>
         <v-card height="260px" variant="text" class="mt-n5 mx-n10">
           <template v-slot:image>
@@ -124,7 +124,7 @@ defineOptions({
 
       <v-divider opacity=".06"></v-divider>
 
-      <v-card-text class="px-6 background-flavor">
+      <v-card-text class="pt-10 pb-6 px-10 background-flavor">
         <Textarea
             readonly
             class="w-100 mb-6"
@@ -134,12 +134,7 @@ defineOptions({
         <AccountAchievementWidget v-if="userInfo.userId || id"
                                   :user-id="String(userInfo.userId || id)"/>
 
-        <v-row class="mt-n2">
-          <v-col cols="2"></v-col>
-          <v-col>
-            <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mt-6"></RolesTagWidget>
-          </v-col>
-        </v-row>
+        <RolesTagWidget :data="userInfo.role" v-if="userInfo.role" class="mt-6"></RolesTagWidget>
       </v-card-text>
 
       <v-card-actions class="px-2 bg-black">

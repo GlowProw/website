@@ -8,6 +8,7 @@ import { ChangePasswordParams, ForgotPasswordParams, ResetPasswordParams } from 
 import { ApiError } from "@/assets/types/Api";
 import { CaptchaParams } from "@/assets/types/Captcha";
 import { createApiBase } from "@/assets/sripts/api/api-util";
+import { getTrustToken } from "@/assets/sripts/two_fa_trust";
 
 export interface AvatarPreset {
     id?: string
@@ -65,7 +66,8 @@ export function useUserApi() {
      */
     const signin = async (data: SigninParams) => {
         try {
-            const result = await http.post('user/signin', { data })
+            const trustToken = getTrustToken()
+            const result = await http.post('user/signin', { data, headers: trustToken ? {'x-2fa-trust-token': trustToken} : {} })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
@@ -459,7 +461,12 @@ export function useUserApi() {
         try {
             // 第三方回调 设置 20 秒超时
             const timeout = platform === 'qq' ? 20000 : 20000;
-            const result = await http.post(`user/oauth/${platform}/callback`, { data, timeout })
+            const trustToken = getTrustToken()
+            const result = await http.post(`user/oauth/${platform}/callback`, {
+                data,
+                timeout,
+                headers: trustToken ? {'x-2fa-trust-token': trustToken} : {}
+            })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) throw error;
@@ -594,6 +601,84 @@ export function useUserApi() {
         }
     }
 
+    /**
+     * 2FA：查询启用状态
+     */
+    const get2faStatus = async () => {
+        try {
+            const result = await http.get('user/2fa/status')
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 2FA：启动设置流程（生成 secret + 恢复码）
+     */
+    const setup2fa = async (password: string, issuer?: string) => {
+        try {
+            const result = await http.post('user/2fa/setup', { data: { password, issuer } })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 2FA：校验 TOTP 并启用
+     */
+    const verify2fa = async (setupToken: string, code: string) => {
+        try {
+            const result = await http.post('user/2fa/verify', { data: { setupToken, code } })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 2FA：禁用
+     */
+    const disable2fa = async (password: string, recoveryCode?: string) => {
+        try {
+            const result = await http.post('user/2fa/disable', { data: { password, recoveryCode } })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 2FA：重新生成恢复码
+     */
+    const regenerateRecoveryCodes = async (password: string) => {
+        try {
+            const result = await http.post('user/2fa/recovery/regenerate', { data: { password } })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 2FA：登录场景完成验证（不需要 token）
+     */
+    const loginVerify2fa = async (loginToken: string, code: string, client?: string, trustDevice?: boolean) => {
+        try {
+            const result = await http.post('user/2fa/login-verify', { data: { loginToken, code, client, trustDevice } })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
     return {
         signin,
         signup,
@@ -628,6 +713,12 @@ export function useUserApi() {
         uploadAvatar,
         getAvatarQuota,
         deleteAvatar,
+        get2faStatus,
+        setup2fa,
+        verify2fa,
+        disable2fa,
+        regenerateRecoveryCodes,
+        loginVerify2fa,
         getUserSessions: async () => {
             try {
                 const result = await http.get('user/sessions')

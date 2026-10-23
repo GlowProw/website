@@ -7,8 +7,8 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRouter} from "vue-router";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import ShipCardDetail from "@/components/snbWidget/shipCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 import {useAppStore} from "~/stores/appStore";
 
 const props = withDefaults(defineProps<{
@@ -32,7 +32,6 @@ const props = withDefaults(defineProps<{
     }),
     appStore = useAppStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     {t} = useI18nUtils(),
     ships = Ships
 
@@ -93,21 +92,9 @@ const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
-  <v-tooltip v-model="shipCardData.model"
-             min-width="450"
-             max-width="450"
-             interactive
-             :disabled="!props.isShowTooltip"
-             :offset="[40, 0]"
-             scroll-strategy="close"
-             transition="opacity 300ms ease-in"
-             location="right top"
-             content-class="pa-0 bg-transparent"
-             :target="[tooltipPos.x, tooltipPos.y]">
+  <ItemCardTooltip :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           v-bind="activatorProps"
           width="100%"
           :to="isOpenDetail ? `/codex/ship/${id}` : ''"
@@ -126,7 +113,7 @@ const computedMargin = useIconImageMargin(props.margin);
         :is-show-description="props.isShowDescription"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

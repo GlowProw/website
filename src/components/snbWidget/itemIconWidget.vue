@@ -5,9 +5,9 @@ import {Item, Items} from "glow-prow-data/src/entity/Items";
 import {rarity, number} from "@/assets/sripts/index";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import {useAppStore} from "~/stores/appStore";
 import Loading from "@/components/Loading.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 
 // 悬浮详情卡片改为按需异步加载，减轻海量图标挂载时的首屏开销
 const ItemCardDetail = defineAsyncComponent(() => import("@/components/snbWidget/itemCardDetail.vue"));
@@ -15,7 +15,6 @@ const ItemCardDetail = defineAsyncComponent(() => import("@/components/snbWidget
 const appStore = useAppStore(),
     slots = useAppStore(),
     cdnStore = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     props = withDefaults(defineProps<{
       id: string,
       isShowOpenDetail?: boolean,
@@ -45,9 +44,7 @@ const computedPadding = useIconImagePadding(props.padding);
 const computedMargin = useIconImageMargin(props.margin);
 
 let itemsCardData = ref({
-      icon: '',
-      model: false,
-      panel: 0
+      icon: ''
     }),
     i: Ref<Item | null> = ref(null),
 
@@ -74,10 +71,6 @@ let itemsCardData = ref({
 
 watch(() => props.id, () => {
   onReady()
-})
-
-watch(() => itemsCardData.value.model, (value) => {
-  // 逻辑已移除，现已统一在 ItemCardDetail 中处理
 })
 
 onMounted(() => {
@@ -134,26 +127,11 @@ defineOptions({
 </script>
 
 <template>
-  <v-tooltip
-      v-model="itemsCardData.model"
-      v-if="i && i.id"
-      :disabled="!props.isShowTooltip"
-      :offset="[40, 0]"
-      scroll-strategy="close"
-      transition="opacity 300ms ease-in"
-      location="right top"
-      min-width="450"
-      max-width="450"
-      interactive
-      class="item-card"
-      content-class="pa-0 bg-transparent"
-      :target="[tooltipPos.x, tooltipPos.y]">
+  <ItemCardTooltip v-if="i && i.id" :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           width="100%"
           v-bind="activatorProps"
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           :color="`hsl(from ${rarityColorConfig[itemRarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/codex/item/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
@@ -198,7 +176,7 @@ defineOptions({
         :is-show-description="props.isShowDescription"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

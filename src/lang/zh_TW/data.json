@@ -448,11 +448,25 @@
       "signin": {
         "ok": "登陸成功",
         "bad": "登陸錯誤: 請檢查登陸信息格式",
-        "wrong": "登陸信息錯誤",
+        "invalid": "帳戶名或密碼錯誤",
+        "wrong": "帳戶名或密碼錯誤",
         "error": "登陸錯誤: {context}",
         "expired": "用戶身份過期,請重新登陸",
-        "accountIncorrect": "登陸信息錯誤",
+        "accountIncorrect": "帳戶名或密碼錯誤",
         "notActivated": "賬戶由於未激活而被禁用，請前往激活",
+        "2fa": {
+          "title": "兩步驗證",
+          "usernameHint": "帳戶 {username} 已啟用兩步驗證",
+          "codeLabel": "6 位驗證碼",
+          "hint": "請打開驗證器應用（Google Authenticator / Microsoft Authenticator 等），輸入當前顯示的 6 位碼。也可使用恢復碼登入。",
+          "submit": "驗證並登入",
+          "trustDevice": "我信任此電腦",
+          "required": "此帳戶需要兩步驗證",
+          "invalidCode": "驗證碼錯誤，請重新輸入",
+          "loginTokenExpired": "驗證會話已過期，請重新登入",
+          "notEnabled": "未啟用兩步驗證",
+          "setupTokenExpired": "設置會話已過期，請重試"
+        },
         "success": "登入成功",
         "oauth": {
           "bindSuccess": "綁定成功",
@@ -463,6 +477,12 @@
           "authFailed": "授權回調處理失敗，請稍後重試。",
           "bindAndLoginSuccess": "綁定成功並已登入！"
         }
+      },
+      "2fa": {
+        "invalidCode": "驗證碼錯誤，請重新輸入",
+        "loginTokenExpired": "驗證會話已過期，請重新登入",
+        "notEnabled": "未啟用兩步驗證",
+        "setupTokenExpired": "設置會話已過期，請重試"
       },
       "signup": {
         "ok": "注册成功",
@@ -512,6 +532,14 @@
           "ok": "儲存成功",
           "bad": "參數無效",
           "error": "儲存失敗"
+        },
+        "2fa": {
+          "bad": "參數錯誤",
+          "wrongPassword": "當前密碼錯誤",
+          "alreadyEnabled": "已啟用兩步驗證",
+          "notEnabled": "尚未啟用兩步驗證",
+          "invalid": "驗證失敗，請重試",
+          "error": "操作失敗，請稍後重試"
         }
       },
       "emailChange": {
@@ -1200,6 +1228,66 @@
         "signin_level_10": {
           "name": "魁首之冠",
           "desc": "簽到累積足夠積分，賬戶等級升至 10 級。"
+        },
+        "signin_level_11": {
+          "name": "青銅魁首·初階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 11 級。"
+        },
+        "signin_level_12": {
+          "name": "青銅魁首·二階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 12 級。"
+        },
+        "signin_level_13": {
+          "name": "青銅魁首·三階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 13 級。"
+        },
+        "signin_level_14": {
+          "name": "青銅魁首·四階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 14 級。"
+        },
+        "signin_level_15": {
+          "name": "青銅魁首·巔峰",
+          "desc": "簽到累積足夠積分，賬戶等級升至 15 級。"
+        },
+        "signin_level_16": {
+          "name": "白銀魁首·初階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 16 級。"
+        },
+        "signin_level_17": {
+          "name": "白銀魁首·二階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 17 級。"
+        },
+        "signin_level_18": {
+          "name": "白銀魁首·三階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 18 級。"
+        },
+        "signin_level_19": {
+          "name": "白銀魁首·四階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 19 級。"
+        },
+        "signin_level_20": {
+          "name": "白銀魁首·巔峰",
+          "desc": "簽到累積足夠積分，賬戶等級升至 20 級。"
+        },
+        "signin_level_21": {
+          "name": "黃金魁首·初階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 21 級。"
+        },
+        "signin_level_22": {
+          "name": "黃金魁首·二階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 22 級。"
+        },
+        "signin_level_23": {
+          "name": "黃金魁首·三階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 23 級。"
+        },
+        "signin_level_24": {
+          "name": "黃金魁首·四階",
+          "desc": "簽到累積足夠積分，賬戶等級升至 24 級。"
+        },
+        "signin_level_25": {
+          "name": "黃金魁首·巔峰",
+          "desc": "簽到累積足夠積分，賬戶等級升至 25 級。"
         }
       }
     },
@@ -1431,6 +1519,103 @@
           "gravatar": {
             "desc": "透過郵箱關聯 Gravatar 頭像，作為未設定時的兜底顯示"
           }
+        }
+      }
+    },
+    "twoFactor": {
+      "title": "兩步驗證 (2FA)",
+      "description": "為您的帳戶添加一層額外安全保護。登入時除了密碼，還需要輸入手機驗證器應用顯示的 6 位動態碼。相容 Google Authenticator、Microsoft Authenticator 等主流應用。",
+      "statusOn": "已啟用",
+      "statusOff": "未啟用",
+      "statusHint": "建議啟用，可防止密碼洩露後帳戶被盜",
+      "enable": "啟用兩步驗證",
+      "disable": "停用兩步驗證",
+      "disabled": "已停用兩步驗證",
+      "enabled": "兩步驗證已啟用",
+      "enabledDesc": "兩步驗證已啟用。下次登入時將需要輸入 6 位驗證碼。",
+      "disableConfirm": "確定要停用兩步驗證嗎？停用後登入只需要密碼，帳戶安全性會降低。",
+      "step1Title": "步驟 1：掃碼或手動輸入",
+      "qrHint": "使用驗證器 App 掃描二維碼",
+      "manualKey": "或手動輸入以下金鑰",
+      "step2Title": "步驟 2：儲存恢復碼",
+      "step3Title": "步驟 3：確認驗證碼",
+      "step3Hint": "輸入驗證器目前顯示的 6 位驗證碼，確認後即可啟用。",
+      "recoveryHint": "以下 10 個恢復碼請立即儲存。每個碼只能使用一次；當驗證器 App 無法使用時可用它登入。",
+      "recoveryWarning": "⚠️ 恢復碼僅展示一次，請立即儲存到安全位置。關閉後無法再次查看。",
+      "recoveryCodesTitle": "您的恢復碼",
+      "verifyCode": "6 位驗證碼",
+      "confirmEnable": "確認啟用",
+      "actionsTitle": "管理兩步驗證",
+      "currentPassword": "目前登入密碼",
+      "regenerate": "重新產生恢復碼",
+      "regenerateConfirm": "確定要重新產生恢復碼嗎？舊的恢復碼將全部作廢。",
+      "regenerated": "新恢復碼已產生，請立即儲存",
+      "needPassword": "請輸入目前密碼",
+      "statusTitle": "目前狀態",
+      "enabledNote": "下次登入時，除密碼外還需要輸入驗證器產生的 6 位動態驗證碼。",
+      "introTitle": "什麼是兩步驗證？",
+      "introDesc": "兩步驗證（2FA）在密碼之外增加一道動態驗證碼。即使密碼被洩露，沒有你身邊的驗證器也無法登入帳戶。",
+      "features": {
+        "leak": {
+          "title": "抵禦密碼洩露",
+          "desc": "僅憑密碼無法登入，動態碼每次登入都會變化。"
+        },
+        "apps": {
+          "title": "相容主流應用",
+          "desc": "支援 Google / Microsoft Authenticator、1Password、Authy 等。"
+        },
+        "offline": {
+          "title": "離線產生",
+          "desc": "驗證碼由驗證器本地計算，無需連網即可使用。"
+        }
+      },
+      "flowTitle": "啟用流程",
+      "flowHint": "整個流程約需 1 分鐘，可隨時中止。",
+      "flow": {
+        "identity": {
+          "title": "驗證身分",
+          "desc": "輸入目前帳戶密碼，確認是本人操作。"
+        },
+        "bind": {
+          "title": "綁定驗證器",
+          "desc": "掃描二維碼，或在應用中手動錄入金鑰。"
+        },
+        "recovery": {
+          "title": "儲存恢復碼",
+          "desc": "將 10 個一次性恢復碼儲存到安全位置。"
+        },
+        "confirm": {
+          "title": "輸入驗證碼",
+          "desc": "填寫驗證器顯示的 6 位碼完成啟用。"
+        }
+      },
+      "setupHint": "設定令牌 10 分鐘內有效，逾時請重新開始。",
+      "copyAll": "複製全部",
+      "faqTitle": "常見問題",
+      "faq": {
+        "invalidCode": {
+          "q": "驗證碼一直提示錯誤怎麼辦？",
+          "a": "先確認手機與電腦的時間已開啟自動同步，再輸入驗證器目前顯示的 6 位碼。若仍失敗，請檢查驗證器中選中的帳戶是否正確。"
+        },
+        "recovery": {
+          "q": "恢復碼有什麼作用？",
+          "a": "當驗證器遺失、更換手機或無法使用時，可使用恢復碼代替動態碼登入。每個恢復碼僅能使用一次，服務端只保存雜湊值，關閉頁面後無法再次查看。"
+        },
+        "lostRecovery": {
+          "q": "恢復碼遺失了怎麼辦？",
+          "a": "登入後點擊「重新產生恢復碼」即可獲得新的一組，舊恢復碼會立即全部作廢，請妥善儲存新碼。"
+        },
+        "newPhone": {
+          "q": "更換手機或重裝驗證器後還能登入嗎？",
+          "a": "請先使用恢復碼登入，然後停用兩步驗證並按新金鑰重新啟用；若仍有舊金鑰備份，也可直接在新裝置中手動錄入。"
+        },
+        "trust": {
+          "q": "「我信任此電腦」有什麼作用？",
+          "a": "在登入表單勾選後，7 天內在該瀏覽器登入無需再次輸入驗證碼。公共電腦請勿勾選，該選項只出現在登入頁面。"
+        },
+        "setupExpired": {
+          "q": "設定到一半提示會話過期？",
+          "a": "設定令牌只有 10 分鐘有效期，重新點擊「啟用兩步驗證」即可重新產生二維碼與恢復碼。"
         }
       }
     },
@@ -3108,7 +3293,9 @@
     "rules": {
       "playerRequired": "請輸入玩家 ID",
       "descriptionRequired": "請輸入內容描述",
-      "descriptionLength": "內容長度需在 3 至 300 個字元之間"
+      "descriptionLength": "內容長度需在 3 至 300 個字元之間",
+      "pushPlatformRequired": "請選擇推送平台",
+      "pushBotsRequired": "請選擇推送機器人"
     },
     "filter": {
       "sortLabel": "排序",
@@ -3126,7 +3313,10 @@
       "syncToQqBindingRequired": "請先在機器人私聊中發送 /綁定帳戶 綁定 QQ 身分",
       "pushPlatform": "推送平台",
       "pushRobots": "推送機器人（可多選）",
-      "pushSync": "同步推送到機器人"
+      "pushSync": "同步推送到機器人",
+      "crossPlatform": "是否跨平台",
+      "crossPlatformYes": "是",
+      "crossPlatformNo": "否"
     },
     "time": {
       "minutes": "{count}分鐘",
@@ -3459,6 +3649,8 @@
       "draft": "草稿",
       "inputDraftName": "輸入另存為草稿名稱",
       "quickArchiving": "快速儲存草稿",
+      "quickArchive": "快速儲存草稿",
+      "quickConfirm": "快速確認",
       "useDraft": "使用",
       "previousFrigateUpgrades": "繼承升級部件"
     },
@@ -3704,6 +3896,15 @@
       }
     },
     "newUserRegistrationHint": "沒有賬戶？前往註冊",
+    "2fa": {
+      "title": "兩步驗證",
+      "usernameHint": "帳戶 {username} 已啟用兩步驗證",
+      "codeLabel": "6 位驗證碼",
+      "hint": "請打開驗證器應用（Google Authenticator / Microsoft Authenticator 等），輸入當前顯示的 6 位碼。也可使用恢復碼（8 位）登入。",
+      "submit": "驗證並登入",
+      "required": "此帳戶需要兩步驗證",
+      "trustDevice": "我信任此電腦"
+    },
     "banner": {
       "title": "加入{name}，免費向你提供擴充服務",
       "subtitle": "為碧海黑帆開發工具集，你只差一步，註冊即可使用"
@@ -3732,6 +3933,23 @@
       "hint": "可选邮箱，这将使得你的账户可寻回"
     },
     "register": "註冊"
+  },
+  "passwordStrength": {
+    "level": {
+      "0": "太弱",
+      "1": "弱",
+      "2": "一般",
+      "3": "良好",
+      "4": "強"
+    },
+    "suggestion": "建議添加：{items}",
+    "hint": {
+      "lower": "小寫字母",
+      "upper": "大寫字母",
+      "number": "數字",
+      "special": "特殊字符",
+      "longer": "更長長度"
+    }
   },
   "home": {
     "title": "首页",
@@ -4147,9 +4365,16 @@
       "subtitle": "配置全域與各核心模組的鍵盤快捷鍵，綁定將自動同步並持久化",
       "resetDefaults": "恢復系統預設",
       "groupWorkshop": "工坊與配裝",
+      "groupCodex": "圖鑑",
       "groupGlobal": "全域與導航",
       "categoryWorkshop": "工坊與配裝",
+      "categoryCodex": "圖鑑",
       "categoryGlobal": "全域與導航",
+      "modePress": "按下",
+      "modeHold": "按住",
+      "modeUpdated": "已切換為 {mode} 觸發",
+      "openItemDetail": "查看物品詳情",
+      "openItemDetailDesc": "按住打開目前物品的詳情頁面",
       "quickArchiveDesc": "工坊快速歸檔保存草稿",
       "quickConfirmDesc": "武器/部件改造確認與提交",
       "quickSearch": "全域搜尋",

@@ -457,12 +457,25 @@
       "signin": {
         "ok": "登陆成功",
         "bad": "登陆错误: 请检查登陆信息格式",
-        "invalid": "登陆信息错误",
-        "wrong": "登陆信息错误",
+        "invalid": "账户名或密码错误",
+        "wrong": "账户名或密码错误",
         "error": "登陆错误: {context}",
         "expired": "用户身份过期,请重新登陆",
-        "accountIncorrect": "登陆信息错误",
+        "accountIncorrect": "账户名或密码错误",
         "notActivated": "账户由于未激活而被禁用，请前往激活",
+        "2fa": {
+          "title": "两步验证",
+          "usernameHint": "账户 {username} 已启用两步验证",
+          "codeLabel": "6 位验证码",
+          "hint": "请打开验证器应用（Google Authenticator / Microsoft Authenticator 等），输入当前显示的 6 位码。也可使用恢复码登录。",
+          "submit": "验证并登录",
+          "trustDevice": "我信任此电脑",
+          "required": "此账户需要两步验证",
+          "invalidCode": "验证码错误，请重新输入",
+          "loginTokenExpired": "验证会话已过期，请重新登录",
+          "notEnabled": "未启用两步验证",
+          "setupTokenExpired": "设置会话已过期，请重试"
+        },
         "oauth": {
           "bindSuccess": "绑定成功",
           "bindFailed": "绑定失败",
@@ -473,6 +486,12 @@
           "authFailed": "授权回调处理失败，请稍后重试。",
           "bindAndLoginSuccess": "绑定成功并已登录！"
         }
+      },
+      "2fa": {
+        "invalidCode": "验证码错误，请重新输入",
+        "loginTokenExpired": "验证会话已过期，请重新登录",
+        "notEnabled": "未启用两步验证",
+        "setupTokenExpired": "设置会话已过期，请重试"
       },
       "signup": {
         "ok": "注册成功，请激活账户",
@@ -554,6 +573,14 @@
           "ok": "保存成功",
           "bad": "参数无效",
           "error": "保存失败"
+        },
+        "2fa": {
+          "bad": "参数错误",
+          "wrongPassword": "当前密码错误",
+          "alreadyEnabled": "已启用两步验证",
+          "notEnabled": "尚未启用两步验证",
+          "invalid": "验证失败，请重试",
+          "error": "操作失败，请稍后重试"
         }
       },
       "request": {
@@ -1220,6 +1247,66 @@
         "signin_level_10": {
           "name": "魁首之冠",
           "desc": "签到积累足够积分，账户等级升至 10 级。"
+        },
+        "signin_level_11": {
+          "name": "青铜魁首·初阶",
+          "desc": "签到积累足够积分，账户等级升至 11 级。"
+        },
+        "signin_level_12": {
+          "name": "青铜魁首·二阶",
+          "desc": "签到积累足够积分，账户等级升至 12 级。"
+        },
+        "signin_level_13": {
+          "name": "青铜魁首·三阶",
+          "desc": "签到积累足够积分，账户等级升至 13 级。"
+        },
+        "signin_level_14": {
+          "name": "青铜魁首·四阶",
+          "desc": "签到积累足够积分，账户等级升至 14 级。"
+        },
+        "signin_level_15": {
+          "name": "青铜魁首·巅峰",
+          "desc": "签到积累足够积分，账户等级升至 15 级。"
+        },
+        "signin_level_16": {
+          "name": "白银魁首·初阶",
+          "desc": "签到积累足够积分，账户等级升至 16 级。"
+        },
+        "signin_level_17": {
+          "name": "白银魁首·二阶",
+          "desc": "签到积累足够积分，账户等级升至 17 级。"
+        },
+        "signin_level_18": {
+          "name": "白银魁首·三阶",
+          "desc": "签到积累足够积分，账户等级升至 18 级。"
+        },
+        "signin_level_19": {
+          "name": "白银魁首·四阶",
+          "desc": "签到积累足够积分，账户等级升至 19 级。"
+        },
+        "signin_level_20": {
+          "name": "白银魁首·巅峰",
+          "desc": "签到积累足够积分，账户等级升至 20 级。"
+        },
+        "signin_level_21": {
+          "name": "黄金魁首·初阶",
+          "desc": "签到积累足够积分，账户等级升至 21 级。"
+        },
+        "signin_level_22": {
+          "name": "黄金魁首·二阶",
+          "desc": "签到积累足够积分，账户等级升至 22 级。"
+        },
+        "signin_level_23": {
+          "name": "黄金魁首·三阶",
+          "desc": "签到积累足够积分，账户等级升至 23 级。"
+        },
+        "signin_level_24": {
+          "name": "黄金魁首·四阶",
+          "desc": "签到积累足够积分，账户等级升至 24 级。"
+        },
+        "signin_level_25": {
+          "name": "黄金魁首·巅峰",
+          "desc": "签到积累足够积分，账户等级升至 25 级。"
         }
       }
     },
@@ -1459,6 +1546,104 @@
     },
     "securityCenter": {
       "title": "安全"
+    },
+    "twoFactor": {
+      "title": "两步验证 (2FA)",
+      "description": "为您的账户添加一层额外安全保护。登录时除了密码，还需要输入手机验证器应用显示的 6 位动态码。兼容 Google Authenticator、Microsoft Authenticator 等主流应用。",
+      "statusOn": "已启用",
+      "statusOff": "未启用",
+      "statusHint": "建议启用，可防止密码泄露后账户被盗",
+      "enable": "启用两步验证",
+      "disable": "禁用两步验证",
+      "disabled": "已禁用两步验证",
+      "enabled": "两步验证已启用",
+      "enabledDesc": "两步验证已启用。下次登录时将需要输入 6 位验证码。",
+      "disableConfirm": "确定要禁用两步验证吗？禁用后登录只需要密码，账户安全性会降低。",
+      "step1Title": "步骤 1：扫码或手动输入",
+      "qrHint": "使用验证器 App 扫描二维码",
+      "or": "或",
+      "manualKey": "手动输入以下密钥",
+      "step2Title": "步骤 2：保存恢复码",
+      "step3Title": "步骤 3：确认验证码",
+      "step3Hint": "输入验证器当前显示的 6 位验证码，确认后即可启用。",
+      "recoveryHint": "以下 10 个恢复码请立即保存。每个码只能使用一次；当验证器 App 无法使用时可用它登录。",
+      "recoveryWarning": "⚠️ 恢复码仅展示一次，请立即保存到安全位置。关闭后无法再次查看。",
+      "recoveryCodesTitle": "您的恢复码",
+      "verifyCode": "6 位验证码",
+      "confirmEnable": "确认启用",
+      "actionsTitle": "管理两步验证",
+      "currentPassword": "当前登录密码",
+      "regenerate": "重新生成恢复码",
+      "regenerateConfirm": "确定要重新生成恢复码吗？旧的恢复码将全部作废。",
+      "regenerated": "新恢复码已生成，请立即保存",
+      "needPassword": "请输入当前密码",
+      "statusTitle": "当前状态",
+      "enabledNote": "下次登录时，除密码外还需要输入验证器生成的 6 位动态验证码。",
+      "introTitle": "什么是两步验证？",
+      "introDesc": "两步验证（2FA）在密码之外增加一道动态验证码。即使密码被泄露，没有你身边的验证器也无法登录账户。",
+      "features": {
+        "leak": {
+          "title": "抵御密码泄露",
+          "desc": "仅凭密码无法登录，动态码每次登录都会变化。"
+        },
+        "apps": {
+          "title": "兼容主流应用",
+          "desc": "支持 Google / Microsoft Authenticator、1Password、Authy 等。"
+        },
+        "offline": {
+          "title": "离线生成",
+          "desc": "验证码由认证器本地计算，无需联网即可使用。"
+        }
+      },
+      "flowTitle": "启用流程",
+      "flowHint": "整个流程约需 1 分钟，可随时中止。",
+      "flow": {
+        "identity": {
+          "title": "验证身份",
+          "desc": "输入当前账户密码，确认是本人操作。"
+        },
+        "bind": {
+          "title": "绑定验证器",
+          "desc": "扫描二维码，或在应用中手动录入密钥。"
+        },
+        "recovery": {
+          "title": "保存恢复码",
+          "desc": "将 10 个一次性恢复码保存到安全位置。"
+        },
+        "confirm": {
+          "title": "输入验证码",
+          "desc": "填写验证器显示的 6 位码完成启用。"
+        }
+      },
+      "setupHint": "设置令牌 10 分钟内有效，超时请重新开始。",
+      "copyAll": "复制全部",
+      "faqTitle": "常见问题",
+      "faq": {
+        "invalidCode": {
+          "q": "验证码一直提示错误怎么办？",
+          "a": "先确认手机与电脑的时间已开启自动同步，再输入认证器当前显示的 6 位码。若仍失败，请检查认证器中选中的账户是否正确。"
+        },
+        "recovery": {
+          "q": "恢复码有什么作用？",
+          "a": "当验证器丢失、更换手机或无法使用时，可使用恢复码代替动态码登录。每个恢复码仅能使用一次，服务端只保存哈希值，关闭页面后无法再次查看。"
+        },
+        "lostRecovery": {
+          "q": "恢复码丢失了怎么办？",
+          "a": "登录后点击「重新生成恢复码」即可获得新的一组，旧恢复码会立即全部作废，请妥善保存新码。"
+        },
+        "newPhone": {
+          "q": "更换手机或重装验证器后还能登录吗？",
+          "a": "请先使用恢复码登录，然后禁用两步验证并按新密钥重新启用；若仍有旧密钥备份，也可直接在新设备中手动录入。"
+        },
+        "trust": {
+          "q": "「我信任此电脑」有什么作用？",
+          "a": "在登录表单勾选后，7 天内在该浏览器登录无需再次输入验证码。公共电脑请勿勾选，该选项只出现在登录页面。"
+        },
+        "setupExpired": {
+          "q": "设置到一半提示会话过期？",
+          "a": "设置令牌只有 10 分钟有效期，重新点击「启用两步验证」即可重新生成二维码与恢复码。"
+        }
+      }
     },
     "bindings": {
       "title": "平台绑定",
@@ -3134,6 +3319,12 @@
       "web": "网页端",
       "bot": "QQ机器人 {name}"
     },
+    "filter": {
+      "title": "筛选",
+      "sortLabel": "排序",
+      "sortByRecent": "最近发布 (默认)",
+      "sortByExpires": "按即将过期"
+    },
     "hornValidTimeTooltip": "该喇叭有效显示时间",
     "expired": "已到期",
     "copyPlayerBtn": "复制",
@@ -3147,12 +3338,9 @@
     "rules": {
       "playerRequired": "请输入玩家 ID",
       "descriptionRequired": "请输入内容描述",
-      "descriptionLength": "内容长度需在 3 至 300 个字符之间"
-    },
-    "filter": {
-      "sortLabel": "排序",
-      "sortByRecent": "最近发布 (默认)",
-      "sortByExpires": "按即将过期"
+      "descriptionLength": "内容长度需在 3 至 300 个字符之间",
+      "pushPlatformRequired": "请选择推送平台",
+      "pushBotsRequired": "请选择推送机器人"
     },
     "form": {
       "player": "玩家id",
@@ -3165,7 +3353,10 @@
       "syncToQqBindingRequired": "请先在机器人私聊中发送 /绑定账户 绑定 QQ 身份",
       "pushPlatform": "推送平台",
       "pushRobots": "推送机器人（可多选）",
-      "pushSync": "同步推送到机器人"
+      "pushSync": "同步推送到机器人",
+      "crossPlatform": "是否跨平台",
+      "crossPlatformYes": "是",
+      "crossPlatformNo": "否"
     },
     "time": {
       "minutes": "{count}分钟",
@@ -3420,6 +3611,7 @@
       "inputDraftName": "输入另存为草稿名称",
       "quickArchiving": "快速储存草稿",
       "quickArchive": "快速保存草稿",
+      "quickConfirm": "快速确认",
       "useDraft": "使用"
     },
     "calc": {
@@ -3701,6 +3893,15 @@
       }
     },
     "newUserRegistrationHint": "没有账户？前往注册",
+    "2fa": {
+      "title": "两步验证",
+      "usernameHint": "账户 {username} 已启用两步验证",
+      "codeLabel": "6 位验证码",
+      "hint": "请打开验证器应用（Google Authenticator / Microsoft Authenticator 等），输入当前显示的 6 位码。也可使用恢复码（8 位）登录。",
+      "submit": "验证并登录",
+      "required": "此账户需要两步验证",
+      "trustDevice": "我信任此电脑"
+    },
     "banner": {
       "title": "加入{name}，免费向你提供扩展服务",
       "subtitle": "为碧海黑帆开发工具集，你只差一步，注册即可使用"
@@ -3729,6 +3930,23 @@
       "hint": "实现账户寻回头像定制功能，程序将验证你的邮箱"
     },
     "register": "注册"
+  },
+  "passwordStrength": {
+    "level": {
+      "0": "太弱",
+      "1": "弱",
+      "2": "一般",
+      "3": "良好",
+      "4": "强"
+    },
+    "suggestion": "建议添加：{items}",
+    "hint": {
+      "lower": "小写字母",
+      "upper": "大写字母",
+      "number": "数字",
+      "special": "特殊字符",
+      "longer": "更长长度"
+    }
   },
   "home": {
     "title": "首页",
@@ -4152,9 +4370,16 @@
       "subtitle": "配置全局与各核心模块的键盘快捷键，绑定将自动同步并持久化",
       "resetDefaults": "恢复系统默认",
       "groupWorkshop": "工坊与配装",
+      "groupCodex": "图鉴",
       "groupGlobal": "全局与导航",
       "categoryWorkshop": "工坊与配装",
+      "categoryCodex": "图鉴",
       "categoryGlobal": "全局与导航",
+      "modePress": "按下",
+      "modeHold": "按住",
+      "modeUpdated": "已切换为 {mode} 触发",
+      "openItemDetail": "查看物品详情",
+      "openItemDetailDesc": "按住打开当前物品的详情页面",
       "quickArchiveDesc": "工坊快速归档保存草稿",
       "quickConfirmDesc": "武器/部件改造确认与提交",
       "quickSearch": "全局搜索",

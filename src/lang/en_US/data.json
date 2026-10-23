@@ -457,11 +457,25 @@
       "signin": {
         "ok": "Login successful",
         "bad": "Login error: Please check login information format",
-        "wrong": "Incorrect login information",
+        "invalid": "Invalid username or password",
+        "wrong": "Invalid username or password",
         "error": "Sign in error: {context}",
         "expired": "User identity expired, please log in again",
-        "accountIncorrect": "Incorrect login information",
+        "accountIncorrect": "Invalid username or password",
         "notActivated": "Account disabled due to non-activation, please activate it.",
+        "2fa": {
+          "title": "Two-Step Verification",
+          "usernameHint": "Account {username} has two-step verification enabled",
+          "codeLabel": "6-digit code",
+          "hint": "Open your authenticator app (Google Authenticator, Microsoft Authenticator, etc.) and enter the current 6-digit code. You can also sign in with a recovery code.",
+          "submit": "Verify and sign in",
+          "trustDevice": "Trust this computer",
+          "required": "Two-step verification is required for this account",
+          "invalidCode": "Invalid code, please try again",
+          "loginTokenExpired": "Verification session expired, please sign in again",
+          "notEnabled": "Two-step verification is not enabled",
+          "setupTokenExpired": "Setup session expired, please try again"
+        },
         "success": "Signed in successfully",
         "oauth": {
           "bindSuccess": "Bound successfully",
@@ -472,6 +486,12 @@
           "authFailed": "Authorization callback failed, please try again later.",
           "bindAndLoginSuccess": "Bound successfully and signed in!"
         }
+      },
+      "2fa": {
+        "invalidCode": "Invalid code, please try again",
+        "loginTokenExpired": "Verification session expired, please sign in again",
+        "notEnabled": "Two-step verification is not enabled",
+        "setupTokenExpired": "Setup session expired, please try again"
       },
       "signup": {
         "ok": "Registration successful, please check your email to activate.",
@@ -553,6 +573,14 @@
           "ok": "Saved",
           "bad": "Invalid parameters",
           "error": "Failed to save"
+        },
+        "2fa": {
+          "bad": "Invalid parameters",
+          "wrongPassword": "Current password is incorrect",
+          "alreadyEnabled": "Two-step verification is already enabled",
+          "notEnabled": "Two-step verification is not enabled",
+          "invalid": "Verification failed, please try again",
+          "error": "Operation failed, please try again later"
         }
       },
       "request": {
@@ -1218,6 +1246,66 @@
         "signin_level_10": {
           "name": "Crown of the Kingpin",
           "desc": "Earn enough check-in points to reach account level 10."
+        },
+        "signin_level_11": {
+          "name": "Bronze Kingpin Initiate",
+          "desc": "Earn enough check-in points to reach account level 11."
+        },
+        "signin_level_12": {
+          "name": "Bronze Kingpin Adept",
+          "desc": "Earn enough check-in points to reach account level 12."
+        },
+        "signin_level_13": {
+          "name": "Bronze Kingpin Veteran",
+          "desc": "Earn enough check-in points to reach account level 13."
+        },
+        "signin_level_14": {
+          "name": "Bronze Kingpin Master",
+          "desc": "Earn enough check-in points to reach account level 14."
+        },
+        "signin_level_15": {
+          "name": "Bronze Kingpin Apex",
+          "desc": "Earn enough check-in points to reach account level 15."
+        },
+        "signin_level_16": {
+          "name": "Silver Kingpin Initiate",
+          "desc": "Earn enough check-in points to reach account level 16."
+        },
+        "signin_level_17": {
+          "name": "Silver Kingpin Adept",
+          "desc": "Earn enough check-in points to reach account level 17."
+        },
+        "signin_level_18": {
+          "name": "Silver Kingpin Veteran",
+          "desc": "Earn enough check-in points to reach account level 18."
+        },
+        "signin_level_19": {
+          "name": "Silver Kingpin Master",
+          "desc": "Earn enough check-in points to reach account level 19."
+        },
+        "signin_level_20": {
+          "name": "Silver Kingpin Apex",
+          "desc": "Earn enough check-in points to reach account level 20."
+        },
+        "signin_level_21": {
+          "name": "Gold Kingpin Initiate",
+          "desc": "Earn enough check-in points to reach account level 21."
+        },
+        "signin_level_22": {
+          "name": "Gold Kingpin Adept",
+          "desc": "Earn enough check-in points to reach account level 22."
+        },
+        "signin_level_23": {
+          "name": "Gold Kingpin Veteran",
+          "desc": "Earn enough check-in points to reach account level 23."
+        },
+        "signin_level_24": {
+          "name": "Gold Kingpin Master",
+          "desc": "Earn enough check-in points to reach account level 24."
+        },
+        "signin_level_25": {
+          "name": "Gold Kingpin Apex",
+          "desc": "Earn enough check-in points to reach account level 25."
         }
       }
     },
@@ -1457,6 +1545,103 @@
     },
     "securityCenter": {
       "title": "Security"
+    },
+    "twoFactor": {
+      "title": "Two-Step Verification (2FA)",
+      "description": "Add an extra layer of security to your account. In addition to your password, you'll need to enter a 6-digit dynamic code from your mobile authenticator app when signing in. Compatible with Google Authenticator, Microsoft Authenticator, and other major apps.",
+      "statusOn": "Enabled",
+      "statusOff": "Disabled",
+      "statusHint": "Enabling is recommended to protect your account if your password is leaked",
+      "enable": "Enable Two-Step Verification",
+      "disable": "Disable Two-Step Verification",
+      "disabled": "Two-step verification disabled",
+      "enabled": "Two-step verification enabled",
+      "enabledDesc": "Two-step verification is now enabled. You'll need to enter a 6-digit code each time you sign in.",
+      "disableConfirm": "Are you sure you want to disable two-step verification? After disabling, signing in will only require your password, reducing account security.",
+      "step1Title": "Step 1: Scan or enter manually",
+      "qrHint": "Scan the QR code with your authenticator app",
+      "manualKey": "Or enter this key manually",
+      "step2Title": "Step 2: Save your recovery codes",
+      "step3Title": "Step 3: Confirm the code",
+      "step3Hint": "Enter the 6-digit code shown in your authenticator app to finish enabling.",
+      "recoveryHint": "Save these 10 recovery codes now. Each code can only be used once; use them to sign in when your authenticator app is unavailable.",
+      "recoveryWarning": "⚠️ Recovery codes are shown only once. Save them in a safe place immediately. You won't be able to view them again after closing.",
+      "recoveryCodesTitle": "Your recovery codes",
+      "verifyCode": "6-digit code",
+      "confirmEnable": "Confirm enable",
+      "actionsTitle": "Manage two-step verification",
+      "currentPassword": "Current password",
+      "regenerate": "Regenerate recovery codes",
+      "regenerateConfirm": "Are you sure you want to regenerate recovery codes? All old codes will be invalidated.",
+      "regenerated": "New recovery codes have been generated. Save them now.",
+      "needPassword": "Please enter your current password",
+      "statusTitle": "Current status",
+      "enabledNote": "At the next sign-in, you will need the 6-digit dynamic code from your authenticator in addition to your password.",
+      "introTitle": "What is two-step verification?",
+      "introDesc": "Two-step verification (2FA) adds a dynamic code on top of your password. Even if your password leaks, nobody can sign in without the authenticator on your device.",
+      "features": {
+        "leak": {
+          "title": "Protects against password leaks",
+          "desc": "A password alone is not enough, and the dynamic code changes on every sign-in."
+        },
+        "apps": {
+          "title": "Works with major apps",
+          "desc": "Supports Google / Microsoft Authenticator, 1Password, Authy, and more."
+        },
+        "offline": {
+          "title": "Generated offline",
+          "desc": "Codes are computed locally by the authenticator, no network required."
+        }
+      },
+      "flowTitle": "Setup flow",
+      "flowHint": "Takes about a minute and can be cancelled at any time.",
+      "flow": {
+        "identity": {
+          "title": "Verify your identity",
+          "desc": "Enter your current account password to confirm it is you."
+        },
+        "bind": {
+          "title": "Bind an authenticator",
+          "desc": "Scan the QR code or enter the key manually in the app."
+        },
+        "recovery": {
+          "title": "Save recovery codes",
+          "desc": "Store the 10 one-time recovery codes in a safe place."
+        },
+        "confirm": {
+          "title": "Enter the code",
+          "desc": "Type the 6-digit code shown in the app to finish enabling."
+        }
+      },
+      "setupHint": "The setup token is valid for 10 minutes. Restart the flow if it expires.",
+      "copyAll": "Copy all",
+      "faqTitle": "FAQ",
+      "faq": {
+        "invalidCode": {
+          "q": "The code is always rejected. What should I do?",
+          "a": "Make sure automatic time sync is enabled on both your phone and computer, then enter the code currently shown in the authenticator. If it still fails, check that the correct account is selected in the app."
+        },
+        "recovery": {
+          "q": "What are recovery codes for?",
+          "a": "If your authenticator is lost, replaced, or unavailable, a recovery code can be used instead of the dynamic code to sign in. Each code works only once, and the server stores hashes only, so they cannot be viewed again after leaving the page."
+        },
+        "lostRecovery": {
+          "q": "What if I lose my recovery codes?",
+          "a": "After signing in, click Regenerate recovery codes to get a new set. All old codes are invalidated immediately, so keep the new ones safe."
+        },
+        "newPhone": {
+          "q": "Can I still sign in after changing phones or reinstalling the app?",
+          "a": "Sign in with a recovery code first, then disable two-step verification and enable it again with the new key. If you still have a backup of the old key, you can also enter it manually on the new device."
+        },
+        "trust": {
+          "q": "What does Trust this computer do?",
+          "a": "If checked on the sign-in form, this browser can sign in without a code for 7 days. Do not check it on public computers. The option only appears on the sign-in page."
+        },
+        "setupExpired": {
+          "q": "The setup session expired halfway through.",
+          "a": "The setup token is valid for only 10 minutes. Click Enable Two-Step Verification again to generate a new QR code and recovery codes."
+        }
+      }
     },
     "bindings": {
       "title": "Platform Bindings",
@@ -3149,7 +3334,9 @@
     "rules": {
       "playerRequired": "Player ID is required",
       "descriptionRequired": "Description is required",
-      "descriptionLength": "Content length must be between 3 and 300 characters"
+      "descriptionLength": "Content length must be between 3 and 300 characters",
+      "pushPlatformRequired": "Please select a push platform",
+      "pushBotsRequired": "Please select at least one bot"
     },
     "filter": {
       "sortLabel": "Sort By",
@@ -3167,7 +3354,10 @@
       "syncToQqBindingRequired": "Send /绑定账户 to the bot in private chat to bind your QQ identity",
       "pushPlatform": "Push platform",
       "pushRobots": "Push bots (multiple)",
-      "pushSync": "Sync to bots"
+      "pushSync": "Sync to bots",
+      "crossPlatform": "Cross-platform",
+      "crossPlatformYes": "Yes",
+      "crossPlatformNo": "No"
     },
     "time": {
       "minutes": "{count} minutes",
@@ -3426,6 +3616,7 @@
       "inputDraftName": "Enter draft name",
       "quickArchiving": "Quick Save Draft",
       "quickArchive": "Quick Save Draft",
+      "quickConfirm": "Quick Confirm",
       "useDraft": "Use"
     },
     "calc": {
@@ -3704,6 +3895,15 @@
       }
     },
     "newUserRegistrationHint": "No account? Go to register",
+    "2fa": {
+      "title": "Two-Step Verification",
+      "usernameHint": "Account {username} has two-step verification enabled",
+      "codeLabel": "6-digit code",
+      "hint": "Open your authenticator app (Google Authenticator, Microsoft Authenticator, etc.) and enter the current 6-digit code. You can also sign in with an 8-character recovery code.",
+      "submit": "Verify and sign in",
+      "required": "Two-step verification is required for this account",
+      "trustDevice": "Trust this computer"
+    },
     "banner": {
       "title": "Join {name} to access extended services for free",
       "subtitle": "Developer toolkit for Skull and Bones. You're just one step away—register to start."
@@ -3732,6 +3932,23 @@
       "hint": "Optional email, which will allow your account to be recoverable"
     },
     "register": "Register"
+  },
+  "passwordStrength": {
+    "level": {
+      "0": "Too weak",
+      "1": "Weak",
+      "2": "Fair",
+      "3": "Good",
+      "4": "Strong"
+    },
+    "suggestion": "Consider adding: {items}",
+    "hint": {
+      "lower": "lowercase letters",
+      "upper": "uppercase letters",
+      "number": "numbers",
+      "special": "special characters",
+      "longer": "more length"
+    }
   },
   "home": {
     "title": "Home",
@@ -4147,9 +4364,16 @@
       "subtitle": "Customize keybindings across modules, automatically saved locally",
       "resetDefaults": "Reset Defaults",
       "groupWorkshop": "Workshop & Loadouts",
+      "groupCodex": "Codex",
       "groupGlobal": "Global & Navigation",
       "categoryWorkshop": "Workshop & Loadouts",
+      "categoryCodex": "Codex",
       "categoryGlobal": "Global & Navigation",
+      "modePress": "Press",
+      "modeHold": "Hold",
+      "modeUpdated": "Switched to {mode} trigger",
+      "openItemDetail": "Open Item Detail",
+      "openItemDetailDesc": "Hold to open the details page of the current item",
       "quickArchiveDesc": "Hold to quickly save workshop draft",
       "quickConfirmDesc": "Confirm weapon modification / submission",
       "quickSearch": "Global Search",

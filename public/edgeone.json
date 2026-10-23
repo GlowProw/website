@@ -1,13 +1,12 @@
 {
   "rewrites": [
-    {
-      "source": "/*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/**",
-      "destination": "/index.html"
-    }
+    { "source": "/assets/**", "destination": "/assets/$1" },
+    { "source": "/static/**", "destination": "/static/$1" },
+    { "source": "/version.json", "destination": "/version.json" },
+    { "source": "/sitemap.xml", "destination": "/sitemap.xml" },
+    { "source": "/robots.txt", "destination": "/robots.txt" },
+    { "source": "/favicon.ico", "destination": "/favicon.ico" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ],
   "routes": [
     {

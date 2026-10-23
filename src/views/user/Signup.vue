@@ -6,6 +6,7 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import {useDisplay} from "vuetify/framework";
 
 import Captcha from "@/components/captcha/index.vue";
+import PasswordStrength from "@/components/PasswordStrength.vue";
 import {useRules} from "@/assets/sripts/rules_user"
 import {apis} from "@/assets/sripts";
 import {SignupParams} from "@/assets/types/User.Signup";
@@ -189,6 +190,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                       />
                     </template>
                   </v-text-field>
+                  <PasswordStrength :password="signupFrom.password" class="mb-3" />
                 </div>
 
                 <!-- 邮箱 -->

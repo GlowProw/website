@@ -17,6 +17,7 @@ import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import HalfScreenBannerText from "@/components/HalfScreenBannerText.vue";
 import ThirdPartyLoginWidget from "@/components/ThirdPartyLoginWidget.vue";
+import {setTrustToken} from "@/assets/sripts/two_fa_trust";
 
 const authStore = useAuthStore(),
     router = useRouter(),
@@ -44,6 +45,17 @@ let signinFormLoading: Ref<boolean> = ref(false),
     })
 
 /**
+ * 2FA 相关状态
+ */
+const twoFAOpen = ref(false)
+const twoFASetupToken = ref('')
+const twoFAUsername = ref('')
+const twoFACode = ref('')
+const twoFALoading = ref(false)
+// 勾选后本机 7 天内免二次验证
+const twoFATrustDevice = ref(true)
+
+/**
  * 校验人机验证是否已完成
  */
 const isCaptchaValid = computed(() => {
@@ -55,6 +67,64 @@ const isCaptchaValid = computed(() => {
   }
   return Boolean(c.response && String(c.response).trim().length > 5);
 })
+
+/**
+ * 打开 2FA 对话框
+ */
+const onOpen2FA = (setupToken: string, username: string) => {
+  twoFASetupToken.value = setupToken
+  twoFAUsername.value = username
+  twoFACode.value = ''
+  twoFAOpen.value = true
+}
+
+/**
+ * 关闭 2FA 对话框
+ */
+const onClose2FA = () => {
+  twoFAOpen.value = false
+  twoFASetupToken.value = ''
+  twoFAUsername.value = ''
+  twoFACode.value = ''
+  // 返回登录表单时刷新人机验证（上次验证已被消费）
+  captchaRef.value?.refreshCaptcha?.()
+}
+
+/**
+ * 提交 2FA 验证
+ */
+const onSubmit2FA = async () => {
+  const code = twoFACode.value.trim().toUpperCase()
+  if (!code) return
+
+  twoFALoading.value = true
+  try {
+    const result = await apis.userApi().loginVerify2fa(twoFASetupToken.value, code, undefined, twoFATrustDevice.value)
+    const d = result.data?.data || result.data
+    if (d?.trustToken) setTrustToken(d.trustToken)
+    authStore.setAccountToken(d)
+    // 验证通过：清空验证状态（无需刷新验证码，即将跳转）
+    twoFAOpen.value = false
+    twoFASetupToken.value = ''
+    twoFACode.value = ''
+
+    const targetBackUrl = (route.query.backUrl || route.query.backurl) as string;
+    if (targetBackUrl) {
+      return await router.push(targetBackUrl);
+    }
+    await router.push('/')
+  } catch (e) {
+    // 验证会话过期：回到登录表单重新走完整流程
+    if (e instanceof ApiError && e.code === '2fa.loginTokenExpired') {
+      handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips' })
+      onClose2FA()
+      return
+    }
+    handleApiError(e, notice, t, { component: 'Signin', tPrefix: 'basic.tips' })
+  } finally {
+    twoFALoading.value = false
+  }
+}
 
 /**
  * 登陆
@@ -75,10 +145,17 @@ const onLogin = async () => {
           username: signinFrom.value.username,
           password: signinFrom.value.password,
           captcha: signinFrom.value.captcha,
-        }),
-        d = result.data;
+        })
 
-    authStore.setAccountToken(d.data)
+    // 2FA 需要额外验证
+    if (result.code === 'signin.2faRequired') {
+      const d = result.data
+      onOpen2FA(d?.data?.setupToken || d?.setupToken || '', d?.data?.username || signinFrom.value.username)
+      return
+    }
+
+    const tokenData = result.data?.data || result.data
+    authStore.setAccountToken(tokenData)
 
     const targetBackUrl = (route.query.backUrl || route.query.backurl) as string;
     if (targetBackUrl) {
@@ -150,46 +227,93 @@ const onCaptchaData = (data: CaptchaParams) => {
           </v-breadcrumbs>
 
           <AffixContainerView>
-            <v-row class="py-2">
-              <v-col>
-                <v-text-field v-model="signinFrom.username"
-                              :rules="rules.username"
-                              name="username"
-                              variant="solo-filled"
-                              prepend-inner-icon="mdi-account-key"
-                              :label="t('signin.form.label.username')"
-                              :placeholder="t('signin.form.placeholder.username')"></v-text-field>
-                <v-text-field v-model="signinFrom.password"
-                              :rules="rules.password"
-                              name="password"
-                              variant="solo-filled"
-                              prepend-inner-icon="mdi-form-textbox-password"
-                              :label="t('signin.form.label.password')"
-                              :placeholder="t('signin.form.placeholder.password')"
-                              type="password"></v-text-field>
+            <!-- 登录表单 -->
+            <template v-if="!twoFAOpen">
+              <v-row class="py-2">
+                <v-col>
+                  <v-text-field v-model="signinFrom.username"
+                                :rules="rules.username"
+                                name="username"
+                                variant="solo-filled"
+                                prepend-inner-icon="mdi-account-key"
+                                :label="t('signin.form.label.username')"
+                                :placeholder="t('signin.form.placeholder.username')"></v-text-field>
+                  <v-text-field v-model="signinFrom.password"
+                                :rules="rules.password"
+                                name="password"
+                                variant="solo-filled"
+                                prepend-inner-icon="mdi-form-textbox-password"
+                                :label="t('signin.form.label.password')"
+                                :placeholder="t('signin.form.placeholder.password')"
+                                type="password"></v-text-field>
 
-                <Captcha ref="captchaRef" @getCaptchaData="onCaptchaData" class="captcha"></Captcha>
-              </v-col>
-            </v-row>
+                  <Captcha ref="captchaRef" @getCaptchaData="onCaptchaData" class="captcha"></Captcha>
 
-            <div class="py-2">
-              <v-btn class="bg-amber text-black" @click="onLogin" size="50" block :loading="signinFormLoading" :disabled="!signinFrom.username || !signinFrom.password || !isCaptchaValid" variant="flat">
-                {{ t('signin.title') }}
-              </v-btn>
+                  <v-checkbox v-model="twoFATrustDevice"
+                              density="compact"
+                              color="amber"
+                              hide-details
+                              :label="t('signin.2fa.trustDevice')"
+                              class="mt-2" />
+                </v-col>
+              </v-row>
 
-              <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text" v-if="route.query.backUrl || route.query.backurl">{{ t('basic.button.cancel') }}</v-btn>
-            </div>
+              <div class="py-2">
+                <v-btn class="bg-amber text-black" @click="onLogin" size="50" block :loading="signinFormLoading" :disabled="!signinFrom.username || !signinFrom.password || !isCaptchaValid" variant="flat">
+                  {{ t('signin.title') }}
+                </v-btn>
 
-            <ThirdPartyLoginWidget mode="signin" />
+                <v-btn class="mt-2" @click="onBackRoute" size="50" block variant="text" v-if="route.query.backUrl || route.query.backurl">{{ t('basic.button.cancel') }}</v-btn>
+              </div>
 
-            <v-card-actions class="py-2 d-flex justify-space-between align-center mb-5">
-              <router-link to="/account/signup" class="u">
-                {{ t('signin.newUserRegistrationHint') }}
-              </router-link>
-              <router-link to="/account/forgot-password" class="u">
-                {{ t('forgotPassword.title') }}?
-              </router-link>
-            </v-card-actions>
+              <ThirdPartyLoginWidget mode="signin" />
+
+              <v-card-actions class="py-2 d-flex justify-space-between align-center mb-5">
+                <router-link to="/account/signup" class="u">
+                  {{ t('signin.newUserRegistrationHint') }}
+                </router-link>
+                <router-link to="/account/forgot-password" class="u">
+                  {{ t('forgotPassword.title') }}?
+                </router-link>
+              </v-card-actions>
+            </template>
+
+            <!-- 两步验证表单 -->
+            <template v-else>
+              <v-row class="py-2">
+                <v-col>
+                  <div class="d-flex align-center gap-2 mb-2">
+                    <span class="text-h6">{{ t('signin.2fa.title') }}</span>
+                  </div>
+                  <div class="text-caption text-grey mb-3">
+                    {{ t('signin.2fa.usernameHint', { username: twoFAUsername }) }}
+                  </div>
+                  <v-text-field v-model="twoFACode"
+                                variant="solo-filled"
+                                prepend-inner-icon="mdi-numeric"
+                                :label="t('signin.2fa.codeLabel')"
+                                placeholder="000000"
+                                maxlength="8"
+                                autocomplete="one-time-code"
+                                @keyup.enter="onSubmit2FA" />
+                  <div class="text-caption text-grey opacity-80">
+                    {{ t('signin.2fa.hint') }}
+                  </div>
+                </v-col>
+              </v-row>
+
+              <div class="py-2">
+                <v-btn class="bg-amber text-black" size="50" block variant="flat"
+                       :loading="twoFALoading"
+                       :disabled="!twoFACode.trim()"
+                       @click="onSubmit2FA">
+                  {{ t('signin.2fa.submit') }}
+                </v-btn>
+                <v-btn class="mt-2" size="50" block variant="text" @click="onClose2FA">
+                  {{ t('basic.button.cancel') }}
+                </v-btn>
+              </div>
+            </template>
           </AffixContainerView>
         </v-card>
       </v-col>

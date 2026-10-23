@@ -231,6 +231,12 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                                 component: () => import('@/views/user/account/Sessions.vue'),
                                 meta: { title: 'account.sessions.title', auth: true }
                             },
+                            {
+                                path: 'twofa',
+                                name: 'AccountTwoFactor',
+                                component: () => import('@/views/user/account/TwoFactor.vue'),
+                                meta: { title: 'account.twoFactor.title', auth: true }
+                            },
                         ]
                     },
                     {

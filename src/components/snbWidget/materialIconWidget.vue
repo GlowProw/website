@@ -7,8 +7,8 @@ import {rarity} from "@/assets/sripts/index";
 import {Material, Materials} from "glow-prow-data";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import MaterialCardDetail from "@/components/snbWidget/materialCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 import {useAppStore} from "~/stores/appStore";
 import Loading from "@/components/Loading.vue";
 
@@ -37,7 +37,6 @@ const props = withDefaults(defineProps<{
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     materials = Materials,
 
     // 稀有度
@@ -94,23 +93,11 @@ defineOptions({
 </script>
 
 <template>
-  <v-tooltip
+  <ItemCardTooltip
       v-if="i && i.id"
-      :disabled="!props.isShowTooltip"
-      :offset="[40, 0]"
-      scroll-strategy="close"
-      transition="opacity 300ms ease-in"
-      location="right top"
-      min-width="450"
-      max-width="450"
-      interactive
-      class="material-card"
-      content-class="pa-0 bg-transparent"
-      :target="[tooltipPos.x, tooltipPos.y]">
+      :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
           variant="text"
@@ -148,7 +135,7 @@ defineOptions({
         :is-show-description="props.isShowDescription"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

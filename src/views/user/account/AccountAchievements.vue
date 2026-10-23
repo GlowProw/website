@@ -50,7 +50,7 @@ const onLoad = async () => {
 
     await nextTick()
 
-    ladderRef.value?.scrollToItem((overview.value.level.level || 1) - 50, 'auto')
+    ladderRef.value?.scrollToItem((overview.value.level.level || 1) - 1, 'auto')
   } catch (e: any) {
     notice.error(e?.message || t('account.achievements.loadFailed'))
   } finally {

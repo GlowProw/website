@@ -9,11 +9,10 @@ import {Sets, Set} from "glow-prow-data";
 import Loading from "../Loading.vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import SetCardDetail from "@/components/snbWidget/setCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 
 const
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     {asString, sanitizeString} = useI18nUtils(),
     {raritys} = useAssetsStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
@@ -93,25 +92,14 @@ defineOptions({
 </script>
 
 <template>
-  <v-tooltip
+  <ItemCardTooltip
       v-if="i && i?.id"
-      :disabled="!props.isShowTooltip"
-      :offset="[40, 0]"
-      scroll-strategy="close"
-      transition="opacity 300ms ease-in"
-      location="right top"
-      min-width="450"
-      max-width="450"
-      interactive
-      content-class="pa-0 bg-transparent"
-      :target="[tooltipPos.x, tooltipPos.y]">
+      :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           :to="isOpenDetail ? `/codex/set/${i.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
@@ -147,7 +135,7 @@ defineOptions({
         :id="props.id"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

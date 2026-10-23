@@ -36,6 +36,13 @@ let teams: Ref<any[]> = ref([]),
         description: [
           (v: any) => !!v || t('teamUp.rules.descriptionRequired'),
           (v: string | any[]) => (v && v.length >= 3 && v.length <= 300) || t('teamUp.rules.descriptionLength'),
+        ],
+        // 勾选同步推送时平台与机器人为必选，取消勾选后不校验
+        pushPlatform: [
+          (v: any) => !pushSyncEnabled.value || !pushAccess.value.allowed || !!v || t('teamUp.rules.pushPlatformRequired'),
+        ],
+        pushBots: [
+          (v: any) => !pushSyncEnabled.value || !pushAccess.value.allowed || (Array.isArray(v) && v.length > 0) || t('teamUp.rules.pushBotsRequired'),
         ]
       },
       tags: [
@@ -65,6 +72,7 @@ let teams: Ref<any[]> = ref([]),
     description = ref(''),
     tags: Ref<UnwrapRef<any[]>, UnwrapRef<any[]> | any[]> = ref([]),
     expiresMinutesAt: Ref<UnwrapRef<number>, UnwrapRef<number> | number> = ref(60),
+    crossPlatform = ref(true),
     descriptionEditor = ref<any>(null),
     pushTargetPlatform = ref('qq'),
     pushBotIds: Ref<number[]> = ref([]),
@@ -134,7 +142,12 @@ const refreshConfig = ref({
 
 const refreshIntervalOptions = [10, 15, 30, 60, 120]
 
-let refreshTickHandle: ReturnType<typeof setInterval> | null = null
+let refreshTickHandle: ReturnType<typeof setInterval> | null = null,
+    refreshProgressHandle: ReturnType<typeof setInterval> | null = null
+
+// 定时刷新进度条状态：记录本轮开始时间与完成百分比
+const refreshStartedAt = ref(0),
+    refreshProgress = ref(0)
 
 /**
  * 读取生效的刷新间隔（秒）
@@ -151,7 +164,10 @@ const resolvedRefreshInterval = computed(() => {
  */
 const clearRefreshTimers = () => {
   if (refreshTickHandle) clearInterval(refreshTickHandle)
+  if (refreshProgressHandle) clearInterval(refreshProgressHandle)
   refreshTickHandle = null
+  refreshProgressHandle = null
+  refreshProgress.value = 0
 }
 
 /**
@@ -161,10 +177,19 @@ const beginRefresh = () => {
   if (refreshTickHandle) return
   refreshConfig.value.enabled = true
   getTeams(getTeamsType.none)
+  refreshStartedAt.value = Date.now()
+  refreshProgress.value = 0
   refreshTickHandle = setInterval(() => {
     if (document.hidden) return
     getTeams(getTeamsType.none)
+    refreshStartedAt.value = Date.now()
   }, resolvedRefreshInterval.value * 1000)
+  // 轻量进度节拍器只驱动进度条，不触发请求
+  refreshProgressHandle = setInterval(() => {
+    if (document.hidden) return
+    const total = resolvedRefreshInterval.value * 1000
+    refreshProgress.value = Math.min(100, ((Date.now() - refreshStartedAt.value) / total) * 100)
+  }, 200)
 }
 
 /**
@@ -195,6 +220,7 @@ const onVisibilityChange = () => {
   if (!refreshConfig.value.enabled) return
   if (!document.hidden) {
     getTeams(getTeamsType.none)
+    refreshStartedAt.value = Date.now()
   }
 }
 
@@ -415,8 +441,9 @@ const pushTeamInfo = async () => {
       pushBotIds: selectedPushBotIds,
       tags: selectedTags,
       expiresMinutesAt: expiresMinutesAt.value,
+      crossPlatform: crossPlatform.value,
       fingerprint
-    } as any);
+    });
 
     const push = result?.data?.data?.push;
     if (push?.results?.length) {
@@ -499,7 +526,8 @@ const onStoragePlayer = () => {
     player: player.value,
     expiresMinutesAt: expiresMinutesAt.value,
     tags: tags.value,
-    description: description.value
+    description: description.value,
+    crossPlatform: crossPlatform.value
   });
 }
 
@@ -514,6 +542,7 @@ const readStoragePlayer = () => {
     expiresMinutesAt.value = pushForm.data.value.expiresMinutesAt || 60;
     tags.value = pushForm.data.value.tags || [];
     description.value = pushForm.data.value.description || '';
+    crossPlatform.value = pushForm.data.value.crossPlatform !== false;
   }
 }
 
@@ -592,6 +621,7 @@ const copyToClipboard = async (content: string) => {
                     {title: '120s', value: 120},
                     {title: t('teamUp.refresh.custom'), value: 0}
                   ]"
+                  v-if="!refreshConfig.enabled"
                   density="compact"
                   variant="outlined"
                   hide-details
@@ -611,13 +641,22 @@ const copyToClipboard = async (content: string) => {
                   :disabled="refreshConfig.enabled"
                   style="max-width: 110px;"></v-text-field>
 
-              <v-btn
-                  :color="refreshConfig.enabled ? 'error' : 'primary'"
-                  variant="tonal"
-                  @click="onToggleRefresh">
-                <v-icon :icon="refreshConfig.enabled ? 'mdi-stop' : 'mdi-timer-play'" class="mr-1"></v-icon>
-                {{ refreshConfig.enabled ? t('teamUp.refresh.stop') : t('teamUp.refresh.startBtn') }}
-              </v-btn>
+              <div>
+                <v-btn
+                    :color="refreshConfig.enabled ? 'error' : 'primary'"
+                    variant="tonal"
+                    @click="onToggleRefresh">
+                  <v-icon :icon="refreshConfig.enabled ? 'mdi-stop' : 'mdi-timer-play'" class="mr-1"></v-icon>
+                  {{ refreshConfig.enabled ? t('teamUp.refresh.stop') : t('teamUp.refresh.startBtn') }}
+                </v-btn>
+                <v-progress-linear
+                    v-if="refreshConfig.enabled"
+                    :model-value="refreshProgress"
+                    color="amber"
+                    tile
+                    height="4"></v-progress-linear>
+              </div>
+
             </v-col>
           </v-row>
         </v-container>
@@ -630,7 +669,7 @@ const copyToClipboard = async (content: string) => {
       <v-row>
         <v-col cols="12" lg="4">
           <AffixBoxHasTitleView>
-            <template v-slot:title>{{ t('team.filter') }}</template>
+            <template v-slot:title>{{ t('teamUp.filter.title') }}</template>
 
             <v-col cols="12">
               <v-select v-model="filtering.sortBy"
@@ -712,6 +751,10 @@ const copyToClipboard = async (content: string) => {
                           <v-icon :icon="i.source?.platform && i.source.platform !== 'web' ? 'mdi-robot' : 'mdi-web'"
                                   class="mr-1" size="17"></v-icon>
                           {{ onSourceLabel(i) }}
+                        </v-col>
+                        <v-col cols="auto">
+                          <v-icon :icon="i.crossPlatform === false ? 'mdi-earth-off' : 'mdi-earth'" class="mr-1" size="17"></v-icon>
+                          {{ t('teamUp.form.crossPlatform') }}：{{ i.crossPlatform === false ? t('teamUp.form.crossPlatformNo') : t('teamUp.form.crossPlatformYes') }}
                         </v-col>
                         <v-col cols="auto" v-tooltip="`${t('teamUp.hornValidTimeTooltip')}: ${new Date(formatTimestamp(i.expiresAt)).toLocaleString()}`">
                           <v-icon icon="mdi-update" class="mr-1" size="17"></v-icon>
@@ -853,7 +896,20 @@ const copyToClipboard = async (content: string) => {
                                   :items="pushConfig.time">
                         </v-select>
                       </v-col>
-                      <v-col cols="12" lg="6">
+                      <v-col cols="12" lg="2">
+                        <v-select density="comfortable"
+                                  v-model="crossPlatform"
+                                  :label="t('teamUp.form.crossPlatform')"
+                                  item-title="label"
+                                  item-value="value"
+                                  @update:modelValue="onStoragePlayer"
+                                  :items="[
+                                    {value: true, label: t('teamUp.form.crossPlatformYes')},
+                                    {value: false, label: t('teamUp.form.crossPlatformNo')}
+                                  ]">
+                        </v-select>
+                      </v-col>
+                      <v-col cols="12" lg="4">
                         <v-combobox
                             :label="t('teamUp.form.tagsLabel')"
                             chips
@@ -886,7 +942,8 @@ const copyToClipboard = async (content: string) => {
                               :label="t('teamUp.form.pushPlatform')"
                               density="comfortable"
                               variant="filled"
-                              hide-details
+                              hide-details="auto"
+                              :rules="pushConfig.rules.pushPlatform"
                               :loading="pushTargetsLoading"
                               :disabled="!pushSyncEnabled || !pushAccess.allowed"
                               style="max-width: 180px;"
@@ -903,7 +960,8 @@ const copyToClipboard = async (content: string) => {
                               closable-chips
                               density="comfortable"
                               variant="filled"
-                              hide-details
+                              hide-details="auto"
+                              :rules="pushConfig.rules.pushBots"
                               :disabled="!pushSyncEnabled || !pushAccess.allowed || !currentPlatformBound"
                               style="min-width: 280px; flex: 1;"
                               @update:model-value="onStoragePushTargets"></v-select>

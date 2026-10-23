@@ -9,6 +9,10 @@ export interface TeamupItem {
     createdAt: number;
     username?: string | null;
     userId?: string | null;
+    /**
+     * 是否接受跨平台玩家加入
+     */
+    crossPlatform?: boolean;
 }
 
 export interface TeamupListParams extends PaginationParams {
@@ -33,6 +37,18 @@ export interface CreateTeamupParams {
     expiresMinutesAt?: number;
     tags?: string[];
     fingerprint?: string;
+    /**
+     * 描述纯文本，供推送到外部平台时使用
+     */
+    descriptionText?: string;
+    /**
+     * 同步推送的目标机器人主键列表
+     */
+    pushBotIds?: number[];
+    /**
+     * 是否接受跨平台玩家加入
+     */
+    crossPlatform?: boolean;
 }
 
 export interface TeamupListResponse {

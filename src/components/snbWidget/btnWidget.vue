@@ -98,6 +98,14 @@ const activeShortcut = computed<string | null>(() => {
 })
 
 /**
+ * 当前动作的触发方式，未绑定动作时按按住处理
+ */
+const activeMode = computed<'press' | 'hold'>(() => {
+  if (!props.hotkeyAction) return 'hold'
+  return hotkeysStore.getMode(props.hotkeyAction)
+})
+
+/**
  * 启动监听与清理键盘事件
  */
 const updateKeyboardListeners = (enabled: boolean) => {
@@ -140,6 +148,12 @@ const startAction = (event: any, source: string) => {
   isHolding.value = true
   progress.value = 0
   startTime.value = Date.now()
+
+  // 按下即触发模式不进入蓄力进度
+  if (activeMode.value === 'press') {
+    completeAction()
+    return
+  }
 
   holdTimer.value = setInterval(() => {
     const elapsed = Date.now() - startTime.value
@@ -240,9 +254,22 @@ const handleKeyDown = (e: KeyboardEvent) => {
     return
   }
 
+  // 仅响应可见的按钮，避免未展开的悬浮卡片内实例同时被触发
+  const el = actionButton.value?.$el as HTMLElement | undefined
+  if (el && el.getClientRects().length === 0) {
+    return
+  }
+
   e.preventDefault()
   keyAlreadyPressed.value = true
   activationSource.value = 'keyboard'
+
+  // 按下即触发模式直接完成，不进入长按
+  if (activeMode.value === 'press') {
+    completeAction()
+    return
+  }
+
   startAction(null, 'keyboard')
   actionButton.value?.$el?.focus?.()
 }
@@ -254,6 +281,10 @@ const handleKeyDown = (e: KeyboardEvent) => {
 const handleKeyUp = (e: KeyboardEvent) => {
   if (activeShortcut.value && matchShortcutEvent(e, activeShortcut.value)) {
     keyAlreadyPressed.value = false
+
+    if (activeMode.value === 'press') {
+      return
+    }
 
     if (activationSource.value === 'keyboard') {
       if (progress.value >= 90) {

@@ -4,8 +4,10 @@ import {useI18n} from "vue-i18n";
 import {MapLocation, MapLocations, Npc} from "glow-prow-data";
 import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
+import NpcCardDetail from "@/components/snbWidget/npcCardDetail.vue";
 
-const props = defineProps<{ id?: string, data?: Npc }>(),
+const props = defineProps<{ id?: string, data?: Npc, isShowTooltip?: boolean }>(),
     {t} = useI18n(),
     mapLocations = MapLocations,
     {npc} = useI18nReadName()
@@ -33,7 +35,12 @@ defineOptions({
 </script>
 
 <template>
-  <span :title="getTitle">{{ getTitle }}</span>
+  <ItemCardTooltip :disabled="props.isShowTooltip === false || !(props.id || props.data?.id)">
+    <template v-slot:activator="{ props: activatorProps }">
+      <span :title="getTitle" v-bind="activatorProps">{{ getTitle }}</span>
+    </template>
+    <NpcCardDetail :id="props.id" :data="props.data" />
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

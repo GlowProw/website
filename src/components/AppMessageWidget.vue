@@ -335,8 +335,7 @@ defineOptions({
             </h2>
 
             <!-- ERROR_CODES 错误代码与标题/描述展示卡片 S -->
-            <div
-                v-if="matchedErrorCodeInfo"
+            <div v-if="matchedErrorCodeInfo"
                 class="error-code-card w-100 mt-2 rounded-lg text-left shadow-lg"
                 style="max-width: 850px;">
               <div class="d-flex align-center justify-space-between mb-2">
@@ -349,20 +348,21 @@ defineOptions({
                   {{ matchedErrorCodeInfo.category }}
                 </v-chip>
               </div>
-              <div class="text-body-2 text-grey-lighten-2 opacity-90" style="line-height: 1.5;">
-                {{ t(matchedErrorCodeInfo.descriptionKey) }}
-              </div>
             </div>
-            <!-- ERROR_CODES 错误代码与标题/描述展示卡片 E -->
 
-            <div
-                class="error-code-card w-100 rounded-lg text-left shadow-lg"
+            <div class="error-code-card w-100 rounded-lg text-left shadow-lg"
                 style="max-width: 850px;">
-              <div class="text-body-2 text-grey-lighten-2 font-weight-medium text-white max-w-100 text-pre-wrap mb-4" style="max-width: 900px; line-height: 1.6;">
+              <div class="text-h5 text-grey-lighten-2 font-weight-medium text-white max-w-100 text-pre-wrap mb-4" style="max-width: 900px; line-height: 1.6;">
                 <u v-if="noticeStore.currentMessage.isHtml" class="u" v-html="noticeStore.currentMessage.text"></u>
                 <u v-else class="u">{{ noticeStore.currentMessage.text }}</u>
               </div>
             </div>
+
+            <div class="text-grey-lighten-2 opacity-90 text-left w-100"
+                 style="line-height: 1.5;max-width: 850px;" v-if="matchedErrorCodeInfo && matchedErrorCodeInfo.descriptionKey">
+              {{ t(matchedErrorCodeInfo.descriptionKey) }}
+            </div>
+            <!-- ERROR_CODES 错误代码与标题/描述展示卡片 E -->
           </div>
           <!-- 主体消息文本展示区 E -->
 

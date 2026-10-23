@@ -3,9 +3,9 @@ import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {EmpireSkills} from "glow-prow-data";
 import {computed, onMounted, ref, watch} from "vue";
 import {useAppStore} from "~/stores/appStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import EmpireSkillCardDetail from "@/components/snbWidget/empireSkillCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
 const props = withDefaults(defineProps<{
@@ -26,7 +26,6 @@ const props = withDefaults(defineProps<{
     }),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     appStore = useAppStore(),
-    {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow(),
     skillsMap = EmpireSkills;
 
 let iconSrc = ref(''),
@@ -73,20 +72,11 @@ const computedMargin = useIconImageMargin(props.margin);
 </script>
 
 <template>
-  <v-tooltip
+  <ItemCardTooltip
       v-if="skill"
-      :disabled="!props.isShowTooltip"
-      min-width="450"
-      max-width="450"
-      interactive
-      :offset="[30, 10]"
-      location="right top"
-      content-class="pa-0 bg-transparent"
-      :target="[tooltipPos.x, tooltipPos.y]">
+      :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/empireSkill/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
@@ -117,7 +107,7 @@ const computedMargin = useIconImageMargin(props.margin);
         :id="props.id"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 </template>
 
 <style scoped lang="less">

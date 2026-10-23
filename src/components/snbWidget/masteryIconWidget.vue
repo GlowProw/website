@@ -2,10 +2,10 @@
 import {computed, ref, watch} from "vue";
 import {useAppStore} from "~/stores/appStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
-import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {Masterys} from "glow-prow-data";
 import MasteryCardDetail from "./masteryCardDetail.vue";
+import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 import Loading from "../Loading.vue";
 import {rarity} from "@/assets/sripts/index";
 
@@ -33,7 +33,6 @@ const props = withDefaults(defineProps<{
 
 const appStore = useAppStore();
 const cdnStore = useCDNAssetsServiceStore();
-const {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
 const {useIconImagePadding, useIconImageMargin} = useIconGlobalStyle();
 
 const isDirectFallback = ref(false);
@@ -196,19 +195,11 @@ defineOptions({
 </script>
 
 <template>
-  <v-tooltip
+  <ItemCardTooltip
       v-if="effectiveId && isShowTooltip"
-      min-width="420"
-      max-width="450"
-      interactive
-      :offset="[30, 10]"
-      location="right top"
-      content-class="pa-0 bg-transparent"
-      :target="[tooltipPos.x, tooltipPos.y]">
+      :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
-          @mousemove="onMouseMove"
-          @mouseenter="onMouseEnter"
           ref="targetElement"
           width="100%"
           height="100%"
@@ -250,7 +241,7 @@ defineOptions({
         :id="effectiveId"
         :is-show-open-detail="props.isShowOpenDetail"
     />
-  </v-tooltip>
+  </ItemCardTooltip>
 
   <v-card
       v-else

@@ -76,7 +76,6 @@ watch(() => [props.targetType, props.targetId], onLoad)
          :class="isCollected ? 'text-amber' : ''"
          :loading="saving"
          border
-         variant="text"
          @click="onToggle">
     <v-icon :icon="`mdi-${isCollected ? 'check-decagram' : 'check-decagram-outline'}`"></v-icon>
   </v-btn>
