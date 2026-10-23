@@ -144,6 +144,27 @@ const bgGradientClass = computed(() => {
   }
 });
 
+// 分类对应基准色，与专精详情卡保持一致
+const categoryColor = computed(() => {
+  switch (effectiveCategory.value) {
+    case 'offensive':
+      return '#c9414a';
+    case 'defensive':
+      return '#3e7295';
+    case 'impetus':
+      return '#9a7f2c';
+    case 'support':
+      return '#1abc9c';
+    case 'unique':
+      return '#9b59b6';
+    default:
+      return '#3a8240';
+  }
+});
+
+// 图标卡背景色，沿用物品图标按稀有度压暗的取色方式
+const cardColor = computed(() => `hsl(from ${categoryColor.value} h s calc(l * .15))`);
+
 const containerStyle = computed(() => {
   if (props.size !== undefined && props.size !== null && props.size !== '') {
     const s = String(props.size).trim();
@@ -155,9 +176,9 @@ const containerStyle = computed(() => {
       minHeight: sizeVal,
     };
   }
+  // 未指定尺寸时交给外层 flex 拉伸，避免百分比高度叠加外边距后撑破 ItemSlotBase
   return {
     width: '100%',
-    height: '100%',
   };
 });
 
@@ -202,8 +223,7 @@ defineOptions({
       <v-card
           ref="targetElement"
           v-bind="activatorProps"
-          variant="tonal"
-          color="transparent"
+          :color="cardColor"
           :to="isOpenDetail && effectiveId ? `/codex/mastery/${effectiveId}` : undefined"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           :class="[
@@ -254,10 +274,7 @@ defineOptions({
 
   <v-card
       v-else
-      width="stretch"
-      height="stretch"
-      variant="tonal"
-      color="transparent"
+      :color="cardColor"
       :to="isOpenDetail && effectiveId ? `/codex/mastery/${effectiveId}` : undefined"
       :target="isOpenNewWindow ? '_blank' : '_self'"
       :class="[

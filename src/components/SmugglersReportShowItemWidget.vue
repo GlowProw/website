@@ -10,6 +10,9 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
+import ItemName from "@/components/snbWidget/itemName.vue";
+import MaterialName from "@/components/snbWidget/materialName.vue";
+import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 
 const {t} = useI18n();
 const {mobile} = useDisplay();
@@ -502,10 +505,11 @@ defineOptions({
                   </template>
                 </ItemSlotBase>
                 <div v-if="i && i.data"
-                     class="text-caption text-center text-truncate mt-1"
-                     style="width: 99px"
-                     :title="readEntityName(i.data.id)">
-                  {{ readEntityName(i.data.id) }}
+                     class="text-center text-truncate mt-1"
+                     style="width: 99px">
+                  <MaterialName v-if="i.data._typeStringName == 'Material'" :id="i.data.id"></MaterialName>
+                  <CommoditieName v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieName>
+                  <ItemName v-else :id="i.data.id"></ItemName>
                 </div>
               </div>
             </v-col>
@@ -533,10 +537,11 @@ defineOptions({
             </template>
           </ItemSlotBase>
           <div v-if="i && i.data"
-               class="text-caption text-center text-truncate mt-1"
-               style="width: 99px"
-               :title="readEntityName(i.data.id)">
-            {{ readEntityName(i.data.id) }}
+               class="text-center text-truncate mt-1"
+               style="width: 99px">
+            <MaterialName v-if="i.data._typeStringName == 'Material'" :id="i.data.id"></MaterialName>
+            <CommoditieName v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieName>
+            <ItemName v-else :id="i.data.id"></ItemName>
           </div>
         </div>
       </v-col>

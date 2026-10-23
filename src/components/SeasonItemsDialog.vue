@@ -120,11 +120,9 @@ defineOptions({
 <template>
   <v-dialog
       :model-value="modelValue"
+      :eager="true"
       @update:model-value="emit('update:modelValue', $event)"
-      max-width="1200"
-      width="96vw"
       scrollable>
-    <!-- 未打开时不渲染任何内容 -->
     <v-card v-if="modelValue && season" border rounded="lg" class="season-items-dialog">
       <div class="d-flex align-center px-5 py-3 border-bottom flex-shrink-0">
         <span class="text-h6">{{ t('statistics.season.detailTitle') }}</span>

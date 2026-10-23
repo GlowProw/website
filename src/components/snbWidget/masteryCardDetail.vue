@@ -10,6 +10,7 @@ import LightRays from "../LightRays.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
 import MasteryName from "@/components/snbWidget/masteryName.vue";
 import MasteryDescription from "@/components/snbWidget/masteryDescription.vue";
+import SeasonName from "@/components/snbWidget/seasonName.vue";
 
 const props = withDefaults(defineProps<{
   id: string,
@@ -94,7 +95,8 @@ defineOptions({
         </v-chip>
         <v-chip inline
                 class="badge-flavor text-center text-black"
-                v-if="season">{{ season }}
+                v-if="season">
+          <SeasonName :id="season.id"></SeasonName>
         </v-chip>
       </div>
 
@@ -115,7 +117,7 @@ defineOptions({
 
     <div :class="{'demo-reel-content': !isWidget}" class="background-flavor overflow-auto">
       <template v-if="isShowDescription">
-        <div class="mb-5 px-6 description">
+        <div class="mb-5 px-6 pt-10 pb-6 description">
           <MasteryDescription :id="skillId"/>
         </div>
       </template>
