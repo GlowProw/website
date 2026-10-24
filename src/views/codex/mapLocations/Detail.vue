@@ -26,6 +26,8 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
 import Banner from "@/components/Banner.vue";
@@ -78,6 +80,13 @@ const
       const headData = i18nReadName.mapLocation(id.value);
       return (headData.description() as string) || '';
     });
+
+useCodexDetailHotkeys({
+  targetType: 'mapLocation',
+  targetId: () => id.value,
+  targetName: () => i18nReadName.mapLocation(id.value).name(),
+  list: () => Object.keys(mapLocations).map(key => ({id: key})),
+})
 
 useHead({
   title: headTitle,
@@ -311,6 +320,8 @@ const onCodexHistory = () => {
                     <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
+
+                <CodexItemStatsCard v-if="id" target-type="mapLocation" :target-id="id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

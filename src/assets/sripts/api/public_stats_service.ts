@@ -4,6 +4,7 @@
  */
 import {useHttpToken} from "@/assets/sripts/http_util";
 import type {
+    PublicCodexItemStats,
     PublicCodexStats,
     PublicSeasonItems,
     PublicSeasonStats,
@@ -59,6 +60,22 @@ export function usePublicStatsApi() {
     };
 
     /**
+     * 单个图鉴条目的全站取得统计
+     * @param targetType 图鉴类型
+     * @param targetId 图鉴条目 ID
+     */
+    const getCodexItem = async (targetType: string, targetId: string): Promise<PublicCodexItemStats | null> => {
+        try {
+            const res = await http.get(`public/stats/codex/item?targetType=${encodeURIComponent(targetType)}&targetId=${encodeURIComponent(targetId)}`);
+            const body = (res as any).data;
+            if (body?.code === 0) return (body.data as PublicCodexItemStats) || null;
+            return null;
+        } catch {
+            return null;
+        }
+    };
+
+    /**
      * 某赛季的可收集条目，按图鉴类型分组
      * @param season 赛季标识
      */
@@ -73,5 +90,5 @@ export function usePublicStatsApi() {
         }
     };
 
-    return {getSeason, getSeasonItems, getCodex, getSignin};
+    return {getSeason, getSeasonItems, getCodex, getCodexItem, getSignin};
 }

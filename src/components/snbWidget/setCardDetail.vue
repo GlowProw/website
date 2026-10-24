@@ -99,7 +99,7 @@ defineOptions({
     </Banner>
     <v-divider v-if="isShowOpenDetail" opacity=".06"></v-divider>
     <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto" v-if="isShowOpenDetail">
-      <BtnWidget @action-complete="router.push(`/codex/set/${i.id}`)">
+      <BtnWidget hotkey-action="openItemDetail" @action-complete="router.push(`/codex/set/${i.id}`)">
         {{ t('codex.set.lookDetail') }}
       </BtnWidget>
     </v-card-actions>

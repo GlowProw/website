@@ -16,6 +16,8 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -52,6 +54,13 @@ const
       const headData = i18nReadName.empireSkill(id.value);
       return (headData.description() as string) || '';
     });
+
+useCodexDetailHotkeys({
+  targetType: 'empireSkill',
+  targetId: () => id.value,
+  targetName: () => i18nReadName.empireSkill(id.value).name(),
+  list: () => Object.keys(EmpireSkills).map(key => ({id: key})),
+})
 
 useHead({
   title: headTitle,
@@ -289,6 +298,8 @@ const onCodexHistory = (id: string) => {
                     <p class="text-no-wrap">{{ t('codex.empireSkills.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
+
+                <CodexItemStatsCard v-if="id" target-type="empireSkill" :target-id="id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

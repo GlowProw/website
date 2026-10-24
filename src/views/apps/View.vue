@@ -368,7 +368,7 @@ defineOptions({
   <v-container class="mt-4 mb-4 position-relative">
     <v-row v-if="processedData.length > 0">
       <v-col cols="12" lg="6" v-for="(app, index) in processedData" :key="index">
-        <v-card border>
+        <v-card rounded="lg">
           <v-row no-gutters>
             <v-col cols="3" class="bg-black d-flex align-center justify-center">
               <v-icon icon="mdi-file-outline" size="60"></v-icon>

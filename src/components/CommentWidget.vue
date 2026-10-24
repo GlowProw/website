@@ -295,6 +295,7 @@ defineOptions({
                           :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                           :readonly="true" v-if="!i.isEdit"></Textarea>
                 <Textarea v-model="i.editContent" :min-height="'80px'"
+                          :maxlength="5000"
                           :placeholder="props.placeholder"
                           :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                           :readonly="false" v-else></Textarea>
@@ -346,6 +347,7 @@ defineOptions({
     <AffixContainerView :offset-bottom="5">
       <v-card border variant="text" class="pa-2" v-if="authStore.isLogin">
         <Textarea v-model="content"
+                  :maxlength="5000"
                   :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
                   :placeholder="props.placeholder"></Textarea>
         <v-row no-gutters align="end">

@@ -141,16 +141,21 @@ function buildMaterialTree(
  * 扁平化汇总材料
  */
 function flattenMaterialTree(node: MaterialTreeNode, result: Map<string, FlatMaterialEntry>) {
-    if (node.children.length === 0 || node.isExcluded) {
-        // 叶子节点，汇总数量
+    const isLeaf = node.children.length === 0 || node.isExcluded
+
+    // 叶子材料与可制作材料都进入汇总：可制作材料仍保留自身需求数量，便于按层级采购
+    {
         const existing = result.get(node.id)
         if (existing) {
             existing.totalQuantity += node.quantity
+            existing.isRaw = existing.isRaw && isLeaf
+            existing.isCraftable = existing.isCraftable || !isLeaf
         } else {
             result.set(node.id, {
                 id: node.id,
                 totalQuantity: node.quantity,
-                isRaw: node.children.length === 0 && !node.isExcluded
+                isRaw: isLeaf,
+                isCraftable: !isLeaf
             })
         }
     }
@@ -615,6 +620,32 @@ export const useCalculatorStore = defineStore('calculator', () => {
     }
 
     /**
+     * 获取高阶船只升级的前置升级部件 ID 列表
+     * 升级部件按等级逐级消耗前一级，导入 7 级时需要把 6~1 一并纳入量化
+     * @param shipId 船只 ID
+     * @param upgradeId 升级部件 ID
+     */
+    function getShipUpgradeChainIds(shipId: string, upgradeId: string): string[] {
+        if (!shipId || !upgradeId) return []
+
+        const prefix = `${shipId}Upgrade`
+        if (!upgradeId.startsWith(prefix)) return []
+
+        const tierText = upgradeId.slice(prefix.length)
+        if (!/^\d+$/.test(tierText)) return []
+
+        const tier = parseInt(tierText, 10)
+        if (tier <= 1) return []
+
+        const chainIds: string[] = []
+        for (let i = tier - 1; i >= 1; i--) {
+            const id = `${prefix}${i}`
+            if (items[id]) chainIds.push(id)
+        }
+        return chainIds
+    }
+
+    /**
      * 导入配装数据
      * @param data
      */
@@ -630,7 +661,13 @@ export const useCalculatorStore = defineStore('calculator', () => {
         }
 
         // 船端升级、终结技、装甲
-        if (data.shipUpgradeSlot?.id) itemsToProcess.push({id: data.shipUpgradeSlot.id, type: 'item'})
+        if (data.shipUpgradeSlot?.id) {
+            itemsToProcess.push({id: data.shipUpgradeSlot.id, type: 'item'})
+
+            const shipId = data.shipSlot?.id || ''
+            getShipUpgradeChainIds(shipId, data.shipUpgradeSlot.id)
+                .forEach(id => itemsToProcess.push({id, type: 'item'}))
+        }
         if (data.ultimateSlot?.id) itemsToProcess.push({id: data.ultimateSlot.id, type: 'item'})
         if (data.armorSlot?.id) itemsToProcess.push({id: data.armorSlot.id, type: 'item'})
 

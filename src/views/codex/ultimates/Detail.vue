@@ -14,6 +14,8 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
@@ -51,6 +53,13 @@ const
       const headData = i18nReadName.ultimate(id.value);
       return (headData.description() as string) || '';
     });
+
+useCodexDetailHotkeys({
+  targetType: 'ultimate',
+  targetId: () => id.value,
+  targetName: () => i18nReadName.ultimate(id.value).name(),
+  list: () => Object.keys(Ultimates).map(key => ({id: key})),
+})
 
 useHead({
   title: headTitle,
@@ -244,6 +253,8 @@ const onUltimateHistory = (id: string) => {
                     <p class="text-no-wrap">{{ t('codex.ultimates.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
+
+                <CodexItemStatsCard v-if="id" target-type="ultimate" :target-id="id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

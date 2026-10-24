@@ -201,26 +201,15 @@ const userSpaceRoute = computed(() => {
       <template v-if="authStore.isLogin">
         <router-link to="/account/information">
           <v-list-item link href="/account">
-            <span class="u">{{ authStore.currentUser }}</span>
+            <span class="u font-weight-bold">{{ authStore.currentUser.toUpperCase() }}</span>
             <template v-slot:prepend>
-              <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
-                <v-img :src="authStore.user.userAvatar" v-if="authStore.user.userAvatar"></v-img>
+              <ItemSlotBase size="40px" class="mr-2 ga-3 d-flex align-center justify-center">
+                <UserAvatar :src="authStore.user.userAvatar" v-if="authStore.user.userAvatar" :size="40"></UserAvatar>
                 <span v-else>{{ authStore.currentUser[0].toUpperCase() || 'U' }}</span>
               </ItemSlotBase>
             </template>
           </v-list-item>
         </router-link>
-
-        <!-- 移动端私信入口 -->
-        <v-list-item @click="openMessagesDrawer">
-          <v-list-item-title>{{ t('header.accountMenu.messageCenter') }}</v-list-item-title>
-          <template v-slot:prepend>
-            <v-icon icon="mdi-message-outline"></v-icon>
-          </template>
-          <template v-slot:append v-if="unreadCount > 0">
-            <span class="unread-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
-          </template>
-        </v-list-item>
       </template>
 
       <template v-else>

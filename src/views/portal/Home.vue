@@ -167,15 +167,13 @@ onUnmounted(() => {
       <v-container>
         <v-row>
           <v-col cols="12" sm="12" md="4" lg="4">
-            <AffixContainerView>
-              <AffixBoxHasTitleView :disabled-title="true" class="h-100">
-                <p class="mb-2 opacity-60 text-caption" v-html="t('portal.appVersionContext')"></p>
+            <AffixBoxHasTitleView class="h-100">
+              <p class="mb-2 opacity-60 text-caption" v-html="t('portal.appVersionContext')"></p>
 
-                <AppVersionWidget></AppVersionWidget>
+              <AppVersionWidget></AppVersionWidget>
 
-                <template v-slot:title>{{ t('portal.appVersionLog') }}</template>
-              </AffixBoxHasTitleView>
-            </AffixContainerView>
+              <template v-slot:title>{{ t('portal.appVersionLog') }}</template>
+            </AffixBoxHasTitleView>
           </v-col>
           <v-col cols="12" sm="12" md="8" lg="8">
             <AffixBoxHasTitleView>

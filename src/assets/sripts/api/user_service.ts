@@ -527,6 +527,32 @@ export function useUserApi() {
     }
 
     /**
+     * 获取已授权的 AI 连接器（MCP）应用列表
+     */
+    const getAiConnectors = async () => {
+        try {
+            const result = await http.get('user/account/ai-connectors')
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
+     * 断开指定 AI 连接器应用的授权
+     */
+    const revokeAiConnector = async (clientId: string) => {
+        try {
+            const result = await http.post(`user/account/ai-connectors/${encodeURIComponent(clientId)}/revoke`)
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) throw error;
+            return handleError(error)
+        }
+    }
+
+    /**
      * 获取预设头像列表
      */
     const getAvatarPresets = async (): Promise<AvatarPreset[]> => {
@@ -708,6 +734,8 @@ export function useUserApi() {
         oauthCompleteBind,
         getUserBindings,
         unbindOAuth,
+        getAiConnectors,
+        revokeAiConnector,
         getAvatarPresets,
         setPresetAvatar,
         uploadAvatar,

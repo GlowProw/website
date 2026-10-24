@@ -77,28 +77,106 @@
     "meta": {
       "description": "《碧海黑帆 (Skull and Bones)》全能遊戲助手與全收集互動地圖：資料百科、配裝模擬、材料計算、任務攻略與賽季資訊。"
     },
-    "aiSkills": {
-      "name": "AI 技能",
-      "description": "面向 AI 助手的技能（技能書）套件，內置配裝查詢與 Codex 物品速查能力，可匯入豆包、ChatGPT、深度求索等平台使用。",
-      "skill": {
-        "name": "配裝查詢技能書",
-        "description": "登入 Glow Prow 社群後查詢公開配裝列表與配裝詳情（配裝名稱、建立人、建立時間、描述、配裝資訊、精通、輪盤、船倉），並可按分類查詢 Codex 全部物品。",
-        "features": {
-          "assembly": "配裝查詢",
-          "codex": "Codex 物品速查",
-          "login": "帳號登入鑑權"
-        },
-        "downloadTitle": "技能書下載",
-        "download": "下載完整技能書",
-        "downloadSelf": "下載自包含單檔案版",
-        "docsTitle": "使用文件",
-        "docs": "檢視使用文件",
-        "importDocs": "如何匯入",
-        "tip": "技能書可直接匯入豆包、ChatGPT、深度求索等支援「自訂指令 / 系統提示」的 AI 助手；完整技能包另含 Codex 物品目錄資料檔。",
-        "featuresTitle": "能力特性",
-        "downloadSubtitle": "含 SKILL.md 與 Codex 物品目錄資料檔，適合匯入豆包技能等場景",
-        "downloadSelfSubtitle": "單檔案 Markdown，適合直接貼到自訂指令 / 系統提示",
-        "downloadAction": "下載"
+    "aiConnector": {
+      "name": "AI 連接器",
+      "description": "將閃耀船首連接到 Claude、ChatGPT、Grok 等 AI 助手：詢問配裝、圖鑑物品、掉寶活動與賽季日曆，答案來自站點真實資料，而非猜測。",
+      "features": {
+        "assembly": "配裝查詢",
+        "codex": "圖鑑物品速查",
+        "drops": "掉寶與日曆",
+        "login": "帳號登入鑑權"
+      },
+      "connector": {
+        "title": "連接器 URL",
+        "subtitle": "當您的 AI 助手請求伺服器或連接器 URL 時，請貼上此位址。您需要使用閃耀船首帳戶登入。",
+        "note": "授權時會跳轉至閃耀船首網站完成登入與授權確認；授權後可隨時在帳戶設定中斷開。",
+        "copy": "複製",
+        "copied": "已複製到剪貼簿"
+      },
+      "ask": {
+        "title": "向您的 AI 詢問閃耀船首的資料",
+        "note": "答案來自站點公開資料與您授權的內容，而非猜測。",
+        "assembly": "現在有哪些高讚的船隻配裝？",
+        "codex": "culverin1 這類武器在哪些地圖掉落？",
+        "drops": "現在有哪些進行中的 Twitch 掉寶活動？",
+        "calendar": "本賽季日曆接下來有哪些世界事件？"
+      },
+      "connect": {
+        "title": "如何連接",
+        "subtitle": "選擇您的助手查看接入方式，都使用上方的連接器 URL。",
+        "claude": "Claude",
+        "claudeCode": "Claude Code",
+        "chatgpt": "ChatGPT",
+        "grok": "Grok",
+        "other": "其他應用",
+        "command": "claude mcp add --transport http glow-prow https://api.glow-prow.top/api/mcp",
+        "codeBlockTitle": "或在用戶端設定中加入遠端 MCP 伺服器：",
+        "steps": {
+          "claude": [
+            "打開 Claude 的「自訂」設定，選擇「連接器」。",
+            "點擊「+ 新增」，再點擊「新增自訂連接器」。",
+            "將其命名為「閃耀船首」並貼上上方的連接器 URL。",
+            "點擊「新增」後選擇「連接」，並在閃耀船首上核准存取。",
+            "在對話中點擊「+」號，為該對話開啟閃耀船首連接器。"
+          ],
+          "claudeCode": [
+            "在終端執行下方的指令（加入 --scope user 可在所有專案中使用）。",
+            "執行 /mcp，選擇 glow-prow 並登入。"
+          ],
+          "chatgpt": [
+            "在「設定」中開啟開發者模式，然後前往「安全與登入」。",
+            "造訪 chatgpt.com/plugins 並點擊「+」號。",
+            "將其命名為「閃耀船首」，選擇「公共端點」並貼上連接器 URL。",
+            "建立它，然後按提示使用閃耀船首帳戶登入。"
+          ],
+          "grok": [
+            "造訪 grok.com/connectors，點擊「新增連接器」。",
+            "選擇「自訂」並貼上連接器 URL。",
+            "使用您的閃耀船首帳戶登入。"
+          ],
+          "other": [
+            "任何支援遠端 MCP 連接器並帶有登入功能的助手均可使用。",
+            "在用戶端中加入遠端（HTTP）MCP 伺服器，位址為上方連接器 URL。",
+            "用戶端請求授權時會跳轉閃耀船首網站登入，登入並允許後即可使用。"
+          ]
+        }
+      },
+      "plans": {
+        "title": "計劃與限制",
+        "subtitle": "使用免費的閃耀船首帳戶登入即可使用；您所在 AI 應用自身的計劃規則仍然適用。",
+        "free": "免費計劃",
+        "freeLimit": "150 / 10 min",
+        "freeDesc": "免費帳戶登入後，每 10 分鐘 150 個請求。",
+        "subscriber": "訂閱者",
+        "subscriberLimit": "1,000 / 10 min",
+        "subscriberDesc": "訂閱用戶每 10 分鐘 1,000 個請求。",
+        "subscribe": "查看訂閱權益"
+      },
+      "manage": {
+        "title": "管理或斷開連接",
+        "desc": "在「帳戶 → 安全中心 → 平台綁定 → AI 連接器」中管理已登入的助手，可隨時斷開。移除存取權限不會改變您的站內資料。",
+        "action": "打開平台綁定"
+      },
+      "faq": {
+        "title": "常見問題",
+        "items": [
+          {
+            "q": "什麼是 MCP？",
+            "a": "模型上下文協議（Model Context Protocol）是一個開放標準，允許 AI 助手使用閃耀船首等服務的工具。"
+          },
+          {
+            "q": "收費嗎？",
+            "a": "不收費。它與免費的閃耀船首帳戶配合使用；您所在 AI 應用的計劃和規則仍然適用。"
+          },
+          {
+            "q": "我的資料會被共享嗎？",
+            "a": "只共享您授權範圍內的公開資料，閃耀船首不會看到您與 AI 助手的對話。"
+          },
+          {
+            "q": "哪些助手可用？",
+            "a": "任何支援遠端 MCP 連接器並帶有登入功能的助手，包括 Claude、ChatGPT 和 Grok。"
+          }
+        ]
       }
     }
   },
@@ -445,6 +523,13 @@
           "noPermission": "无权访问，请检查是否需要密码或是合伙人身份",
           "error": "错误: {context}",
           "ok": "访问成功"
+        },
+        "clone": {
+          "ok": "配裝已複製，正在開啟副本",
+          "forbidden": "作者已關閉此配裝的複製",
+          "notFound": "未找到指定配裝",
+          "error": "錯誤: {context}",
+          "bad": "錯誤請求格式，請檢查網路工具介面"
         }
       },
       "publish": {
@@ -601,11 +686,17 @@
         "accountIncorrect": "登陆信息错误"
       },
       "changePassword": {
+        "ok": "密碼修改成功",
         "success": "密碼修改成功",
         "invalid": "原密碼不正確",
         "notMatch": "原密碼不正確",
         "bad": "密碼格式不符合要求",
         "error": "修改密碼失敗: {context}"
+      },
+      "changeAlternativeName": {
+        "ok": "別名修改成功",
+        "bad": "別名格式不符合要求",
+        "error": "修改別名失敗: {context}"
       },
       "stateOfWar": {
         "synced": "戰事數據同步成功",
@@ -851,6 +942,10 @@
         "notEmpty": "必須填寫密碼",
         "limitationLength": "密碼長度需要{min}到{max}"
       },
+      "assembly": {
+        "nameLength": "配裝名稱不能超過 140 個字元",
+        "descriptionLength": "配裝描述不能超過 10000 個字元"
+      },
       "captcha": {
         "notEmpty": "必須填寫驗證碼",
         "limitationLength": "驗證碼長度爲{max}"
@@ -1007,6 +1102,18 @@
       },
       "types": {
         "title": "圖鑑統計"
+      },
+      "manage": {
+        "title": "收藏管理",
+        "searchPlaceholder": "搜尋名稱或 ID",
+        "allKinds": "全部圖鑑",
+        "view": "查看",
+        "remove": "取消收藏",
+        "removeConfirm": "確定取消收藏該條目嗎？",
+        "removed": "已取消收藏",
+        "empty": "沒有符合條件的收藏記錄",
+        "sourceLocal": "本機標記",
+        "sourceAccount": "帳戶收藏"
       },
       "kinds": {
         "item": "物品",
@@ -1718,6 +1825,23 @@
       "bindBtn": "立即綁定",
       "unbindBtn": "解除綁定",
       "authorized": "已授權",
+      "aiConnector": {
+        "title": "AI 連接器",
+        "connected": "已連接 {count} 個應用",
+        "notConnected": "未連接",
+        "disabled": "已停用",
+        "docs": "了解如何連接",
+        "manage": "管理連接",
+        "dialogTitle": "AI 連接器",
+        "dialogDesc": "以下是已透過授權登入存取您帳戶的 AI 應用。斷開後該應用將立即失去存取權限。",
+        "authorizedAt": "授權時間",
+        "lastUsedAt": "最近使用",
+        "empty": "還沒有已連接的 AI 應用。在「應用 → AI 連接器」頁按指引新增即可。",
+        "revoke": "斷開",
+        "revokeConfirm": "確定要斷開「{app}」的存取權限嗎？",
+        "revoked": "已斷開該 AI 應用",
+        "revokeFailed": "斷開失敗"
+      },
       "boundAccount": "已綁定帳號: {username}",
       "unbindConfirm": "確定要解除與 {platform} 帳號的綁定嗎？",
       "unbindSuccess": "解綁成功",
@@ -1739,7 +1863,11 @@
         "glow-prow-qq-bot": {
           "name": "QQ 機器人",
           "desc": "在 QQ 私訊閃耀船首機器人，綁定後可關聯網站帳戶"
-        }
+        },
+    "ai-connector": {
+      "name": "AI 連接器",
+      "desc": "已授權存取您帳戶資料的 AI 助手（Claude、ChatGPT、Grok 等），透過 MCP 連接器讀取公開資料"
+    }
       },
       "qqBot": {
         "dialogTitle": "綁定 QQ 機器人",
@@ -3452,6 +3580,7 @@
     "owner": "所有者",
     "hasPassword": "包含密碼",
     "byCloningUuid": "克隆",
+    "clone": "複製到我的帳戶",
     "editAssemblyBtn": "編輯此配裝",
     "editInfoBtn": "編輯信息",
     "editWorkshopBtn": "配裝",
@@ -3501,6 +3630,7 @@
       "private": "私有",
       "tagCommon": "常規",
       "tagData": "數據",
+      "general": "通用",
       "includePasswordHint": "含密碼",
       "existingPasswordButNewDelete": "當前配裝已設密碼，但新密碼已刪除",
       "notPassword": "無密碼",
@@ -3530,6 +3660,10 @@
       "commentsDescription": "是否開啓評論",
       "likes": "點贊",
       "likesDescription": "是否開啓點贊",
+      "allowClone": "允許克隆",
+      "allowCloneDescription": "關閉後其他人無法克隆此配裝",
+      "allowSearch": "允許搜索",
+      "allowSearchDescription": "關閉後此配裝不會出現在配裝瀏覽器的搜索結果中，但仍可透過連結直接訪問",
       "other": "其他",
       "rendererVersion": "配裝渲染器版本",
       "rendererVersionDescription": "決定對配裝數據以何種格式加載，如果你不清楚作用可以不需要設置，讓系統以最新版本來初始加載",
@@ -4469,6 +4603,11 @@
       "categoryWorkshop": "工坊與配裝",
       "categoryCodex": "圖鑑",
       "categoryGlobal": "全域與導航",
+      "locationWorkshop": "配裝工坊",
+      "locationCodexCard": "圖鑑卡片詳情",
+      "locationCodexModification": "圖鑑改裝詳情",
+      "locationQuest": "任務詳情",
+      "locationGlobal": "全站",
       "modePress": "按下",
       "modeHold": "按住",
       "modeUpdated": "已切換為 {mode} 觸發",
@@ -4489,10 +4628,133 @@
       "pressCombination": "請按組合鍵",
       "clickToRecord": "點擊錄入新按鍵綁定",
       "conflictWarning": "按鍵已綁定為 [{key}]，檢測到與現有動作存在共用",
+      "conflictWith": "按鍵 [{key}] 與「{name}」衝突，請更換綁定",
+      "conflictBadge": "與「{name}」衝突",
       "updateSuccess": "快捷鍵已成功更新為 [{key}]",
       "updateFailed": "更新快捷鍵失敗，請重試",
       "resetSuccess": "所有快捷鍵已重設為系統預設值",
-      "defaultDesc": "長按觸發快速動作"
+      "defaultDesc": "長按觸發快速動作",
+      "categoryMap": "地圖",
+      "categoryCalculator": "計算器",
+      "categorySmugglers": "走私犯報告",
+      "categoryTeamup": "組隊",
+      "categoryAccount": "帳戶設定",
+      "categoryStatistics": "統計頁",
+      "categoryCalendar": "日曆",
+      "locationCodexList": "圖鑑列表",
+      "locationCodexDetail": "圖鑑詳情",
+      "locationOverlayCard": "圖鑑懸浮卡片",
+      "locationCodexHistory": "遊覽歷史抽屜",
+      "locationGlobalSearch": "全域搜尋抽屜",
+      "locationMessages": "訊息中心",
+      "locationMap": "地圖",
+      "locationCalculator": "計算器",
+      "locationSmugglers": "走私犯報告",
+      "locationTeamup": "組隊",
+      "locationAccount": "帳戶設定",
+      "locationStatistics": "統計頁",
+      "locationCalendar": "日曆",
+      "locationContextMenu": "圖鑑右鍵選單",
+      "actions": {
+        "headerSearch": "開啟全域搜尋",
+        "headerSearchDesc": "開啟頂欄的搜尋面板",
+        "headerHistory": "開啟遊覽歷史",
+        "headerHistoryDesc": "開啟頂欄的遊覽歷史抽屜",
+        "headerMessages": "開啟訊息中心",
+        "headerMessagesDesc": "開啟頂欄的訊息中心抽屜",
+        "headerSettings": "開啟帳戶設定",
+        "headerSettingsDesc": "跳轉到帳戶設定頁面",
+        "codexFocusSearch": "聚焦圖鑑搜尋",
+        "codexFocusSearchDesc": "將焦點移動到圖鑑列表的搜尋框",
+        "codexPrevPage": "圖鑑上一頁",
+        "codexPrevPageDesc": "在篩選結果中切換到上一頁",
+        "codexNextPage": "圖鑑下一頁",
+        "codexNextPageDesc": "在篩選結果中切換到下一頁",
+        "codexIconSizeUp": "增大圖鑑圖示",
+        "codexIconSizeUpDesc": "放大圖鑑列表的圖示尺寸",
+        "codexIconSizeDown": "縮小圖鑑圖示",
+        "codexIconSizeDownDesc": "縮小圖鑑列表的圖示尺寸",
+        "collectItem": "收藏/取消收藏",
+        "collectItemDesc": "切換目前圖鑑對象的收藏狀態",
+        "copyItemName": "複製名稱",
+        "copyItemNameDesc": "將目前對象名稱複製到剪貼簿",
+        "codexShare": "分享目前圖鑑",
+        "codexShareDesc": "開啟目前圖鑑對象的分享面板",
+        "codexPrevItem": "上一件圖鑑",
+        "codexPrevItemDesc": "跳轉到目前分類中的上一件物品",
+        "codexNextItem": "下一件圖鑑",
+        "codexNextItemDesc": "跳轉到目前分類中的下一件物品",
+        "codexOpenNewWindow": "新視窗開啟",
+        "codexOpenNewWindowDesc": "在新瀏覽器視窗中開啟目前圖鑑詳情",
+        "historyPrev": "上一筆記錄",
+        "historyPrevDesc": "在遊覽歷史抽屜中上移選中記錄",
+        "historyNext": "下一筆記錄",
+        "historyNextDesc": "在遊覽歷史抽屜中下移選中記錄",
+        "historyOpen": "開啟選中記錄",
+        "historyOpenDesc": "開啟遊覽歷史中選中的記錄",
+        "historyDelete": "刪除選中記錄",
+        "historyDeleteDesc": "從遊覽歷史中移除選中的記錄",
+        "searchPrev": "上一個搜尋結果",
+        "searchPrevDesc": "在全域搜尋中上移結果選中項",
+        "searchNext": "下一個搜尋結果",
+        "searchNextDesc": "在全域搜尋中下移結果選中項",
+        "searchOpen": "開啟搜尋結果",
+        "searchOpenDesc": "開啟全域搜尋中選中的結果",
+        "searchNextCategory": "切換搜尋分類",
+        "searchNextCategoryDesc": "在全域搜尋中切換到下一個分類",
+        "messagesMarkAllRead": "全部標為已讀",
+        "messagesMarkAllReadDesc": "把訊息中心的所有會目標為已讀",
+        "messagesPrevTab": "上一個訊息分類",
+        "messagesPrevTabDesc": "在私信與通知之間切換到上一個分類",
+        "messagesNextTab": "下一個訊息分類",
+        "messagesNextTabDesc": "在私信與通知之間切換到下一個分類",
+        "workshopSave": "儲存配裝",
+        "workshopSaveDesc": "儲存目前工坊配裝",
+        "workshopUndo": "復原配裝操作",
+        "workshopUndoDesc": "復原工坊中的上一步操作",
+        "workshopDeleteSelected": "刪除選中配裝項",
+        "workshopDeleteSelectedDesc": "移除工坊中目前選中的物品",
+        "mapToggleEdit": "切換地圖編輯模式",
+        "mapToggleEditDesc": "進入或退出地圖要素編輯模式",
+        "mapDeleteSelected": "刪除選中要素",
+        "mapDeleteSelectedDesc": "刪除地圖中目前選中的標記、路徑或區域",
+        "mapUndo": "復原地圖操作",
+        "mapUndoDesc": "復原地圖中的上一步操作",
+        "mapRedo": "重做地圖操作",
+        "mapRedoDesc": "恢復地圖中被復原的操作",
+        "calculatorCalculate": "計算量化",
+        "calculatorCalculateDesc": "執行目前計算器的量化計算",
+        "calculatorCopyResult": "複製計算結果",
+        "calculatorCopyResultDesc": "將目前計算結果複製到剪貼簿",
+        "calculatorReset": "重設計算器",
+        "calculatorResetDesc": "清空計算器中的全部目標",
+        "submitReport": "提交報告",
+        "submitReportDesc": "提交目前編輯中的報告內容",
+        "cancelEdit": "取消編輯",
+        "cancelEditDesc": "放棄目前編輯內容或退出編輯狀態",
+        "refreshList": "重新整理列表",
+        "refreshListDesc": "重新載入目前頁面列表資料",
+        "teamupPublish": "發佈組隊",
+        "teamupPublishDesc": "發佈目前組隊招募資訊",
+        "accountSave": "儲存帳戶設定",
+        "accountSaveDesc": "儲存目前帳戶設定修改",
+        "accountRegenRecovery": "重新產生恢復碼",
+        "accountRegenRecoveryDesc": "在兩步驗證頁面重新產生一次性恢復碼",
+        "statsRange7": "統計範圍 7 天",
+        "statsRange7Desc": "把統計時間範圍切換為近 7 天",
+        "statsRange30": "統計範圍 30 天",
+        "statsRange30Desc": "把統計時間範圍切換為近 30 天",
+        "statsRange90": "統計範圍 90 天",
+        "statsRange90Desc": "把統計時間範圍切換為近 90 天",
+        "calendarPrevMonth": "上一個月",
+        "calendarPrevMonthDesc": "在日曆中切換到上一個月",
+        "calendarNextMonth": "下一個月",
+        "calendarNextMonthDesc": "在日曆中切換到下一個月",
+        "calendarToday": "回到今天",
+        "calendarTodayDesc": "把日曆定位到今天",
+        "openDetail": "開啟詳情",
+        "openDetailDesc": "開啟右鍵選單所指對象的詳情頁"
+      }
     },
     "wishlist": {
       "title": "願望清單",
@@ -4770,7 +5032,8 @@
       "item": "物品",
       "ship": "船只",
       "material": "材料",
-      "noTargets": "暂无目標，请添加物品或船只"
+      "noTargets": "暂无目標，请添加物品或船只",
+      "shipUpgradeHint": "對應船隻升級請從「物品」分類中新增，搜尋「{name}」即可找到"
     },
     "results": {
       "title": "計算结果",
@@ -4838,7 +5101,8 @@
       "emptyTree": "添加目標以查看材料樹",
       "emptySankey": "添加目標以查看桑基圖",
       "excluded": "排除",
-      "addToExclude": "加入排除"
+      "addToExclude": "加入排除",
+      "craftable": "可製作"
     }
   },
   "detail": {
@@ -4910,6 +5174,13 @@
       },
       "trend": "每日收藏趨勢",
       "byType": "圖鑑種類分佈"
+    },
+    "codexItem": {
+      "title": "站內圖鑑統計",
+      "rate": "整體已取得率",
+      "holders": "已取得",
+      "trend": "12 週走勢",
+      "change": "較 12 週前"
     },
     "signin": {
       "title": "簽到統計",
@@ -5263,6 +5534,19 @@
     "restartAuth": "重新授權",
     "platformNickname": "平臺暱稱",
     "accountIdHint": "帳號 ID 由你自行填寫，用於後續登入，不是第三方平臺的暱稱"
+  },
+  "mcpConsent": {
+    "title": "AI 連接器授權",
+    "subtitle": "{client} 請求存取您的閃耀船首帳戶資料。請確認該應用是您主動添加的 AI 助手。",
+    "scopeTitle": "該應用將可以",
+    "allow": "允許存取",
+    "deny": "拒絕",
+    "foot": "授權後可在「帳戶 → 安全中心 → 平台綁定 → AI 連接器」中隨時斷開。授權僅代表該應用可以讀取上述資料，不會共享您的對話。",
+    "loading": "正在載入授權資訊…",
+    "expired": "授權階段已過期或失效，請重新發起連線。",
+    "retry": "前往 AI 連接器",
+    "error": "授權資訊載入失敗，請稍後重試。",
+    "processing": "正在完成授權…"
   },
   "common": {
     "cancel": "取消",

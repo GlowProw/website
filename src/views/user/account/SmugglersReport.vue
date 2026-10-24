@@ -20,6 +20,7 @@ import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 
 const notice = useNoticeStore(),
     {t} = useI18n(),
@@ -888,6 +889,39 @@ const onHardDeleteComment = async () => {
  */
 const onDeleteComment = onSoftDeleteComment
 
+/**
+ * 快捷键提交当前编辑中的周报
+ */
+const onSmugglersSubmit = () => {
+  if (!smugglersReportModel.value) return
+  if (smugglersReportModelIsEdit.value) {
+    onEditSmugglersReport()
+    return
+  }
+  onCreateSmugglersReport()
+}
+
+/**
+ * 快捷键取消编辑并关闭当前弹窗
+ */
+const onSmugglersCancelEdit = () => {
+  if (smugglersReportModel.value) {
+    smugglersReportModel.value = false
+    return
+  }
+  if (commentModel.value) {
+    commentModel.value = false
+  }
+}
+
+usePageHotkeys({
+  smugglersSubmit: onSmugglersSubmit,
+  smugglersCancelEdit: onSmugglersCancelEdit,
+}, {
+  active: () => smugglersReportModel.value || commentModel.value,
+  allowInEditable: ['smugglersSubmit', 'smugglersCancelEdit'],
+})
+
 defineOptions({
   name: 'AccountSmugglersReport'
 })
@@ -1276,8 +1310,8 @@ defineOptions({
                       :label="t('smugglersReport.account.reportTitle')"
                       density="comfortable"
                       variant="outlined"
-                      counter="255"
-                      maxlength="255"
+                      counter="200"
+                      maxlength="200"
                       :rules="reportTitleRules">
                   </v-text-field>
                 </v-col>
@@ -1477,6 +1511,7 @@ defineOptions({
 
                   <Textarea
                       min-height="250px"
+                      :maxlength="5000"
                       :placeholder="t('smugglersReport.account.recommendationPlaceholder') + '\n' + t('smugglersReport.account.warningContent')"
                       v-model="smugglersReportComment.content">
                 </Textarea>

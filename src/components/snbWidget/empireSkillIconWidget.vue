@@ -63,16 +63,15 @@ const computedMargin = useIconImageMargin(props.margin);
           :to="isOpenDetail ? `/codex/empireSkill/${skillKey}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           width="100%"
-          height="100%"
           :class="[
-              'prohibit-drag pa-5',
+              'prohibit-drag',
               'd-flex align-center justify-center',
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,
           ]">
-        <FactionIconWidget v-if="skill.type" :name="skill.type" size="100%" />
-        <div v-else class="w-100 h-100 d-flex align-center justify-center">
-          <v-icon size="36" color="amber">mdi-school</v-icon>
+        <div class="d-flex align-center justify-center w-100 h-100 overflow-hidden">
+          <FactionIconWidget v-if="skill.type" :name="skill.type" />
+          <v-icon v-else color="amber" class="w-100 h-100">mdi-school</v-icon>
         </div>
       </v-card>
     </template>

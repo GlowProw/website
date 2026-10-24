@@ -38,6 +38,11 @@ let show = ref(false),
           password: '',
           language: [locale.value],
           isShowWeaponIconArray: false,
+          isAnonymous: false,
+          isComment: true,
+          isLike: true,
+          isAllowClone: true,
+          isAllowSearch: true,
           assemblyUseVersion: AssemblyDataProcessing.nowVersion
         }
       },

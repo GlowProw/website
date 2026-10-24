@@ -22,27 +22,39 @@ export default class Http extends Api_config {
 
         this.HTTP = http.create({
             timeout: 600000,
+            // 跨域请求携带凭证（Cookie）：登录接口下发的 httpOnly token cookie 只有带上凭证
+            // 才会被浏览器保存。之后从站点整页跳转到 API 源（如 MCP 授权页
+            // http://localhost:3000/authorize）时，浏览器才会带上会话，
+            // 授权页才能识别已登录用户并继续走「同意授权」流程。
+            // 注意：跨站请求（外部资源）会在请求拦截器里关闭，避免 Cookie 外泄。
+            withCredentials: true,
         })
 
         // 自动注入混淆加密后的浏览器安全指纹协议头 x-auth-gp
         this.HTTP.interceptors.request.use((config) => {
             try {
-                // 外部请求显式标记时，不注入内部私有协议头
+                // 外部请求显式标记时，不注入内部私有协议头，也不携带跨域凭证
                 const isExternal = (config as any).isExternal || (config.headers as any)?.['x-is-external'];
                 if (isExternal) {
                     if (config.headers) {
                         delete (config.headers as any)['x-is-external'];
                         delete (config.headers as any)['x-auth-gp'];
                     }
+                    config.withCredentials = false;
                     return config;
                 }
 
-                // 自动判断：如果请求 url 为跨域绝对路径（以 http:// 或 https:// 开头且不同于当前 API host），判定为外部资源请求，不注入内部协议头
+                // 自动判断：如果请求 url 为跨域绝对路径（以 http:// 或 https:// 开头且不同于当前 API 源），
+                // 判定为外部资源请求：不注入内部协议头，也不携带跨域凭证（避免 Cookie 外泄）。
+                // 注意必须按 origin（协议+主机+端口）比较：globalUrl.host 只是主机名（如 localhost），
+                // 与 URL.host（如 localhost:3000）直接比较在开发环境会永远不相等，把同源 API 请求
+                // 误判为外部请求，导致 withCredentials 被关闭、登录 cookie 无法落地。
                 if (config.url && /^https?:\/\//i.test(config.url)) {
                     try {
-                        const targetHost = new URL(config.url).host;
-                        const currentApiHost = this.host || (this.globalUrl && this.globalUrl.host);
-                        if (currentApiHost && targetHost !== currentApiHost) {
+                        const targetOrigin = new URL(config.url).origin;
+                        const apiOrigin = this.location.origin;
+                        if (apiOrigin && targetOrigin !== apiOrigin) {
+                            config.withCredentials = false;
                             return config;
                         }
                     } catch (e) {

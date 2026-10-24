@@ -200,9 +200,18 @@ const getSortIcon = (field: SortField) => {
               </ItemSlotBase>
             </td>
             <td v-if="store.displaySettings.listColumns.name">
-              <MaterialNameRarity :id="mat.id">
-                <MaterialName :id="mat.id"/>
-              </MaterialNameRarity>
+              <div class="d-flex align-center flex-wrap ga-1">
+                <MaterialNameRarity :id="mat.id">
+                  <MaterialName :id="mat.id"/>
+                </MaterialNameRarity>
+                <v-chip v-if="mat.isCraftable"
+                        size="x-small"
+                        color="amber"
+                        variant="tonal"
+                        :title="t('calculator.ui.craftable')">
+                  {{ t('calculator.ui.craftable') }}
+                </v-chip>
+              </div>
             </td>
             <td v-if="store.displaySettings.listColumns.id">
               <u class="u">

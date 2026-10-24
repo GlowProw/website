@@ -77,28 +77,106 @@
     "meta": {
       "description": "《碧海黑帆 (Skull and Bones)》全能游戏助手与全收集交互地图：数据百科、配装模拟、材料计算、任务攻略与赛季资讯。"
     },
-    "aiSkills": {
-      "name": "AI 技能",
-      "description": "面向 AI 助手的技能（技能书）套件，内置配装查询与 Codex 物品速查能力，可导入豆包、ChatGPT、深度求索等平台使用。",
-      "skill": {
-        "name": "配装查询技能书",
-        "description": "登录 Glow Prow 社区后查询公开配装列表与配装详情（配装名称、创建人、创建时间、描述、配装信息、精通、轮盘、船仓），并可按分类查询 Codex 全部物品。",
-        "features": {
-          "assembly": "配装查询",
-          "codex": "Codex 物品速查",
-          "login": "账号登录鉴权"
-        },
-        "downloadTitle": "技能书下载",
-        "download": "下载完整技能书",
-        "downloadSelf": "下载自包含单文件版",
-        "docsTitle": "使用文档",
-        "docs": "查看使用文档",
-        "importDocs": "如何导入",
-        "tip": "技能书可直接导入豆包、ChatGPT、深度求索等支持“自定义指令 / 系统提示”的 AI 助手；完整技能包另含 Codex 物品目录数据文件。",
-        "featuresTitle": "能力特性",
-        "downloadSubtitle": "含 SKILL.md 与 Codex 物品目录数据文件，适合导入豆包技能等场景",
-        "downloadSelfSubtitle": "单文件 Markdown，适合直接粘贴到自定义指令 / 系统提示",
-        "downloadAction": "下载"
+    "aiConnector": {
+      "name": "AI 连接器",
+      "description": "将闪耀船首连接到 Claude、ChatGPT、Grok 等 AI 助手：询问配装、图鉴物品、掉宝活动与赛季日历，答案来自站点真实数据，而非猜测。",
+      "features": {
+        "assembly": "配装查询",
+        "codex": "图鉴物品速查",
+        "drops": "掉宝与日历",
+        "login": "账号登录鉴权"
+      },
+      "connector": {
+        "title": "连接器 URL",
+        "subtitle": "当您的 AI 助手请求服务器或连接器 URL 时，请粘贴此地址。您需要使用闪耀船首账户登录。",
+        "note": "授权时会跳转至闪耀船首网站完成登录与授权确认；授权后可随时在账户设置中断开。",
+        "copy": "复制",
+        "copied": "已复制到剪贴板"
+      },
+      "ask": {
+        "title": "向您的 AI 询问闪耀船首的数据",
+        "note": "答案来自站点公开数据与您授权的内容，而非猜测。",
+        "assembly": "现在有哪些高赞的船只配装？",
+        "codex": "culverin1 这类武器在哪些地图掉落？",
+        "drops": "现在有哪些进行中的 Twitch 掉宝活动？",
+        "calendar": "本赛季日历接下来有哪些世界事件？"
+      },
+      "connect": {
+        "title": "如何连接",
+        "subtitle": "选择您的助手查看接入方式，都使用上方的连接器 URL。",
+        "claude": "Claude",
+        "claudeCode": "Claude Code",
+        "chatgpt": "ChatGPT",
+        "grok": "Grok",
+        "other": "其他应用",
+        "command": "claude mcp add --transport http glow-prow https://api.glow-prow.top/api/mcp",
+        "codeBlockTitle": "或在客户端配置中添加远程 MCP 服务器：",
+        "steps": {
+          "claude": [
+            "打开 Claude 的「自定义」设置，选择「连接器」。",
+            "点击「+ 添加」，再点击「添加自定义连接器」。",
+            "将其命名为「闪耀船首」并粘贴上方的连接器 URL。",
+            "点击「添加」后选择「连接」，并在闪耀船首上批准访问。",
+            "在对话中点击「+」号，为该对话开启闪耀船首连接器。"
+          ],
+          "claudeCode": [
+            "在终端运行下方的命令（添加 --scope user 可在所有项目中使用）。",
+            "运行 /mcp，选择 glow-prow 并登录。"
+          ],
+          "chatgpt": [
+            "在「设置」中开启开发者模式，然后前往「安全与登录」。",
+            "访问 chatgpt.com/plugins 并点击「+」号。",
+            "将其命名为「闪耀船首」，选择「公共端点」并粘贴连接器 URL。",
+            "创建它，然后按提示使用闪耀船首账户登录。"
+          ],
+          "grok": [
+            "访问 grok.com/connectors，点击「新建连接器」。",
+            "选择「自定义」并粘贴连接器 URL。",
+            "使用您的闪耀船首账户登录。"
+          ],
+          "other": [
+            "任何支持远程 MCP 连接器并带有登录功能的助手均可使用。",
+            "在客户端中添加远程（HTTP）MCP 服务器，地址为上方连接器 URL。",
+            "客户端请求授权时会跳转闪耀船首网站登录，登录并允许后即可使用。"
+          ]
+        }
+      },
+      "plans": {
+        "title": "计划与限制",
+        "subtitle": "使用免费的闪耀船首账户登录即可使用；您所在 AI 应用自身的计划规则仍然适用。",
+        "free": "免费计划",
+        "freeLimit": "150 / 10 min",
+        "freeDesc": "免费账户登录后，每 10 分钟 150 个请求。",
+        "subscriber": "订阅者",
+        "subscriberLimit": "1,000 / 10 min",
+        "subscriberDesc": "订阅用户每 10 分钟 1,000 个请求。",
+        "subscribe": "查看订阅权益"
+      },
+      "manage": {
+        "title": "管理或断开连接",
+        "desc": "在「账户 → 安全中心 → 平台绑定 → AI 连接器」中管理已登录的助手，可随时断开。移除访问权限不会改变您的站内数据。",
+        "action": "打开平台绑定"
+      },
+      "faq": {
+        "title": "常见问题",
+        "items": [
+          {
+            "q": "什么是 MCP？",
+            "a": "模型上下文协议（Model Context Protocol）是一个开放标准，允许 AI 助手使用闪耀船首等服务的工具。"
+          },
+          {
+            "q": "收费吗？",
+            "a": "不收费。它与免费的闪耀船首账户配合使用；您所在 AI 应用的计划和规则仍然适用。"
+          },
+          {
+            "q": "我的数据会被共享吗？",
+            "a": "只共享您授权范围内的公开数据，闪耀船首不会看到您与 AI 助手的对话。"
+          },
+          {
+            "q": "哪些助手可用？",
+            "a": "任何支持远程 MCP 连接器并带有登录功能的助手，包括 Claude、ChatGPT 和 Grok。"
+          }
+        ]
       }
     }
   },
@@ -454,6 +532,13 @@
           "noPermission": "无权访问，请检查是否需要密码或是合伙人身份",
           "error": "错误: {context}",
           "ok": "访问成功"
+        },
+        "clone": {
+          "ok": "配装已克隆，正在打开副本",
+          "forbidden": "作者已关闭此配装的克隆",
+          "notFound": "未找到指定配装",
+          "error": "错误: {context}",
+          "bad": "错误请求格式，请检查网络工具接口"
         }
       },
       "publish": {
@@ -629,6 +714,11 @@
         "notMatch": "原密码不正确",
         "bad": "密码格式不符合要求",
         "error": "修改密码失败: {context}"
+      },
+      "changeAlternativeName": {
+        "ok": "别名修改成功",
+        "bad": "别名格式不符合要求",
+        "error": "修改别名失败: {context}"
       },
       "stateOfWar": {
         "synced": "战事数据同步成功",
@@ -871,6 +961,10 @@
         "notEmpty": "必须填写密码",
         "limitationLength": "密码长度需要{min}到{max}"
       },
+      "assembly": {
+        "nameLength": "配装名称不能超过 140 个字符",
+        "descriptionLength": "配装描述不能超过 10000 个字符"
+      },
       "captcha": {
         "notEmpty": "必须填写验证码",
         "limitationLength": "验证码长度为{max}"
@@ -1026,6 +1120,18 @@
       },
       "types": {
         "title": "图鉴统计"
+      },
+      "manage": {
+        "title": "收藏管理",
+        "searchPlaceholder": "搜索名称或 ID",
+        "allKinds": "全部图鉴",
+        "view": "查看",
+        "remove": "取消收藏",
+        "removeConfirm": "确定取消收藏该条目吗？",
+        "removed": "已取消收藏",
+        "empty": "没有符合条件的收藏记录",
+        "sourceLocal": "本地标记",
+        "sourceAccount": "账户收藏"
       },
       "kinds": {
         "item": "物品",
@@ -1764,7 +1870,11 @@
         "glow-prow-qq-bot": {
           "name": "QQ 机器人",
           "desc": "在 QQ 私聊闪耀船首机器人，绑定后可关联网站账户"
-        }
+        },
+    "ai-connector": {
+      "name": "AI 连接器",
+      "desc": "已授权访问您账户数据的 AI 助手（Claude、ChatGPT、Grok 等），通过 MCP 连接器读取公开数据"
+    }
       },
       "qqBot": {
         "dialogTitle": "绑定 QQ 机器人",
@@ -1773,7 +1883,24 @@
         "step3": "点击机器人返回的链接，在浏览器中打开并登录网站即可完成绑定",
         "hint": "绑定链接 15 分钟内有效，且只能使用一次；已登录状态下打开会直接绑定当前账户"
       },
-      "authorized": "已授权"
+      "authorized": "已授权",
+      "aiConnector": {
+        "title": "AI 连接器",
+        "connected": "已连接 {count} 个应用",
+        "notConnected": "未连接",
+        "disabled": "已停用",
+        "docs": "了解如何连接",
+        "manage": "管理连接",
+        "dialogTitle": "AI 连接器",
+        "dialogDesc": "以下是已通过授权登录访问您账户的 AI 应用。断开后该应用将立即失去访问权限。",
+        "authorizedAt": "授权时间",
+        "lastUsedAt": "最近使用",
+        "empty": "还没有已连接的 AI 应用。在「应用 → AI 连接器」页按指引添加即可。",
+        "revoke": "断开",
+        "revokeConfirm": "确定要断开「{app}」的访问权限吗？",
+        "revoked": "已断开该 AI 应用",
+        "revokeFailed": "断开失败"
+      }
     },
     "myAssembly": "我的配装",
     "myComment": "我的评论",
@@ -3492,6 +3619,7 @@
     "owner": "所有者",
     "hasPassword": "包含密码",
     "byCloningUuid": "克隆",
+    "clone": "克隆到我的账户",
     "editAssemblyBtn": "编辑此配装",
     "editInfoBtn": "编辑信息",
     "editWorkshopBtn": "配装",
@@ -3541,6 +3669,7 @@
       "private": "私有",
       "tagCommon": "常规",
       "tagData": "数据",
+      "general": "通用",
       "includePasswordHint": "含密码",
       "existingPasswordButNewDelete": "当前配装已设密码，但新密码已删除",
       "notPassword": "无密码",
@@ -3570,6 +3699,10 @@
       "commentsDescription": "是否开启评论",
       "likes": "点赞",
       "likesDescription": "是否开启点赞",
+      "allowClone": "允许克隆",
+      "allowCloneDescription": "关闭后其他人无法克隆此配装",
+      "allowSearch": "允许搜索",
+      "allowSearchDescription": "关闭后此配装不会出现在配装浏览器的搜索结果中，但仍可通过链接直接访问",
       "other": "其他",
       "rendererVersion": "配装渲染器版本",
       "rendererVersionDescription": "决定对配装数据以何种格式加载，如果你不清楚作用可以不需要设置，让系统以最新版本来初始加载",
@@ -4474,6 +4607,11 @@
       "categoryWorkshop": "工坊与配装",
       "categoryCodex": "图鉴",
       "categoryGlobal": "全局与导航",
+      "locationWorkshop": "配装工坊",
+      "locationCodexCard": "图鉴卡片详情",
+      "locationCodexModification": "图鉴改装详情",
+      "locationQuest": "任务详情",
+      "locationGlobal": "全站",
       "modePress": "按下",
       "modeHold": "按住",
       "modeUpdated": "已切换为 {mode} 触发",
@@ -4494,10 +4632,133 @@
       "pressCombination": "请按组合键",
       "clickToRecord": "点击录入新按键绑定",
       "conflictWarning": "按键已绑定为 [{key}]，检测到与现有动作存在共用",
+      "conflictWith": "按键 [{key}] 与「{name}」冲突，请更换绑定",
+      "conflictBadge": "与「{name}」冲突",
       "updateSuccess": "快捷键已成功更新为 [{key}]",
       "updateFailed": "更新快捷键失败，请重试",
       "resetSuccess": "所有快捷键已重置为系统默认值",
-      "defaultDesc": "长按触发快速动作"
+      "defaultDesc": "长按触发快速动作",
+      "categoryMap": "地图",
+      "categoryCalculator": "计算器",
+      "categorySmugglers": "走私犯报告",
+      "categoryTeamup": "组队",
+      "categoryAccount": "账户设置",
+      "categoryStatistics": "统计页",
+      "categoryCalendar": "日历",
+      "locationCodexList": "图鉴列表",
+      "locationCodexDetail": "图鉴详情",
+      "locationOverlayCard": "图鉴悬浮卡片",
+      "locationCodexHistory": "游览历史抽屉",
+      "locationGlobalSearch": "全局搜索抽屉",
+      "locationMessages": "消息中心",
+      "locationMap": "地图",
+      "locationCalculator": "计算器",
+      "locationSmugglers": "走私犯报告",
+      "locationTeamup": "组队",
+      "locationAccount": "账户设置",
+      "locationStatistics": "统计页",
+      "locationCalendar": "日历",
+      "locationContextMenu": "图鉴右键菜单",
+      "actions": {
+        "headerSearch": "打开全局搜索",
+        "headerSearchDesc": "打开顶栏的搜索面板",
+        "headerHistory": "打开游览历史",
+        "headerHistoryDesc": "打开顶栏的游览历史抽屉",
+        "headerMessages": "打开消息中心",
+        "headerMessagesDesc": "打开顶栏的消息中心抽屉",
+        "headerSettings": "打开账户设置",
+        "headerSettingsDesc": "跳转到账户设置页面",
+        "codexFocusSearch": "聚焦图鉴搜索",
+        "codexFocusSearchDesc": "将焦点移动到图鉴列表的搜索框",
+        "codexPrevPage": "图鉴上一页",
+        "codexPrevPageDesc": "在筛选结果中切换到上一页",
+        "codexNextPage": "图鉴下一页",
+        "codexNextPageDesc": "在筛选结果中切换到下一页",
+        "codexIconSizeUp": "增大图鉴图标",
+        "codexIconSizeUpDesc": "放大图鉴列表的图标尺寸",
+        "codexIconSizeDown": "缩小图鉴图标",
+        "codexIconSizeDownDesc": "缩小图鉴列表的图标尺寸",
+        "collectItem": "收藏/取消收藏",
+        "collectItemDesc": "切换当前图鉴对象的收藏状态",
+        "copyItemName": "复制名称",
+        "copyItemNameDesc": "将当前对象名称复制到剪贴板",
+        "codexShare": "分享当前图鉴",
+        "codexShareDesc": "打开当前图鉴对象的分享面板",
+        "codexPrevItem": "上一件图鉴",
+        "codexPrevItemDesc": "跳转到当前分类中的上一件物品",
+        "codexNextItem": "下一件图鉴",
+        "codexNextItemDesc": "跳转到当前分类中的下一件物品",
+        "codexOpenNewWindow": "新窗口打开",
+        "codexOpenNewWindowDesc": "在新浏览器窗口中打开当前图鉴详情",
+        "historyPrev": "上一条记录",
+        "historyPrevDesc": "在游览历史抽屉中上移选中记录",
+        "historyNext": "下一条记录",
+        "historyNextDesc": "在游览历史抽屉中下移选中记录",
+        "historyOpen": "打开选中记录",
+        "historyOpenDesc": "打开游览历史中选中的记录",
+        "historyDelete": "删除选中记录",
+        "historyDeleteDesc": "从游览历史中移除选中的记录",
+        "searchPrev": "上一个搜索结果",
+        "searchPrevDesc": "在全局搜索中上移结果选中项",
+        "searchNext": "下一个搜索结果",
+        "searchNextDesc": "在全局搜索中下移结果选中项",
+        "searchOpen": "打开搜索结果",
+        "searchOpenDesc": "打开全局搜索中选中的结果",
+        "searchNextCategory": "切换搜索分类",
+        "searchNextCategoryDesc": "在全局搜索中切换到下一个分类",
+        "messagesMarkAllRead": "全部标为已读",
+        "messagesMarkAllReadDesc": "把消息中心的所有会目标为已读",
+        "messagesPrevTab": "上一个消息分类",
+        "messagesPrevTabDesc": "在私信与通知之间切换到上一个分类",
+        "messagesNextTab": "下一个消息分类",
+        "messagesNextTabDesc": "在私信与通知之间切换到下一个分类",
+        "workshopSave": "保存配装",
+        "workshopSaveDesc": "保存当前工坊配装",
+        "workshopUndo": "撤销配装操作",
+        "workshopUndoDesc": "撤销工坊中的上一步操作",
+        "workshopDeleteSelected": "删除选中配装项",
+        "workshopDeleteSelectedDesc": "移除工坊中当前选中的物品",
+        "mapToggleEdit": "切换地图编辑模式",
+        "mapToggleEditDesc": "进入或退出地图要素编辑模式",
+        "mapDeleteSelected": "删除选中要素",
+        "mapDeleteSelectedDesc": "删除地图中当前选中的标记、路径或区域",
+        "mapUndo": "撤销地图操作",
+        "mapUndoDesc": "撤销地图中的上一步操作",
+        "mapRedo": "重做地图操作",
+        "mapRedoDesc": "恢复地图中被撤销的操作",
+        "calculatorCalculate": "计算量化",
+        "calculatorCalculateDesc": "执行当前计算器的量化计算",
+        "calculatorCopyResult": "复制计算结果",
+        "calculatorCopyResultDesc": "将当前计算结果复制到剪贴板",
+        "calculatorReset": "重置计算器",
+        "calculatorResetDesc": "清空计算器中的全部目标",
+        "submitReport": "提交报告",
+        "submitReportDesc": "提交当前编辑中的报告内容",
+        "cancelEdit": "取消编辑",
+        "cancelEditDesc": "放弃当前编辑内容或退出编辑状态",
+        "refreshList": "刷新列表",
+        "refreshListDesc": "重新加载当前页面列表数据",
+        "teamupPublish": "发布组队",
+        "teamupPublishDesc": "发布当前组队招募信息",
+        "accountSave": "保存账户设置",
+        "accountSaveDesc": "保存当前账户设置修改",
+        "accountRegenRecovery": "重新生成恢复码",
+        "accountRegenRecoveryDesc": "在两步验证页面重新生成一次性恢复码",
+        "statsRange7": "统计范围 7 天",
+        "statsRange7Desc": "把统计时间范围切换为近 7 天",
+        "statsRange30": "统计范围 30 天",
+        "statsRange30Desc": "把统计时间范围切换为近 30 天",
+        "statsRange90": "统计范围 90 天",
+        "statsRange90Desc": "把统计时间范围切换为近 90 天",
+        "calendarPrevMonth": "上一个月",
+        "calendarPrevMonthDesc": "在日历中切换到上一个月",
+        "calendarNextMonth": "下一个月",
+        "calendarNextMonthDesc": "在日历中切换到下一个月",
+        "calendarToday": "回到今天",
+        "calendarTodayDesc": "把日历定位到今天",
+        "openDetail": "打开详情",
+        "openDetailDesc": "打开右键菜单所指对象的详情页"
+      }
     },
     "wishlist": {
       "title": "愿望清单",
@@ -4784,7 +5045,8 @@
       "item": "物品",
       "ship": "船只",
       "material": "材料",
-      "noTargets": "暂无目标，请添加物品或船只"
+      "noTargets": "暂无目标，请添加物品或船只",
+      "shipUpgradeHint": "对应船只升级请从「物品」分类中添加，搜索「{name}」即可找到"
     },
     "results": {
       "title": "计算结果",
@@ -4852,7 +5114,8 @@
       "emptyTree": "添加目标以查看材料树",
       "emptySankey": "添加目标以查看桑基图",
       "excluded": "排除",
-      "addToExclude": "加入排除"
+      "addToExclude": "加入排除",
+      "craftable": "可制作"
     }
   },
   "detail": {
@@ -4911,6 +5174,13 @@
       },
       "trend": "每日收藏趋势",
       "byType": "图鉴种类分布"
+    },
+    "codexItem": {
+      "title": "站内图鉴统计",
+      "rate": "整体已取得率",
+      "holders": "已取得",
+      "trend": "12 周走势",
+      "change": "较 12 周前"
     },
     "signin": {
       "title": "签到统计",
@@ -5274,6 +5544,19 @@
     "restartAuth": "重新授权",
     "platformNickname": "平台昵称",
     "accountIdHint": "账户 ID 由你自行填写，用于后续登录，不是第三方平台的昵称"
+  },
+  "mcpConsent": {
+    "title": "AI 连接器授权",
+    "subtitle": "{client} 请求访问您的闪耀船首账户数据。请确认该应用是您主动添加的 AI 助手。",
+    "scopeTitle": "该应用将可以",
+    "allow": "允许访问",
+    "deny": "拒绝",
+    "foot": "授权后可在「账户 → 安全中心 → 平台绑定 → AI 连接器」中随时断开。授权仅代表该应用可以读取上述数据，不会共享您的对话。",
+    "loading": "正在加载授权信息…",
+    "expired": "授权会话已过期或失效，请重新发起连接。",
+    "retry": "前往 AI 连接器",
+    "error": "授权信息加载失败，请稍后重试。",
+    "processing": "正在完成授权…"
   },
   "common": {
     "cancel": "取消",

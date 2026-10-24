@@ -192,7 +192,13 @@ function render() {
     if (sourceActive && targetActive) {
       activeEdges.push(e);
     } else if (sourceActive || targetActive) {
-      availableEdges.push(e);
+      // 仅当未激活一侧节点可用时连线才显示为可用亮线，点数不足时作为锁定暗线
+      const inactiveKey = sourceActive ? e.target : e.source;
+      if (props.isNodeAvailable(inactiveKey)) {
+        availableEdges.push(e);
+      } else {
+        lockedEdges.push(e);
+      }
     } else {
       lockedEdges.push(e);
     }
@@ -260,6 +266,8 @@ function render() {
     const isAvailable = props.isNodeAvailable(node.key || node.id);
     const isSelected = Boolean(props.selectedNode && (props.selectedNode.key === node.key || props.selectedNode.id === node.id && !node.key));
     const isHovered = Boolean(hoveredNode.value && (hoveredNode.value.key === node.key || hoveredNode.value.id === node.id && !node.key));
+    // 仅在已激活或可加点的可用节点上悬停才呈现高亮，未激活且不可用时不发光
+    const isHoverActive = isHovered && (isActive || isAvailable);
 
     ctx.save();
     if (props.readonly && !isActive) ctx.globalAlpha = 0.1;
@@ -285,7 +293,7 @@ function render() {
         ctx.lineWidth = 3.2;
         ctx.shadowColor = '#ffeb3b';
         ctx.shadowBlur = 14;
-      } else if (isHovered) {
+      } else if (isHoverActive) {
         ctx.strokeStyle = '#fff275';
         ctx.lineWidth = 2.8;
         ctx.shadowColor = '#ffd700';

@@ -17,6 +17,7 @@ import {storageIntermediateTransfer, apis} from "@/assets/sripts";
 import {useNoticeStore} from "~/stores/noticeStore";
 import EmptyView from "@/components/EmptyView.vue";
 import ImportAssemblyDialog from "./ImportAssemblyDialog.vue";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 
 const {t} = useI18n()
 const store = useCalculatorStore()
@@ -90,6 +91,56 @@ function onFileImport(e: Event) {
   const file = target.files[0]
   store.importFile(file, importType.value)
 }
+
+/**
+ * 触发一次现有响应式量化计算
+ */
+function onCalculate() {
+  if (store.targets.length <= 0) {
+    noticeStore.warning(t('calculator.targets.noTargets'))
+    return
+  }
+  // 材料结果由 store 的计算属性即时产出，读取即可复用既有计算逻辑
+  void store.flatMaterials
+}
+
+/**
+ * 复制当前量化计算结果
+ */
+async function onCopyResult() {
+  const materials = store.flatMaterials
+  if (materials.length <= 0) {
+    noticeStore.warning(t('calculator.ui.emptyFlatMaterials'))
+    return
+  }
+
+  const text = materials
+      .map((material) => `${getDisplayName(material.id)} ×${material.totalQuantity}`)
+      .join('\n')
+
+  try {
+    await navigator.clipboard.writeText(text)
+    noticeStore.success(t('basic.tips.copySuccess'), {mode: 'minimal'})
+  } catch (e) {
+    noticeStore.error(t('basic.tips.copyFailed'))
+  }
+}
+
+/**
+ * 重置量化计算，清空全部目标
+ */
+function onResetCalculator() {
+  store.clearTargets()
+}
+
+/**
+ * 绑定计算器页面快捷键
+ */
+usePageHotkeys({
+  calculatorCalculate: onCalculate,
+  calculatorCopyResult: onCopyResult,
+  calculatorReset: onResetCalculator,
+})
 </script>
 
 <template>

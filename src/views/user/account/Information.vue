@@ -15,6 +15,7 @@ import {apis} from "@/assets/sripts";
 import {useRules} from "@/assets/sripts/rules_user";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {notifyReviewResult} from "@/assets/sripts/review";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import PasswordStrength from "@/components/PasswordStrength.vue";
 
 const authStore = useAuthStore(),
@@ -220,6 +221,69 @@ const onChangeEmailConfirm = async () => {
     changeEmailLoading.value = false
   }
 }
+
+// 当前是否有打开中的账户编辑弹窗
+const hasAccountDialog = computed(() =>
+    alternativeNameModel.value || changePasswordModel.value || changeEmailModel.value,
+)
+
+// 偏好设置表单是否已加载，弹窗打开时仅看弹窗自身的提交状态
+const canSaveAccountForm = computed(() => {
+  if (alternativeNameModel.value) return !userAlternativeNameLoading.value
+  if (changePasswordModel.value) return !changePasswordLoading.value
+  if (changeEmailModel.value) return !changeEmailLoading.value
+  return Boolean(userAccountData.value?.attr) && !userAccountAttrLoading.value
+})
+
+/**
+ * 保存当前打开弹窗或偏好设置中的表单
+ */
+const onSaveAccountForm = async () => {
+  if (alternativeNameModel.value) {
+    await onChangeAlternativeName()
+    return
+  }
+  if (changePasswordModel.value) {
+    await onChangePassword()
+    return
+  }
+  if (changeEmailModel.value) {
+    await onChangeEmailConfirm()
+    return
+  }
+  await onSaveAccountAttr()
+}
+
+/**
+ * 取消当前打开的账户编辑弹窗，密码表单同时重置字段
+ */
+const onCancelAccountDialog = () => {
+  if (alternativeNameModel.value) {
+    alternativeNameModel.value = false
+    return
+  }
+  if (changePasswordModel.value) {
+    changePasswordModel.value = false
+    onClearPasswordFrom()
+    return
+  }
+  if (changeEmailModel.value) {
+    changeEmailModel.value = false
+  }
+}
+
+usePageHotkeys({
+  accountSave: onSaveAccountForm,
+}, {
+  active: () => canSaveAccountForm.value,
+})
+
+usePageHotkeys({
+  accountCancel: onCancelAccountDialog,
+}, {
+  active: () => hasAccountDialog.value,
+  allowInEditable: ['accountCancel'],
+})
 
 defineOptions({
   name: 'AccountInformation'
@@ -477,6 +541,7 @@ defineOptions({
                 :rules="rules.username"
                 variant="outlined"
                 density="compact"
+                maxlength="40"
                 :placeholder="t('account.information.form.alternativeName.placeholder')">
             </v-text-field>
           </v-form>
@@ -511,6 +576,7 @@ defineOptions({
                 :label="t('account.information.form.password.oldPassword')"
                 variant="outlined"
                 density="compact"
+                maxlength="60"
                 class="mb-2">
             </v-text-field>
             <v-text-field
@@ -519,7 +585,8 @@ defineOptions({
                 :rules="passwordFromData.rules.newPassword"
                 :label="t('account.information.form.password.newPassword')"
                 variant="outlined"
-                density="compact">
+                density="compact"
+                maxlength="60">
             </v-text-field>
             <PasswordStrength :password="passwordFromData.data.newPassword" class="mb-3" />
           </v-form>
@@ -553,6 +620,7 @@ defineOptions({
                 :label="t('account.information.form.email.newEmail')"
                 variant="outlined"
                 density="compact"
+                maxlength="200"
                 class="mb-2">
               <template v-slot:append-inner>
                 <v-btn size="x-small" variant="text" color="amber" @click="onChangeEmailRequest" :loading="changeEmailRequestLoading">
@@ -565,7 +633,8 @@ defineOptions({
                 :rules="rules.code"
                 :label="t('account.information.form.email.code')"
                 variant="outlined"
-                density="compact">
+                density="compact"
+                maxlength="6">
             </v-text-field>
           </v-form>
         </v-card-text>

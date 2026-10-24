@@ -1082,6 +1082,7 @@ defineOptions({
                         :label="t('map.selectCollection')"></v-select>
               <v-text-field size="x-small" :model-value="pointsState.keyword"
                             @update:model-value="pointsState.keyword = $event"
+                            maxlength="100"
                             @keyup.enter="onSearchPoints"
                             prepend-inner-icon="mdi-magnify"
                             variant="outlined"
@@ -1216,6 +1217,7 @@ defineOptions({
                         :label="t('map.selectCollection')"></v-select>
               <v-text-field size="x-small" :model-value="currentShapeState.keyword"
                             @update:model-value="currentShapeState.keyword = $event"
+                            maxlength="100"
                             @keyup.enter="onShapeSearch(currentShapeType)"
                             prepend-inner-icon="mdi-magnify"
                             variant="outlined"
@@ -1351,12 +1353,13 @@ defineOptions({
               <v-col cols="12">
                 <v-text-field v-model="collectionForm.title"
                               :label="t('map.collectionTitle')" variant="outlined" density="compact"
+                              maxlength="255"
                               class="mb-1" :rules="[v => !!v || t('map.titleRequired')]" required></v-text-field>
               </v-col>
               <v-col cols="12">
                 <v-textarea v-model="collectionForm.description"
                             :label="t('map.collectionDescription')" variant="outlined" density="compact"
-                            rows="3" class="mb-1"></v-textarea>
+                            rows="3" maxlength="2000" counter="2000" class="mb-1"></v-textarea>
               </v-col>
               <v-col cols="12">
                 <v-select v-model="collectionForm.public"

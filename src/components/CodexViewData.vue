@@ -2,13 +2,15 @@
 import {Cosmetics, EmpireSkills, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps, Masterys, Quests} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
-import {computed, onMounted, ref, useSlots, watch} from "vue";
+import {computed, onBeforeUnmount, onMounted, ref, useSlots, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRoute, useRouter} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {useDisplay} from "vuetify/framework";
 import {number, rarity} from "@/assets/sripts/index";
 import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
+import {isEditableElement} from "@/assets/sripts/global_hotkeys";
 import {useAppStore} from "~/stores/appStore";
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
@@ -99,6 +101,7 @@ const
 let data: any = ref([]),
     exceedingItemsCount = ref(0),
     menuModel = ref(false),
+    searchInputRef = ref<any>(null),
     // 筛选
     filterData = ref({
       keyValue: '',
@@ -549,6 +552,11 @@ onMounted(() => {
   onInitWorldEventLoad()
   onInitSetLoad()
   onInitLocationLoad()
+  window.addEventListener('keydown', onNumberFilterKeydown)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', onNumberFilterKeydown)
 })
 
 /**
@@ -886,6 +894,73 @@ const onSort = (field: SortField, order: SortOrder) => {
   updateQueryParams()
 }
 
+/**
+ * 聚焦搜索输入框，需要先展开筛选菜单
+ */
+const onFocusSearch = () => {
+  menuModel.value = true
+  requestAnimationFrame(() => {
+    searchInputRef.value?.focus?.()
+  })
+}
+
+/**
+ * 向上翻动一屏列表
+ */
+const onPrevPage = () => {
+  window.scrollBy({top: -Math.round(window.innerHeight * 0.8), behavior: 'smooth'})
+}
+
+/**
+ * 向下翻动一屏列表
+ */
+const onNextPage = () => {
+  window.scrollBy({top: Math.round(window.innerHeight * 0.8), behavior: 'smooth'})
+}
+
+/**
+ * 调整图标尺寸
+ * @param delta 增减量，正数放大、负数缩小
+ */
+const onChangeIconSize = (delta: number) => {
+  const current = appStore.iconSize?.size || 99
+  const next = Math.max(89, Math.min(109, current + delta))
+  if (next === current) return
+  appStore.setIconSize({
+    ...appStore.iconSize,
+    size: next,
+  })
+}
+
+/**
+ * 数字键切换对应序号的类型筛选
+ * @param e 键盘事件
+ */
+const onNumberFilterKeydown = (e: KeyboardEvent) => {
+  if (isEditableElement(e.target)) return
+  if (e.metaKey || e.ctrlKey || e.altKey) return
+  const digit = parseInt(e.key, 10)
+  if (!digit || digit < 1 || digit > 9) return
+
+  const option = typeFilterAvailableOptions.value[digit - 1]
+  if (!option) return
+
+  e.preventDefault()
+  const selected = filterData.value.types.includes(option.value)
+  filterData.value.types = selected
+      ? filterData.value.types.filter(value => value !== option.value)
+      : [...filterData.value.types, option.value]
+  onFilterItemType(filterData.value.types)
+}
+
+usePageHotkeys({
+  codexFocusSearch: onFocusSearch,
+  codexPrevPage: onPrevPage,
+  codexNextPage: onNextPage,
+  codexIconSizeUp: () => onChangeIconSize(1),
+  codexIconSizeDown: () => onChangeIconSize(-1),
+})
+
 defineOptions({
   name: 'CodexViewData'
 })
@@ -925,6 +1000,7 @@ defineOptions({
                               variant="filled"
                               density="comfortable"
                               clearable
+                              ref="searchInputRef"
                               @keydown.enter="onSearchItem"
                               @click:clear="onSearchItem"
                               v-model="filterData.inputWidgetKeyValue">

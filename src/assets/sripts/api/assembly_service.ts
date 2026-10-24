@@ -91,6 +91,21 @@ export function useAssemblyApi() {
     };
 
     /**
+     * 克隆配装到当前账户
+     * @param assemblyUuid 来源配装 UUID
+     */
+    const cloneAssembly = async (assemblyUuid: string) => {
+        try {
+            const result = await http.post(`assembly/clone`, {
+                data: {uuid: assemblyUuid}
+            })
+            return handleResponse(result)
+        } catch (error) {
+            return handleError(error)
+        }
+    };
+
+    /**
      * 获取组件属性
      */
     const getAssemblyAttr = async (assemblyUuid: string) => {
@@ -155,6 +170,7 @@ export function useAssemblyApi() {
         getAssemblyItem,
         editAssembly,
         deleteAssembly,
+        cloneAssembly,
         getAssemblyAttr,
         editAssemblyAttr,
         getTrashList,

@@ -21,6 +21,7 @@
                   :label="t('map.markerName')"
                   :rules="[v => !!v || t('map.titleRequired')]"
                   variant="outlined"
+                  maxlength="255"
                   required></v-text-field>
             </v-col>
 
@@ -73,6 +74,7 @@
                     :model-value="newMarkerData.description"
                     @update:model-value="emit('update:marker-data', { ...newMarkerData, description: $event })"
                     :min-height="'200px'"
+                    :maxlength="2000"
                     :value="newMarkerData.description || t('map.markerDescription')"
                     :placeholder="t('map.markerDescription')"
                     :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']">

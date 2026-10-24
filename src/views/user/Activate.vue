@@ -132,6 +132,7 @@ const onActivate = async () => {
                               variant="solo-filled"
                               name="username"
                               prepend-inner-icon="mdi-account-key"
+                              maxlength="40"
                               :label="t('activate.form.username.name')"
                               :placeholder="t('activate.form.username.placeholder')"
                               class="mb-2"></v-text-field>

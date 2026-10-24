@@ -77,8 +77,8 @@ defineExpose({
       </v-card-title>
 
       <v-card-text>
-        <v-text-field v-model="data.href" label="Href"></v-text-field>
-        <v-text-field v-model="data.text" label="Href Text"></v-text-field>
+        <v-text-field v-model="data.href" maxlength="2048" label="Href"></v-text-field>
+        <v-text-field v-model="data.text" maxlength="200" label="Href Text"></v-text-field>
       </v-card-text>
 
       <v-card-actions>

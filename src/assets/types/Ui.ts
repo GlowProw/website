@@ -283,6 +283,8 @@ export interface CodexHistoryProps {
   isShowHeader?: boolean
   // 没有浏览记录时是否显示空状态提示
   isShowEmpty?: boolean
+  // 当前键盘选中的记录标识，用于高亮
+  selectedId?: string
 }
 
 // CountUp.vue

@@ -6,6 +6,7 @@ import {useNoticeStore} from "~/stores/noticeStore";
 
 import {apis} from "@/assets/sripts";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import type {AvatarPreset, AvatarQuota} from "@/assets/sripts/api/user_service";
 import Cropper from "cropperjs";
 
@@ -334,6 +335,56 @@ const handleDeleteAvatar = async () => {
     avatarDeleting.value = false
   }
 }
+
+// 头像弹窗当前步骤是否已有可确认的变更
+const canConfirmAvatarDialog = computed(() => {
+  if (!dialogOpen.value) return false
+  if (dialogStep.value === 'upload') return !cropperConfirming.value && !avatarUploading.value
+  if (dialogStep.value === 'preset') return Boolean(presetSelected.value) && !avatarSetting.value
+  return false
+})
+
+/**
+ * 确认当前头像弹窗步骤中的操作
+ */
+const onConfirmAvatarDialog = async () => {
+  if (dialogStep.value === 'upload') {
+    await onConfirmCrop()
+    return
+  }
+  if (dialogStep.value === 'preset') {
+    await onConfirmPreset()
+  }
+}
+
+/**
+ * 取消当前头像弹窗步骤，与弹窗内取消按钮一致
+ */
+const onCancelAvatarDialog = () => {
+  if (dialogStep.value === 'upload') {
+    dialogStep.value = 'select'
+    cleanupCropper()
+    return
+  }
+  if (dialogStep.value === 'preset') {
+    dialogStep.value = 'select'
+    return
+  }
+  closeDialog()
+}
+
+usePageHotkeys({
+  accountSave: onConfirmAvatarDialog,
+}, {
+  active: () => canConfirmAvatarDialog.value,
+})
+
+usePageHotkeys({
+  accountCancel: onCancelAvatarDialog,
+}, {
+  active: () => dialogOpen.value,
+  allowInEditable: ['accountCancel'],
+})
 
 defineOptions({
   name: 'AccountProfilePicture'

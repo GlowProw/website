@@ -118,6 +118,7 @@ function onClose() {
                 density="comfortable"
                 variant="outlined"
                 color="amber"
+                maxlength="64"
                 hide-details
                 @keyup.enter="onImportByUid">
               <template v-slot:append-inner>

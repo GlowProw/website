@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
-import {computed, onBeforeUnmount, onMounted, type Ref, ref, toRaw, watch} from "vue";
+import {computed, nextTick, onBeforeUnmount, onMounted, type Ref, ref, toRaw, watch} from "vue";
 import {useRoute, useRouter} from "vue-router";
 import {v6 as uuidv6} from "uuid";
 
@@ -23,6 +23,7 @@ import AssemblyTagsWidget from "@/components/AssemblyTagsWidget.vue";
 import AssemblySettingWidget from "@/components/AssmblySettingWidget.vue";
 import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t, locale} = useI18n(),
@@ -85,7 +86,8 @@ let
 
     formRules = {
       name: [
-        (v: any) => !!(v && v.trim()) || t('basic.assembly.publish.nameRequired')
+        (v: any) => !!(v && v.trim()) || t('basic.assembly.publish.nameRequired'),
+        (v: any) => !v || v.length <= 140 || t('basic.rules.assembly.nameLength')
       ]
     },
 
@@ -169,6 +171,7 @@ const getVerifyMessage = (v: { required: boolean; message: string; title?: strin
  */
 const onWorkshopUpdateEvent = () => {
   runWorkshopVerify();
+  pushUndoSnapshot();
   triggerAutoSave();
 };
 
@@ -322,6 +325,7 @@ const loadAssemblyData = () => {
   }
 
   runWorkshopVerify();
+  resetUndoHistory();
 };
 
 const onSubjectViewReady = async () => {
@@ -336,6 +340,10 @@ onBeforeUnmount(() => {
   if (pendingAutoSaveTimer) {
     clearTimeout(pendingAutoSaveTimer);
     pendingAutoSaveTimer = null;
+  }
+  if (undoBurstTimer) {
+    clearTimeout(undoBurstTimer);
+    undoBurstTimer = null;
   }
 });
 
@@ -662,6 +670,7 @@ const onUseDraft = (item: any) => {
 
   draftModel.value = false;
   runWorkshopVerify();
+  resetUndoHistory();
   noticeStore.success('草稿加载成功');
 };
 
@@ -675,6 +684,184 @@ const onDeleteDraft = (id: string) => {
   });
   getDraftListData();
 };
+
+/**
+ * 快捷键保存配装，复用发布或编辑时的提交逻辑
+ */
+const onHotkeySave = () => {
+  if (submitLoading.value) return;
+  void onSubmit();
+};
+
+/**
+ * 撤销历史栈容量
+ */
+const UNDO_STACK_LIMIT = 50;
+
+/**
+ * 撤销快照栈，元素为「某标签页变更前」的数据快照
+ */
+let undoStack: Array<{ tab: string; data: any }> = [];
+
+/**
+ * 各标签页最近一次的基线快照，用于比对是否产生实际变更
+ */
+let undoBaseline: Record<string, any> = {};
+
+/**
+ * 同一次操作的连续变更合并窗口（毫秒）
+ */
+const UNDO_BURST_DELAY = 500;
+
+/**
+ * 合并窗口内待提交的历史点
+ */
+let undoBurst: { tab: string; data: any } | null = null;
+
+/**
+ * 合并窗口定时器
+ */
+let undoBurstTimer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * 撤销回填期间置位，避免 onLoad 触发的变更事件再次入栈
+ */
+let isUndoRestoring = false;
+
+/**
+ * 深拷贝快照数据，避免后续响应式变更污染历史
+ * @param data 待拷贝的导出数据
+ */
+const cloneUndoData = (data: any) => {
+  try {
+    return JSON.parse(JSON.stringify(data));
+  } catch (e) {
+    return data;
+  }
+};
+
+/**
+ * 抓取指定标签页的数据快照
+ * @param tab 标签页名称，缺省取当前激活标签页
+ */
+const captureUndoSnapshot = (tab?: string): { tab: string; data: any } | null => {
+  const view = assemblyMainSubjectView.value;
+  if (!view) return null;
+
+  const name = tab || view.tab || 'assembly';
+  const data = view.refs?.[name]?.onExport?.();
+  if (!data) return null;
+
+  return {tab: name, data: cloneUndoData(data)};
+};
+
+/**
+ * 提交合并窗口内积累的历史点
+ */
+const commitUndoBurst = () => {
+  if (!undoBurst) return;
+
+  undoStack.push(undoBurst);
+  if (undoStack.length > UNDO_STACK_LIMIT) undoStack.shift();
+  undoBurst = null;
+};
+
+/**
+ * 记录一次可撤销变更：把变更前的基线压入栈，再更新基线
+ * 同一次操作可能连续触发多次变更，用合并窗口归并为一个撤销点
+ */
+const pushUndoSnapshot = () => {
+  if (isUndoRestoring) return;
+
+  const current = captureUndoSnapshot();
+  if (!current) return;
+
+  const previous = undoBaseline[current.tab];
+  if (previous === undefined) {
+    undoBaseline[current.tab] = current.data;
+    return;
+  }
+
+  // 数据未发生变化时不产生历史，避免无意义的空回退
+  if (JSON.stringify(current.data) === JSON.stringify(previous)) return;
+
+  if (!undoBurst) undoBurst = {tab: current.tab, data: previous};
+  undoBaseline[current.tab] = current.data;
+
+  if (undoBurstTimer) clearTimeout(undoBurstTimer);
+  undoBurstTimer = setTimeout(() => {
+    undoBurstTimer = null;
+    commitUndoBurst();
+  }, UNDO_BURST_DELAY);
+};
+
+/**
+ * 重新装载数据后清空撤销历史，避免回退到装载前的空状态
+ */
+const resetUndoHistory = () => {
+  if (undoBurstTimer) {
+    clearTimeout(undoBurstTimer);
+    undoBurstTimer = null;
+  }
+
+  undoStack = [];
+  undoBurst = null;
+  undoBaseline = {};
+
+  for (const name of ['assembly', 'wheel', 'warehouse', 'mastery']) {
+    const snapshot = captureUndoSnapshot(name);
+    if (snapshot) undoBaseline[name] = snapshot.data;
+  }
+};
+
+/**
+ * 快捷键撤销：回退到上一个快照
+ */
+const onHotkeyUndo = () => {
+  if (isUndoRestoring) return;
+
+  // 刚发生的变更仍在合并窗口内时，先提交再回退
+  if (undoBurst) {
+    if (undoBurstTimer) {
+      clearTimeout(undoBurstTimer);
+      undoBurstTimer = null;
+    }
+    commitUndoBurst();
+  }
+
+  const snapshot = undoStack[undoStack.length - 1];
+  if (!snapshot) return;
+
+  const view = assemblyMainSubjectView.value;
+  const widget = view?.refs?.[snapshot.tab];
+  if (!widget?.onLoad) return;
+
+  undoStack.pop();
+
+  isUndoRestoring = true;
+  try {
+    widget.onLoad(cloneUndoData(snapshot.data));
+
+    // 变更发生在其他标签页时，同步切回对应标签页
+    if (view && snapshot.tab && view.tab !== snapshot.tab) {
+      view.tab = snapshot.tab;
+    }
+
+    undoBaseline[snapshot.tab] = cloneUndoData(snapshot.data);
+  } finally {
+    nextTick(() => {
+      isUndoRestoring = false;
+    });
+  }
+};
+
+/**
+ * 绑定工坊页面快捷键
+ */
+usePageHotkeys({
+  workshopSave: onHotkeySave,
+  workshopUndo: onHotkeyUndo,
+});
 </script>
 
 <template>
@@ -839,6 +1026,7 @@ const onDeleteDraft = (id: string) => {
                   :label="t('basic.assembly.publish.name')"
                   size="l-large"
                   hide-details="auto"
+                  maxlength="140"
                   :placeholder="t('basic.assembly.publish.namePlaceholder')"
                   variant="underlined">
               </v-text-field>
@@ -928,7 +1116,8 @@ const onDeleteDraft = (id: string) => {
         </v-card-title>
         <v-card-item>
           <v-text-field :label="t('assembly.workshop.inputDraftName')"
-                        v-model="newDraftName"></v-text-field>
+                        v-model="newDraftName"
+                        maxlength="140"></v-text-field>
         </v-card-item>
         <v-card-actions>
           <v-btn :loading="draftSaveLoading" @click="onSaveDraft">

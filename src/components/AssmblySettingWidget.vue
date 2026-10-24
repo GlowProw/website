@@ -10,6 +10,7 @@ import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing";
 import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import ImgView from "@/components/ImgView.vue";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -37,19 +38,73 @@ let emit = defineEmits(['update:modelValue']),
     tabValue = ref('assembly')
 
 let languages = computed(() => Object.keys(messages.value)),
-    // 密码提示
-    passwordPlaceholder = computed(() => {
-      if (props.modelValue.password && props.modelValue.assembly.attr.password === '')
-        return t('assembly.setting.includePasswordHint')
+    // 密码是否已设置：保存后立即切换按钮状态，无需等待重新拉取
+    passwordOperated = ref<'none' | 'set' | null>(null),
+    passwordDialog = ref(false),
+    passwordMode = ref<'set' | 'change'>('set'),
+    passwordValue = ref(''),
+    // 属性背景图选择器
+    imagePicker = ref()
 
-      else if (props.modelValue.password && props.modelValue.assembly.attr.password === null)
-        return t('assembly.setting.existingPasswordButNewDelete')
+const hasPassword = computed(() => {
+  if (passwordOperated.value === 'none') return false
+  if (passwordOperated.value === 'set') return true
 
-      else if (!props.modelValue.password && props.modelValue.assembly.attr.password === '')
-        return t('assembly.setting.notPassword')
+  return !!(props.modelValue.password || props.modelValue.assembly.attr.password)
+})
 
-      return t('assembly.setting.notPassword')
-    })
+const passwordInvalid = computed(() => {
+  const value = passwordValue.value
+  if (!value) return false
+
+  return value.length < 6 || value.length > 32 || !/^[a-zA-Z0-9_]+$/.test(value)
+})
+
+/**
+ * 打开密码设置/更改弹窗
+ * @param mode 设置新密码或更改已有密码
+ */
+const openPasswordDialog = (mode: 'set' | 'change') => {
+  passwordMode.value = mode
+  passwordValue.value = ''
+  passwordDialog.value = true
+}
+
+/**
+ * 提交密码设置或更改
+ */
+const submitPassword = () => {
+  if (!passwordValue.value || passwordInvalid.value) return
+
+  props.modelValue.assembly.attr.password = passwordValue.value
+  passwordOperated.value = 'set'
+  passwordDialog.value = false
+}
+
+/**
+ * 删除配装密码
+ */
+const deletePassword = () => {
+  // 传 null 交由保存流程转换为清空密码
+  props.modelValue.assembly.attr.password = null
+  passwordOperated.value = 'none'
+}
+
+/**
+ * 选择属性背景图
+ */
+const onBackgroundChange = () => {
+  imagePicker.value?.openPanel(props.modelValue.assembly.attr.backgroundPresentation || '')
+}
+
+/**
+ * 接收图片选择结果
+ * @param src 图片地址
+ */
+const onBackgroundPicked = (src: string) => {
+  props.modelValue.assembly.attr.backgroundPresentation = src
+}
+
 
 watch(() => props.modelValue.value, (value, oldValue) => {
   const changes = {}
@@ -104,6 +159,10 @@ defineOptions({
           class="pa-0 w-100"
           v-model="tabValue"
           direction="vertical">
+        <v-tab :text="t('assembly.setting.general')"
+               value="common"
+               prepend-icon="mdi-tune-variant">
+        </v-tab>
         <v-tab :text="t(`assembly.additions.${i}`)"
                :value="i"
                :disabled="!modelValue[i]"
@@ -116,6 +175,111 @@ defineOptions({
     <v-col>
       <v-card elevation="0" class="overflow-y-auto pa-5" max-height="70vh">
         <v-tabs-window v-model="tabValue">
+          <v-tabs-window-item value="common">
+            <v-row>
+              <v-col>
+                <b>{{ t('assembly.setting.usePassword') }}</b>
+                <p class="text-caption">{{ t('assembly.setting.passwordDescription') }}</p>
+              </v-col>
+              <v-col class="d-flex align-center flex-wrap ga-2">
+                <template v-if="isDebug">
+                  {{ modelValue.assembly.attr.password }}
+                </template>
+
+                <v-btn v-if="!hasPassword"
+                       variant="flat"
+                       class="bg-amber text-black"
+                       @click="openPasswordDialog('set')">
+                  {{ t('basic.button.setting') }}
+                </v-btn>
+
+                <template v-else>
+                  <v-btn variant="flat" class="bg-amber text-black" @click="openPasswordDialog('change')">
+                    {{ t('basic.button.change') }}
+                  </v-btn>
+                  <v-btn variant="flat" class="bg-red" @click="deletePassword">
+                    {{ t('basic.button.delete') }}
+                  </v-btn>
+                </template>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
+                <b>{{ t('assembly.setting.anonymous') }}</b>
+                <p class="text-caption">{{ t('assembly.setting.anonymousDescription') }}</p>
+              </v-col>
+              <v-col>
+                <v-checkbox
+                    v-model="modelValue.assembly.attr.isAnonymous"
+                    density="compact"
+                    hide-details
+                    :label="t('assembly.setting.enable')"
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
+                <b>{{ t('assembly.setting.comments') }}</b>
+                <p class="text-caption">{{ t('assembly.setting.commentsDescription') }}</p>
+              </v-col>
+              <v-col>
+                <v-checkbox
+                    v-model="modelValue.assembly.attr.isComment"
+                    density="compact"
+                    hide-details
+                    :label="t('assembly.setting.enable')"
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
+                <b>{{ t('assembly.setting.likes') }}</b>
+                <p class="text-caption">{{ t('assembly.setting.likesDescription') }}</p>
+              </v-col>
+              <v-col>
+                <v-checkbox
+                    v-model="modelValue.assembly.attr.isLike"
+                    density="compact"
+                    hide-details
+                    :label="t('assembly.setting.enable')"
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
+                <b>{{ t('assembly.setting.allowClone') }}</b>
+                <p class="text-caption">{{ t('assembly.setting.allowCloneDescription') }}</p>
+              </v-col>
+              <v-col>
+                <v-checkbox
+                    v-model="modelValue.assembly.attr.isAllowClone"
+                    density="compact"
+                    hide-details
+                    :label="t('assembly.setting.enable')"
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+
+            <v-row>
+              <v-col>
+                <b>{{ t('assembly.setting.allowSearch') }}</b>
+                <p class="text-caption">{{ t('assembly.setting.allowSearchDescription') }}</p>
+              </v-col>
+              <v-col>
+                <v-checkbox
+                    v-model="modelValue.assembly.attr.isAllowSearch"
+                    density="compact"
+                    hide-details
+                    :label="t('assembly.setting.enable')"
+                ></v-checkbox>
+              </v-col>
+            </v-row>
+          </v-tabs-window-item>
+
           <v-tabs-window-item value="assembly">
             <v-row>
               <v-col>
@@ -129,37 +293,6 @@ defineOptions({
                     :items="settingConfig.visibilitys"
                     :label="t('assembly.setting.selectVisibility')"
                 ></v-select>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.usePassword') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.passwordDescription') }}</p>
-              </v-col>
-              <v-col>
-                <template v-if="isDebug">
-                  {{ modelValue.assembly.attr.password }}
-                </template>
-
-                <v-text-field
-                    item-title="label"
-                    :placeholder="passwordPlaceholder"
-                    clearable
-                    v-model="modelValue.assembly.attr.password"
-                    :label="t('assembly.setting.passwordInput')">
-                  <template v-slot:details>
-                    {{ t('assembly.setting.passwordHint') }}
-                  </template>
-                  <template v-slot:append>
-                    <v-btn
-                        icon="mdi-delete"
-                        v-if="modelValue.assembly.attr.password  === ''"
-                        @click="modelValue.assembly.attr.password = null"
-                        :title="t('basic.button.delete')"
-                    ></v-btn>
-                  </template>
-                </v-text-field>
               </v-col>
             </v-row>
 
@@ -185,19 +318,24 @@ defineOptions({
                 <p class="text-caption">{{ t('assembly.setting.backgroundImageDescription') }}</p>
               </v-col>
               <v-col>
-                <v-card border>
-                  <v-img
-                      v-if="modelValue.assembly.attr.backgroundPresentation"
-                      :src="modelValue.assembly.attr.backgroundPresentation"
-                      :alt="t('assembly.setting.backgroundImageAlt')"
-                  ></v-img>
-                  <v-text-field
-                      tile hide-details clearable persistent-hint
-                      type="src"
-                      placeholder="https://"
-                      v-model="modelValue.assembly.attr.backgroundPresentation"
-                      :label="t('assembly.setting.backgroundImageUrl')"
-                  ></v-text-field>
+                <v-card border class="pa-2">
+                  <div class="background-preview mb-2">
+                    <v-img
+                        v-if="modelValue.assembly.attr.backgroundPresentation"
+                        :src="modelValue.assembly.attr.backgroundPresentation"
+                        :alt="t('assembly.setting.backgroundImageAlt')"
+                        height="120"
+                        cover
+                        class="rounded"
+                    ></v-img>
+                    <div v-else class="d-flex align-center justify-center fill-height text-medium-emphasis">
+                      <v-icon icon="mdi-image-outline" size="40"></v-icon>
+                    </div>
+                  </div>
+
+                  <v-btn variant="flat" class="bg-amber text-black" @click="onBackgroundChange">
+                    {{ t('basic.button.change') }}
+                  </v-btn>
                 </v-card>
               </v-col>
             </v-row>
@@ -240,51 +378,6 @@ defineOptions({
               <v-col>
                 <v-checkbox
                     v-model="modelValue.assembly.attr.isShowWeaponIconArray"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.anonymous') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.anonymousDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isAnonymous"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.comments') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.commentsDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isComment"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.likes') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.likesDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isLike"
                     density="compact"
                     hide-details
                     :label="t('assembly.setting.enable')"
@@ -390,8 +483,48 @@ defineOptions({
       </v-card-actions>
     </v-card>
   </v-dialog>
+
+  <!-- 密码设置/更改对话框 -->
+  <v-dialog v-model="passwordDialog" max-width="500">
+    <v-card>
+      <v-card-title class="text-h5">
+        {{ passwordMode === 'set' ? t('assembly.setting.usePassword') : t('basic.button.change') }}
+      </v-card-title>
+      <v-card-text>
+        <v-text-field
+            v-model="passwordValue"
+            :label="t('assembly.setting.passwordInput')"
+            :placeholder="passwordMode === 'change' ? '******' : ''"
+            :error="passwordInvalid"
+            :error-messages="passwordInvalid ? [t('assembly.setting.passwordHint')] : []"
+            autocomplete="new-password"
+            persistent-hint
+            :hint="t('assembly.setting.passwordHint')"
+            density="comfortable"
+            maxlength="32"
+        ></v-text-field>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn @click="passwordDialog = false">{{ t('basic.button.cancel') }}</v-btn>
+        <v-btn color="amber" class="text-black"
+               :disabled="!passwordValue || passwordInvalid"
+               @click="submitPassword">
+          {{ t('basic.button.submit') }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
+  <!-- 属性背景图选择：复用媒体库/链接/上传三合一选择器 -->
+  <ImgView ref="imagePicker" @finish="onBackgroundPicked"></ImgView>
 </template>
 
 <style scoped lang="less">
-
+.background-preview {
+  height: 120px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgb(255 255 255 / 4%);
+}
 </style>

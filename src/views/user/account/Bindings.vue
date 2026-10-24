@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {useI18n} from 'vue-i18n';
 import {apis} from '@/assets/sripts';
 import {useNoticeStore} from '~/stores/noticeStore';
@@ -15,6 +15,14 @@ const actionLoading = ref<string | null>(null);
 const bindings = ref<any[]>([]);
 const qqBotDialog = ref(false);
 
+// AI 连接器（MCP）已授权应用
+const aiConnectors = ref<any[]>([]);
+const aiConnectorLoading = ref(false);
+const aiConnectorDialog = ref(false);
+const aiRevokeLoading = ref<string | null>(null);
+// AI 连接器配置（来自后端 config.aiMcp）：名称 / 开关 / 端点地址
+const aiConnectorInfo = ref<any>({});
+
 // 第三方平台定义
 const platformDefs = [
   {platform: 'qq', icon: 'mdi-qqchat', color: '#12b7f5', bindMode: 'oauth'},
@@ -25,6 +33,7 @@ const platformDefs = [
 
 onMounted(() => {
   loadBindings();
+  loadAiConnectors();
 });
 
 /**
@@ -101,6 +110,75 @@ const onUnbindPlatform = async (platform: string) => {
   } finally {
     actionLoading.value = null;
   }
+};
+
+/**
+ * 加载已授权的 AI 连接器（MCP）应用列表
+ */
+const loadAiConnectors = async () => {
+  try {
+    aiConnectorLoading.value = true;
+    const res = await apis.userApi().getAiConnectors();
+    const d = res?.data?.data || res?.data;
+    aiConnectors.value = d?.apps || [];
+    // 连接器配置（config.aiMcp）：enabled / name / url / docsUrl
+    aiConnectorInfo.value = d?.connector || {};
+  } catch (err: any) {
+    notice.error(err?.message);
+  } finally {
+    aiConnectorLoading.value = false;
+  }
+};
+
+/** AI 连接器展示名：优先用后端 config.aiMcp.name，回退语言包 */
+const aiConnectorName = computed(() => aiConnectorInfo.value?.name || t('account.bindings.platforms.ai-connector.name'));
+
+/** 复制 MCP 连接器地址 */
+const aiConnectorUrlCopied = ref(false);
+const copyAiConnectorUrl = async () => {
+  const url = aiConnectorInfo.value?.url;
+  if (!url) return;
+  try {
+    await navigator.clipboard.writeText(url);
+    aiConnectorUrlCopied.value = true;
+    setTimeout(() => (aiConnectorUrlCopied.value = false), 2000);
+  } catch {
+    /* 剪贴板不可用时静默失败 */
+  }
+};
+
+/**
+ * 断开指定 AI 连接器应用的授权
+ */
+const onRevokeAiConnector = async (clientId: string, clientName: string) => {
+  const confirmMsg = t('account.bindings.aiConnector.revokeConfirm', {app: clientName});
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    aiRevokeLoading.value = clientId;
+    const res = await apis.userApi().revokeAiConnector(clientId);
+    if (res?.data?.code === 'account.aiConnectors.revoked') {
+      notice.success(t('account.bindings.aiConnector.revoked'));
+      await loadAiConnectors();
+    } else {
+      notice.error(res?.data?.message || t('account.bindings.aiConnector.revokeFailed'));
+    }
+  } catch (err: any) {
+    notice.error(err?.message || t('account.bindings.aiConnector.revokeFailed'));
+  } finally {
+    aiRevokeLoading.value = null;
+  }
+};
+
+/**
+ * 格式化授权时间
+ */
+const formatConnectorTime = (value: string | null) => {
+  if (!value) return '-';
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '-';
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 };
 
 defineOptions({
@@ -192,6 +270,135 @@ defineOptions({
       </template>
     </AffixBoxHasTitleView>
     <!-- 第三方主流登录平台卡片 E -->
+
+    <!-- AI 连接器（MCP）卡片 S -->
+    <AffixBoxHasTitleView class="mt-6">
+      <v-row>
+        <v-col cols="12">
+          <v-card border variant="text" class="pa-4 hover-card transition-all">
+            <div class="d-flex align-center flex-wrap ga-4">
+              <v-avatar color="amber" variant="tonal" size="48" rounded="lg">
+                <v-icon icon="mdi-robot-outline" size="26"></v-icon>
+              </v-avatar>
+
+              <div>
+                <div class="d-flex align-center ga-2">
+                  <span class="font-weight-bold text-body-1 u">{{ aiConnectorName }}</span>
+                  <v-chip
+                      size="x-small"
+                      :color="aiConnectors.length ? 'amber' : 'default'"
+                      variant="tonal">
+                    {{
+                      aiConnectors.length
+                          ? t('account.bindings.aiConnector.connected', {count: aiConnectors.length})
+                          : t('account.bindings.aiConnector.notConnected')
+                    }}
+                  </v-chip>
+                  <v-chip
+                      v-if="aiConnectorInfo.enabled === false"
+                      size="x-small"
+                      color="error"
+                      variant="tonal">
+                    {{ t('account.bindings.aiConnector.disabled') }}
+                  </v-chip>
+                </div>
+                <div class="text-caption opacity-60 mt-1">
+                  {{ t('account.bindings.platforms.ai-connector.desc') }}
+                </div>
+
+                <!-- MCP 连接器地址（config.aiMcp.endpoint 按环境动态解析） -->
+                <div v-if="aiConnectorInfo.url" class="d-flex align-center ga-2 mt-2 flex-wrap">
+                  <code class="text-amber text-caption">{{ aiConnectorInfo.url }}</code>
+                  <v-btn
+                      size="x-small"
+                      variant="text"
+                      density="compact"
+                      :icon="aiConnectorUrlCopied ? 'mdi-check' : 'mdi-content-copy'"
+                      @click="copyAiConnectorUrl">
+                  </v-btn>
+                </div>
+              </div>
+
+              <v-spacer></v-spacer>
+
+              <div class="d-flex ga-2">
+                <v-btn
+                    variant="tonal"
+                    prepend-icon="mdi-book-open-variant"
+                    :to="{ name: 'AIConnector' }">
+                  {{ t('account.bindings.aiConnector.docs') }}
+                </v-btn>
+                <v-btn
+                    variant="tonal"
+                    color="amber"
+                    prepend-icon="mdi-cog-outline"
+                    :loading="aiConnectorLoading"
+                    @click="aiConnectorDialog = true">
+                  {{ t('account.bindings.aiConnector.manage') }}
+                </v-btn>
+              </div>
+            </div>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <template v-slot:title>
+        {{ t('account.bindings.aiConnector.title') }}
+      </template>
+    </AffixBoxHasTitleView>
+    <!-- AI 连接器（MCP）卡片 E -->
+
+    <!-- AI 连接器管理弹窗 S -->
+    <v-dialog :model-value="aiConnectorDialog" max-width="560" @update:model-value="aiConnectorDialog = $event">
+      <v-card class="bg-grey-darken-4 pa-2">
+        <v-card-title class="d-flex align-center ga-2">
+          <v-icon icon="mdi-robot-outline" color="amber"></v-icon>
+          {{ t('account.bindings.aiConnector.dialogTitle') }}
+        </v-card-title>
+        <v-card-text class="text-body-2">
+          <p class="opacity-60 mb-4">{{ t('account.bindings.aiConnector.dialogDesc') }}</p>
+
+          <v-list v-if="aiConnectors.length" bg-color="transparent" class="px-0">
+            <v-list-item
+                v-for="app in aiConnectors"
+                :key="app.clientId"
+                class="px-0">
+              <template v-slot:prepend>
+                <v-avatar color="amber" variant="tonal" size="36" rounded="lg">
+                  <v-icon icon="mdi-robot-outline" size="18"></v-icon>
+                </v-avatar>
+              </template>
+              <v-list-item-title class="font-weight-bold">{{ app.clientName || app.clientId }}</v-list-item-title>
+              <v-list-item-subtitle class="opacity-60">
+                {{ t('account.bindings.aiConnector.authorizedAt') }}：{{ formatConnectorTime(app.createdAt) }}
+                <span v-if="app.lastUsedAt"> · {{ t('account.bindings.aiConnector.lastUsedAt') }}：{{ formatConnectorTime(app.lastUsedAt) }}</span>
+              </v-list-item-subtitle>
+              <template v-slot:append>
+                <v-btn
+                    variant="tonal"
+                    color="error"
+                    size="small"
+                    :loading="aiRevokeLoading === app.clientId"
+                    @click="onRevokeAiConnector(app.clientId, app.clientName || app.clientId)">
+                  {{ t('account.bindings.aiConnector.revoke') }}
+                </v-btn>
+              </template>
+            </v-list-item>
+          </v-list>
+
+          <v-alert v-else type="info" variant="tonal" density="compact">
+            {{ t('account.bindings.aiConnector.empty') }}
+          </v-alert>
+        </v-card-text>
+        <v-card-actions class="px-4 pb-4">
+          <v-spacer></v-spacer>
+          <v-btn variant="tonal" color="amber" @click="aiConnectorDialog = false">
+            {{ t('common.close') }}
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!-- AI 连接器管理弹窗 E -->
 
     <v-dialog :model-value="qqBotDialog" max-width="460" @update:model-value="qqBotDialog = $event">
       <v-card class="bg-grey-darken-4 pa-2">

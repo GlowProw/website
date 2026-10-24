@@ -86,7 +86,7 @@ defineOptions({
 
       <!-- 搜索内容主体 -->
       <div class="global-search-drawer__body flex-grow-1 overflow-y-auto pa-4 pa-lg-8">
-        <GlobalSearchCoreView embedded @close="model = false" />
+        <GlobalSearchCoreView embedded :active="model" @close="model = false" />
       </div>
     </v-card>
   </SwipeDrawer>

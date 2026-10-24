@@ -106,6 +106,31 @@ export interface PublicSeasonItems {
 }
 
 /**
+ * 单个图鉴条目的周度取得情况
+ */
+export interface PublicCodexItemWeek {
+    weekStart: string;
+    weekEnd: string;
+    collectors: number;
+    newCollectors: number;
+    rate: number;
+}
+
+/**
+ * 单个图鉴条目的全站统计结果
+ */
+export interface PublicCodexItemStats {
+    targetType: string;
+    targetId: string;
+    asOf: string;
+    totalUsers: number;
+    collectors: number;
+    rate: number;
+    weekly: PublicCodexItemWeek[];
+    updatedAt: number;
+}
+
+/**
  * 统计页概览卡片展示数据
  */
 export interface PublicStatsCardItem {

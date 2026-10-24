@@ -255,6 +255,7 @@ const onUpdateTags = (data: any) => {
               <v-text-field
                   v-model="publishData.name"
                   :rules="formRules.name"
+                  maxlength="140"
                   :label="t('assembly.publish.name')"
                   :placeholder="t('assembly.publish.name')"
                   variant="underlined">

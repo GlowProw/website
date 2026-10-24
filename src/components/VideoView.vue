@@ -98,6 +98,7 @@ defineOptions({
         </div>
 
         <v-text-field v-model="data.src"
+                      maxlength="2048"
                       :label="t('videoEmbed.label')"
                       @keyup.enter="onFinish"/>
       </v-card-text>

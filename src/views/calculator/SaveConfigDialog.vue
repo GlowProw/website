@@ -54,6 +54,8 @@ defineExpose({dialog})
                 density="compact"
                 variant="outlined"
                 hide-details
+                maxlength="50"
+                counter="50"
                 @keyup.enter="onSave"
             />
           </v-col>

@@ -22,7 +22,7 @@ const {item: readItemName, material: readMaterialName, commoditie: readCommodity
 const props = withDefaults(defineProps<{
   data: any;
   activeCategory?: string;
-  readonly: boolean,
+  readonly?: boolean;
   categories?: string[];
 }>(), {
   data: () => ({}),

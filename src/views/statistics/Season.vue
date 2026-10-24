@@ -12,6 +12,7 @@ import Loading from "@/components/Loading.vue";
 import SeasonName from "@/components/snbWidget/seasonName.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import SeasonItemsDialog from "@/components/SeasonItemsDialog.vue";
+import usePageHotkeys from "@/assets/sripts/page_hotkeys";
 
 const {t, te} = useI18n(),
     statsApi = Apis.publicStatsApi(),
@@ -51,6 +52,10 @@ const onLoad = async () => {
 }
 
 onMounted(onLoad)
+
+usePageHotkeys({
+  statsRefresh: () => onLoad(),
+})
 
 /**
  * 图鉴种类名称，缺失翻译时回退原始标识

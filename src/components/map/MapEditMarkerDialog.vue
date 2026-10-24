@@ -89,6 +89,7 @@
                       :rules="[v => !!v || t('map.titleRequired')]"
                       variant="outlined"
                       density="compact"
+                      maxlength="255"
                       required></v-text-field>
                 </v-col>
 
@@ -159,6 +160,7 @@
                     <Textarea
                         :model-value="form.description"
                         @update:model-value="patch({ description: $event })"
+                        :maxlength="2000"
                         :label="t('map.markerDescription')"
                         variant="outlined"
                         density="compact"

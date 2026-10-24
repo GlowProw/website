@@ -221,7 +221,7 @@ const getSmugglersComment = async (reportId: string) => {
                 <v-col cols="auto">
                   <AccountCardWidget :id="i.userId">
                     <ItemSlotBase size="50px">
-                      <UserAvatar :src="i.avatar || i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
+                      <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
                     </ItemSlotBase>
                   </AccountCardWidget>
                 </v-col>

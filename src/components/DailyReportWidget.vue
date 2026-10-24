@@ -890,7 +890,7 @@ const refreshAll = async () => {
                         <v-col cols="auto">
                           <AccountCardWidget :id="comment.userId">
                             <ItemSlotBase size="50px">
-                              <UserAvatar :src="comment.avatar || comment.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
+                              <UserAvatar :src="comment.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
                             </ItemSlotBase>
                           </AccountCardWidget>
                         </v-col>

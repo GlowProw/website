@@ -4,7 +4,7 @@ import {useRoute, useRouter} from 'vue-router';
 import {useI18n} from 'vue-i18n';
 import {useAuthStore} from '~/stores/userAccountStore';
 import {useNoticeStore} from '~/stores/noticeStore';
-import {apis} from '@/assets/sripts';
+import {apis, goBackUrl} from '@/assets/sripts';
 import {useRules} from '@/assets/sripts/rules_user';
 import {useDisplay} from 'vuetify/framework';
 
@@ -167,7 +167,7 @@ const onSubmit2FA = async () => {
     twoFACode.value = '';
 
     const backUrl = (route.query.backUrl as string) || '/';
-    await router.push(backUrl);
+    goBackUrl(backUrl, router);
   } catch (err: any) {
     if (err?.code === '2fa.loginTokenExpired') {
       errorMsg.value = errorText(err);
@@ -217,7 +217,8 @@ onMounted(async () => {
       authStore.setAccountToken(result.data);
       notice.success(t('basic.tips.signin.success'), {mode: 'minimal'});
       const backUrl = (route.query.backUrl as string) || '/';
-      return router.push(backUrl);
+      // backUrl 可能是 MCP 授权页等站外绝对地址，需走安全回跳（整页跳转 + 域名白名单）
+      goBackUrl(backUrl, router);
     }
 
     // 已登录用户绑定成功
@@ -286,7 +287,7 @@ const onCompleteSignup = async () => {
       notice.success(t('basic.tips.signin.oauth.bindSuccess'), {mode: 'minimal'});
 
       const backUrl = (route.query.backUrl as string) || '/';
-      await router.push(backUrl);
+      goBackUrl(backUrl, router);
     } else {
       notice.error(res?.data?.message || t('basic.tips.signin.oauth.failed'));
     }
@@ -325,7 +326,7 @@ const onCompleteBind = async () => {
       notice.success(t('basic.tips.signin.oauth.bindAndLoginSuccess'), {mode: 'minimal'});
       const backUrl = (route.query.backUrl as string) || '/';
 
-      router.push(backUrl);
+      goBackUrl(backUrl, router);
     } else if (res?.data?.code === 'signin.2faRequired') {
       onOpen2FA(res.data.data.setupToken, res.data.data.username || bindForm.value.username);
     } else {
@@ -347,7 +348,7 @@ const onCompleteBind = async () => {
 const onBackRoute = () => {
   const backUrl = (route.query.backUrl || route.query.backurl) as string || '';
 
-  if (backUrl) return router.push({path: backUrl});
+  if (backUrl) return goBackUrl(backUrl, router);
 
   return router.push('/account/signin');
 };
@@ -494,6 +495,7 @@ const onBackRoute = () => {
                       <v-text-field
                           v-model="signupForm.username"
                           :rules="rules.username"
+                          maxlength="40"
                           name="username"
                           variant="solo-filled"
                           prepend-inner-icon="mdi-account-key"
@@ -506,6 +508,7 @@ const onBackRoute = () => {
                       <v-text-field
                           v-model="signupForm.alternativeName"
                           :rules="rules.alternativeName"
+                          maxlength="40"
                           name="alternativeName"
                           variant="solo-filled"
                           prepend-inner-icon="mdi-rename"
@@ -516,6 +519,7 @@ const onBackRoute = () => {
                       <v-text-field
                           v-model="signupForm.password"
                           :rules="rules.password"
+                          maxlength="60"
                           name="password"
                           variant="solo-filled"
                           prepend-inner-icon="mdi-form-textbox-password"
@@ -534,6 +538,7 @@ const onBackRoute = () => {
                       <v-text-field
                           v-model="signupForm.email"
                           :rules="rules.email"
+                          maxlength="200"
                           name="email"
                           variant="solo-filled"
                           prepend-inner-icon="mdi-email"
@@ -572,6 +577,7 @@ const onBackRoute = () => {
                       <v-text-field
                           v-model="bindForm.username"
                           :rules="rules.username"
+                          maxlength="40"
                           name="bindUsername"
                           variant="solo-filled"
                           prepend-inner-icon="mdi-account-key"
@@ -582,6 +588,7 @@ const onBackRoute = () => {
                       <v-text-field
                           v-model="bindForm.password"
                           :rules="rules.password"
+                          maxlength="60"
                           name="bindPassword"
                           variant="solo-filled"
                           prepend-inner-icon="mdi-form-textbox-password"

@@ -61,6 +61,7 @@
                       :label="t('map.shapeName')"
                       :rules="[v => !!v || t('map.titleRequired')]"
                       variant="outlined"
+                      maxlength="255"
                       required></v-text-field>
                 </v-col>
 
@@ -93,6 +94,7 @@
                          :model-value="form.description"
                          @update:model-value="patch({ description: $event })"
                          :min-height="'160px'"
+                         :maxlength="2000"
                          :value="form.description || t('map.shapeDescription')"
                          :placeholder="t('map.shapeDescription')"
                          :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']">

@@ -38,11 +38,14 @@ import ShipName from "@/components/snbWidget/shipName.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {ERROR_CODES, logError} from "@/assets/sripts/error_logger";
 import Loading from "@/components/Loading.vue";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 
 const props = withDefaults(defineProps<{
       embedded?: boolean
+      active?: boolean
     }>(), {
-      embedded: false
+      embedded: false,
+      active: true
     }),
     {t, messages, locale} = useI18n(),
     os = useOS(),
@@ -370,6 +373,102 @@ const onPage = (item: any, type: string) => {
     onCloseModel()
   }
 }
+
+// 键盘导航当前选中的搜索结果下标
+const selectedResultIndex = ref(-1)
+
+/**
+ * 当前类型标签下可见的搜索结果扁平列表
+ */
+const visibleResults = computed(() => {
+  const results: { item: any, type: string }[] = []
+  for (const [type, items] of Object.entries(searchResult.value as Record<string, any[]>)) {
+    if (selectedType.value !== 'all' && selectedType.value !== String(type)) continue
+    for (const item of items || []) {
+      results.push({item, type: String(type)})
+    }
+  }
+  return results
+})
+
+/**
+ * 计算某个类型分组在扁平结果中的起始下标
+ * @param type 结果类型
+ */
+const resultIndexOffset = (type: string): number => {
+  let offset = 0
+  for (const [currentType, items] of Object.entries(searchResult.value as Record<string, any[]>)) {
+    if (selectedType.value !== 'all' && selectedType.value !== String(currentType)) continue
+    if (String(currentType) === type) return offset
+    offset += (items || []).length
+  }
+  return offset
+}
+
+/**
+ * 把选中项滚动到可视区域
+ */
+const onScrollSelectedIntoView = () => {
+  requestAnimationFrame(() => {
+    document.querySelector('.search-result-item--selected')?.scrollIntoView({block: 'nearest'})
+  })
+}
+
+/**
+ * 上移选中的搜索结果
+ */
+const onSelectPrevResult = () => {
+  if (visibleResults.value.length <= 0) return
+  const total = visibleResults.value.length
+  selectedResultIndex.value = selectedResultIndex.value <= 0 ? total - 1 : selectedResultIndex.value - 1
+  onScrollSelectedIntoView()
+}
+
+/**
+ * 下移选中的搜索结果
+ */
+const onSelectNextResult = () => {
+  if (visibleResults.value.length <= 0) return
+  const total = visibleResults.value.length
+  selectedResultIndex.value = selectedResultIndex.value >= total - 1 ? 0 : selectedResultIndex.value + 1
+  onScrollSelectedIntoView()
+}
+
+/**
+ * 打开当前选中的搜索结果
+ */
+const onOpenSelectedResult = () => {
+  const result = visibleResults.value[selectedResultIndex.value]
+  if (!result) return
+  onPage(result.item, result.type)
+}
+
+/**
+ * 切换到下一个有结果的搜索分类
+ */
+const onSwitchNextCategory = () => {
+  const types = ['all', ...Object.entries(searchResult.value as Record<string, any[]>)
+      .filter(([, items]) => (items || []).length > 0)
+      .map(([type]) => type)]
+  if (types.length <= 1) return
+  const currentIndex = types.indexOf(selectedType.value)
+  selectedType.value = types[(currentIndex + 1) % types.length]
+  selectedResultIndex.value = -1
+}
+
+// 结果集合或分类变化后重置选中项
+watch([() => searchResult.value, selectedType], () => {
+  selectedResultIndex.value = -1
+})
+
+usePageHotkeys({
+  searchPrev: onSelectPrevResult,
+  searchNext: onSelectNextResult,
+  searchOpen: onOpenSelectedResult,
+  searchNextCategory: onSwitchNextCategory,
+}, {
+  active: () => props.active,
+})
 
 defineExpose({
   onPage,
@@ -699,6 +798,7 @@ defineOptions({
                 <v-list-item
                     v-for="(i, index) in items"
                     :key="i.id || index"
+                    :class="{'search-result-item--selected': resultIndexOffset(String(type)) + index === selectedResultIndex}"
                     @click="onPage(i, String(type))"
                     three-line>
                   <template v-slot:prepend>
@@ -850,5 +950,11 @@ defineOptions({
 
 .search-results-container {
   overflow-y: auto;
+}
+
+.search-result-item--selected {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: -2px;
+  border-radius: 4px;
 }
 </style>

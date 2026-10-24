@@ -217,7 +217,10 @@
 
 <script setup lang="ts">
 import {useI18n} from 'vue-i18n';
+import type Feature from 'ol/Feature';
+import type Geometry from 'ol/geom/Geometry';
 import {use_map_controller} from '@/assets/sripts/use_map_controller';
+import {usePageHotkeys} from '@/assets/sripts/page_hotkeys';
 
 import MapView from '@/components/map/MapView.vue';
 import MapToolbar from '@/components/map/MapToolbar.vue';
@@ -266,6 +269,7 @@ const {
   selectedLocationNearbyPoints,
   personalMarkers,
   selectedShape,
+  selectedShapeUuid,
   showCreateMarkerDialog,
   creatingMarker,
   selectedPoint,
@@ -366,9 +370,37 @@ const {
   onToggleMarqueeMode,
   clearMarqueeSelection,
   onDeleteMarqueeSelection,
+  onDeletePointFromMenu,
 } = use_map_controller();
 
 const {t} = useI18n();
+
+/**
+ * 删除当前选中的地图要素，优先处理框选结果，其次为单个图形或个人标记
+ */
+const onHotkeyDeleteSelected = () => {
+  if (marqueeCount.value > 0) {
+    onDeleteMarqueeSelection();
+    return;
+  }
+  if (selectedShapeUuid.value) {
+    void deleteShape(selectedShapeUuid.value);
+    return;
+  }
+  if (model.value && selectedLocationData.value?.category === 'shareLocation' && selectedLocationData.value.uuid) {
+    const uuid = selectedLocationData.value.uuid;
+    const feature = vectorLayerRef.value?.getSource()?.getFeatures()
+        .find((item: Feature<Geometry>) => item.get('originalData')?.uuid === uuid);
+    if (feature) onDeletePointFromMenu(feature);
+  }
+};
+
+/**
+ * 绑定地图页面快捷键
+ */
+usePageHotkeys({
+  mapDeleteSelected: onHotkeyDeleteSelected,
+});
 </script>
 
 <style scoped lang="less">

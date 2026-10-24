@@ -2,6 +2,7 @@
 import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {useMessagesApi} from "@/assets/sripts/api/messages_service";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import {useAuthStore} from "~/stores/userAccountStore";
 import type {UserAttr} from "@/assets/types/User";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
@@ -47,6 +48,15 @@ const saveSettings = async () => {
     saveStatus.value = 'idle';
   }
 };
+
+// 保存完成后短暂展示已保存状态，此期间不重复触发保存
+const canSaveSettings = computed(() => saveStatus.value === 'idle');
+
+usePageHotkeys({
+  accountSave: saveSettings,
+}, {
+  active: () => canSaveSettings.value,
+});
 
 defineOptions({
   name: 'AccountMessagesSettings'

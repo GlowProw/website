@@ -19,9 +19,9 @@ export default class AppApps {
                 to: `/${lang}/apps/api-docs`
             },
             {
-                id: 'aiSkills',
-                tags: ['ai', 'skill', 'assistant', 'skillbook', 'skill-book'],
-                to: `/${lang}/apps/ai-skills`
+                id: 'aiConnector',
+                tags: ['ai', 'mcp', 'connector', 'assistant', 'claude', 'chatgpt'],
+                to: `/${lang}/apps/ai-connector`
             }
         ]
     }

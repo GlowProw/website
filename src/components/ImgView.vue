@@ -366,6 +366,7 @@ defineOptions({
         <div v-else>
           <v-text-field
               v-model="data.src"
+              maxlength="2048"
               label="图片 URL (Href)"
               placeholder="https://example.com/image.png"
               variant="outlined"

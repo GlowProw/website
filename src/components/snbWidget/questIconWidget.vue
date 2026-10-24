@@ -51,14 +51,15 @@ const computedMargin = useIconImageMargin(props.margin);
           :to="isOpenDetail ? `/quest/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
           width="100%"
-          height="100%"
           :class="[
-              'prohibit-drag pa-2',
+              'prohibit-drag',
               'd-flex flex-column align-center justify-center',
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,
           ]">
-        <v-icon size="42">mdi-script-text-outline</v-icon>
+        <div class="d-flex align-center justify-center w-100 h-100 overflow-hidden">
+          <v-icon class="w-100 h-100">mdi-script-text-outline</v-icon>
+        </div>
       </v-card>
     </template>
     <QuestCardDetail

@@ -12,6 +12,7 @@ import Loading from "@/components/Loading.vue";
 import PublicStatsBreakdownList from "@/components/PublicStatsBreakdownList.vue";
 import PublicStatsMetricCard from "@/components/PublicStatsMetricCard.vue";
 import PublicStatsTrendChart from "@/components/PublicStatsTrendChart.vue";
+import usePageHotkeys from "@/assets/sripts/page_hotkeys";
 
 const {t, te} = useI18n(),
     statsApi = Apis.publicStatsApi(),
@@ -41,6 +42,13 @@ const onRangeChange = async (value: PublicStatsRange) => {
   range.value = value
   await onLoad()
 }
+
+usePageHotkeys({
+  statsRange7: () => onRangeChange('7'),
+  statsRange30: () => onRangeChange('30'),
+  statsRange90: () => onRangeChange('90'),
+  statsRefresh: () => onLoad(),
+})
 
 /**
  * 图鉴种类名称，缺失翻译时回退原始标识

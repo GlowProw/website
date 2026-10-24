@@ -8,7 +8,7 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import Captcha from "@/components/captcha/index.vue";
 import {useRules} from "@/assets/sripts/rules_user"
 import {SigninParams} from "@/assets/types/User.Login";
-import {apis} from "@/assets/sripts";
+import {apis, goBackUrl} from "@/assets/sripts";
 import {ApiError} from "@/assets/types/Api";
 import {CaptchaParams} from "@/assets/types/Captcha";
 import {handleApiError} from "@/assets/sripts/error_handler";
@@ -31,6 +31,9 @@ const authStore = useAuthStore(),
  * 模板 ref 引用，用于失败时自动刷新验证码
  */
 const captchaRef = ref<InstanceType<typeof Captcha> | null>(null)
+
+// 登录后回跳 goBackUrl：站内路径走前端路由，站外地址（如 MCP 授权页回跳
+// api.glow-prow.top / 本地 localhost:3000）整页跳转；仅允许官方域名或本地回环地址
 
 let signinFormLoading: Ref<boolean> = ref(false),
 
@@ -110,7 +113,7 @@ const onSubmit2FA = async () => {
 
     const targetBackUrl = (route.query.backUrl || route.query.backurl) as string;
     if (targetBackUrl) {
-      return await router.push(targetBackUrl);
+      return await goBackUrl(targetBackUrl, router);
     }
     await router.push('/')
   } catch (e) {
@@ -159,7 +162,7 @@ const onLogin = async () => {
 
     const targetBackUrl = (route.query.backUrl || route.query.backurl) as string;
     if (targetBackUrl) {
-      return await router.push(targetBackUrl);
+      return await goBackUrl(targetBackUrl, router);
     }
 
     await router.push('/')
@@ -190,7 +193,7 @@ const onBackRoute = async () => {
   const backUrl = (route.query.backUrl || route.query.backurl) as string || '';
 
   if (backUrl)
-    return router.push({path: backUrl})
+    return goBackUrl(backUrl, router)
 
   return router.go(-1)
 }
@@ -236,6 +239,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                                 name="username"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-account-key"
+                                maxlength="40"
                                 :label="t('signin.form.label.username')"
                                 :placeholder="t('signin.form.placeholder.username')"></v-text-field>
                   <v-text-field v-model="signinFrom.password"
@@ -243,6 +247,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                                 name="password"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-form-textbox-password"
+                                maxlength="60"
                                 :label="t('signin.form.label.password')"
                                 :placeholder="t('signin.form.placeholder.password')"
                                 type="password"></v-text-field>

@@ -104,6 +104,7 @@ function onImport() {
         <div class="d-flex align-center gap-3">
           <v-text-field
               v-model="importInput"
+              maxlength="2048"
               :placeholder="t('mastery.shareDialog.importPlaceholder')"
               density="compact"
               variant="outlined"

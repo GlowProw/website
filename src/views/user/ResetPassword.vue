@@ -93,6 +93,7 @@ const onReset = async () => {
                               :rules="rules.username"
                               name="username"
                               prepend-inner-icon="mdi-account-key"
+                              maxlength="40"
                               :label="t('resetPassword.form.username')"
                               class="mb-2"></v-text-field>
 
@@ -111,6 +112,7 @@ const onReset = async () => {
                               :type="passwordVisible ? 'text' : 'password'"
                               variant="solo-filled"
                               prepend-inner-icon="mdi-lock-reset"
+                              maxlength="60"
                               :label="t('resetPassword.form.newPassword')">
                   <template v-slot:append-inner>
                     <v-icon

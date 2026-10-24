@@ -5,6 +5,7 @@ import {useNoticeStore} from '~/stores/noticeStore'
 import {apis} from '@/assets/sripts'
 import {VOtpInput} from 'vuetify/components/VOtpInput'
 import {handleApiError} from '@/assets/sripts/error_handler'
+import {usePageHotkeys} from '@/assets/sripts/page_hotkeys'
 import {ApiError} from '@/assets/types/Api'
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
@@ -197,6 +198,38 @@ const onReset = () => {
   setupData.value = null
   verifyCode.value = ''
 }
+
+// 已启用且没有密码弹窗时才能重新生成恢复码
+const canRegenerateRecovery = computed(() =>
+    enabled.value && step.value === 'idle' && !passwordDialog.value && !passwordLoading.value,
+)
+
+// 设置流程中校验码填满后才允许提交启用
+const canConfirmEnable = computed(() =>
+    step.value === 'setup' && Boolean(setupData.value) && verifyCode.value.length === 6 && !passwordLoading.value,
+)
+
+// 设置流程或启用完成态下取消可回到初始面板
+const canResetTwoFactor = computed(() => step.value === 'setup' || step.value === 'done')
+
+usePageHotkeys({
+  accountRegenRecovery: onRegenerateCodes,
+}, {
+  active: () => canRegenerateRecovery.value,
+})
+
+usePageHotkeys({
+  accountSave: onConfirmEnable,
+}, {
+  active: () => canConfirmEnable.value,
+})
+
+usePageHotkeys({
+  accountCancel: onReset,
+}, {
+  active: () => canResetTwoFactor.value,
+  allowInEditable: ['accountCancel'],
+})
 </script>
 
 <template>

@@ -2,6 +2,7 @@ import { useHotkeysStore } from '~/stores/hotkeysStore';
 import { useAppStore } from '~/stores/appStore';
 import { useMessagesDrawerStore } from '~/stores/messagesDrawerStore';
 import { useCodexHistoryDrawerStore } from '~/stores/codexHistoryDrawerStore';
+import router from '~/router';
 
 // 检测是否为苹果系统设备
 export const isMacDevice = typeof navigator !== 'undefined' && /mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent || '');
@@ -153,6 +154,55 @@ export function setupGlobalHotkeys(): () => void {
         messagesDrawerStore.setOpen(false);
       }
       return;
+    }
+
+    // 顶栏按钮组：依次打开搜索、游览历史、消息中心与账号设置
+    const headerActions: { id: string; run: () => void }[] = [
+      {
+        id: 'headerSearch',
+        run: () => {
+          appStore.headerDrawer = false;
+          messagesDrawerStore.setOpen(false);
+          appStore.globalSearchDrawer = true;
+        },
+      },
+      {
+        id: 'headerHistory',
+        run: () => {
+          appStore.headerDrawer = false;
+          appStore.globalSearchDrawer = false;
+          messagesDrawerStore.setOpen(false);
+          codexHistoryDrawerStore.setOpen(true);
+        },
+      },
+      {
+        id: 'headerMessages',
+        run: () => {
+          appStore.headerDrawer = false;
+          appStore.globalSearchDrawer = false;
+          codexHistoryDrawerStore.setOpen(false);
+          messagesDrawerStore.setOpen(true);
+        },
+      },
+      {
+        id: 'headerSettings',
+        run: () => {
+          const lang = router.currentRoute.value.params.lang;
+          router.push({
+            name: 'PortalSettingRoutine',
+            params: lang ? { lang } : {},
+          }).catch(() => {});
+        },
+      },
+    ];
+
+    for (const action of headerActions) {
+      const actionKey = hotkeysStore.getKey(action.id);
+      if (actionKey && pressedKey === actionKey) {
+        e.preventDefault();
+        action.run();
+        return;
+      }
     }
   };
 

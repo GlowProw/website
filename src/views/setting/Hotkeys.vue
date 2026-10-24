@@ -6,13 +6,15 @@
 import {computed, onBeforeUnmount, ref} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {useHotkeysStore} from '~/stores/hotkeysStore'
-import type {HotkeyItem, HotkeyMode} from '@/assets/types/Hotkeys'
+import {useNoticeStore} from '~/stores/noticeStore'
+import type {HotkeyItem, HotkeyLocation, HotkeyMode} from '@/assets/types/Hotkeys'
 import {useOS} from '@/assets/sripts/os'
 import {VHotkey} from 'vuetify/components/VHotkey'
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
 const {t} = useI18n()
 const hotkeysStore = useHotkeysStore()
+const notice = useNoticeStore()
 const {os} = useOS()
 
 /**
@@ -26,36 +28,34 @@ const currentPlatform = computed<'auto' | 'mac' | 'pc'>(() => {
 
 // 当前正在录制按键的动作 ID
 const recordingActionId = ref<string | null>(null)
-// 通知提示条状态
-const snackbar = ref({show: false, text: '', color: 'success'})
 
 /**
- * 弹出提示消息
- * @param text 消息内容
- * @param color 颜色类型
+ * 地点标识对应的多语言键
+ * @param location 地点标识
  */
-const notify = (text: string, color = 'success') => {
-  snackbar.value = {show: true, text, color}
+const locationI18nKey = (location: HotkeyLocation) => {
+  return `setting.hotkeys.location${location.charAt(0).toUpperCase()}${location.slice(1)}`
 }
 
 /**
- * 快捷键分组展示配置
+ * 快捷键分组展示配置，按动作清单中的分类出现顺序动态生成
  */
-const groupList = computed(() => [
-  {key: 'workshop', titleKey: 'setting.hotkeys.groupWorkshop'},
-  {key: 'codex', titleKey: 'setting.hotkeys.groupCodex'},
-  {key: 'global', titleKey: 'setting.hotkeys.groupGlobal'},
-])
+const groupList = computed(() => {
+  const seen = new Set<string>()
+  return hotkeysStore.hotkeyList
+      .filter(item => {
+        if (seen.has(item.category)) return false
+        seen.add(item.category)
+        return true
+      })
+      .map(item => ({key: item.category, titleKey: item.categoryKey}))
+})
 
 /**
  * 按分类聚合快捷键列表
  */
 const categorizedHotkeys = computed(() => {
-  const groups: Record<string, HotkeyItem[]> = {
-    workshop: [],
-    codex: [],
-    global: [],
-  }
+  const groups: Record<string, HotkeyItem[]> = {}
   for (const item of hotkeysStore.hotkeyList) {
     if (!groups[item.category]) {
       groups[item.category] = []
@@ -73,9 +73,17 @@ const categorizedHotkeys = computed(() => {
 const onUpdateMode = (item: HotkeyItem, mode: unknown) => {
   if (mode !== 'press' && mode !== 'hold') return
   hotkeysStore.updateMode(item.id, mode as HotkeyMode)
-  notify(t('setting.hotkeys.modeUpdated', {
+  notice.success(t('setting.hotkeys.modeUpdated', {
     mode: t(mode === 'hold' ? 'setting.hotkeys.modeHold' : 'setting.hotkeys.modePress'),
-  }), 'success')
+  }), {mode: 'minimal'})
+}
+
+/**
+ * 拼装与指定动作共用按键的其他动作名称
+ * @param actionId 动作唯一标识
+ */
+const conflictNames = (actionId: string) => {
+  return hotkeysStore.getConflicts(actionId).map(item => t(item.nameKey)).join(' / ')
 }
 
 /**
@@ -143,12 +151,16 @@ const onKeyDownCapture = (e: KeyboardEvent) => {
   const result = hotkeysStore.updateKey(recordingActionId.value, combinedKey)
   if (result.success) {
     if (result.conflictId) {
-      notify(t('setting.hotkeys.conflictWarning', {key: combinedKey}), 'warning')
+      const conflictItem = hotkeysStore.hotkeyList.find(item => item.id === result.conflictId)
+      notice.warning(t('setting.hotkeys.conflictWith', {
+        key: combinedKey,
+        name: conflictItem ? t(conflictItem.nameKey) : '',
+      }))
     } else {
-      notify(t('setting.hotkeys.updateSuccess', {key: combinedKey}), 'success')
+      notice.success(t('setting.hotkeys.updateSuccess', {key: combinedKey}), {mode: 'minimal'})
     }
   } else {
-    notify(t('setting.hotkeys.updateFailed'), 'error')
+    notice.error(t('setting.hotkeys.updateFailed'))
   }
 
   stopRecording()
@@ -159,7 +171,7 @@ const onKeyDownCapture = (e: KeyboardEvent) => {
  */
 const onResetDefaults = () => {
   hotkeysStore.resetToDefaults()
-  notify(t('setting.hotkeys.resetSuccess'), 'info')
+  notice.info(t('setting.hotkeys.resetSuccess'))
 }
 
 onBeforeUnmount(() => {
@@ -210,6 +222,23 @@ defineOptions({
                     {{ t(item.descriptionKey) }}
                   </v-list-item-subtitle>
 
+                  <div class="d-flex flex-wrap ga-2 mt-2">
+                    <v-chip v-for="location in item.locations"
+                            :key="location"
+                            size="x-small"
+                            variant="tonal"
+                            prepend-icon="mdi-map-marker-outline">
+                      {{ t(locationI18nKey(location)) }}
+                    </v-chip>
+                    <v-chip v-if="hotkeysStore.getConflicts(item.id).length > 0"
+                            size="x-small"
+                            color="warning"
+                            variant="tonal"
+                            prepend-icon="mdi-alert-outline">
+                      {{ t('setting.hotkeys.conflictBadge', {name: conflictNames(item.id)}) }}
+                    </v-chip>
+                  </div>
+
                   <template #append>
                     <div class="d-flex align-center ga-2">
                       <v-btn-toggle
@@ -257,10 +286,6 @@ defineOptions({
         </div>
       </AffixBoxHasTitleView>
     </v-col>
-
-    <v-snackbar v-model="snackbar.show" :color="snackbar.color" timeout="2500" location="bottom end">
-      {{ snackbar.text }}
-    </v-snackbar>
   </v-row>
 </template>
 

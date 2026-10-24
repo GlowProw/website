@@ -21,6 +21,8 @@ import {number, storage, getAppUrl} from "@/assets/sripts/index";
 import {useHead} from "@unhead/vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
@@ -53,6 +55,13 @@ const
       const headData = i18nReadName.modification(id.value);
       return (headData.description() as string) || '';
     });
+
+useCodexDetailHotkeys({
+  targetType: 'mod',
+  targetId: () => id.value,
+  targetName: () => i18nReadName.modification(id.value).name(),
+  list: () => Object.keys(mods).map(key => ({id: key})),
+})
 
 useHead({
   title: headTitle,
@@ -260,6 +269,8 @@ const onCodexHistory = () => {
                     <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
+
+                <CodexItemStatsCard v-if="id" target-type="mod" :target-id="id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

@@ -149,8 +149,8 @@ const onCaptchaData = (data: CaptchaParams) => {
                                 name="username"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-account-key"
-                                min-length="3"
-                                max-length="40"
+                                minlength="3"
+                                maxlength="40"
                                 clearable
                                 :placeholder="t('signup.username.placeholder')"></v-text-field>
                 </div>
@@ -164,6 +164,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                                 name="alternativeName"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-rename"
+                                maxlength="40"
                                 clearable
                                 :placeholder="t('signup.alternativeName.placeholder')"></v-text-field>
                 </div>
@@ -179,8 +180,8 @@ const onCaptchaData = (data: CaptchaParams) => {
                                 prepend-inner-icon="mdi-form-textbox-password"
                                 :type="signupPasswordMode ? 'text' : 'password'"
                                 clearable
-                                min-length="8"
-                                max-length="64"
+                                minlength="8"
+                                maxlength="60"
                                 :placeholder="t('signin.form.placeholder.password')">
                     <template v-slot:append-inner>
                       <v-icon
@@ -202,6 +203,7 @@ const onCaptchaData = (data: CaptchaParams) => {
                                 name="email"
                                 variant="solo-filled"
                                 prepend-inner-icon="mdi-email"
+                                maxlength="200"
                                 clearable
                                 :placeholder="t('signup.email.hint')"></v-text-field>
                 </div>

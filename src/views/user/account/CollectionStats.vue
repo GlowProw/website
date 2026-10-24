@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {
   Items,
@@ -27,9 +27,12 @@ import type {
 } from "@/assets/types/Stats";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Loading from "@/components/Loading.vue";
+import EmptyView from "@/components/EmptyView.vue";
+import TimeView from "@/components/TimeView.vue";
 import SeasonViewWidget from "@/components/SeasonViewWidget.vue";
 import SeasonName from "@/components/snbWidget/seasonName.vue";
 import {VSparkline} from "vuetify/components/VSparkline";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useCollectionStore} from "~/stores/collectionStore";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -38,10 +41,30 @@ const {t, te} = useI18n(),
     authStore = useAuthStore(),
     noticeStore = useNoticeStore(),
     collectionStore = useCollectionStore(),
+    {
+      item: readItemName,
+      ship: readShipName,
+      material: readMaterialName,
+      cosmetic: readCosmeticName,
+      commoditie: readCommoditieName,
+      empireSkill: readEmpireSkillName,
+      mapLocation: readMapLocationName,
+      mastery: readMasteryName,
+      modification: readModificationName,
+      npc: readNpcName,
+      set: readSetName,
+      treasureMap: readTreasureMapName,
+      ultimate: readUltimateName
+    } = useI18nReadName(),
     loading = ref(true),
     range = ref<StatsRange>('30'),
     syncDialog = ref(false),
     cardHoverIndexMap = ref<Record<string, number | null>>({}),
+    manageSearch = ref(''),
+    manageKind = ref('all'),
+    managePage = ref(1),
+    managePageSize = 10,
+    removingKey = ref<string | null>(null),
     syncing = computed(() => collectionStore.syncing)
 
 const seasonData = Seasons;
@@ -134,6 +157,190 @@ const mergedRecords = computed<CollectionRecord[]>(() => {
 
   return Array.from(merged.values())
 })
+
+/**
+ * 图鉴种类对应的详情路由名称
+ */
+const detailRouteNames: Record<string, string> = {
+  item: 'ItemDetail',
+  ship: 'ShipDetail',
+  material: 'MaterialDetail',
+  cosmetic: 'CosmeticDetail',
+  commoditie: 'CommoditieDetail',
+  empireSkill: 'EmpireSkillDetail',
+  mapLocation: 'MapLocationDetail',
+  mastery: 'MasteryDetail',
+  mod: 'ModDetail',
+  npc: 'NpcDetail',
+  set: 'SetDetail',
+  treasureMap: 'TreasureMapDetail',
+  ultimate: 'UltimateDetail'
+}
+
+/**
+ * 图鉴种类对应的列表图标
+ */
+const kindIcons: Record<string, string> = {
+  item: 'mdi-sword',
+  ship: 'mdi-sail-boat',
+  material: 'mdi-cube-outline',
+  cosmetic: 'mdi-palette-outline',
+  commoditie: 'mdi-cash-multiple',
+  empireSkill: 'mdi-shield-star-outline',
+  mapLocation: 'mdi-map-marker-outline',
+  mastery: 'mdi-star-shooting-outline',
+  mod: 'mdi-wrench-outline',
+  npc: 'mdi-account-tie-outline',
+  set: 'mdi-layers-outline',
+  treasureMap: 'mdi-map-outline',
+  ultimate: 'mdi-flash-outline'
+}
+
+/**
+ * 读取收藏记录对应的本地化图鉴名称
+ * @param record 收藏记录
+ */
+const readRecordName = (record: CollectionRecord): string => {
+  const {targetType, targetId} = record
+  switch (targetType) {
+    case 'item':
+      return readItemName(targetId).name()
+    case 'ship':
+      return readShipName(targetId).name()
+    case 'material':
+      return readMaterialName(targetId).name()
+    case 'cosmetic':
+      return readCosmeticName(targetId).name()
+    case 'commoditie':
+      return readCommoditieName(targetId).name()
+    case 'empireSkill':
+      return readEmpireSkillName(targetId).name()
+    case 'mapLocation':
+      return readMapLocationName(targetId).name()
+    case 'mastery':
+      return readMasteryName(targetId).name()
+    case 'mod':
+      return readModificationName(targetId).name()
+    case 'npc':
+      return readNpcName(targetId).name(undefined)
+    case 'set':
+      return readSetName(targetId).name()
+    case 'treasureMap': {
+      const category = kindEntries.get('treasureMap')?.[targetId]?.category || ''
+      return readTreasureMapName(targetId).name(category)
+    }
+    case 'ultimate':
+      return readUltimateName(targetId).name()
+    default:
+      return targetId
+  }
+}
+
+/**
+ * 判断记录是否来自本地匿名标记
+ * @param record 收藏记录
+ */
+const isLocalRecord = (record: CollectionRecord): boolean =>
+    collectionStore.localMap[record.targetType]?.[record.targetId] !== undefined
+
+/**
+ * 管理列表的种类筛选项
+ */
+const manageKindOptions = computed(() => [
+  {title: t('account.collectionStats.manage.allKinds'), value: 'all'},
+  ...collectionKinds.map(kind => ({title: kindName(kind.key), value: kind.key}))
+])
+
+/**
+ * 筛选后的收藏记录，按取得时间从新到旧排列
+ */
+const filteredManageRecords = computed<CollectionRecord[]>(() => {
+  const keyword = manageSearch.value.trim().toLowerCase()
+  return mergedRecords.value
+      .filter(record => {
+        if (manageKind.value !== 'all' && record.targetType !== manageKind.value) return false
+        if (!keyword) return true
+        return readRecordName(record).toLowerCase().includes(keyword) ||
+            record.targetId.toLowerCase().includes(keyword)
+      })
+      .sort((a, b) => new Date(b.createdTime).getTime() - new Date(a.createdTime).getTime())
+})
+
+/**
+ * 管理列表总页数
+ */
+const manageTotalPages = computed(() => Math.max(1, Math.ceil(filteredManageRecords.value.length / managePageSize)))
+
+/**
+ * 当前页展示的收藏记录
+ */
+const pagedManageRecords = computed(() =>
+    filteredManageRecords.value.slice((managePage.value - 1) * managePageSize, managePage.value * managePageSize)
+)
+
+/**
+ * 记录被移除后回退到有效页码
+ */
+watch(manageTotalPages, total => {
+  if (managePage.value > total) managePage.value = total
+})
+
+/**
+ * 筛选条件变化时回到第一页
+ */
+const onManageFilterChange = () => {
+  managePage.value = 1
+}
+
+/**
+ * 管理列表分页切换
+ * @param page 目标页码
+ */
+const onManagePageChange = (page: number) => {
+  managePage.value = page
+}
+
+/**
+ * 图鉴详情跳转目标
+ * @param record 收藏记录
+ */
+const detailRoute = (record: CollectionRecord) => {
+  const name = detailRouteNames[record.targetType]
+  return name ? {name, params: {id: record.targetId}} : {name: 'Codex'}
+}
+
+/**
+ * 取消单条收藏
+ * @param record 收藏记录
+ */
+const onRemoveCollection = async (record: CollectionRecord) => {
+  const key = `${record.targetType}:${record.targetId}`
+  if (removingKey.value) return
+  if (!confirm(t('account.collectionStats.manage.removeConfirm'))) return
+
+  removingKey.value = key
+  try {
+    await collectionStore.onToggle(record.targetType, record.targetId)
+    noticeStore.success(t('account.collectionStats.manage.removed'))
+  } catch {
+    noticeStore.error(t('basic.networkError'))
+  } finally {
+    removingKey.value = null
+  }
+}
+
+/**
+ * 复制文本至剪贴板
+ * @param text 目标文本
+ */
+const copyText = (text: string) => {
+  if (!text) return
+  navigator.clipboard.writeText(text).then(() => {
+    noticeStore.success(t('basic.button.copied') || '已复制')
+  }).catch(() => {
+    noticeStore.error(t('basic.copyFail') || '复制失败')
+  })
+}
 
 /**
  * 已取得物品总数
@@ -620,7 +827,7 @@ defineOptions({
           </template>
         </AffixBoxHasTitleView>
 
-        <AffixBoxHasTitleView>
+        <AffixBoxHasTitleView class="mb-8">
           <v-row density="compact">
             <v-col cols="12" sm="6" md="4" v-for="season in seasonStats" :key="season.season">
               <v-card border rounded="lg" variant="text" class="h-100">
@@ -647,6 +854,138 @@ defineOptions({
 
           <template v-slot:title>
             {{ t('account.collectionStats.seasons.title') }}
+          </template>
+        </AffixBoxHasTitleView>
+
+        <AffixBoxHasTitleView>
+          <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">
+            <div class="d-flex align-center flex-wrap ga-2">
+              <v-text-field
+                  v-model="manageSearch"
+                  prepend-inner-icon="mdi-magnify"
+                  :placeholder="t('account.collectionStats.manage.searchPlaceholder')"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  clearable
+                  style="width: 220px;"
+                  class="flex-shrink-0"
+                  @keydown.enter="onManageFilterChange"
+                  @click:clear="onManageFilterChange">
+              </v-text-field>
+
+              <v-select
+                  v-model="manageKind"
+                  :items="manageKindOptions"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  style="width: 150px;"
+                  class="flex-shrink-0"
+                  @update:model-value="onManageFilterChange">
+              </v-select>
+            </div>
+
+            <v-spacer></v-spacer>
+
+            <v-btn variant="flat" :loading="loading" @click="onLoad">
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+          </v-card>
+
+          <div v-if="pagedManageRecords.length">
+            <v-list lines="three" variant="text" class="bg-transparent">
+              <template v-for="(record, index) in pagedManageRecords" :key="`${record.targetType}:${record.targetId}`">
+                <v-list-item>
+                  <template v-slot:prepend>
+                    <v-avatar size="50" rounded="lg" class="mr-3 flex-shrink-0">
+                      <v-icon size="26" color="white">{{ kindIcons[record.targetType] || 'mdi-bookmark-outline' }}</v-icon>
+                    </v-avatar>
+                  </template>
+
+                  <template v-slot:title>
+                    <div class="d-flex align-center flex-wrap ga-2">
+                      <p class="font-weight-bold text-truncate">{{ readRecordName(record) }}</p>
+
+                      <v-chip size="x-small" color="amber" variant="tonal">
+                        {{ kindName(record.targetType) }}
+                      </v-chip>
+
+                      <v-chip
+                          size="x-small"
+                          :color="isLocalRecord(record) ? 'green' : 'blue'"
+                          variant="outlined">
+                        {{ isLocalRecord(record)
+                          ? t('account.collectionStats.manage.sourceLocal')
+                          : t('account.collectionStats.manage.sourceAccount') }}
+                      </v-chip>
+                    </div>
+                  </template>
+
+                  <template v-slot:subtitle>
+                    <div class="d-flex align-center flex-wrap ga-2 mt-2">
+                      <p class="d-flex align-center cursor-pointer" :title="record.targetId" @click="copyText(record.targetId)">
+                        <v-icon size="14" class="mr-1">mdi-identifier</v-icon>
+                        {{ record.targetId }}
+                      </p>
+
+                      <v-divider vertical inset class="mx-1"></v-divider>
+
+                      <p class="d-flex align-center">
+                        <v-icon size="14" class="mr-1">mdi-clock-outline</v-icon>
+                        <TimeView :time="record.createdTime"></TimeView>
+                      </p>
+                    </div>
+                  </template>
+
+                  <template v-slot:append>
+                    <div class="d-flex align-center ga-2">
+                      <v-btn
+                          size="x-small"
+                          variant="tonal"
+                          color="amber"
+                          prepend-icon="mdi-open-in-new"
+                          :to="detailRoute(record)">
+                        {{ t('account.collectionStats.manage.view') }}
+                      </v-btn>
+                      <v-btn
+                          size="x-small"
+                          variant="tonal"
+                          color="red"
+                          :loading="removingKey === `${record.targetType}:${record.targetId}`"
+                          prepend-icon="mdi-bookmark-remove-outline"
+                          @click="onRemoveCollection(record)">
+                        {{ t('account.collectionStats.manage.remove') }}
+                      </v-btn>
+                    </div>
+                  </template>
+                </v-list-item>
+                <v-divider inset v-if="index < pagedManageRecords.length - 1"></v-divider>
+              </template>
+            </v-list>
+
+            <div v-if="manageTotalPages > 1" class="d-flex justify-center mt-4">
+              <v-pagination
+                  v-model="managePage"
+                  :length="manageTotalPages"
+                  :total-visible="5"
+                  density="comfortable"
+                  size="small"
+                  @update:model-value="onManagePageChange">
+              </v-pagination>
+            </div>
+          </div>
+
+          <div v-else class="text-center py-12">
+            <EmptyView>
+              <template v-slot:description>
+                {{ t('account.collectionStats.manage.empty') }}
+              </template>
+            </EmptyView>
+          </div>
+
+          <template v-slot:title>
+            {{ t('account.collectionStats.manage.title') }}
           </template>
         </AffixBoxHasTitleView>
       </template>
@@ -677,6 +1016,10 @@ defineOptions({
 </template>
 
 <style scoped lang="less">
+.cursor-pointer {
+  cursor: pointer;
+}
+
 .trend-chart {
   svg {
     height: 180px;

@@ -297,12 +297,20 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
         return map;
     });
 
-    // 只要任意相连节点已激活，或者自身为树起点，即可点击投入点数
+    /**
+     * 判断指定节点是否处于可投入点数状态
+     * 需满足：相连节点已激活或为根节点，且剩余点数满足该节点消耗
+     */
     function isNodeAvailable(keyOrId: string): boolean {
         const node = findNode(keyOrId);
         if (!node) return false;
         if (node.role === 'seasonalPerk') {
             return regularPointsSpent.value >= node.cost;
+        }
+        // 点数不足以支付该节点消耗或点数耗尽时判定为不可用
+        const cost = node.cost || 1;
+        if (regularPointsSpent.value + cost > maxPoints.value) {
+            return false;
         }
         // 根节点天然可激活
         if (isRootNode(node)) {

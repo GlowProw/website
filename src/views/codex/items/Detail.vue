@@ -37,6 +37,8 @@ import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import ItemAmmunitionType from "@/components/snbWidget/itemAmmunitionType.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
 
@@ -89,6 +91,13 @@ const
       const headData = i18nReadName.item(id.value);
       return (headData.description() as string) || '';
     });
+
+useCodexDetailHotkeys({
+  targetType: 'item',
+  targetId: () => id.value,
+  targetName: () => i18nReadName.item(id.value).name(),
+  list: () => Object.keys(items).map(key => ({id: key})),
+})
 
 useHead({
   title: headTitle,
@@ -571,6 +580,8 @@ const onAddCalculator = () => {
                     <PerksWidget :data="itemDetailData"></PerksWidget>
                   </div>
                 </template>
+
+                <CodexItemStatsCard v-if="id" target-type="item" :target-id="id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

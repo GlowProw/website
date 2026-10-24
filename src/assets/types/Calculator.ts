@@ -25,6 +25,8 @@ export interface FlatMaterialEntry {
     id: string
     totalQuantity: number
     isRaw: boolean
+    // 该材料本身可以继续制作为下级材料
+    isCraftable: boolean
 }
 
 export interface SankeyNode {

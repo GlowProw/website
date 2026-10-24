@@ -22,9 +22,10 @@ import type {CodexHistoryProps} from "@/assets/types/Ui";
 
 const {t} = useI18n();
 
-withDefaults(defineProps<CodexHistoryProps>(), {
-    isShowHeader: true,
-    isShowEmpty: false
+const props = withDefaults(defineProps<CodexHistoryProps>(), {
+  isShowHeader: true,
+  isShowEmpty: false,
+  selectedId: ''
 });
 
 let codexHistorys = ref<any[]>([]);
@@ -81,10 +82,10 @@ const detailPath = (item: any) => getCodexDetailPath(item.category, item.id)
       </v-row>
     </v-toolbar>
 
-    <v-row class="px-5">
+    <v-row>
       <v-col cols="auto" v-for="(i, index) in codexHistorys" :key="index">
-        <router-link :to="detailPath(i)" class="codex-history-link d-block">
-          <ItemSlotBase size="120px">
+        <router-link :to="detailPath(i)" class=" ">
+          <ItemSlotBase size="120px" class="codex-history-link" :class="{'codex-history-link--selected': props.selectedId === i.id}">
             <ShipIconWidget :id="i.id" v-if="i.category == 'ship'"></ShipIconWidget>
             <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
             <CommoditieIconWidget :id="i.id" v-if="i.category == 'commoditie'"></CommoditieIconWidget>
@@ -112,4 +113,11 @@ const detailPath = (item: any) => getCodexDetailPath(item.category, item.id)
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles";
+
+.codex-history-link--selected {
+  outline: 2px solid rgb(var(--main-color));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
 </style>

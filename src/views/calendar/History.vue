@@ -20,6 +20,7 @@ import Silk from "@/components/Silk.vue";
 import AdsWidget from "@/components/ads/google/index.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 
 const {t, te} = useI18n()
 const {asString} = useI18nUtils()
@@ -563,6 +564,66 @@ const activeCalendar = computed<FormattedCalendar>(() =>
 watch(activeCalendar, () => {
   scrollToCurrentTime();
 }, {flush: 'post'});
+
+/**
+ * 取日历横向滚动容器
+ */
+const getCalendarScrollWrapper = (): HTMLElement | null => {
+  const scrollContainer = (scrollListRef.value?.$el || document.querySelector('#calendar') || document) as HTMLElement
+  return scrollContainer.querySelector('.scroll-wrapper') as HTMLElement | null
+}
+
+/**
+ * 把日历横向滚动到相邻的月份节点
+ * @param offset 相对当前可见月份的偏移，-1 为上一个月，1 为下一个月
+ */
+const onScrollToMonth = (offset: number) => {
+  const wrapper = getCalendarScrollWrapper()
+  if (!wrapper) return
+
+  // 仅保留实际渲染出日期列的月份容器，跳过空月份
+  const months = Array.from(wrapper.querySelectorAll<HTMLElement>('.calendar-line > div'))
+      .filter(month => month.querySelector('.calendar-line-day'))
+  if (months.length === 0) return
+
+  const wrapperRect = wrapper.getBoundingClientRect()
+  const offsetMargin = window.innerWidth <= 768 ? 20 : 80
+  // 以可视区左侧锚点定位当前月份，锚点取滚动留白之后的第一个位置
+  const anchor = wrapperRect.left + offsetMargin + 8
+  let baseIndex = 0
+  months.forEach((month, index) => {
+    if (month.getBoundingClientRect().left <= anchor) baseIndex = index
+  })
+
+  const targetIndex = Math.min(months.length - 1, Math.max(0, baseIndex + offset))
+  const target = months[targetIndex]
+  if (!target) return
+
+  const targetScroll = Math.max(0, wrapper.scrollLeft + target.getBoundingClientRect().left - wrapperRect.left - offsetMargin)
+  wrapper.scrollTo({left: targetScroll, behavior: 'smooth'})
+  scrollListRef.value?.checkScrollability?.()
+}
+
+/**
+ * 快捷键切换到上一个月
+ */
+const onPrevMonth = () => onScrollToMonth(-1)
+
+/**
+ * 快捷键切换到下一个月
+ */
+const onNextMonth = () => onScrollToMonth(1)
+
+/**
+ * 快捷键把日历定位到今天
+ */
+const onCalendarToday = () => scrollToCurrentTime('smooth')
+
+usePageHotkeys({
+  calendarPrevMonth: onPrevMonth,
+  calendarNextMonth: onNextMonth,
+  calendarToday: onCalendarToday,
+})
 </script>
 
 <template>

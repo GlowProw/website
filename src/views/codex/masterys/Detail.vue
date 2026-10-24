@@ -13,6 +13,8 @@ import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
@@ -132,6 +134,12 @@ const headDescription = computed(() => {
   if (!headData.value) return '';
   return (headData.value.description() as string) || '';
 });
+
+useCodexDetailHotkeys({
+  targetType: 'mastery',
+  targetId: () => masteryDetailData.value?.id || id.value,
+  targetName: () => headName.value,
+})
 
 const imageUrl = computed(() => {
   if (!masteryDetailData.value?.id) return '';
@@ -542,6 +550,8 @@ const onStarMastery = (data: Mastery) => {
                     :to="`/mastery?season=${masteryDetailData.bySeason?.id || (masteryDetailData.season as any)?.id || 'crimsonWaters'}&locate=${masteryDetailData.id}`">
                   {{ t('codex.mastery.openInTree') }}
                 </v-btn>
+
+                <CodexItemStatsCard v-if="masteryDetailData?.id || id" target-type="mastery" :target-id="masteryDetailData?.id || id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

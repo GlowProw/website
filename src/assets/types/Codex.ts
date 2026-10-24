@@ -38,6 +38,19 @@ export type SortOrder = 'asc' | 'desc'
 // 选择器所加载的类型
 export type ContentSelectorOption = "ship" | "item" | "material" | "cosmetic" | "ultimate" | "modification" | "set" | "treasureMap" | "commoditie" | "mapLocation"
 
+// codex_detail_hotkeys.ts
+
+export interface CodexDetailHotkeysOptions {
+  // 收藏目标类型，如 item、ship
+  targetType: string
+  // 当前详情对象 ID
+  targetId: () => string
+  // 当前详情对象名称
+  targetName: () => string
+  // 当前分类下的全部条目，用于上下一件跳转
+  list?: () => { id: string }[]
+}
+
 // TimeView.vue
 
 export interface TimeMap {

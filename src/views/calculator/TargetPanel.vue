@@ -101,6 +101,18 @@ const searchResults = computed(() => {
   return results.slice(0, 50)
 })
 
+// 船只升级属于物品分类，提示用户去物品里搜索对应船只名称
+const shipUpgradeHintName = computed(() => {
+  const shipTarget = [...store.targets].reverse().find(target => target.type === 'ship')
+  if (!shipTarget) return ''
+
+  try {
+    return i18nReadName.ship(shipTarget.id).name() as string
+  } catch (e) {
+    return shipTarget.id
+  }
+})
+
 function onAddTarget(id: string, type: 'item' | 'ship' | 'material') {
   store.addTarget(id, type, addQuantity.value)
   searchQuery.value = ''
@@ -313,7 +325,6 @@ function onFileImport(e: Event) {
                 elevation="0"
                 density="comfortable"
                 tile
-                min="0"
                 max="900000"
                 variant="solo-filled"
                 hide-details
@@ -331,6 +342,16 @@ function onFileImport(e: Event) {
           </div>
         </v-card>
       </TransitionGroup>
+
+      <v-alert
+          v-if="shipUpgradeHintName"
+          type="info"
+          variant="tonal"
+          density="compact"
+          class="mt-2 text-body-2"
+          icon="mdi-information-outline">
+        {{ t('calculator.targets.shipUpgradeHint', { name: shipUpgradeHintName }) }}
+      </v-alert>
     </v-card>
 
     <template v-slot:title>

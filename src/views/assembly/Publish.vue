@@ -63,6 +63,7 @@ let // 发布信息
     formRules = {
       name: [
         v => !!v || t('basic.assembly.publish.nameRequired'),
+        v => !v || v.length <= 140 || t('basic.rules.assembly.nameLength')
       ]
     },
     // 发布前检查 是否可发布
@@ -384,6 +385,7 @@ const onPublish = async () => {
                   :label="t('basic.assembly.publish.name')"
                   size="l-large"
                   hide-details
+                  maxlength="140"
                   :placeholder="t('basic.assembly.publish.namePlaceholder')"
                   variant="underlined">
               </v-text-field>

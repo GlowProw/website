@@ -19,6 +19,7 @@ import {useBotApi} from "@/assets/sripts/api/bot_service";
 import {useAccountGrowthApi} from "@/assets/sripts/api/account_growth_service";
 import {useCollectionApi} from "@/assets/sripts/api/collection_service";
 import {usePublicStatsApi} from "@/assets/sripts/api/public_stats_service";
+import {useMcpOAuthApi} from "@/assets/sripts/api/mcp_oauth_service";
 
 export * from './user_service'
 export * from './assembly_service'
@@ -66,4 +67,5 @@ export class Apis {
     static accountGrowthApi = useAccountGrowthApi
     static collectionApi = useCollectionApi
     static publicStatsApi = usePublicStatsApi
+    static mcpOAuthApi = useMcpOAuthApi
 }

@@ -73,6 +73,7 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
             <div class="mb-2 text-caption opacity-80">{{ t('assembly.share.filename') }}</div>
             <v-text-field
                 v-model="assemblyModelValue.filename"
+                maxlength="100"
                 density="comfortable"
                 variant="filled"
                 hide-details></v-text-field>
@@ -222,6 +223,7 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
             <div class="mb-2 text-caption opacity-80">{{ t('mastery.share.filename') }}</div>
             <v-text-field
                 v-model="masteryModelValue.filename"
+                maxlength="100"
                 density="comfortable"
                 variant="filled"
                 hide-details></v-text-field>

@@ -4,6 +4,45 @@
 export type HotkeyMode = "press" | "hold";
 
 /**
+ * 快捷键可生效的地点
+ */
+export type HotkeyLocation =
+    | "workshop"
+    | "codexList"
+    | "codexDetail"
+    | "codexCard"
+    | "codexModification"
+    | "quest"
+    | "overlayCard"
+    | "codexHistory"
+    | "globalSearch"
+    | "messages"
+    | "map"
+    | "calculator"
+    | "smugglers"
+    | "teamup"
+    | "account"
+    | "statistics"
+    | "calendar"
+    | "contextMenu"
+    | "global";
+
+/**
+ * 快捷键动作所属分组
+ */
+export type HotkeyCategory =
+    | "workshop"
+    | "codex"
+    | "global"
+    | "map"
+    | "calculator"
+    | "smugglers"
+    | "teamup"
+    | "account"
+    | "statistics"
+    | "calendar";
+
+/**
  * 快捷键动作定义
  */
 export interface HotkeyItem {
@@ -22,11 +61,15 @@ export interface HotkeyItem {
     /**
      * 动作所属类别
      */
-    category: "workshop" | "codex" | "global";
+    category: HotkeyCategory;
     /**
      * 类别名称多语言键
      */
     categoryKey: string;
+    /**
+     * 快捷键可生效的地点清单
+     */
+    locations: HotkeyLocation[];
     /**
      * 默认按键
      */

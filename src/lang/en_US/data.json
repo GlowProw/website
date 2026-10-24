@@ -77,28 +77,106 @@
     "meta": {
       "description": "The all-in-one Skull and Bones companion: fully collected interactive map, data codex, loadout simulator, material calculator, quest guides and season updates."
     },
-    "aiSkills": {
-      "name": "AI Skills",
-      "description": "Skill book suite for AI assistants with loadout query and Codex item lookup, importable to Doubao, ChatGPT, DeepSeek and more.",
-      "skill": {
-        "name": "Loadout Query Skill Book",
-        "description": "Log in to Glow Prow to query public loadout lists and details (name, creator, created time, description, loadout data, mastery, wheel, warehouse), and browse all Codex items by category.",
-        "features": {
-          "assembly": "Loadout Query",
-          "codex": "Codex Item Lookup",
-          "login": "Account Login Auth"
-        },
-        "downloadTitle": "Skill Book Download",
-        "download": "Download Full Skill Book",
-        "downloadSelf": "Download Self-Contained File",
-        "docsTitle": "Documentation",
-        "docs": "View Documentation",
-        "importDocs": "How to Import",
-        "tip": "Import into Doubao, ChatGPT, DeepSeek and any AI assistant that supports custom instructions / system prompts. The full package also includes a Codex catalog data file.",
-        "featuresTitle": "Capabilities",
-        "downloadSubtitle": "Includes SKILL.md and the Codex catalog data file, ideal for Doubao skill import",
-        "downloadSelfSubtitle": "Single Markdown file, ideal for pasting into custom instructions / system prompt",
-        "downloadAction": "Download"
+    "aiConnector": {
+      "name": "AI Connector",
+      "description": "Connect Glow Prow to Claude, ChatGPT, Grok and other AI assistants: ask about loadouts, codex items, Twitch drops and the season calendar. Answers come from real site data, not guesses.",
+      "features": {
+        "assembly": "Loadout Query",
+        "codex": "Codex Item Lookup",
+        "drops": "Drops & Calendar",
+        "login": "Account Sign-in"
+      },
+      "connector": {
+        "title": "Connector URL",
+        "subtitle": "Paste this address when your AI assistant asks for a server or connector URL. You need to sign in with your Glow Prow account.",
+        "note": "Authorization redirects you to the Glow Prow website to sign in and confirm access; you can disconnect anytime in account settings.",
+        "copy": "Copy",
+        "copied": "Copied to clipboard"
+      },
+      "ask": {
+        "title": "Ask your AI about Glow Prow data",
+        "note": "Answers come from public site data and what you authorized, not guesses.",
+        "assembly": "Which ship loadouts are trending right now?",
+        "codex": "Which maps drop weapons like culverin1?",
+        "drops": "Which Twitch drop campaigns are active?",
+        "calendar": "What world events are coming up this season?"
+      },
+      "connect": {
+        "title": "How to connect",
+        "subtitle": "Pick your assistant for setup steps. Both use the connector URL above.",
+        "claude": "Claude",
+        "claudeCode": "Claude Code",
+        "chatgpt": "ChatGPT",
+        "grok": "Grok",
+        "other": "Other apps",
+        "command": "claude mcp add --transport http glow-prow https://api.glow-prow.top/api/mcp",
+        "codeBlockTitle": "Or add a remote MCP server in your client config:",
+        "steps": {
+          "claude": [
+            "Open Claude settings, go to Connectors.",
+            "Click Add custom connector.",
+            "Name it Glow Prow and paste the connector URL above.",
+            "Click Add, then Connect, and approve access on Glow Prow.",
+            "In a chat, click + and enable the Glow Prow connector for that conversation."
+          ],
+          "claudeCode": [
+            "Run the command below in your terminal (add --scope user to use it across projects).",
+            "Run /mcp, select glow-prow and sign in."
+          ],
+          "chatgpt": [
+            "Enable developer mode in Settings, then go to Security & login.",
+            "Visit chatgpt.com/plugins and click +.",
+            "Name it Glow Prow, choose Public endpoint and paste the connector URL.",
+            "Create it, then sign in with your Glow Prow account when prompted."
+          ],
+          "grok": [
+            "Visit grok.com/connectors and click New connector.",
+            "Choose Custom and paste the connector URL.",
+            "Sign in with your Glow Prow account."
+          ],
+          "other": [
+            "Any assistant that supports remote MCP connectors with login works.",
+            "Add a remote (HTTP) MCP server in your client using the connector URL above.",
+            "When the client requests authorization you will be redirected to the Glow Prow website to sign in and allow access."
+          ]
+        }
+      },
+      "plans": {
+        "title": "Plans and limits",
+        "subtitle": "Works with a free Glow Prow account; your AI app's own plan rules still apply.",
+        "free": "Free plan",
+        "freeLimit": "150 / 10 min",
+        "freeDesc": "150 requests per 10 minutes after signing in with a free account.",
+        "subscriber": "Subscribers",
+        "subscriberLimit": "1,000 / 10 min",
+        "subscriberDesc": "1,000 requests per 10 minutes for subscribers.",
+        "subscribe": "View subscriber benefits"
+      },
+      "manage": {
+        "title": "Manage or disconnect",
+        "desc": "Manage signed-in assistants under Account → Security → Platform bindings → AI connector, and disconnect anytime. Removing access does not change your site data.",
+        "action": "Open platform bindings"
+      },
+      "faq": {
+        "title": "FAQ",
+        "items": [
+          {
+            "q": "What is MCP?",
+            "a": "The Model Context Protocol is an open standard that lets AI assistants use tools from services like Glow Prow."
+          },
+          {
+            "q": "Does it cost anything?",
+            "a": "No. It works with a free Glow Prow account; your AI app's plan rules still apply."
+          },
+          {
+            "q": "Is my data shared?",
+            "a": "Only the public data within the scope you authorized. Glow Prow never sees your conversations with the assistant."
+          },
+          {
+            "q": "Which assistants work?",
+            "a": "Any assistant that supports remote MCP connectors with login, including Claude, ChatGPT and Grok."
+          }
+        ]
       }
     }
   },
@@ -454,6 +532,13 @@
           "noPermission": "No access permission, please check if a password is required or if you need partner status",
           "error": "Error: {context}",
           "ok": "Access successful"
+        },
+        "clone": {
+          "ok": "Assembly cloned, opening the copy",
+          "forbidden": "The author has disabled cloning for this assembly",
+          "notFound": "Assembly not found",
+          "error": "Error: {context}",
+          "bad": "Bad request format, please check the network tool interface"
         }
       },
       "publish": {
@@ -624,11 +709,17 @@
         "notFound": "User not found"
       },
       "changePassword": {
+        "ok": "Password changed successfully",
         "success": "Password changed successfully",
         "invalid": "Current password is incorrect",
         "notMatch": "Current password is incorrect",
         "bad": "Password format does not meet requirements",
         "error": "Failed to change password: {context}"
+      },
+      "changeAlternativeName": {
+        "ok": "Alternative name updated successfully",
+        "bad": "Invalid alternative name format",
+        "error": "Failed to update alternative name: {context}"
       },
       "stateOfWar": {
         "synced": "State of War synchronized successfully",
@@ -871,6 +962,10 @@
         "notEmpty": "Password must be filled in",
         "limitationLength": "Password length must be between {min} and {max}"
       },
+      "assembly": {
+        "nameLength": "Assembly name cannot exceed 140 characters",
+        "descriptionLength": "Assembly description cannot exceed 10000 characters"
+      },
       "captcha": {
         "notEmpty": "Captcha must be filled in",
         "limitationLength": "Captcha length is {max}"
@@ -1025,6 +1120,18 @@
       },
       "types": {
         "title": "By Codex"
+      },
+      "manage": {
+        "title": "Collection Management",
+        "searchPlaceholder": "Search name or ID",
+        "allKinds": "All categories",
+        "view": "View",
+        "remove": "Remove",
+        "removeConfirm": "Remove this entry from your collection?",
+        "removed": "Removed from collection",
+        "empty": "No collection records match the filters",
+        "sourceLocal": "Local mark",
+        "sourceAccount": "Account"
       },
       "kinds": {
         "item": "Items",
@@ -1742,6 +1849,23 @@
       "bindBtn": "Connect",
       "unbindBtn": "Disconnect",
       "authorized": "Authorized",
+      "aiConnector": {
+        "title": "AI Connector",
+        "connected": "{count} app(s) connected",
+        "notConnected": "Not connected",
+        "disabled": "Disabled",
+        "docs": "How to connect",
+        "manage": "Manage",
+        "dialogTitle": "AI Connector",
+        "dialogDesc": "AI apps that signed in and were granted access to your account. Revoking takes effect immediately.",
+        "authorizedAt": "Authorized",
+        "lastUsedAt": "Last used",
+        "empty": "No connected AI apps yet. Follow the guide on the Apps → AI Connector page to add one.",
+        "revoke": "Revoke",
+        "revokeConfirm": "Revoke access for \"{app}\"?",
+        "revoked": "AI app disconnected",
+        "revokeFailed": "Failed to revoke"
+      },
       "boundAccount": "Connected account: {username}",
       "unbindConfirm": "Are you sure you want to unbind from {platform}?",
       "unbindSuccess": "Disconnected successfully",
@@ -1763,6 +1887,10 @@
         "glow-prow-qq-bot": {
           "name": "QQ Bot",
           "desc": "DM the Glow Prow bot on QQ to link your website account"
+        },
+        "ai-connector": {
+          "name": "AI Connector",
+          "desc": "AI assistants (Claude, ChatGPT, Grok, etc.) authorized to read public data through the MCP connector"
         }
       },
       "qqBot": {
@@ -3493,6 +3621,7 @@
     "owner": "Owner",
     "hasPassword": "Has Password",
     "byCloningUuid": "Clone",
+    "clone": "Clone to my account",
     "editAssemblyBtn": "Edit this Assembly",
     "editInfoBtn": "Edit Information",
     "editWorkshopBtn": "Workshop",
@@ -3542,6 +3671,7 @@
       "private": "Private",
       "tagCommon": "General",
       "tagData": "Data",
+      "general": "General",
       "includePasswordHint": "Include Password",
       "existingPasswordButNewDelete": "The current assembly has a password, but the new password has been deleted",
       "notPassword": "No Password",
@@ -3571,6 +3701,10 @@
       "commentsDescription": "Enable comments",
       "likes": "Likes",
       "likesDescription": "Enable likes",
+      "allowClone": "Allow cloning",
+      "allowCloneDescription": "When disabled, others cannot clone this assembly",
+      "allowSearch": "Allow search",
+      "allowSearchDescription": "When disabled, this assembly will not appear in assembly browser search results, but can still be accessed directly via link",
       "other": "Other",
       "rendererVersion": "Assembly Renderer Version",
       "rendererVersionDescription": "Determines the format in which the assembly data is loaded. If you don't know what this does, you don't need to set it; the system will use the latest version to initialize the load.",
@@ -4468,6 +4602,11 @@
       "categoryWorkshop": "Workshop & Loadouts",
       "categoryCodex": "Codex",
       "categoryGlobal": "Global & Navigation",
+      "locationWorkshop": "Assembly Workshop",
+      "locationCodexCard": "Codex Card Detail",
+      "locationCodexModification": "Codex Modification Detail",
+      "locationQuest": "Quest Detail",
+      "locationGlobal": "Whole Site",
       "modePress": "Press",
       "modeHold": "Hold",
       "modeUpdated": "Switched to {mode} trigger",
@@ -4488,10 +4627,133 @@
       "pressCombination": "Press key combination",
       "clickToRecord": "Click to record new keybinding",
       "conflictWarning": "Key bound to [{key}], shared with another action",
+      "conflictWith": "Key [{key}] conflicts with \"{name}\", please choose another",
+      "conflictBadge": "Conflicts with \"{name}\"",
       "updateSuccess": "Hotkey updated to [{key}]",
       "updateFailed": "Failed to update hotkey, please retry",
       "resetSuccess": "All hotkeys have been reset to defaults",
-      "defaultDesc": "Hold to trigger quick action"
+      "defaultDesc": "Hold to trigger quick action",
+      "categoryMap": "Map",
+      "categoryCalculator": "Calculator",
+      "categorySmugglers": "Smugglers Report",
+      "categoryTeamup": "Team Up",
+      "categoryAccount": "Account Settings",
+      "categoryStatistics": "Statistics",
+      "categoryCalendar": "Calendar",
+      "locationCodexList": "Codex List",
+      "locationCodexDetail": "Codex Detail",
+      "locationOverlayCard": "Codex Hover Card",
+      "locationCodexHistory": "Browsing History Drawer",
+      "locationGlobalSearch": "Global Search Drawer",
+      "locationMessages": "Messages Center",
+      "locationMap": "Map",
+      "locationCalculator": "Calculator",
+      "locationSmugglers": "Smugglers Report",
+      "locationTeamup": "Team Up",
+      "locationAccount": "Account Settings",
+      "locationStatistics": "Statistics",
+      "locationCalendar": "Calendar",
+      "locationContextMenu": "Codex Context Menu",
+      "actions": {
+        "headerSearch": "Open Global Search",
+        "headerSearchDesc": "Open the search panel from the header",
+        "headerHistory": "Open Browsing History",
+        "headerHistoryDesc": "Open the browsing history drawer from the header",
+        "headerMessages": "Open Messages",
+        "headerMessagesDesc": "Open the messages drawer from the header",
+        "headerSettings": "Open Account Settings",
+        "headerSettingsDesc": "Navigate to the account settings page",
+        "codexFocusSearch": "Focus Codex Search",
+        "codexFocusSearchDesc": "Move focus to the codex list search field",
+        "codexPrevPage": "Previous Codex Page",
+        "codexPrevPageDesc": "Go to the previous page of filtered results",
+        "codexNextPage": "Next Codex Page",
+        "codexNextPageDesc": "Go to the next page of filtered results",
+        "codexIconSizeUp": "Larger Codex Icons",
+        "codexIconSizeUpDesc": "Increase the icon size in the codex list",
+        "codexIconSizeDown": "Smaller Codex Icons",
+        "codexIconSizeDownDesc": "Decrease the icon size in the codex list",
+        "collectItem": "Toggle Collection",
+        "collectItemDesc": "Toggle the collection state of the current entry",
+        "copyItemName": "Copy Name",
+        "copyItemNameDesc": "Copy the current entry name to clipboard",
+        "codexShare": "Share Current Entry",
+        "codexShareDesc": "Open the share panel of the current codex entry",
+        "codexPrevItem": "Previous Entry",
+        "codexPrevItemDesc": "Open the previous entry in the current category",
+        "codexNextItem": "Next Entry",
+        "codexNextItemDesc": "Open the next entry in the current category",
+        "codexOpenNewWindow": "Open in New Window",
+        "codexOpenNewWindowDesc": "Open the current codex detail in a new browser window",
+        "historyPrev": "Previous History Record",
+        "historyPrevDesc": "Move selection up in the browsing history drawer",
+        "historyNext": "Next History Record",
+        "historyNextDesc": "Move selection down in the browsing history drawer",
+        "historyOpen": "Open Selected Record",
+        "historyOpenDesc": "Open the selected browsing history record",
+        "historyDelete": "Delete Selected Record",
+        "historyDeleteDesc": "Remove the selected record from browsing history",
+        "searchPrev": "Previous Search Result",
+        "searchPrevDesc": "Move selection up in global search results",
+        "searchNext": "Next Search Result",
+        "searchNextDesc": "Move selection down in global search results",
+        "searchOpen": "Open Search Result",
+        "searchOpenDesc": "Open the selected global search result",
+        "searchNextCategory": "Switch Search Category",
+        "searchNextCategoryDesc": "Switch to the next category in global search",
+        "messagesMarkAllRead": "Mark All as Read",
+        "messagesMarkAllReadDesc": "Mark every conversation in the messages center as read",
+        "messagesPrevTab": "Previous Message Tab",
+        "messagesPrevTabDesc": "Switch to the previous tab between messages and notifications",
+        "messagesNextTab": "Next Message Tab",
+        "messagesNextTabDesc": "Switch to the next tab between messages and notifications",
+        "workshopSave": "Save Loadout",
+        "workshopSaveDesc": "Save the current workshop loadout",
+        "workshopUndo": "Undo Workshop Action",
+        "workshopUndoDesc": "Undo the previous action in the workshop",
+        "workshopDeleteSelected": "Delete Selected Item",
+        "workshopDeleteSelectedDesc": "Remove the currently selected item in the workshop",
+        "mapToggleEdit": "Toggle Map Edit Mode",
+        "mapToggleEditDesc": "Enter or leave map element editing mode",
+        "mapDeleteSelected": "Delete Selected Element",
+        "mapDeleteSelectedDesc": "Delete the selected marker, path, or area on the map",
+        "mapUndo": "Undo Map Action",
+        "mapUndoDesc": "Undo the previous action on the map",
+        "mapRedo": "Redo Map Action",
+        "mapRedoDesc": "Restore the last undone action on the map",
+        "calculatorCalculate": "Run Calculation",
+        "calculatorCalculateDesc": "Run the current calculator calculation",
+        "calculatorCopyResult": "Copy Calculation Result",
+        "calculatorCopyResultDesc": "Copy the current calculation result to clipboard",
+        "calculatorReset": "Reset Calculator",
+        "calculatorResetDesc": "Clear every target from the calculator",
+        "submitReport": "Submit Report",
+        "submitReportDesc": "Submit the report being edited",
+        "cancelEdit": "Cancel Editing",
+        "cancelEditDesc": "Discard current edits or leave editing mode",
+        "refreshList": "Refresh List",
+        "refreshListDesc": "Reload the list data of the current page",
+        "teamupPublish": "Publish Team Up",
+        "teamupPublishDesc": "Publish the current team up recruitment",
+        "accountSave": "Save Account Settings",
+        "accountSaveDesc": "Save the current account settings changes",
+        "accountRegenRecovery": "Regenerate Recovery Codes",
+        "accountRegenRecoveryDesc": "Regenerate one-time recovery codes on the two-factor page",
+        "statsRange7": "Stats Range 7 Days",
+        "statsRange7Desc": "Switch the statistics range to the last 7 days",
+        "statsRange30": "Stats Range 30 Days",
+        "statsRange30Desc": "Switch the statistics range to the last 30 days",
+        "statsRange90": "Stats Range 90 Days",
+        "statsRange90Desc": "Switch the statistics range to the last 90 days",
+        "calendarPrevMonth": "Previous Month",
+        "calendarPrevMonthDesc": "Switch the calendar to the previous month",
+        "calendarNextMonth": "Next Month",
+        "calendarNextMonthDesc": "Switch the calendar to the next month",
+        "calendarToday": "Back to Today",
+        "calendarTodayDesc": "Jump the calendar back to today",
+        "openDetail": "Open Detail",
+        "openDetailDesc": "Open the detail page of the object under the context menu"
+      }
     },
     "wishlist": {
       "title": "Wishlist",
@@ -4778,7 +5040,8 @@
       "item": "Item",
       "ship": "Ship",
       "material": "Material",
-      "noTargets": "No targets yet, please add items or ships"
+      "noTargets": "No targets yet, please add items or ships",
+      "shipUpgradeHint": "Ship upgrades are added from the \"Item\" category — search \"{name}\" to find them"
     },
     "results": {
       "title": "Results",
@@ -4846,7 +5109,8 @@
       "emptyTree": "Add targets to view material tree",
       "emptySankey": "Add targets to view sankey diagram",
       "excluded": "Excluded",
-      "addToExclude": "Add to Exclude"
+      "addToExclude": "Add to Exclude",
+      "craftable": "Craftable"
     }
   },
   "detail": {
@@ -4905,6 +5169,13 @@
       },
       "trend": "Daily collection trend",
       "byType": "Category distribution"
+    },
+    "codexItem": {
+      "title": "Site Collection Stats",
+      "rate": "Overall obtained rate",
+      "holders": "Obtained",
+      "trend": "12-week trend",
+      "change": "vs 12 weeks ago"
     },
     "signin": {
       "title": "Sign-in Statistics",
@@ -5268,6 +5539,19 @@
     "restartAuth": "Re-authorize",
     "platformNickname": "Platform nickname",
     "accountIdHint": "The account ID is chosen by you and used for future sign-in. It is not the third-party nickname."
+  },
+  "mcpConsent": {
+    "title": "AI Connector Authorization",
+    "subtitle": "{client} is requesting access to your Glow Prow account data. Please confirm this is an AI assistant you added on purpose.",
+    "scopeTitle": "This app will be able to",
+    "allow": "Allow access",
+    "deny": "Deny",
+    "foot": "You can disconnect this app at any time from Account → Security → Connected Platforms → AI Connector. Authorization only lets the app read the data above; your conversations are never shared.",
+    "loading": "Loading authorization info…",
+    "expired": "The authorization session has expired or is invalid. Please start the connection again.",
+    "retry": "Go to AI Connector",
+    "error": "Failed to load authorization info. Please try again later.",
+    "processing": "Completing authorization…"
   },
   "common": {
     "cancel": "Cancel",

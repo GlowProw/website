@@ -20,6 +20,8 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
@@ -71,8 +73,15 @@ const headName = computed(() => {
 
 const headDescription = computed(() => {
   if (!headData.value) return '';
-  return headData.value.description() || '';
+  return (headData.value.description() as string) || '';
 });
+
+useCodexDetailHotkeys({
+  targetType: 'npc',
+  targetId: () => npcDetailData.value?.id || id.value || '',
+  targetName: () => headName.value,
+  list: () => Object.keys(npcs).map(key => ({id: key})),
+})
 
 const imageUrl = computed(() => {
   if (!npcDetailData.value?.id) return '';
@@ -360,6 +369,8 @@ const onCodexHistory = () => {
                     <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
+
+                <CodexItemStatsCard v-if="npcDetailData?.id || id" target-type="npc" :target-id="npcDetailData?.id || id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

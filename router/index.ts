@@ -81,7 +81,7 @@ const AppsPage = () => import('@/views/apps/Index.vue');
 const AppsViewPage = () => import('@/views/apps/View.vue');
 const QQBotPage = () => import('@/views/apps/QQBot.vue');
 const ApiDocsPage = () => import('@/views/apps/ApiDocs.vue');
-const AISkillsPage = () => import('@/views/apps/AISkills.vue');
+const AIConnectorPage = () => import('@/views/apps/AIConnector.vue');
 const TeamPage = () => import('@/views/Team.vue');
 const SearchPage = () => import('@/views/Search.vue');
 const SmugglersReportPage = () => import('@/views/smugglers/Index.vue');
@@ -394,7 +394,7 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 meta: {
                     title: 'oauth.callbackTitle',
                 },
-                component: () => import('@/views/user/OAuthCallback.vue'),
+                component: () => import('@/views/user/McpOAuthDispatch.vue'),
             },
             {
                 path: 'account/signin',
@@ -1139,10 +1139,10 @@ const baseAppRoutes: Readonly<RouteRecordRaw[]> = [
                 component: ApiDocsPage
             },
             {
-                path: 'ai-skills',
-                alias: ['aiSkills', 'ai-skill', 'skills'],
-                name: 'AISkills',
-                component: AISkillsPage
+                path: 'ai-connector',
+                alias: ['aiSkills', 'ai-skills', 'ai-skill', 'skills'],
+                name: 'AIConnector',
+                component: AIConnectorPage
             }
         ]
     },

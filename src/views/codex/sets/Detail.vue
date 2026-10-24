@@ -18,6 +18,8 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ByObtainableWidget from "@/components/ByObtainableWidget.vue";
 import ByWorldEventWidget from "@/components/ByWorldEventWidget.vue";
@@ -76,6 +78,13 @@ const
       const headData = i18nReadName.set(id.value);
       return (headData.description() as string) || '';
     });
+
+useCodexDetailHotkeys({
+  targetType: 'set',
+  targetId: () => id.value,
+  targetName: () => i18nReadName.set(id.value).name(),
+  list: () => Object.keys(sets).map(key => ({id: key})),
+})
 
 useHead({
   title: headTitle,
@@ -334,6 +343,8 @@ const onCodexHistory = () => {
                     <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
+
+                <CodexItemStatsCard v-if="id" target-type="set" :target-id="id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

@@ -826,6 +826,7 @@ onUnmounted(() => {
                         density="compact"
                         variant="outlined"
                         hide-details
+                        maxlength="128"
                         style="max-width: 220px;"></v-text-field>
                     <v-btn color="amber" variant="flat" :loading="blockAdding"
                            :disabled="!blockOpenid.trim()" @click="onAddBlocklist">
@@ -935,6 +936,8 @@ onUnmounted(() => {
                                   density="compact" variant="outlined" hide-details
                                   style="max-width: 320px;"></v-combobox>
                       <v-text-field v-model.number="muteMinutes" type="number"
+                                    min="1"
+                                    max="43200"
                                     :label="t('account.bot.manage.management.mute.minutes')"
                                     density="compact" variant="outlined" hide-details
                                     style="max-width: 180px;"></v-text-field>

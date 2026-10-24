@@ -7,6 +7,7 @@ import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {useMessagesApi} from "@/assets/sripts/api/messages_service";
 import {type Conversation, type MessageItem} from "@/assets/types/Message";
 import {storage} from "@/assets/sripts";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import {useDisplay} from "vuetify/framework";
 
 import AffixContainerView from "@/components/AffixContainerView.vue";
@@ -15,8 +16,11 @@ import VerticalScrollList from "@/components/VerticalScrollList.vue";
 const props = withDefaults(defineProps<{
     // 嵌入固定高度容器（如侧边抽屉）时由内部自行滚动；路由整页时保持原吸顶布局
     embedded?: boolean
+    // 当前是否处于可见状态，抽屉关闭时不响应快捷键
+    active?: boolean
 }>(), {
-    embedded: false
+    embedded: false,
+    active: true
 });
 
 const {t} = useI18n();
@@ -374,6 +378,33 @@ const onKeydown = (e: KeyboardEvent) => {
   }
 };
 
+// 消息分类标签顺序，供快捷键循环切换
+const filterTabs = ['all', 'user', 'system'] as const
+
+/**
+ * 切换到上一个消息分类
+ */
+const onPrevTab = () => {
+  const index = filterTabs.indexOf(filterTab.value)
+  filterTab.value = filterTabs[(index - 1 + filterTabs.length) % filterTabs.length]
+}
+
+/**
+ * 切换到下一个消息分类
+ */
+const onNextTab = () => {
+  const index = filterTabs.indexOf(filterTab.value)
+  filterTab.value = filterTabs[(index + 1) % filterTabs.length]
+}
+
+usePageHotkeys({
+  messagesMarkAllRead: markAllRead,
+  messagesPrevTab: onPrevTab,
+  messagesNextTab: onNextTab,
+}, {
+  active: () => props.active,
+})
+
 defineOptions({
   name: 'MessagesPanel'
 });
@@ -554,6 +585,7 @@ defineOptions({
                 <v-col>
                   <v-text-field
                       v-model="input"
+                      maxlength="2000"
                       variant="outlined"
                       density="compact"
                       hide-details

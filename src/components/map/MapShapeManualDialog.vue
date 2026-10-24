@@ -37,6 +37,7 @@
               :rules="[v => !!v || t('map.titleRequired')]"
               variant="outlined"
               density="compact"
+              maxlength="255"
               class="mb-3"
               required></v-text-field>
 
@@ -109,6 +110,8 @@
               variant="outlined"
               density="compact"
               rows="3"
+              maxlength="2000"
+              counter="2000"
               class="mb-3"></v-textarea>
 
           <v-select

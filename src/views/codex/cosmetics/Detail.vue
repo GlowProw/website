@@ -25,6 +25,8 @@ import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useHead} from "@unhead/vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -55,6 +57,13 @@ const
       const headData = i18nReadName.cosmetic(id.value);
       return (headData.description() as string) || '';
     });
+
+useCodexDetailHotkeys({
+  targetType: 'cosmetic',
+  targetId: () => id.value,
+  targetName: () => i18nReadName.cosmetic(id.value).name(),
+  list: () => Object.keys(cosmetics).map(key => ({id: key})),
+})
 
 useHead({
   title: headTitle,
@@ -257,6 +266,8 @@ const onCodexHistory = () => {
                     <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
+
+                <CodexItemStatsCard v-if="id" target-type="cosmetic" :target-id="id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

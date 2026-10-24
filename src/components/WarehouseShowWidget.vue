@@ -171,7 +171,15 @@ const setSetting = (attrData: WarehouseAttr) => {
 const onLoad = (importDataRaw) => {
   const importData = toRaw(importDataRaw)
 
-  if (!importData || importData.length <= 0)
+  if (!importData) return;
+
+  // 空数组表示清空船仓，撤销回退到空状态时需要
+  if (Array.isArray(importData) && importData.length <= 0) {
+    data.value = []
+    return
+  }
+
+  if (typeof importData === 'string' && importData.length <= 0)
     return;
 
   data.value = warehouseDataProcessing.import(importData, attr.value.warehouseUseVersion)

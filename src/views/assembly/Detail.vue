@@ -60,6 +60,7 @@ let detailData: Ref<any> = ref({
     }),
     assemblyMainSubjectView: Ref<any> = ref(null),
     assemblyLoading = ref(false),
+    cloneLoading = ref(false),
     password = ref(''),
 
     // 页面元信息 (meta)
@@ -195,6 +196,25 @@ const onAssemblyMainViewReady = () => {
 }
 
 /**
+ * 克隆当前配装并打开副本的编辑页
+ */
+const onCloneAssembly = async () => {
+  try {
+    cloneLoading.value = true
+
+    const result = await apis.assemblyApi().cloneAssembly(detailData.value.uuid),
+        d = result.data;
+
+    notice.success(t(`basic.tips.${d.code}`))
+    await router.push(`/assembly/workshop/${d.data.uuid}/edit`)
+  } catch (e) {
+    handleApiError(e, notice, t, {component: 'AssemblyDetail'})
+  } finally {
+    cloneLoading.value = false
+  }
+}
+
+/**
  * 直访，无密码重输
  */
 const onPenPassword = () => {
@@ -259,6 +279,13 @@ const onPenPassword = () => {
                     </template>
                   </LikeWidget>
                 </div>
+
+                <v-btn variant="text"
+                       v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isAllowClone !== false"
+                       :loading="cloneLoading"
+                       :title="t('assembly.clone')"
+                       @click="onCloneAssembly"
+                       icon="mdi-content-copy"></v-btn>
 
                 <v-btn variant="text" v-if="detailData.uuid" :to="`/assembly/browse/${detailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
 
@@ -428,7 +455,7 @@ const onPenPassword = () => {
       <p>{{ t('assembly.detail.passwordRequiredDesc') }}</p>
 
       <div class="mt-8">
-        <v-text-field placeholder="******" class="ma-auto" v-model="password" max-width="400">
+        <v-text-field placeholder="******" class="ma-auto" v-model="password" maxlength="32" max-width="400">
           <template v-slot:append-inner>
             <v-btn @click="onPenPassword">{{ t('basic.button.submit') }}</v-btn>
           </template>

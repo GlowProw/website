@@ -91,6 +91,7 @@ const onBack = () => {
                               name="identifier"
                               variant="solo-filled"
                               prepend-inner-icon="mdi-account-key"
+                              maxlength="64"
                               :label="t('forgotPassword.form.identifier')"
                               placeholder="Username / ID"
                               class="mb-2"></v-text-field>
@@ -100,6 +101,7 @@ const onBack = () => {
                               name="email"
                               variant="solo-filled"
                               prepend-inner-icon="mdi-email"
+                              maxlength="200"
                               :label="t('forgotPassword.form.email')"
                               placeholder="Email"></v-text-field>
               </v-col>

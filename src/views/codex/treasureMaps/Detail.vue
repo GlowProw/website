@@ -28,6 +28,8 @@ import {useHead} from "@unhead/vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -78,6 +80,13 @@ const headDescription = computed(() => {
   if (!headData.value) return '';
   return headData.value.description() || '';
 });
+
+useCodexDetailHotkeys({
+  targetType: 'treasureMap',
+  targetId: () => mapDetailData.value?.id || id.value || '',
+  targetName: () => headName.value,
+  list: () => Object.keys(maps).map(key => ({id: key})),
+})
 
 const imageUrl = computed(() => {
   if (!id.value) return '';
@@ -329,6 +338,8 @@ const onCodexHistory = () => {
                     <p class="text-no-wrap">{{ t('codex.ship.lastUpdated') }}</p>
                   </template>
                 </v-text-field>
+
+                <CodexItemStatsCard v-if="mapDetailData?.id || id" target-type="treasureMap" :target-id="mapDetailData?.id || id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>

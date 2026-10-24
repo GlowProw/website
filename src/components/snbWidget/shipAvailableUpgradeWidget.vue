@@ -97,7 +97,7 @@ defineOptions({
   </v-row>
   <v-row class="mb-2 mt-3" justify="center">
     <v-col>
-      <ItemMaterials :data="totalMaterials" class="mt-n12" :isTitle="false"></ItemMaterials>
+      <ItemMaterials :data="totalMaterials" :isTitle="false"></ItemMaterials>
     </v-col>
   </v-row>
 </template>

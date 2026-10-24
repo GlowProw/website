@@ -15,6 +15,7 @@ import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import {getTeamsType} from "@/assets/types/views";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
@@ -428,10 +429,15 @@ const pushTeamInfo = async () => {
     const {valid} = await pushForm.value.validate();
     if (!valid) return;
 
+    const descriptionText = descriptionEditor.value?.getText?.(true) || description.value;
+    if (!descriptionText || descriptionText.trim().length < 3) {
+      notice.warning(t('teamUp.rules.descriptionLength'))
+      return
+    }
+
     pushLoading.value = true;
     const selectedTags = tags.value.map((i: any) => typeof i === 'object' ? i.value : i);
     const fingerprint = getBrowserFingerprint();
-    const descriptionText = descriptionEditor.value?.getText?.(true) || description.value;
     const selectedPushBotIds = pushSyncEnabled.value && pushAccess.value.allowed ? [...pushBotIds.value] : [];
 
     const result = await apis.teamupApi().createTeamup({
@@ -560,6 +566,31 @@ const copyToClipboard = async (content: string) => {
   }
 }
 
+/**
+ * 快捷键刷新组队列表
+ */
+const onTeamupRefresh = () => {
+  getTeams(getTeamsType.none)
+}
+
+/**
+ * 快捷键发布组队：发布面板未打开时先打开，已打开时提交当前表单
+ */
+const onTeamupPublish = () => {
+  if (!pushModel.value) {
+    onOpenPush()
+    return
+  }
+  pushTeamInfo()
+}
+
+usePageHotkeys({
+  teamupRefresh: onTeamupRefresh,
+  teamupPublish: onTeamupPublish,
+}, {
+  allowInEditable: ['teamupPublish'],
+})
+
 </script>
 
 <template>
@@ -682,6 +713,7 @@ const copyToClipboard = async (content: string) => {
             </v-col>
             <v-col cols="12">
               <v-text-field :placeholder="t('basic.button.search')"
+                            maxlength="100"
                             v-model="filtering.keyword">
                 <template v-slot:append-inner>
                   <v-icon-btn :disabled="!filtering.keyword" @click="onSearch">
@@ -883,6 +915,7 @@ const copyToClipboard = async (content: string) => {
                         <v-text-field v-model="player"
                                       variant="filled"
                                       density="comfortable"
+                                      maxlength="64"
                                       @update:model-value="onStoragePlayer()"
                                       :rules="pushConfig.rules.player"
                                       :placeholder="t('teamUp.form.player')"></v-text-field>
@@ -915,6 +948,7 @@ const copyToClipboard = async (content: string) => {
                             chips
                             multiple
                             density="comfortable"
+                            maxlength="32"
                             v-model="tags"
                             clearable
                             @update:modelValue="onStoragePlayer"
@@ -983,6 +1017,7 @@ const copyToClipboard = async (content: string) => {
                     <Textarea
                         ref="descriptionEditor"
                         v-model="description"
+                        :maxlength="300"
                         :placeholder="t('teamUp.form.descriptionPlaceholder')"
                         :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
                         :height="'300px'"

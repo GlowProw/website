@@ -28,6 +28,8 @@ import ByBluePrintWidget from "@/components/ByBluePrintWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
 import CollectionToggle from "@/components/CollectionToggle.vue";
+import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
+import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useNoticeStore} from "~/stores/noticeStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -84,6 +86,13 @@ const
       const headData = i18nReadName.ship(id.value);
       return (headData.description() as string) || '';
     });
+
+useCodexDetailHotkeys({
+  targetType: 'ship',
+  targetId: () => id.value,
+  targetName: () => i18nReadName.ship(id.value).name(),
+  list: () => Object.keys(shipsData).map(key => ({id: key})),
+})
 
 useHead({
   title: headTitle,
@@ -398,6 +407,8 @@ const onAddCalculator = () => {
                     <PerksWidget :data="shipDetailData"></PerksWidget>
                   </div>
                 </template>
+
+                <CodexItemStatsCard v-if="id" target-type="ship" :target-id="id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>
             </AffixContainerView>
           </v-col>
