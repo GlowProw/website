@@ -125,14 +125,8 @@ defineOptions({
       scrollable>
     <v-card v-if="modelValue && season" border
             rounded="lg"
-            class="season-items-dialog v-container">
-      <div class="d-flex align-center px-5 py-3 border-bottom flex-shrink-0">
-        <span class="text-h6">{{ t('statistics.season.detailTitle') }}</span>
-        <v-spacer></v-spacer>
-        <v-btn icon="mdi-close" variant="tonal" class="ml-2" @click="onClose"></v-btn>
-      </div>
-
-      <v-card-text class="pa-4">
+            class="season-items-dialog v-container pa-0">
+      <v-card-text class="">
         <v-row>
           <v-col cols="12" md="4" lg="3">
             <AffixContainerView :offset-top="0">
@@ -173,19 +167,21 @@ defineOptions({
           </v-col>
 
           <v-col cols="12" md="8" lg="9">
-            <div class="mx-auto" v-if="loading" >
-              <Loading size="50"></Loading>
+            <div v-if="loading" class="w-100">
+              <Loading size="50" class="mx-auto"></Loading>
             </div>
 
             <div v-else-if="items?.groups.length">
               <div v-for="group in items.groups" :key="group.targetType" class="mb-4">
-                <v-row class="d-flex align-center mb-2">
-                  <v-col cols="auto" class="singe-line">{{ kindName(group.targetType) }}</v-col>
-                  <v-col>
-                    <v-divider></v-divider>
-                  </v-col>
-                  <v-col cols="auto" class="opacity-60">{{ group.items.length }}</v-col>
-                </v-row>
+                <AffixContainerView :offset-top="0">
+                  <v-row class="d-flex align-center mb-2">
+                    <v-col cols="auto" class="singe-line">{{ kindName(group.targetType) }}</v-col>
+                    <v-col>
+                      <v-divider></v-divider>
+                    </v-col>
+                    <v-col cols="auto" class="opacity-60">{{ group.items.length }}</v-col>
+                  </v-row>
+                </AffixContainerView>
 
                 <v-row density="compact">
                   <v-col cols="auto" v-for="entry in group.items" :key="entry.id">
@@ -205,6 +201,12 @@ defineOptions({
           </v-col>
         </v-row>
       </v-card-text>
+
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn variant="tonal" @click="onClose">{{ t('basic.button.close') }}</v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

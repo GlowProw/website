@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 
-const props = withDefaults(defineProps<{ size?: number | string }>(), {
-  size: '20px'
+const props = withDefaults(defineProps<{ size?: number | string, class?: string }>(), {
+  size: '20px',
+  class: ''
 })
 
 const loadingSize = computed(() => props.size || '20px')
@@ -17,7 +18,7 @@ defineOptions({
   <img
       src="@/assets/images/loading.gif"
       class="loading-img"
-      :class="{ 'loading-img-auto': isAutoSize }"
+      :class="{ 'loading-img-auto': isAutoSize, [props.class]: props.class }"
       :width="isAutoSize ? undefined : loadingSize"
       :height="isAutoSize ? undefined : loadingSize"
       alt="loading"/>
