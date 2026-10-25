@@ -93,9 +93,9 @@ jobs:
       - name: Build SSG (sharded)
         run: npm run build-only:ssg:sharded
         env:
-          # 每个分片是独立进程（默认 4 片，SSG_SHARD_TOTAL 可调），进程退出即归还全部内存
+          # 每个分片是独立进程（默认 10 片，SSG_SHARD_TOTAL 可调），进程退出即归还全部内存
           NODE_OPTIONS: '--expose-gc --max-old-space-size=8192'
-          SSG_SHARD_TOTAL: '4'
+          SSG_SHARD_TOTAL: '10'
           APP_HOST: 'glow-prow.top'
 
       - name: Upload Build Artifacts

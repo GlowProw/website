@@ -11,7 +11,7 @@
  *   只构建 server bundle 并渲染本片 HTML，复用第 0 片的 client 产物
  *
  * 环境变量：
- *   SSG_SHARD_TOTAL  分片总数（默认 4）
+ *   SSG_SHARD_TOTAL  分片总数（默认 10）
  *   NODE_OPTIONS     透传，建议 --expose-gc --max-old-space-size=<单机上限>
  */
 import {spawn} from 'node:child_process';
@@ -23,7 +23,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const binPath = path.join(root, 'node_modules', 'vite-ssg', 'bin', 'vite-ssg.js');
 
-const TOTAL = Math.max(1, Number.parseInt(process.env.SSG_SHARD_TOTAL || '4', 10));
+const TOTAL = Math.max(1, Number.parseInt(process.env.SSG_SHARD_TOTAL || '10', 10));
 
 const runShard = (index) => new Promise((resolve, reject) => {
     const env = {

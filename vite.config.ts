@@ -500,7 +500,7 @@ export default defineConfig(({mode}) => {
         // vite-ssg 配置
         ssgOptions: {
             script: 'async',
-            formatting: 'minify',
+            formatting: 'none',
             mock: false,
             concurrency: 2,
             // 预渲染所有静态路由与公开百科数据路由，跳过未填充参数的路由及私有路由
@@ -518,7 +518,7 @@ export default defineConfig(({mode}) => {
             },
             onPageRendered(route: string, renderedHTML: string, ctx: any) {
                 renderedPageCount++;
-                if (renderedPageCount % 10 === 0 && typeof (globalThis as any).gc === 'function') {
+                if (renderedPageCount % 40 === 0 && typeof (globalThis as any).gc === 'function') {
                     try {
                         (globalThis as any).gc();
                     } catch (e) {
