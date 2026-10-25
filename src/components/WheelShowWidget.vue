@@ -181,7 +181,7 @@ defineOptions({
     <div class="wheel-controller">
       <v-row align="center" justify="center">
         <v-col cols="auto">
-          <btn-widget keyboard-shortcut="q" size="40" class="my-2" @action-complete="prev" @click="prev"></btn-widget>
+          <btn-widget keyboard-shortcut="q" size="40" class="my-2" @action-complete="prev"></btn-widget>
         </v-col>
         <v-col class="d-flex justify-center">
           <div class="d-flex ga-1 align-center">
@@ -194,7 +194,7 @@ defineOptions({
           </div>
         </v-col>
         <v-col cols="auto">
-          <btn-widget keyboard-shortcut="e" size="40" class="my-2" @action-complete="next" @click="next"></btn-widget>
+          <btn-widget keyboard-shortcut="e" size="40" class="my-2" @action-complete="next"></btn-widget>
         </v-col>
       </v-row>
     </div>

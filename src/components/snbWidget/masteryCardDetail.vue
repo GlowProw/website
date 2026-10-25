@@ -87,11 +87,11 @@ defineOptions({
       <div class="card-chip d-flex ga-2 mt-3">
         <v-chip inline
                 class="badge-flavor text-center text-black"
-                v-if="category">{{ category }}
+                v-if="category">{{ t(`mastery.categorys.${category}`) || t(`codex.types.${category}`) || category }}
         </v-chip>
         <v-chip inline
                 class="badge-flavor text-center text-black"
-                v-if="role">{{ role }}
+                v-if="role">{{ t(`codex.mastery.roles.${role}`) || t(`codex.types.${role}`) || role }}
         </v-chip>
         <v-chip inline
                 class="badge-flavor text-center text-black"

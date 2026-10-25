@@ -3227,6 +3227,10 @@
         "name": "窩點",
         "description": "這裡是海盜窩。為你下一次搶劫做計劃、裝配你的船隻，或與其他志同道合的海賊相聚，一起痛飲。"
       },
+      "anyoneDen": {
+        "name": "任意窩點",
+        "description": "任意海盜窩點"
+      },
       "weaver": {
         "name": "織紡",
         "description": "一處專注於收集並精製黃麻的小型定居點。你可以在這裡購買布料或交易貨物。"
@@ -3246,6 +3250,10 @@
       "outpost": {
         "name": "前哨站",
         "description": "可停泊、交易、開啟倉庫或快速傳送的海盜前哨站。"
+      },
+      "anyoneOutpost": {
+        "name": "任意前哨站",
+        "description": "任意前哨站"
       },
       "foundry": {
         "name": "鑄造廠",

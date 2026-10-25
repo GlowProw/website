@@ -288,28 +288,40 @@ function render() {
       ctx.fillStyle = grad;
       ctx.fill();
 
-      if (isSelected) {
-        ctx.strokeStyle = '#ffeb3b';
-        ctx.lineWidth = 3.2;
-        ctx.shadowColor = '#ffeb3b';
-        ctx.shadowBlur = 14;
-      } else if (isHoverActive) {
-        ctx.strokeStyle = '#fff275';
-        ctx.lineWidth = 2.8;
-        ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 12;
-      } else if (isActive) {
-        ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 2.6;
+      if (isActive) {
+        ctx.strokeStyle = isSelected ? '#ffe57f' : '#ffd700';
+        ctx.lineWidth = isSelected ? 3.2 : 2.6;
         ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = isSelected ? 12 : 8;
+      } else if (isAvailable) {
+        ctx.strokeStyle = isSelected ? '#ffffff' : (isHoverActive ? '#fff275' : '#806016');
+        ctx.lineWidth = isSelected ? 2.8 : (isHoverActive ? 2.6 : 2.0);
+        ctx.shadowColor = isSelected ? 'rgba(255, 255, 255, 0.6)' : (isHoverActive ? '#ffd700' : 'transparent');
+        ctx.shadowBlur = isSelected ? 8 : (isHoverActive ? 10 : 0);
       } else {
-        ctx.strokeStyle = '#806016';
-        ctx.lineWidth = 2.0;
+        ctx.strokeStyle = isSelected ? '#777777' : '#555555';
+        ctx.lineWidth = isSelected ? 2.0 : 1.5;
         ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
       }
       ctx.stroke();
+
+      // 选中焦点指示外环（未激活时显示白色/浅灰色环，已激活时显示金光环，避免误导为已激活）
+      if (isSelected) {
+        ctx.beginPath();
+        const selSize = size + 4;
+        ctx.moveTo(0, -selSize);
+        ctx.lineTo(selSize, 0);
+        ctx.lineTo(0, selSize);
+        ctx.lineTo(-selSize, 0);
+        ctx.closePath();
+        ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+      }
+
       // 描边后立刻重置阴影，避免影响后续图标和文本
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
@@ -348,39 +360,41 @@ function render() {
       const rInner = 23;
       const iconR = rInner - 5; // 18，内边 5px
 
-      // 外层圆底色
+      // 外层圆底色：仅激活时呈现金褐色，未激活时根据可用性呈现黑灰底色
       ctx.beginPath();
       ctx.arc(0, 0, rOuter, 0, Math.PI * 2);
-      ctx.fillStyle = (isActive || isSelected || isHovered) ? '#3a2b05' : (isAvailable ? '#222222' : '#181818');
+      ctx.fillStyle = isActive ? '#3a2b05' : (isAvailable ? '#222222' : '#181818');
       ctx.fill();
 
-      if (isSelected) {
-        ctx.strokeStyle = '#ffeb3b';
-        ctx.lineWidth = 3.4;
-        ctx.shadowColor = '#ffeb3b';
-        ctx.shadowBlur = 16;
-      } else if (isHovered) {
-        ctx.strokeStyle = '#fff275';
-        ctx.lineWidth = 3.0;
-        ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 12;
-      } else if (isActive) {
-        ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 2.8;
+      if (isActive) {
+        ctx.strokeStyle = isSelected ? '#ffe57f' : '#ffd700';
+        ctx.lineWidth = isSelected ? 3.4 : 2.8;
         ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = isSelected ? 14 : 10;
       } else if (isAvailable) {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.8;
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
+        ctx.strokeStyle = isSelected ? '#ffffff' : (isHoverActive ? '#fff275' : '#ffffff');
+        ctx.lineWidth = isSelected ? 2.6 : (isHoverActive ? 2.8 : 1.8);
+        ctx.shadowColor = isSelected ? 'rgba(255, 255, 255, 0.6)' : (isHoverActive ? '#ffd700' : 'transparent');
+        ctx.shadowBlur = isSelected ? 8 : (isHoverActive ? 10 : 0);
       } else {
-        ctx.strokeStyle = '#555555';
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = isSelected ? '#888888' : '#555555';
+        ctx.lineWidth = isSelected ? 1.8 : 1.2;
         ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
       }
       ctx.stroke();
+
+      // 选中外层细焦点环
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(0, 0, rOuter + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+      }
+
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
 
@@ -389,7 +403,7 @@ function render() {
       ctx.arc(0, 0, rInner, 0, Math.PI * 2);
       ctx.fillStyle = grad;
       ctx.fill();
-      ctx.strokeStyle = (isActive || isSelected || isHovered) ? '#735914' : (isAvailable ? '#444444' : '#2e2e2e');
+      ctx.strokeStyle = isActive ? '#735914' : (isAvailable ? '#444444' : '#2e2e2e');
       ctx.lineWidth = 1;
       ctx.stroke();
 
@@ -415,33 +429,35 @@ function render() {
       ctx.fillStyle = grad;
       ctx.fill();
 
-      if (isSelected) {
-        ctx.strokeStyle = '#ffeb3b';
-        ctx.lineWidth = 3.0;
-        ctx.shadowColor = '#ffeb3b';
-        ctx.shadowBlur = 14;
-      } else if (isHovered) {
-        ctx.strokeStyle = '#fff275';
-        ctx.lineWidth = 2.6;
-        ctx.shadowColor = '#ffd700';
-        ctx.shadowBlur = 12;
-      } else if (isActive) {
-        ctx.strokeStyle = '#ffd700';
-        ctx.lineWidth = 2.6;
+      if (isActive) {
+        ctx.strokeStyle = isSelected ? '#ffe57f' : '#ffd700';
+        ctx.lineWidth = isSelected ? 3.0 : 2.6;
         ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = isSelected ? 12 : 8;
       } else if (isAvailable) {
-        ctx.strokeStyle = '#ffffff';
-        ctx.lineWidth = 1.8;
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
+        ctx.strokeStyle = isSelected ? '#ffffff' : (isHoverActive ? '#fff275' : '#ffffff');
+        ctx.lineWidth = isSelected ? 2.4 : (isHoverActive ? 2.6 : 1.8);
+        ctx.shadowColor = isSelected ? 'rgba(255, 255, 255, 0.6)' : (isHoverActive ? '#ffd700' : 'transparent');
+        ctx.shadowBlur = isSelected ? 8 : (isHoverActive ? 10 : 0);
       } else {
-        ctx.strokeStyle = '#555555';
-        ctx.lineWidth = 1.2;
+        ctx.strokeStyle = isSelected ? '#888888' : '#555555';
+        ctx.lineWidth = isSelected ? 1.8 : 1.2;
         ctx.shadowColor = 'transparent';
         ctx.shadowBlur = 0;
       }
       ctx.stroke();
+
+      // 选中外层细焦点环
+      if (isSelected) {
+        ctx.beginPath();
+        ctx.arc(0, 0, r + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
+        ctx.lineWidth = 1.5;
+        ctx.shadowColor = 'transparent';
+        ctx.shadowBlur = 0;
+        ctx.stroke();
+      }
+
       ctx.shadowColor = 'transparent';
       ctx.shadowBlur = 0;
 
@@ -474,16 +490,12 @@ function render() {
       ctx.textBaseline = 'top';
 
       let textColor = 'rgba(215, 215, 215, 0.9)';
-      if (isSelected) {
-        textColor = '#ffeb3b';
-      } else if (isHovered) {
-        textColor = '#fff275';
-      } else if (isActive) {
-        textColor = '#ffd700';
+      if (isActive) {
+        textColor = isSelected ? '#ffe57f' : '#ffd700';
       } else if (isAvailable) {
-        textColor = '#ffffff';
+        textColor = isSelected ? '#ffffff' : (isHoverActive ? '#fff275' : '#ffffff');
       } else {
-        textColor = 'rgba(165, 165, 165, 0.7)';
+        textColor = isSelected ? 'rgba(205, 205, 205, 0.85)' : 'rgba(165, 165, 165, 0.7)';
       }
 
       // 轻微深色底描边提高对比度，绝无发光

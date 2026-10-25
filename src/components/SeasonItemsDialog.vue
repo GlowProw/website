@@ -123,7 +123,9 @@ defineOptions({
       :eager="true"
       @update:model-value="emit('update:modelValue', $event)"
       scrollable>
-    <v-card v-if="modelValue && season" border rounded="lg" class="season-items-dialog">
+    <v-card v-if="modelValue && season" border
+            rounded="lg"
+            class="season-items-dialog v-container">
       <div class="d-flex align-center px-5 py-3 border-bottom flex-shrink-0">
         <span class="text-h6">{{ t('statistics.season.detailTitle') }}</span>
         <v-spacer></v-spacer>

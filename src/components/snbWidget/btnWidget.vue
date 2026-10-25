@@ -1,7 +1,8 @@
 <template>
   <v-row
       class="action-button"
-      @mousedown="!activeShortcut && startAction($event, 'mouse')"
+      @click.stop.prevent
+      @mousedown="startAction($event, 'mouse')"
       @touchstart.passive="startAction($event, 'touch')"
       @mouseup="endAction"
       @mouseleave="endAction"
@@ -149,8 +150,8 @@ const startAction = (event: any, source: string) => {
   progress.value = 0
   startTime.value = Date.now()
 
-  // 按下即触发模式不进入蓄力进度
-  if (activeMode.value === 'press') {
+  // 仅键盘触发且明确配置为按压模式时直接完成，鼠标或触摸长按均进入蓄力
+  if (source === 'keyboard' && activeMode.value === 'press') {
     completeAction()
     return
   }

@@ -236,12 +236,12 @@ const requirementItems = computed<NodeRequirementItem[]>(() => {
             <v-btn
                 size="50"
                 elevation="0"
-                :disabled="isNodeActive(node.key)"
+                :disabled="isNodeActive(node.key) || !isNodeAvailable(node.key)"
                 @click="emit('toggle-activation', node.key)"
                 tile
                 block
                 :title="t('mastery.card.investPoint')">
-              <v-icon :color="isNodeActive(node.key) ? 'default' : 'amber'">mdi-plus</v-icon>
+              <v-icon :color="isNodeActive(node.key) || !isNodeAvailable(node.key) ? 'default' : 'amber'">mdi-plus</v-icon>
             </v-btn>
           </v-col>
           <v-divider vertical inset></v-divider>

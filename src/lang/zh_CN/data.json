@@ -1871,10 +1871,10 @@
           "name": "QQ 机器人",
           "desc": "在 QQ 私聊闪耀船首机器人，绑定后可关联网站账户"
         },
-    "ai-connector": {
-      "name": "AI 连接器",
-      "desc": "已授权访问您账户数据的 AI 助手（Claude、ChatGPT、Grok 等），通过 MCP 连接器读取公开数据"
-    }
+        "ai-connector": {
+          "name": "AI 连接器",
+          "desc": "已授权访问您账户数据的 AI 助手（Claude、ChatGPT、Grok 等），通过 MCP 连接器读取公开数据"
+        }
       },
       "qqBot": {
         "dialogTitle": "绑定 QQ 机器人",
@@ -2418,7 +2418,46 @@
       "combatSkill": "战斗技能",
       "legendaryEntity": "传奇实体",
       "powerWeapon": "强力武器",
-      "treasure": "藏宝图"
+      "treasure": "藏宝图",
+      "emissive": "自发光",
+      "combatReactive": "战斗反应",
+      "killReactive": "击杀反应",
+      "bossKillReactive": "首领击杀反应",
+      "animated": "动态效果",
+      "movementReactive": "移动反应",
+      "bombardWeaponSkin": "射石炮武器皮肤",
+      "mortarWeaponSkin": "迫击炮武器皮肤",
+      "rocketWeaponSkin": "火箭武器皮肤",
+      "seaFireWeaponSkin": "海火武器皮肤",
+      "springloaderWeaponSkin": "浮漂发射器武器皮肤",
+      "characterSuit": "角色套装",
+      "offensive": "进攻",
+      "defensive": "防御",
+      "support": "支援",
+      "impetus": "动力",
+      "buff": "专精增益",
+      "keyBuff": "核心增益",
+      "seasonalPerk": "赛季特长",
+      "npc": "非玩家人物",
+      "structure": "建筑体",
+      "ship": "船只",
+      "player": "玩家",
+      "main": "主线",
+      "convoy": "商船队",
+      "militaryBase": "军事基地",
+      "eliteWarship": "精英战舰",
+      "seaMonster": "海怪",
+      "spectralShip": "幽灵船",
+      "warEvent": "战争事件",
+      "warfleet": "舰队",
+      "clanOfFara": "法拉氏族",
+      "compagnieRoyale": "皇家公司",
+      "confederationOfUngwana": "翁瓜纳联邦",
+      "dominionOfRempah": "伦帕领地",
+      "dutchMerchantCompany": "荷兰商会",
+      "seaPeople": "海民",
+      "theHelm": "海舵社",
+      "theHelmEmpire": "海舵帝国"
     },
     "tier": "{num}级",
     "category": {
@@ -2702,7 +2741,8 @@
         "combatReactive": "战斗反应",
         "killReactive": "击杀反应",
         "bossKillReactive": "首领击杀反应",
-        "animated": "动画效果"
+        "animated": "动画效果",
+        "movementReactive": "移动反应"
       }
     },
     "cosmetics": {
@@ -3265,6 +3305,10 @@
         "name": "窝点",
         "description": "这里是海盗窝。为你下一次抢劫做计划、装配你的船只，或与其他志同道合的海贼相聚，一起痛饮。"
       },
+      "anyoneDen": {
+        "name": "任意窝点",
+        "description": "任意海盗窝点"
+      },
       "weaver": {
         "name": "织纺",
         "description": "一处专注于收集并精制黄麻的小型定居点。你可以在这里购买布料或交易货物。"
@@ -3284,6 +3328,10 @@
       "outpost": {
         "name": "前哨站",
         "description": "可停泊、交易、开启仓库或快速传送的海盗前哨站。"
+      },
+      "anyoneOutpost": {
+        "name": "任意前哨站",
+        "description": "任意前哨站"
       },
       "foundry": {
         "name": "铸造厂",
@@ -5267,17 +5315,17 @@
     "benefitNoAds": "移除任何广告和追踪",
     "benefitPortal": "尊享门户与首页核心捐助者展示",
     "quotaMultipliers": {
-      "100": "额度加成 5.0 倍",
-      "50": "额度加成 3.0 倍",
-      "10": "额度加成 2.0 倍",
       "5": "基础额度 1.0 倍",
+      "10": "额度加成 2.0 倍",
+      "50": "额度加成 3.0 倍",
+      "100": "额度加成 5.0 倍",
       "0.1": "额度加成 0.1 倍"
     },
     "uploadSize": {
-      "100": "单文件上传 1MB，重复赞助同档 2 次起 +1MB（最高 2MB）",
-      "50": "单文件上传 1MB，重复赞助同档 2 次起 +1MB（最高 2MB）",
-      "10": "单文件上传 0.5MB，重复赞助同档 2 次起 +0.5MB（最高 1MB）",
       "5": "单文件上传 0.5MB，重复赞助同档 2 次起 +0.5MB（最高 1MB）",
+      "10": "单文件上传 0.5MB，重复赞助同档 2 次起 +0.5MB（最高 1MB）",
+      "50": "单文件上传 1MB，重复赞助同档 2 次起 +1MB（最高 2MB）",
+      "100": "单文件上传 1MB，重复赞助同档 2 次起 +1MB（最高 2MB）",
       "0.1": "单文件上传 0.5MB"
     },
     "rules": {
@@ -5314,10 +5362,6 @@
     "hallTitle": "核心捐助者",
     "coreBadge": "核心捐助者",
     "tiers": {
-      "0.1": {
-        "name": "未知立方体",
-        "desc": "黑紫方体没有人知道作用，也许开发者知道一些？"
-      },
       "5": {
         "name": "见习海盗",
         "desc": "刚端上朗姆酒、还分不清左右舷的菜鸟。钱不多，但每条名船都从这一步开始。"
@@ -5341,6 +5385,10 @@
       "1000": {
         "name": "头目",
         "desc": "头戴三叉金冠、坐拥整支舰队的传奇头目。你的名字将刻在船尾楼最高处，整片海域都要看你的旗语行事。"
+      },
+      "0.1": {
+        "name": "未知立方体",
+        "desc": "黑紫方体没有人知道作用，也许开发者知道一些？"
       },
       "custom": {
         "name": "自定义赏金",

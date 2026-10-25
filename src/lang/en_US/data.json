@@ -2417,7 +2417,46 @@
       "combatSkill": "Combat Skill",
       "legendaryEntity": "Legendary Entity",
       "powerWeapon": "Power Weapon",
-      "treasure": "Treasure Map"
+      "treasure": "Treasure Map",
+      "emissive": "Emissive",
+      "combatReactive": "Combat Reactive",
+      "killReactive": "Kill Reactive",
+      "bossKillReactive": "Boss Kill Reactive",
+      "animated": "Animated",
+      "movementReactive": "Movement Reactive",
+      "bombardWeaponSkin": "Bombard Weapon Skin",
+      "mortarWeaponSkin": "Mortar Weapon Skin",
+      "rocketWeaponSkin": "Rocket Weapon Skin",
+      "seaFireWeaponSkin": "Sea Fire Weapon Skin",
+      "springloaderWeaponSkin": "Springloader Weapon Skin",
+      "characterSuit": "Character Suit",
+      "offensive": "Offensive",
+      "defensive": "Defensive",
+      "support": "Support",
+      "impetus": "Impetus",
+      "buff": "Mastery Buff",
+      "keyBuff": "Key Buff",
+      "seasonalPerk": "Seasonal Perk",
+      "npc": "NPC",
+      "structure": "Structure",
+      "ship": "Ship",
+      "player": "Player",
+      "main": "Main",
+      "convoy": "Convoy",
+      "militaryBase": "Military Base",
+      "eliteWarship": "Elite Warship",
+      "seaMonster": "Sea Monster",
+      "spectralShip": "Spectral Ship",
+      "warEvent": "War Event",
+      "warfleet": "Warfleet",
+      "clanOfFara": "Clan of Fara",
+      "compagnieRoyale": "Compagnie Royale",
+      "confederationOfUngwana": "Confederation of Ungwana",
+      "dominionOfRempah": "Dominion of Rempah",
+      "dutchMerchantCompany": "Dutch Merchant Company",
+      "seaPeople": "Sea People",
+      "theHelm": "The Helm",
+      "theHelmEmpire": "The Helm Empire"
     },
     "tier": "Tier {num}",
     "category": {
@@ -2698,7 +2737,8 @@
         "combatReactive": "Combat Reactive",
         "killReactive": "Kill Reactive",
         "bossKillReactive": "Boss Kill Reactive",
-        "animated": "Animated"
+        "animated": "Animated",
+        "movementReactive": "Movement Reactive"
       }
     },
     "cosmetics": {
@@ -3268,6 +3308,10 @@
         "name": "Den",
         "description": "This is a pirate den. Plan your next heist, outfit your ship, or meet up with other like-minded freebooters for a drink."
       },
+      "anyoneDen": {
+        "name": "Any Den",
+        "description": "Any pirate den"
+      },
       "weaver": {
         "name": "Weaver",
         "description": "A small settlement focused on collecting and refining Jute. You can purchase cloth or trade goods here."
@@ -3287,6 +3331,10 @@
       "outpost": {
         "name": "Outpost",
         "description": "A pirate outpost where you can dock, trade, access your warehouse, or fast travel."
+      },
+      "anyoneOutpost": {
+        "name": "Any Outpost",
+        "description": "Any pirate outpost"
       },
       "foundry": {
         "name": "Foundry",
@@ -5262,17 +5310,17 @@
     "benefitNoAds": "Remove all ads and tracking",
     "benefitPortal": "Featured on Portal & Homepage Core Donors showcase",
     "quotaMultipliers": {
-      "100": "Quota boost 5.0x",
-      "50": "Quota boost 3.0x",
-      "10": "Quota boost 2.0x",
       "5": "Base quota 1.0x",
+      "10": "Quota boost 2.0x",
+      "50": "Quota boost 3.0x",
+      "100": "Quota boost 5.0x",
       "0.1": "Quota boost 0.1x"
     },
     "uploadSize": {
-      "100": "1MB upload per file, +1MB after 2+ repeat subscriptions (max 2MB)",
-      "50": "1MB upload per file, +1MB after 2+ repeat subscriptions (max 2MB)",
-      "10": "0.5MB upload per file, +0.5MB after 2+ repeat subscriptions (max 1MB)",
       "5": "0.5MB upload per file, +0.5MB after 2+ repeat subscriptions (max 1MB)",
+      "10": "0.5MB upload per file, +0.5MB after 2+ repeat subscriptions (max 1MB)",
+      "50": "1MB upload per file, +1MB after 2+ repeat subscriptions (max 2MB)",
+      "100": "1MB upload per file, +1MB after 2+ repeat subscriptions (max 2MB)",
       "0.1": "0.5MB upload per file"
     },
     "rules": {
@@ -5309,10 +5357,6 @@
     "hallTitle": "Core Donors",
     "coreBadge": "Core Donor",
     "tiers": {
-      "0.1": {
-        "name": "Unknown Cube",
-        "desc": "Nobody knows what the black-purple cube does, perhaps the developers know something?"
-      },
       "5": {
         "name": "Apprentice Pirate",
         "desc": "Serving up rum and still learning port from starboard. Not much silver, but every grand voyage begins here."
@@ -5336,6 +5380,10 @@
       "1000": {
         "name": "Captain",
         "desc": "The legend in a gilded tricorne with a whole fleet at their back. Yer name goes atop the highest stern gallery, and every sea lane flies signals at yer command."
+      },
+      "0.1": {
+        "name": "Unknown Cube",
+        "desc": "Nobody knows what the black-purple cube does, perhaps the developers know something?"
       },
       "custom": {
         "name": "Custom Bounty",

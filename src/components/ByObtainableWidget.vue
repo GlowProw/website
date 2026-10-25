@@ -132,16 +132,56 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | TreasureMap | 
   return [];
 };
 
+// 特殊位置类型与网站地图分类映射
+const specialLocationMap: Record<string, string> = {
+  anyoneDen: 'den',
+  anyoneOutpost: 'outpost',
+}
+
+/**
+ * 判断是否为特殊地点类型标识
+ * @param id
+ */
+const isSpecialLocation = (id?: string): boolean => {
+  if (!id) return false
+  return id in specialLocationMap || id === 'anyoneDen' || id === 'anyoneOutpost'
+}
+
+/**
+ * 获取特殊地点类型的网站翻译文本
+ * @param id
+ */
+const getSpecialLocationText = (id: string): string => {
+  const categoryKey = specialLocationMap[id] || (id.startsWith('anyone') ? id.replace('anyone', '').toLowerCase() : id)
+  return asString([
+    `map.types.${id}.name`,
+    `map.types.${categoryKey}.name`,
+    `codex.location.${id}`,
+    `map.types.${id}`,
+    `map.types.${categoryKey}`,
+  ], {
+    variable: i18nAdditionalAttr.value,
+    backRawKey: false
+  }) || categoryKey
+}
+
 /**
  * 获取文本
  * @param o
  */
 const getChipText = (o: any) => {
+  if (!o?.id) return ''
+
+  if (isSpecialLocation(o.id)) {
+    return getSpecialLocationText(o.id)
+  }
+
   return asString([
     `snb.items.${o.id}.name`,
     `snb.items.${sanitizeString(o.id).cleaned}.name`,
     `snb.mapLocations.${o.id}.name`,
     `snb.locations.${o.id}`,
+    `map.types.${o.id}.name`,
   ], {
     variable: i18nAdditionalAttr.value,
     backRawKey: true
