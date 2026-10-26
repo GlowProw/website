@@ -67,7 +67,7 @@ export function useUserApi() {
     const signin = async (data: SigninParams) => {
         try {
             const trustToken = getTrustToken()
-            const result = await http.post('user/signin', { data, headers: trustToken ? {'x-2fa-trust-token': trustToken} : {} })
+            const result = await http.post('user/signin', { data, headers: trustToken ? { 'x-2fa-trust-token': trustToken } : {} })
             return handleResponse(result)
         } catch (error) {
             if (error instanceof ApiError) {
@@ -272,7 +272,8 @@ export function useUserApi() {
     };
 
     /**
-     * 获取自己指定类型的自定义数据（配装、精通、轮盘、船厂）
+     * 获取自己指定类型的自定义数据
+     * （配装、精通、轮盘、船厂）
      * @param params 查询分类与分页参数
      */
     const getMeCustomData = async (params: { category: string; page?: number; pageSize?: number }) => {
@@ -484,7 +485,7 @@ export function useUserApi() {
             const result = await http.post(`user/oauth/${platform}/callback`, {
                 data,
                 timeout,
-                headers: trustToken ? {'x-2fa-trust-token': trustToken} : {}
+                headers: trustToken ? { 'x-2fa-trust-token': trustToken } : {}
             })
             return handleResponse(result)
         } catch (error) {

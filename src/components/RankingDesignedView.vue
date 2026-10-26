@@ -345,10 +345,33 @@ const openInsertDataPanel = (tags: any[] = [], index: number, category: string) 
 /**
  * 回调插入数据
  *
- * @param id 数据标识
+ * @param idOrPayload 数据标识或包含完整信息的载荷
+ * @param options 可选配置（类别、自定义名称、关联配装UUID等）
  */
-const onInsertData = (id: string) => {
+const onInsertData = (
+  idOrPayload: string | { id: string; category?: string; name?: string; assemblyUuid?: string },
+  options?: { category?: string; name?: string; assemblyUuid?: string }
+) => {
   isOpenItem.value = false;
+  let id = "";
+  let category = itemCategory.value || "item";
+  let name: string | undefined = undefined;
+  let assemblyUuid: string | undefined = undefined;
+
+  if (typeof idOrPayload === "object" && idOrPayload !== null) {
+    id = idOrPayload.id;
+    category = idOrPayload.category || category;
+    name = idOrPayload.name;
+    assemblyUuid = idOrPayload.assemblyUuid;
+  } else if (typeof idOrPayload === "string") {
+    id = idOrPayload;
+    if (options) {
+      category = options.category || category;
+      name = options.name;
+      assemblyUuid = options.assemblyUuid;
+    }
+  }
+
   if (!id) return;
 
   const targetRow = rankingData.value[itemInsertIndex.value];
@@ -360,14 +383,68 @@ const onInsertData = (id: string) => {
     return;
   }
 
-  const rawCat = String(itemCategory.value || "item").toLowerCase();
+  const rawCat = String(category).toLowerCase();
   const typeString = categoryTypeMap[rawCat] || "Item";
 
   targetRow.content.push({
-    category: itemCategory.value || "item",
+    category,
     _typeStringName: typeString,
     id,
+    name,
+    assemblyUuid,
   });
+};
+
+/**
+ * 获取自定义数据（配装/精通/轮盘/船厂）的显示名称
+ *
+ * @param item 阶梯物品项
+ * @returns 友好的展示名称
+ */
+const getCustomDataDisplayName = (item: any): string => {
+  if (item.name) {
+    return item.name;
+  }
+  const cat = String(item.category || item._typeStringName || "").toLowerCase();
+  switch (cat) {
+    case "assembly":
+      return t("codex.itemMenu.assembly") || "配装";
+    case "mastery":
+      return t("codex.itemMenu.mastery") || "精通";
+    case "wheel":
+      return t("codex.itemMenu.wheel") || "轮盘";
+    case "shipyard":
+      return t("codex.itemMenu.shipyard") || "船厂";
+    default:
+      return t("codex.itemMenu.customData") || "数据";
+  }
+};
+
+/**
+ * 只读模式下点击自定义数据项，新标签页跳转对应配装或指定 Tab
+ *
+ * @param item 阶梯物品项
+ */
+const onClickCustomDataItem = (item: any) => {
+  if (!props.readonly) return;
+  const targetUuid = item.assemblyUuid || item.id;
+  if (!targetUuid) return;
+
+  const cat = String(item.category || item._typeStringName || "").toLowerCase();
+  let tag = "assembly";
+  if (cat === "mastery") {
+    tag = "mastery";
+  } else if (cat === "wheel") {
+    tag = "wheel";
+  } else if (cat === "shipyard") {
+    tag = "warehouse";
+  }
+
+  const routeUrl = router.resolve({
+    path: `/assembly/browse/${targetUuid}/detail`,
+    query: { tag },
+  });
+  window.open(routeUrl.href, "_blank");
 };
 
 /**
@@ -701,61 +778,85 @@ defineExpose({
                 </v-card>
               </template>
 
-              <!-- 配装类型渲染 -->
+              <!-- 配装类型渲染 S -->
               <template v-else-if="j._typeStringName === 'Assembly' || String(j.category).toLowerCase() === 'assembly'">
-                <v-card elevation="0" class="bg-transparent" width="90">
+                <v-card
+                    elevation="0"
+                    class="bg-transparent"
+                    width="90"
+                    :class="{ 'cursor-pointer': readonly }"
+                    @click="onClickCustomDataItem(j)">
                   <ItemSlotBase size="90px">
                     <div class="d-flex flex-column align-center justify-center w-100 h-100">
                       <v-icon size="36" color="amber">mdi-package-variant-closed</v-icon>
                     </div>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="j.id">
-                    <span class="text-caption">{{ t('codex.itemMenu.assembly') }}: {{ String(j.id).slice(-4) }}</span>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="getCustomDataDisplayName(j)">
+                    <span class="text-caption">{{ getCustomDataDisplayName(j) }}</span>
                   </div>
                 </v-card>
               </template>
+              <!-- 配装类型渲染 E -->
 
-              <!-- 精通类型渲染 -->
+              <!-- 精通类型渲染 S -->
               <template v-else-if="j._typeStringName === 'Mastery' || String(j.category).toLowerCase() === 'mastery'">
-                <v-card elevation="0" class="bg-transparent" width="90">
+                <v-card
+                    elevation="0"
+                    class="bg-transparent"
+                    width="90"
+                    :class="{ 'cursor-pointer': readonly }"
+                    @click="onClickCustomDataItem(j)">
                   <ItemSlotBase size="90px">
                     <div class="d-flex flex-column align-center justify-center w-100 h-100">
                       <v-icon size="36" color="amber">mdi-star-circle-outline</v-icon>
                     </div>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="j.id">
-                    <span class="text-caption">{{ t('codex.itemMenu.mastery') }}: {{ String(j.id).slice(-4) }}</span>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="getCustomDataDisplayName(j)">
+                    <span class="text-caption">{{ getCustomDataDisplayName(j) }}</span>
                   </div>
                 </v-card>
               </template>
+              <!-- 精通类型渲染 E -->
 
-              <!-- 轮盘类型渲染 -->
+              <!-- 轮盘类型渲染 S -->
               <template v-else-if="j._typeStringName === 'Wheel' || String(j.category).toLowerCase() === 'wheel'">
-                <v-card elevation="0" class="bg-transparent" width="90">
+                <v-card
+                    elevation="0"
+                    class="bg-transparent"
+                    width="90"
+                    :class="{ 'cursor-pointer': readonly }"
+                    @click="onClickCustomDataItem(j)">
                   <ItemSlotBase size="90px">
                     <div class="d-flex flex-column align-center justify-center w-100 h-100">
                       <v-icon size="36" color="amber">mdi-ship-wheel</v-icon>
                     </div>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="j.id">
-                    <span class="text-caption">{{ t('codex.itemMenu.wheel') }}: {{ String(j.id).slice(-4) }}</span>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="getCustomDataDisplayName(j)">
+                    <span class="text-caption">{{ getCustomDataDisplayName(j) }}</span>
                   </div>
                 </v-card>
               </template>
+              <!-- 轮盘类型渲染 E -->
 
-              <!-- 船厂类型渲染 -->
+              <!-- 船厂类型渲染 S -->
               <template v-else-if="j._typeStringName === 'Shipyard' || String(j.category).toLowerCase() === 'shipyard'">
-                <v-card elevation="0" class="bg-transparent" width="90">
+                <v-card
+                    elevation="0"
+                    class="bg-transparent"
+                    width="90"
+                    :class="{ 'cursor-pointer': readonly }"
+                    @click="onClickCustomDataItem(j)">
                   <ItemSlotBase size="90px">
                     <div class="d-flex flex-column align-center justify-center w-100 h-100">
                       <v-icon size="36" color="amber">mdi-ferry</v-icon>
                     </div>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="j.id">
-                    <span class="text-caption">{{ t('codex.itemMenu.shipyard') }}: {{ String(j.id).slice(-4) }}</span>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="getCustomDataDisplayName(j)">
+                    <span class="text-caption">{{ getCustomDataDisplayName(j) }}</span>
                   </div>
                 </v-card>
               </template>
+              <!-- 船厂类型渲染 E -->
 
               <!-- 兜底通用物品渲染 -->
               <template v-else>
@@ -784,7 +885,7 @@ defineExpose({
             </v-col>
 
             <!-- 添加新物品按钮 -->
-            <v-col v-if="!readonly" cols="auto" class="my-2 ml-3">
+            <v-col v-if="!readonly" cols="auto" class="my-2 ml-3 add-item-col">
               <FullItemRightClickMenu
                   :visible-categories="visibleCategories"
                   @clickMenuItem="(data) => openInsertDataPanel(data.tags, index, data.category)">
@@ -890,7 +991,7 @@ defineExpose({
   <RankingCustomDataDialog
       v-model="isCustomDataDialogOpen"
       :category="customDataCategory"
-      @select="(uuid) => onInsertData(uuid)">
+      @select="(payload) => onInsertData(payload.id, payload)">
   </RankingCustomDataDialog>
   <!-- 数据选择弹窗 E -->
 </template>
@@ -983,8 +1084,21 @@ defineExpose({
   }
 }
 
+.add-item-col {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-in-out;
+}
+
 .item-row {
   transition: all 0s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    .add-item-col {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
 
   &.row-dragging {
     opacity: 0.35;

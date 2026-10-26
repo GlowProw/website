@@ -6,6 +6,13 @@ import {useAuthStore} from '~/stores/userAccountStore';
 import {useNoticeStore} from '~/stores/noticeStore';
 import Loading from '@/components/Loading.vue';
 
+interface CustomDataPayload {
+  id: string;
+  category: string;
+  name?: string;
+  assemblyUuid?: string;
+}
+
 const props = defineProps<{
   modelValue: boolean;
   category: string;
@@ -13,7 +20,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void;
-  (e: 'select', uuid: string, category: string): void;
+  (e: 'select', payload: CustomDataPayload): void;
 }>();
 
 const {t} = useI18n();
@@ -26,11 +33,14 @@ const activeTab = ref<'uuid' | 'my'>('uuid');
 // 手动输入的 UUID
 const inputUuid = ref('');
 
+// 手动输入的名称（选填）
+const inputName = ref('');
+
 // 用户自己的数据列表加载状态
 const loadingMyData = ref(false);
 
 // 用户自己的数据列表
-const myDataList = ref<Array<{ uuid: string; name: string; updatedTime?: string }>>([]);
+const myDataList = ref<Array<{ uuid: string; name: string; assemblyUuid?: string; updatedTime?: string }>>([]);
 
 // 分类对应的大标题文案与图标配置
 const categoryMeta = computed(() => {
@@ -41,6 +51,7 @@ const categoryMeta = computed(() => {
         icon: 'mdi-star-circle-outline',
         color: 'amber',
         placeholder: '例如: 1852038472910482944 或 UUID',
+        namePlaceholder: '例如: 暴风骤雨级雷击舰的精通',
       };
     case 'wheel':
       return {
@@ -48,6 +59,7 @@ const categoryMeta = computed(() => {
         icon: 'mdi-ship-wheel',
         color: 'amber',
         placeholder: '例如: 1852038472910482944 或 UUID',
+        namePlaceholder: '例如: 暴风骤雨轮盘',
       };
     case 'shipyard':
       return {
@@ -55,6 +67,7 @@ const categoryMeta = computed(() => {
         icon: 'mdi-ferry',
         color: 'amber',
         placeholder: '例如: 1852038472910482944 或 UUID',
+        namePlaceholder: '例如: 暴风骤雨船厂',
       };
     case 'assembly':
     default:
@@ -63,6 +76,7 @@ const categoryMeta = computed(() => {
         icon: 'mdi-package-variant-closed',
         color: 'amber',
         placeholder: '例如: 1852038472910482944 或 UUID',
+        namePlaceholder: '例如: 暴风骤雨级雷击舰',
       };
   }
 });
@@ -73,6 +87,7 @@ const categoryMeta = computed(() => {
 watch(() => props.modelValue, (isOpen) => {
   if (isOpen) {
     inputUuid.value = '';
+    inputName.value = '';
     if (activeTab.value === 'my') {
       fetchMyData();
     }
@@ -126,17 +141,30 @@ const onSubmitUuid = () => {
     noticeStore.warning(t('rankingDesignedItems.workshop.uuidRequired') || '请输入有效的 UUID');
     return;
   }
-  emit('select', val, props.category);
+
+  const customName = inputName.value.trim() || `${categoryMeta.value.title} ${val.slice(-4)}`;
+
+  emit('select', {
+    id: val,
+    category: props.category,
+    name: customName,
+    assemblyUuid: props.category === 'assembly' ? val : undefined,
+  });
   emit('update:modelValue', false);
 };
 
 /**
  * 从列表中选入指定项
- * @param uuid 资源唯一标识
+ * @param item 数据项
  */
-const onSelectMyItem = (uuid: string) => {
-  if (!uuid) return;
-  emit('select', uuid, props.category);
+const onSelectMyItem = (item: { uuid: string; name: string; assemblyUuid?: string }) => {
+  if (!item.uuid) return;
+  emit('select', {
+    id: item.uuid,
+    category: props.category,
+    name: item.name,
+    assemblyUuid: item.assemblyUuid || (props.category === 'assembly' ? item.uuid : undefined),
+  });
   emit('update:modelValue', false);
 };
 
@@ -206,6 +234,18 @@ const formatDate = (dateStr?: string) => {
               prepend-inner-icon="mdi-link-variant"
               clearable
               autofocus
+              class="mb-2"
+              @keydown.enter="onSubmitUuid">
+          </v-text-field>
+
+          <v-text-field
+              v-model="inputName"
+              :label="t('basic.name') || '名称（选填）'"
+              :placeholder="categoryMeta.namePlaceholder"
+              variant="outlined"
+              density="comfortable"
+              prepend-inner-icon="mdi-format-title"
+              clearable
               @keydown.enter="onSubmitUuid">
           </v-text-field>
 
@@ -268,7 +308,7 @@ const formatDate = (dateStr?: string) => {
                       color="amber"
                       variant="tonal"
                       prepend-icon="mdi-plus"
-                      @click="onSelectMyItem(item.uuid)">
+                      @click="onSelectMyItem(item)">
                     {{ t('basic.button.add') || '选入' }}
                   </v-btn>
                 </template>
