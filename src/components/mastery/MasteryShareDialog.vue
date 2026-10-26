@@ -35,6 +35,7 @@ function onImport() {
   <v-dialog
       :model-value="modelValue"
       @update:model-value="emit('update:modelValue', $event)"
+      max-width="560">
     <v-card border class="bg-grey-darken-4 pa-2">
       <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
         <v-icon size="80" class="mb-2">mdi-share-variant</v-icon>
