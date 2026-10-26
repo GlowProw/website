@@ -446,7 +446,7 @@ defineOptions({
                     variant="outlined"
                     density="compact">
                   <template v-slot:selection="{ item }">
-                    {{ getLanguageLabel(item.value || item.title || userAccountData.attr.language) }}
+                    {{ getLanguageLabel(item.value || userAccountData.attr.language) }}
                   </template>
                 </v-select>
               </v-col>

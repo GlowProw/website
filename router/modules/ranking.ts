@@ -5,7 +5,6 @@ const RankingDesignedItemsPage = () => import('@/views/rankingDesignedItems/Inde
 const RankingDesignedItemsBrowsePage = () => import('@/views/rankingDesignedItems/Browse.vue');
 const RankingDesignedItemsDetailPage = () => import('@/views/rankingDesignedItems/Detail.vue');
 const RankingDesignedItemsWorkshopPage = () => import('@/views/rankingDesignedItems/workshop/Index.vue');
-const RankingDesignedItemsPublishPage = () => import('@/views/rankingDesignedItems/Publish.vue');
 
 // 幻化与精选设计物品排行路由集合
 export const rankingRoutes: RouteRecordRaw[] = [

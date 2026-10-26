@@ -76,49 +76,53 @@
               {{ t('apps.aiConnector.connector.subtitle') }}
             </p>
 
-            <!-- 中文优化版卡片 -->
-            <v-card variant="flat" class="pa-4 connector-url-card mb-4 border border-warning" rounded="xl">
-              <div class="d-flex align-center justify-space-between mb-2 flex-wrap ga-2">
-                <div class="d-flex align-center ga-2">
-                  <span class="font-weight-bold">{{ t('apps.aiConnector.connector.versionZh') }}</span>
-                  <v-chip color="amber" size="x-small" variant="flat" class="text-black font-weight-bold">
-                    推荐国内模型 / WorkBuddy
-                  </v-chip>
-                </div>
-                <v-btn color="amber" size="small" variant="flat" prepend-icon="mdi-content-copy"
-                       @click="copyUrl(connectorUrlZh, 'zh')">
-                  {{ copiedZh ? t('apps.aiConnector.connector.copied') : t('apps.aiConnector.connector.copy') }}
-                </v-btn>
-              </div>
-              <p class="text-caption text-medium-emphasis mb-2">
-                {{ t('apps.aiConnector.connector.versionZhDesc') }}
-              </p>
-              <div class="d-flex align-center bg-black rounded-lg pa-2">
-                <code class="text-amber connector-url flex-grow-1">{{ connectorUrlZh }}</code>
-              </div>
-            </v-card>
+            <v-row>
+              <v-col cols="12" lg="6">
+                <!-- 中文优化版卡片 -->
+                <v-card variant="flat" class="pa-4 h-100" rounded="xl">
+                  <div class="d-flex align-center justify-space-between mb-2 flex-wrap ga-2">
+                    <div class="d-flex align-center ga-2">
+                      <span class="font-weight-bold">{{ t('apps.aiConnector.connector.versionZh') }}</span>
+                    </div>
 
-            <!-- 国际通用版卡片 -->
-            <v-card variant="flat" class="pa-4 connector-url-card" rounded="xl">
-              <div class="d-flex align-center justify-space-between mb-2 flex-wrap ga-2">
-                <div class="d-flex align-center ga-2">
-                  <span class="font-weight-bold">{{ t('apps.aiConnector.connector.versionEn') }}</span>
-                  <v-chip color="grey" size="x-small" variant="tonal">
-                    Claude / ChatGPT / Cursor
-                  </v-chip>
-                </div>
-                <v-btn color="grey-lighten-2" size="small" variant="tonal" prepend-icon="mdi-content-copy"
-                       @click="copyUrl(connectorUrlEn, 'en')">
-                  {{ copiedEn ? t('apps.aiConnector.connector.copied') : t('apps.aiConnector.connector.copy') }}
-                </v-btn>
-              </div>
-              <p class="text-caption text-medium-emphasis mb-2">
-                {{ t('apps.aiConnector.connector.versionEnDesc') }}
-              </p>
-              <div class="d-flex align-center bg-black rounded-lg pa-2">
-                <code class="text-medium-emphasis connector-url flex-grow-1">{{ connectorUrlEn }}</code>
-              </div>
-            </v-card>
+                  </div>
+                  <p class="text-caption text-medium-emphasis mb-2">
+                    {{ t('apps.aiConnector.connector.versionZhDesc') }}
+                  </p>
+                  <div class="d-flex align-center bg-black rounded-lg pa-2">
+                    <code class="text-amber connector-url flex-grow-1">{{ connectorUrlZh }}</code>
+                    <v-btn size="small" variant="flat" prepend-icon="mdi-content-copy"
+                           @click="copyUrl(connectorUrlZh, 'zh')">
+                      {{ copiedZh ? t('apps.aiConnector.connector.copied') : t('apps.aiConnector.connector.copy') }}
+                    </v-btn>
+                  </div>
+                </v-card>
+              </v-col>
+              <v-col cols="12" lg="6">
+                <!-- 国际通用版卡片 -->
+                <v-card variant="flat" class="pa-4 h-100" rounded="xl">
+                  <div class="d-flex align-center justify-space-between mb-2 flex-wrap ga-2">
+                    <div class="d-flex align-center ga-2">
+                      <span class="font-weight-bold">{{ t('apps.aiConnector.connector.versionEn') }}</span>
+                      <v-chip color="grey" size="x-small" variant="tonal">
+                        Claude / ChatGPT / Cursor
+                      </v-chip>
+                    </div>
+
+                  </div>
+                  <p class="text-caption text-medium-emphasis mb-2">
+                    {{ t('apps.aiConnector.connector.versionEnDesc') }}
+                  </p>
+                  <div class="d-flex align-center bg-black rounded-lg pa-2">
+                    <code class="text-amber text-medium-emphasis connector-url flex-grow-1">{{ connectorUrlEn }}</code>
+                    <v-btn color="grey-lighten-2" size="small" variant="tonal" prepend-icon="mdi-content-copy"
+                           @click="copyUrl(connectorUrlEn, 'en')">
+                      {{ copiedEn ? t('apps.aiConnector.connector.copied') : t('apps.aiConnector.connector.copy') }}
+                    </v-btn>
+                  </div>
+                </v-card>
+              </v-col>
+            </v-row>
 
             <v-alert type="info" variant="tonal" density="compact" class="mt-4" border="start">
               {{ t('apps.aiConnector.connector.note') }}
@@ -126,6 +130,7 @@
           </div>
           <!-- 连接器 URL E -->
         </v-col>
+
         <!-- 可以问什么 S -->
         <v-col cols="12" lg="6">
           <AffixBoxHasTitleView>
@@ -139,14 +144,14 @@
 
             <v-row density="compact">
               <v-col cols="12" md="12" v-for="(example, key) in askExamples" :key="key">
-                <v-card variant="flat" class="h-100 ask-card">
+                <div class="h-100 ask-card">
                   <div class="d-flex align-center ga-4">
-                    <v-avatar color="amber" variant="tonal" size="35" rounded="lg">
-                      <v-icon :icon="askIcons[key]" size="15"></v-icon>
+                    <v-avatar color="amber" variant="tonal" size="45" rounded="lg">
+                      <v-icon :icon="askIcons[key]" size="25"></v-icon>
                     </v-avatar>
                     <span class="text-body-1">“{{ example }}”</span>
                   </div>
-                </v-card>
+                </div>
               </v-col>
             </v-row>
           </AffixBoxHasTitleView>

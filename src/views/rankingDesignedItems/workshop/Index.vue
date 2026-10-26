@@ -47,8 +47,16 @@ const draftSaveLoading = ref(false);
 const draftSaveQuickArchivingLoading = ref(false);
 
 // 推荐标签库
-const recommendedTags = ref([
-  "PVP", "PVE", "武器", "防具", "家具", "赛季热门", "新手推荐", "毕业装", "大招搭配"
+const recommendedTags = computed(() => [
+  { value: "PVP", label: t("rankingDesignedItems.tags.pvp") },
+  { value: "PVE", label: t("rankingDesignedItems.tags.pve") },
+  { value: "武器", label: t("rankingDesignedItems.tags.weapon") },
+  { value: "防具", label: t("rankingDesignedItems.tags.armor") },
+  { value: "家具", label: t("rankingDesignedItems.tags.furniture") },
+  { value: "赛季热门", label: t("rankingDesignedItems.tags.seasonHot") },
+  { value: "新手推荐", label: t("rankingDesignedItems.tags.beginner") },
+  { value: "毕业装", label: t("rankingDesignedItems.tags.endgame") },
+  { value: "大招搭配", label: t("rankingDesignedItems.tags.combo") },
 ]);
 
 // 发布表单信息（与工坊完全融合）
@@ -157,7 +165,7 @@ const onQuickSaveDraft = () => {
     category: "ranking",
   });
 
-  notice.success((t("rankingDesignedItems.workshop.quickSaveDraft") || "暂存草稿") + " " + t("basic.tips.success"));
+  notice.success(t("rankingDesignedItems.workshop.quickSaveDraft") + " " + t("basic.tips.success"));
 };
 
 /**
@@ -165,7 +173,7 @@ const onQuickSaveDraft = () => {
  */
 const onSaveNewDraft = () => {
   if (!newDraftName.value.trim()) {
-    notice.warning(t("rankingDesignedItems.workshop.inputDraftName") || "请输入草稿名称");
+    notice.warning(t("rankingDesignedItems.workshop.inputDraftName"));
     return;
   }
   if (!rankingDesignedView.value) return;
@@ -191,7 +199,7 @@ const onSaveNewDraft = () => {
   draftSaveLoading.value = false;
   draftNewSaveModel.value = false;
   newDraftName.value = "";
-  notice.success(t("basic.tips.success") || "保存草稿成功");
+  notice.success(t("basic.tips.success"));
 };
 
 /**
@@ -200,7 +208,7 @@ const onSaveNewDraft = () => {
 const onUseDraft = (item: any) => {
   const tiers = item.ranking || item.data;
   if (!tiers || !Array.isArray(tiers) || tiers.length === 0) {
-    notice.error("草稿数据为空");
+    notice.error(t("rankingDesignedItems.workshop.draftEmpty"));
     return;
   }
 
@@ -224,7 +232,7 @@ const onUseDraft = (item: any) => {
   });
 
   draftModel.value = false;
-  notice.success("草稿加载成功");
+  notice.success(t("rankingDesignedItems.workshop.draftLoadSuccess"));
 };
 
 /**
@@ -366,7 +374,7 @@ const onSubmit = async () => {
         });
       }
 
-      notice.success(t("rankingDesignedItems.updated") || "Updated successfully");
+      notice.success(t("rankingDesignedItems.updated"));
       await router.push(`/ranking-designed-items/browse/${targetUuid}/detail`);
     } else {
       const res = await rankingApi.publishRanking(payload);
@@ -381,7 +389,7 @@ const onSubmit = async () => {
         });
       }
 
-      notice.success(t("rankingDesignedItems.published") || "Published successfully!");
+      notice.success(t("rankingDesignedItems.published"));
       if (newUuid) {
         await router.push(`/ranking-designed-items/browse/${newUuid}/detail`);
       } else {
@@ -434,7 +442,7 @@ onMounted(() => {
             </h1>
             <p class="opacity-60 mt-2">
               <template v-if="!isEditModel">
-                {{ t('rankingDesignedItems.workshop.createTitle') || '拖拽物品自定义分层，并在下方直接录入信息完成发布' }}
+                {{ t('rankingDesignedItems.workshop.createTitle') }}
               </template>
               <template v-else>
                 {{ t('rankingDesignedItems.workshop.editTitle') }}: <u><b>{{ publishData.name || detailData.name || '...' }}</b></u>
@@ -451,7 +459,7 @@ onMounted(() => {
                 :loading="draftSaveQuickArchivingLoading"
                 @click="onQuickSaveDraft"
               >
-                {{ t('rankingDesignedItems.workshop.quickSaveDraft') || '暂存草稿' }}
+                {{ t('rankingDesignedItems.workshop.quickSaveDraft') }}
               </v-btn>
               <v-menu location="bottom right">
                 <template v-slot:activator="{ props }">
@@ -464,13 +472,13 @@ onMounted(() => {
                     <template v-slot:prepend>
                       <v-icon icon="mdi-content-save-plus-outline" size="small"></v-icon>
                     </template>
-                    <v-list-item-title>{{ t('rankingDesignedItems.workshop.saveAsDraft') || '另存为草稿' }}</v-list-item-title>
+                    <v-list-item-title>{{ t('rankingDesignedItems.workshop.saveAsDraft') }}</v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="onOpenDraftPanel">
                     <template v-slot:prepend>
                       <v-icon icon="mdi-folder-open-outline" size="small"></v-icon>
                     </template>
-                    <v-list-item-title>{{ t('rankingDesignedItems.workshop.loadDraft') || '草稿箱' }}</v-list-item-title>
+                    <v-list-item-title>{{ t('rankingDesignedItems.workshop.loadDraft') }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -484,7 +492,7 @@ onMounted(() => {
               :loading="submitLoading"
               :disabled="isPushDisabled"
               @click="onSubmit">
-              {{ isEditModel ? (t('basic.button.save') || '保存修改') : (t('basic.button.commit') || '发布天梯') }}
+              {{ isEditModel ? t('basic.button.save') : t('basic.button.commit') }}
             </v-btn>
 
             <v-btn v-if="isEditModel" size="large" variant="tonal" @click="cancelAndBack(router, route)">
@@ -581,14 +589,14 @@ onMounted(() => {
           <!-- 推荐快捷标签胶囊 -->
           <div class="d-flex flex-wrap ga-2 gap-2">
             <v-chip
-                v-for="tag in recommendedTags"
-                :key="tag"
+                v-for="item in recommendedTags"
+                :key="item.value"
                 size="small"
-                :color="publishData.tags?.includes(tag) ? 'amber' : 'default'"
-                :variant="publishData.tags?.includes(tag) ? 'flat' : 'tonal'"
+                :color="publishData.tags?.includes(item.value) ? 'amber' : 'default'"
+                :variant="publishData.tags?.includes(item.value) ? 'flat' : 'tonal'"
                 class="cursor-pointer"
-                @click="toggleTag(tag)">
-              {{ tag }}
+                @click="toggleTag(item.value)">
+              {{ item.label }}
             </v-chip>
           </div>
         </v-col>
@@ -603,7 +611,7 @@ onMounted(() => {
     <v-container class="py-4">
       <v-row align="center" no-gutters>
         <span class="text-caption text-medium-emphasis d-none d-sm-inline">
-          {{ isEditModel ? '正在编辑自定义物品天梯榜单' : '编排完成并完善信息后，点击右侧按钮直接发布' }}
+          {{ isEditModel ? t('rankingDesignedItems.workshop.bottomTipEdit') : t('rankingDesignedItems.workshop.bottomTipCreate') }}
         </span>
         <v-spacer></v-spacer>
         <v-col cols="auto" class="d-flex ga-2">
@@ -612,7 +620,7 @@ onMounted(() => {
             :loading="submitLoading"
             :disabled="isPushDisabled"
             @click="onSubmit">
-            {{ isEditModel ? (t('basic.button.save')) : (t('basic.button.commit')) }}
+            {{ isEditModel ? t('basic.button.save') : t('basic.button.commit') }}
           </v-btn>
         </v-col>
       </v-row>
@@ -625,12 +633,12 @@ onMounted(() => {
     <v-card border class="bg-grey-darken-4 pa-2">
       <v-card-title class="py-8 border rounded-lg text-center bg-black mb-4">
         <v-icon size="64" class="mb-2 text-amber">mdi-content-save-plus-outline</v-icon>
-        <p class="text-h6 font-weight-bold">{{ t('rankingDesignedItems.workshop.saveAsDraft') || '另存为草稿' }}</p>
+        <p class="text-h6 font-weight-bold">{{ t('rankingDesignedItems.workshop.saveAsDraft') }}</p>
       </v-card-title>
       <v-card-text>
         <v-text-field
           v-model="newDraftName"
-          :label="t('rankingDesignedItems.workshop.inputDraftName') || '请输入草稿名称'"
+          :label="t('rankingDesignedItems.workshop.inputDraftName')"
           variant="outlined"
           density="comfortable"
           maxlength="140"
@@ -642,7 +650,7 @@ onMounted(() => {
       <v-card-actions class="px-4 pb-4">
         <v-spacer></v-spacer>
         <v-btn variant="tonal" @click="draftNewSaveModel = false">
-          {{ t('basic.button.cancel') || '取消' }}
+          {{ t('basic.button.cancel') }}
         </v-btn>
         <v-btn
           color="amber"
@@ -651,7 +659,7 @@ onMounted(() => {
           :loading="draftSaveLoading"
           @click="onSaveNewDraft"
         >
-          {{ t('basic.button.submit') || '保存' }}
+          {{ t('basic.button.submit') }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -663,7 +671,7 @@ onMounted(() => {
     <v-card border class="bg-grey-darken-4 pa-2">
       <v-card-title class="py-8 border rounded-lg text-center bg-black mb-4">
         <v-icon size="64" class="mb-2 text-amber">mdi-folder-open-outline</v-icon>
-        <p class="text-h6 font-weight-bold">{{ t('rankingDesignedItems.workshop.draft') || '草稿箱' }}</p>
+        <p class="text-h6 font-weight-bold">{{ t('rankingDesignedItems.workshop.draft') }}</p>
       </v-card-title>
       <v-card-text>
         <v-list v-if="draftList.length > 0" bg-color="transparent" class="px-0">
@@ -680,11 +688,11 @@ onMounted(() => {
               </v-avatar>
             </template>
             <v-list-item-title class="font-weight-bold">
-              {{ item.id === 'quickArchiving' ? (t('rankingDesignedItems.workshop.quickArchiving') || '快速暂存草稿') : (item.name || '未命名草稿') }}
+              {{ item.id === 'quickArchiving' ? t('rankingDesignedItems.workshop.quickArchiving') : (item.name || t('rankingDesignedItems.workshop.untitledDraft')) }}
             </v-list-item-title>
             <v-list-item-subtitle class="opacity-60 text-caption mt-1">
               <span v-if="item.updateTime">{{ new Date(item.updateTime).toLocaleString() }} · </span>
-              <span>{{ (item.ranking || item.data)?.length || 0 }} 层</span>
+              <span>{{ t('rankingDesignedItems.browse.layers', { count: (item.ranking || item.data)?.length || 0 }) }}</span>
             </v-list-item-subtitle>
             <template v-slot:append>
               <div class="d-flex ga-2">
@@ -695,7 +703,7 @@ onMounted(() => {
                   class="text-black font-weight-bold"
                   @click="onUseDraft(item)"
                 >
-                  {{ t('basic.button.use') || '使用' }}
+                  {{ t('basic.button.use') }}
                 </v-btn>
                 <v-btn
                   variant="tonal"
@@ -713,7 +721,7 @@ onMounted(() => {
       <v-card-actions class="px-4 pb-4">
         <v-spacer></v-spacer>
         <v-btn variant="tonal" color="amber" @click="draftModel = false">
-          {{ t('common.close') || '关闭' }}
+          {{ t('basic.button.close') }}
         </v-btn>
       </v-card-actions>
     </v-card>

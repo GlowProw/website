@@ -328,7 +328,7 @@ defineOptions({
                 >
                   <template v-slot:selection="{ item }">
                     <v-chip size="small" class="mr-1">
-                      {{ getLanguageLabel(item.raw ?? item) }}
+                      {{ getLanguageLabel(item.value || item) }}
                     </v-chip>
                   </template>
                 </v-select>

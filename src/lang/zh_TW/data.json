@@ -3514,7 +3514,12 @@
       "saveAsDraft": "另存為草稿",
       "loadDraft": "草稿箱",
       "draft": "草稿箱",
-      "inputDraftName": "請輸入草稿名稱"
+      "inputDraftName": "請輸入草稿名稱",
+      "bottomTipEdit": "正在編輯自訂物品天梯榜單",
+      "bottomTipCreate": "編排完成並完善資訊後，點擊右側按鈕直接發布",
+      "draftEmpty": "草稿資料為空",
+      "draftLoadSuccess": "草稿載入成功",
+      "untitledDraft": "未命名草稿"
     },
     "updated": "天梯更新成功",
     "published": "天梯發布成功",
@@ -3554,7 +3559,9 @@
       "armor": "防具",
       "furniture": "家具",
       "seasonHot": "賽季熱門",
-      "beginner": "新手推薦"
+      "beginner": "新手推薦",
+      "endgame": "畢業裝",
+      "combo": "大招搭配"
     },
     "account": {
       "deleteConfirm": "確定要刪除天梯榜單 [{name}] 嗎？",

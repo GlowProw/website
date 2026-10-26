@@ -203,7 +203,7 @@ defineOptions({
                     hide-details
                     :label="t('assembly.setting.selectLanguage')">
                   <template v-slot:selection="{ item }">
-                    {{ getLanguageLabel(item.value || item.title || targetAttr.language) }}
+                    {{ getLanguageLabel(item.value || targetAttr.language) }}
                   </template>
                 </v-select>
               </v-col>

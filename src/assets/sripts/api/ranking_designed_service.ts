@@ -8,6 +8,10 @@ export interface RankingDesignedListParams extends PaginationParams {
     sortField?: "updatedTime" | "createdTime" | "likes" | "views";
     sortOrder?: "asc" | "desc";
     userId?: string;
+    createdStart?: string;
+    createdEnd?: string;
+    updatedStart?: string;
+    updatedEnd?: string;
 }
 
 export interface PublishRankingData {
@@ -152,7 +156,7 @@ export function useRankingDesignedApi() {
      */
     const cloneRanking = async (uuid: string, name?: string) => {
         try {
-            const result = await http.post("rankingDesigned/clone", { uuid, name });
+            const result = await http.post("rankingDesigned/clone", { data: { uuid, name } });
             return handleResponse(result);
         } catch (error) {
             return handleError(error);

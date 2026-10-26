@@ -134,7 +134,7 @@ const getLanguageLabel = (val: any) => {
                 :items="generateImageConfig.languages"
                 hide-details>
               <template v-slot:selection="{ item }">
-                {{ getLanguageLabel(item.value || item.title || assemblyModelValue.language) }}
+                {{ getLanguageLabel((item as any)?.value || assemblyModelValue.language) }}
               </template>
             </v-select>
           </v-col>
@@ -287,7 +287,7 @@ const getLanguageLabel = (val: any) => {
                 :items="generateImageConfig.languages"
                 hide-details>
               <template v-slot:selection="{ item }">
-                {{ getLanguageLabel(item.value || item.title || masteryModelValue.language) }}
+                {{ getLanguageLabel((item as any)?.value || masteryModelValue.language) }}
               </template>
             </v-select>
           </v-col>

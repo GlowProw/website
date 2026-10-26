@@ -3595,7 +3595,12 @@
       "saveAsDraft": "Save as Draft",
       "loadDraft": "Draft Box",
       "draft": "Draft Box",
-      "inputDraftName": "Please enter draft name"
+      "inputDraftName": "Please enter draft name",
+      "bottomTipEdit": "Editing custom item tier list",
+      "bottomTipCreate": "Once arranged and details filled, click the button on the right to publish",
+      "draftEmpty": "Draft data is empty",
+      "draftLoadSuccess": "Draft loaded successfully",
+      "untitledDraft": "Untitled draft"
     },
     "updated": "Tier list updated successfully",
     "published": "Tier list published successfully",
@@ -3635,7 +3640,9 @@
       "armor": "Armor",
       "furniture": "Furniture",
       "seasonHot": "Season Hot",
-      "beginner": "Beginners"
+      "beginner": "Beginners",
+      "endgame": "Endgame",
+      "combo": "Ultimate Synergy"
     },
     "account": {
       "deleteConfirm": "Are you sure you want to delete tier list [{name}]?",
