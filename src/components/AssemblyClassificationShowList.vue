@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {Commodities, Cosmetics, Items, MapLocations, Materials, Modifications, Sets, Ships, TreasureMaps, Ultimates} from "glow-prow-data";
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted, ref, useSlots, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {AssemblyClassificationShowListProps, AvailableDataStructure, GroupedData} from "@/assets/types";
@@ -31,6 +31,7 @@ import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.
 import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
 import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const castToAny = (v: any) => v;
 
@@ -52,6 +53,7 @@ const {asString, sanitizeString} = useI18nUtils()
 const {t} = useI18n()
 const collectionStore = useCollectionStore()
 const resultData = ref<GroupedData[]>([])
+const slots = useSlots()
 const emit = defineEmits(['update:modelValue', 'clickSelectItem'])
 
 // 搜索相关状态
@@ -330,72 +332,77 @@ defineExpose({
   updateData,
 })
 
-defineOptions({name: 'AssemblyClassificationShowList'})
+defineOptions({
+  name: 'AssemblyClassificationShowList'
+})
 </script>
 
 <template>
   <div class="w-100">
     <!-- 选择头 S -->
     <AffixContainerView :offsetTop="0">
-      <v-row class="mb-1 pl-8 pr-8">
-      <v-col cols="6">
-        <v-text-field
-            v-model="searchQuery"
-            :loading="isLoading"
-            clearable
-            hide-details
-            variant="underlined"
-            @keydown.enter="updateData">
-          <template v-slot:append-inner>
-            <v-icon @click="updateData">mdi-magnify</v-icon>
-          </template>
-        </v-text-field>
-      </v-col>
-      <v-col cols="3">
-        <v-select
-            v-model="filterType"
-            :items="[
+      <v-row class="my-5 px-4">
+        <v-col cols="5">
+          <v-text-field
+              v-model="searchQuery"
+              :loading="isLoading"
+              clearable
+              hide-details
+              variant="underlined"
+              @keydown.enter="updateData">
+            <template v-slot:append-inner>
+              <v-icon @click="updateData">mdi-magnify</v-icon>
+            </template>
+          </v-text-field>
+        </v-col>
+        <v-col cols="3">
+          <v-select
+              v-model="filterType"
+              :items="[
             { value: '', text: t('assembly.workshop.filter.all') },
             ...props.tags.map(tag => ({
               value: tag,
               text: t(`codex.types.${tag}`)
             }))
           ]"
-            :label="t('assembly.workshop.filter.byType')"
-            clearable
-            hide-details
-            item-title="text"
-            item-value="value"
-            variant="underlined"
-            @update:modelValue="updateData"
-        ></v-select>
-      </v-col>
-      <v-col cols="3">
-        <v-select
-            v-model="sortBy"
-            :items="[
+              :label="t('assembly.workshop.filter.byType')"
+              clearable
+              hide-details
+              item-title="text"
+              item-value="value"
+              variant="underlined"
+              @update:modelValue="updateData"
+          ></v-select>
+        </v-col>
+        <v-col cols="3">
+          <v-select
+              v-model="sortBy"
+              :items="[
             { value: 'id', text: t('assembly.workshop.filter.byId') },
             { value: 'rarity', text: t('assembly.workshop.filter.byRarity') },
             { value: 'tier', text: t('assembly.workshop.filter.byTier') }
           ]"
-            :label="t('assembly.workshop.filter.byTitle', { key: t(`assembly.workshop.filter.by${capitalizeFLetter(sortBy)}`) })"
-            hide-details
-            item-title="text"
-            item-value="value"
-            variant="underlined"
-            @update:modelValue="updateData"
-        ></v-select>
-      </v-col>
-    </v-row>
+              :label="t('assembly.workshop.filter.byTitle', { key: t(`assembly.workshop.filter.by${capitalizeFLetter(sortBy)}`) })"
+              hide-details
+              item-title="text"
+              item-value="value"
+              variant="underlined"
+              @update:modelValue="updateData"
+          ></v-select>
+        </v-col>
+        <v-col cols="auto" class="pa-0" v-if="slots.close">
+          <slot name="close"></slot>
+        </v-col>
+      </v-row>
     </AffixContainerView>
     <!-- 选择头 E -->
 
     <v-divider class="mb-n1" color="#000" thickness="1"></v-divider>
 
-    <div class="w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
+    <v-expansion-panels class="w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
       <!-- 我的最爱 S -->
-      <div v-if="isStar && processedStarData.length > 0" class="w-100 pb-3">
-        <div class="text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-2 pb-2 ml-n2 mr-n2 mb-4">
+      <v-expansion-panel v-if="isStar && processedStarData.length > 0" class="w-100 pb-3">
+        <div class="text-center text-amber font-weight-bold bg-surface pl-4 lr-4 py-4 mb-4">
           {{ t('assembly.workshop.myFavorites') }} ({{ processedStarData.length }})
         </div>
 
@@ -404,16 +411,16 @@ defineOptions({name: 'AssemblyClassificationShowList'})
             <div class="item text-center" @click="onClickEvent(castToAny(j))">
               <ItemSlotBase size="99px" :padding="0" :margin="0">
                 <template v-if="castToAny(j).type == 'ship'">
-                  <ShipIconWidget :id="j.id" :padding="0" :margin="0" 
-                  :is-open-new-window="false"
-                  :is-open-detail="false" 
-                  :is-show-tooltip="false"/>
+                  <ShipIconWidget :id="j.id" :padding="0" :margin="0"
+                                  :is-open-new-window="false"
+                                  :is-open-detail="false"
+                                  :is-show-tooltip="false"/>
                 </template>
                 <template v-else>
                   <ItemIconWidget :id="j.id" :padding="0" :margin="0"
-                  :is-open-new-window="false"
-                  :is-open-detail="false" 
-                  :is-show-tooltip="false"/>
+                                  :is-open-new-window="false"
+                                  :is-open-detail="false"
+                                  :is-show-tooltip="false"/>
                 </template>
               </ItemSlotBase>
               <div class="ml-singe-line">
@@ -426,18 +433,18 @@ defineOptions({name: 'AssemblyClassificationShowList'})
               </div>
               <div class="ml-auto">
                 <CollectionToggle type="icon"
-                                 target-type="item"
-                                 :target-id="j.id"
-                                 @change="onCollectChange(castToAny(j), $event.collected)"></CollectionToggle>
+                                  target-type="item"
+                                  :target-id="j.id"
+                                  @change="onCollectChange(castToAny(j), $event.collected)"></CollectionToggle>
               </div>
             </div>
           </v-col>
         </v-row>
-      </div>
+      </v-expansion-panel>
       <!-- 我的最爱 E -->
 
       <!-- 可选物品 S -->
-      <div>
+      <v-expansion-panel>
         <!-- 物品展示 -->
         <div v-if="resultData.length > 0">
           <div
@@ -445,17 +452,17 @@ defineOptions({name: 'AssemblyClassificationShowList'})
               :key="category.type"
               :class="{ 'mb-8': category.model }">
             <AffixContainerView :offsetTop="0">
-              <div
-                  :class="{ 'mb-4': category.model }"
-                  class="cursor-pointer text-center text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
-                  @click="toggleCategory(castToAny(category))">
+              <div :class="{ 'mb-4': category.model }"
+                   class="d-flex align-center cursor-pointer text-center text-amber font-weight-bold bg-surface px-4 py-4"
+                   @click="toggleCategory(castToAny(category))">
                 <span v-if="category.type">
                   {{ t(`codex.types.${category.type}`) }} ({{ category.child.length }})
                 </span>
                 <span v-else>
                   {{ t(`codex.types.none`) }}
                 </span>
-                <v-icon class="ml-3">
+                <v-spacer></v-spacer>
+                <v-icon>
                   {{ category.model ? 'mdi-triangle-small-up' : 'mdi-triangle-small-down' }}
                 </v-icon>
               </div>
@@ -759,9 +766,9 @@ defineOptions({name: 'AssemblyClassificationShowList'})
                     <ItemDamageTypeWidget :data="item" sizeType="mini"></ItemDamageTypeWidget>
                   </div>
                   <CollectionToggle type="icon"
-                                   target-type="item"
-                                   :target-id="item.id"
-                                   @change="onCollectChange(castToAny(item), $event.collected)"></CollectionToggle>
+                                    target-type="item"
+                                    :target-id="item.id"
+                                    @change="onCollectChange(castToAny(item), $event.collected)"></CollectionToggle>
                 </div>
               </v-col>
             </v-row>
@@ -775,9 +782,9 @@ defineOptions({name: 'AssemblyClassificationShowList'})
             <EmptyView></EmptyView>
           </div>
         </div>
-      </div>
+      </v-expansion-panel>
       <!-- 可选物品 E -->
-    </div>
+    </v-expansion-panels>
   </div>
 </template>
 

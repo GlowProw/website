@@ -178,7 +178,7 @@ const onCodexHistory = () => {
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       :to="`/codex/commodities?category=${commoditieDetailData.category}`"
                       v-if="commoditieDetailData.category">
-                {{ t(`codex.categorys.${commoditieDetailData.category}`) || '' }}
+                {{ t(`codex.categorys.${commoditieDetailData.category}`) }}
               </v-chip>
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       :to="`/codex/commoditie/rarity/${commoditieDetailData.rarity}`"

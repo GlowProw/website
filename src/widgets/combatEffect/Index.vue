@@ -184,7 +184,7 @@ const seasonModifiers = [
 <template>
   <v-card width="1080px" variant="text" border 
     class="py-12 px-12 mx-auto mb-10 combat-effect-guide d-flex flex-column gap-16">
-    <!-- 1. 伤害类型 -->
+    <!-- 伤害类型 -->
     <div>
       <div class="text-center mb-8">
         <h2 class="text-h4 font-weight-bold mb-2">伤害类型</h2>
@@ -199,8 +199,7 @@ const seasonModifiers = [
           cols="12"
           sm="6"
           md="4"
-          class="text-center py-4"
-        >
+          class="text-center py-4">
           <v-card class="icon-wrapper d-inline-flex align-center justify-center mb-3">
             <v-img :src="item.icon" width="55" height="55" class="icon-img" contain />
           </v-card>
@@ -210,8 +209,7 @@ const seasonModifiers = [
               <p
                 v-for="(line, lineIdx) in item.desc.split('\n')"
                 :key="lineIdx"
-                class="opacity-60 text-desc mb-0"
-              >
+                class="opacity-60 text-desc mb-0">
                 {{ line }}
               </p>
             </div>
@@ -220,7 +218,7 @@ const seasonModifiers = [
       </v-row>
     </div>
 
-    <!-- 2. 状态效果 -->
+    <!-- 状态效果 -->
     <div class="my-16">
       <div class="text-center mb-8">
         <h2 class="text-h4 font-weight-bold mb-2">状态效果</h2>
@@ -235,8 +233,7 @@ const seasonModifiers = [
           cols="12"
           sm="6"
           md="4"
-          class="text-center py-4"
-        >
+          class="text-center py-4">
           <div class="status-card-icon d-inline-flex align-center justify-center mb-3">
             <v-img :src="item.icon" width="70" height="70" class="card-img" contain />
           </div>
@@ -246,8 +243,7 @@ const seasonModifiers = [
               <p
                 v-for="(line, lineIdx) in item.desc.split('\n')"
                 :key="lineIdx"
-                class="opacity-60 text-desc section-intro mb-0"
-              >
+                class="opacity-60 text-desc section-intro mb-0">
                 {{ line }}
               </p>
             </div>
@@ -256,7 +252,7 @@ const seasonModifiers = [
       </v-row>
     </div>
 
-    <!-- 3. 赛季附加效果 -->
+    <!-- 赛季附加效果 -->
     <div>
       <div class="text-center mb-8">
         <h2 class="text-h4 font-weight-bold mb-2">赛季附加效果</h2>
@@ -271,8 +267,7 @@ const seasonModifiers = [
           cols="12"
           sm="6"
           md="4"
-          class="text-center py-4"
-        >
+          class="text-center py-4">
           <div class="status-card-icon d-inline-flex align-center justify-center mb-3">
             <v-img :src="item.icon" width="70" height="70" class="card-img" contain />
           </div>
@@ -282,8 +277,7 @@ const seasonModifiers = [
               <p
                 v-for="(line, lineIdx) in item.desc.split('\n')"
                 :key="lineIdx"
-                class="opacity-60 text-desc section-intro mb-0"
-              >
+                class="opacity-60 text-desc section-intro mb-0">
                 {{ line }}
               </p>
             </div>

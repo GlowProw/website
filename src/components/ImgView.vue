@@ -166,7 +166,7 @@ const onFileSelected = async (eventOrFile: any) => {
     return;
   }
 
-  // 2. 校验格式 (webp, png, jpg)
+  // 校验格式 (webp, png, jpg)
   const validTypes = ['image/webp', 'image/png', 'image/jpeg', 'image/jpg'];
   if (!validTypes.includes(file.type)) {
     notice.error('不支持的格式，仅允许上传 webp, png, jpg 格式图片');

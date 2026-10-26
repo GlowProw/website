@@ -73,8 +73,7 @@ const onOAuthLogin = async (platform: string) => {
           icon
           :loading="loadingPlatform === item.platform"
           @click="onOAuthLogin(item.platform)"
-          :title="item.name"
-        >
+          :title="item.name">
           <img v-if="item.platform === 'discord'" :src="discordLogo" alt="Discord" width="22" height="22">
           <v-icon v-else size="22" :icon="item.icon"></v-icon>
         </v-btn>

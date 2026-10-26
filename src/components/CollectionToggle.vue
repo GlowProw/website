@@ -79,14 +79,15 @@ watch(() => [props.targetType, props.targetId], () => collectionStore.onLoadAcco
     </v-btn>
   </div>
 
-  <v-btn v-else-if="props.type === 'icon'"
-         v-tooltip:bottom="t('codex.item.collectionToggleTip')"
-         :color="isCollected ? 'amber' : ''"
-         :icon="`mdi-${isCollected ? 'star' : 'star-outline'}`"
-         :loading="saving"
-         border
-         variant="flat"
-         @click.stop="onToggle"></v-btn>
+  <!-- 弹窗物品列表 -->
+  <v-icon-btn v-else-if="props.type === 'icon'"
+              v-tooltip:bottom="t('codex.item.collectionToggleTip')"
+              :class="{'text-amber':isCollected}"
+              :icon="`mdi-${isCollected ? 'star' : 'star-outline'}`"
+              :loading="saving"
+              size="18"
+              variant="flat"
+              @click.stop="onToggle"></v-icon-btn>
 
   <v-btn v-else
          v-tooltip:bottom="t('codex.item.collectionToggleTip')"

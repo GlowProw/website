@@ -318,8 +318,7 @@ onMounted(async () => {
           :color="'#1c1c1c'"
           :noise-intensity="0.1"
           :rotation="-0.6"
-          class="bg-black"
-      >
+          class="bg-black">
       </Silk>
     </template>
     <template v-slot:default>
@@ -473,8 +472,7 @@ onMounted(async () => {
         <v-col cols="12" sm="12" lg="8" xl="8">
           <div
               class="ga-2 mb-6"
-              v-if="detailData.tags && detailData.tags.length > 0"
-          >
+              v-if="detailData.tags && detailData.tags.length > 0">
             <AssemblyTagChip
                 class="mr-2 mb-2 pt-1 pb-1 pl-5 pr-5"
                 v-for="(i, index) in detailData.tags"
@@ -531,8 +529,7 @@ onMounted(async () => {
             <v-col cols="auto">
               <TimeView
                   :time="detailData.createdTime"
-                  v-if="detailData.createdTime"
-              >
+                  v-if="detailData.createdTime">
               </TimeView>
             </v-col>
           </v-row>
@@ -545,8 +542,7 @@ onMounted(async () => {
             <v-col cols="auto">
               <TimeView
                   :time="detailData.updatedTime"
-                  v-if="detailData.updatedTime"
-              >
+                  v-if="detailData.updatedTime">
               </TimeView>
             </v-col>
           </v-row>

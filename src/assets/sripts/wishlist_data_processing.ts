@@ -164,10 +164,10 @@ export function parseWishlistText(text: string, source: string = ''): WishlistFi
 
             // 解析 item=xxx&perks=xxx&mods=xxx
             const params = new URLSearchParams(paramPart);
-            const itemId = params.get('item') || '';
-            const perksRaw = params.get('perks') || '';
+            const itemId = params.get('item');
+            const perksRaw = params.get('perks');
             const perks = perksRaw ? perksRaw.split(',').map(p => p.trim()).filter(Boolean) : [];
-            const modsRaw = params.get('mods') || '';
+            const modsRaw = params.get('mods');
             const mods = modsRaw ? modsRaw.split(',').map(m => m.trim()).filter(Boolean) : undefined;
 
             if (itemId) {

@@ -112,6 +112,7 @@ const initSettingData = async () => {
     getSettingLoading.value = true;
     const result = await rankingApi.getRankingAttr(props.id);
     const d = result.data?.data || result.data;
+    
     if (d?.ranking) {
       if (d.ranking.visibility) {
         settingData.value.visibility = d.ranking.visibility;
@@ -142,7 +143,8 @@ const saveRankingSetting = async () => {
       },
     });
     const d = result.data;
-    notice.success(t(`basic.tips.${d?.code || "success"}`) || t("basic.tips.success") || "保存成功");
+
+    notice.success(t(`basic.tips.success`));
   } catch (e) {
     handleApiError(e, notice, t, { component: "RankingSettingPanel" });
   } finally {
@@ -160,8 +162,9 @@ const delRanking = async () => {
   try {
     delLoading.value = true;
     const result = await rankingApi.deleteRanking(props.id);
+   
     if (result.data) {
-      notice.success(t("basic.tips.deleted") || "删除成功");
+      notice.success(t("basic.tips.deleted"));
       deleteDialog.value = false;
       show.value = false;
       router.push("/ranking-designed-items/browse");

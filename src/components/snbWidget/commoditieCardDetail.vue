@@ -83,7 +83,7 @@ defineOptions({
                 class="badge-flavor text-center tag-badge text-black"
                 :to="`/codex/commodities?category=${i.category}`"
                 v-if="i.category">
-          {{ t(`codex.categorys.${i.category}`) || '' }}
+          {{ t(`codex.categorys.${i.category}`) }}
         </v-chip>
         <v-chip class="badge-flavor text-center tag-badge text-black"
                 :to="`/codex/commoditie/rarity/${i.rarity}`"

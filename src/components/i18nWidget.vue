@@ -75,10 +75,14 @@ defineOptions({
             hide-no-data
             hide-spin-buttons
             persistent-hint
-            variant="plain"
-            density="compact"
             v-model="selectLang"
-            @update:model-value="onChangeLang"></v-select>
+            @update:model-value="onChangeLang">
+    <template v-slot:item="{props, item}">
+      <v-list-item class="mx-2" rounded="lg" v-bind="props">
+        <v-list-item-title>{{ item.value }}</v-list-item-title>
+      </v-list-item>
+    </template>
+  </v-select>
 
   <keep-alive>
     <I18nMembersWidget></I18nMembersWidget>

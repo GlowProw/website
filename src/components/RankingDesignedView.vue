@@ -497,15 +497,13 @@ defineExpose({
       }"
         @dragover="onRowDragOver($event, index)"
         @dragleave="onRowDragLeave($event, index)"
-        @drop="onRowDrop($event, index)"
-    >
+        @drop="onRowDrop($event, index)">
       <v-row no-gutters align="stretch">
         <!-- 左侧阶梯标签与定制栏 -->
         <v-col
             cols="auto"
             class="tier-header-col px-2 py-4 d-flex flex-column justify-center align-center position-relative"
-            :style="`background-color:color-mix(in srgb, hsl(from ${i.attr.color} h s l) 15%, #000)`"
-        >
+            :style="`background-color:color-mix(in srgb, hsl(from ${i.attr.color} h s l) 15%, #000)`">
           <!-- 非只读模式：可直接输入编辑标题与上下拖拽 -->
           <template v-if="!readonly">
             <!-- 阶梯整体上下拖拽手柄 -->
@@ -557,8 +555,7 @@ defineExpose({
                 @dragover.prevent="onDragOverItem($event, index, jIndex)"
                 @dragleave="onDragLeaveItem"
                 @drop="onDropItem($event, index, jIndex)"
-                @dragend="onDragEnd"
-            >
+                @dragend="onDragEnd">
               <!-- 物品类型渲染 -->
               <template v-if="j._typeStringName === 'Item' || String(j.category).toLowerCase() === 'item'">
                 <v-card elevation="0" class="bg-transparent" width="90">
@@ -664,7 +661,7 @@ defineExpose({
                     <MapLocationIconWidget :id="j.id" :is-open-detail="false"></MapLocationIconWidget>
                   </ItemSlotBase>
                   <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
-                    <MapLocationName :id="j.id"></MapLocationName>
+                    <MapLocationName :id="j.id || j.category"></MapLocationName>
                   </div>
                 </v-card>
               </template>
@@ -729,67 +726,65 @@ defineExpose({
           <v-divider opacity=".1" v-if="index < rankingData.length - 1"></v-divider>
         </v-col>
 
-        <v-divider vertical></v-divider>
-        <v-col cols="auto" class="px-2 d-flex flex-column ga-2 justify-center align-center">
-          <!-- 调色盘菜单 -->
-          <v-menu location="bottom start" :close-on-content-click="true">
-            <template #activator="{ props: menuProps }">
-              <div
-                  v-bind="menuProps"
-                  class="color-indicator cursor-pointer"
-                  :style="{ backgroundColor: i.attr.color }"
-              ></div>
-            </template>
-            <v-card border class="bg-grey-darken-4">
-              <v-color-picker v-model="i.attr.color" elevation="0"></v-color-picker>
-            </v-card>
-          </v-menu>
+        <template v-if="!readonly">
+          <v-divider vertical></v-divider>
+          <v-col cols="auto" class="px-2 d-flex flex-column ga-2 justify-center align-center">
+            <!-- 调色盘菜单 -->
+            <v-menu location="bottom start" :close-on-content-click="true">
+              <template #activator="{ props: menuProps }">
+                <div
+                    v-bind="menuProps"
+                    class="color-indicator cursor-pointer"
+                    :style="{ backgroundColor: i.attr.color }"
+                ></div>
+              </template>
+              <v-card border class="bg-grey-darken-4">
+                <v-color-picker v-model="i.attr.color" elevation="0"></v-color-picker>
+              </v-card>
+            </v-menu>
 
-          <!-- 行操作菜单 -->
-          <v-menu location="bottom end">
-            <template #activator="{ props: menuProps }">
-              <v-btn
-                  v-bind="menuProps"
-                  icon="mdi-cog-outline"
-                  size="x-small"
-                  variant="text"
-                  color="grey-lighten-1"
-              ></v-btn>
-            </template>
-            <v-list min-width="260" class="pa-1" border rounded="lg">
-              <v-list-item
-                  prepend-icon="mdi-arrow-up"
-                  :disabled="index === 0"
-                  @click="moveRow(index, -1)"
-              >
-                <v-list-item-title>上移阶梯</v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                  prepend-icon="mdi-arrow-down"
-                  :disabled="index === rankingData.length - 1"
-                  @click="moveRow(index, 1)"
-              >
-                <v-list-item-title>下移阶梯</v-list-item-title>
-              </v-list-item>
-              <v-list-item
-                  prepend-icon="mdi-broom"
-                  :disabled="!i.content.length"
-                  @click="clearRow(index)"
-              >
-                <v-list-item-title>清空本行物品</v-list-item-title>
-              </v-list-item>
-              <v-divider class="my-1"></v-divider>
-              <v-list-item
-                  prepend-icon="mdi-delete-outline"
-                  :disabled="rankingData.length <= 1"
-                  class="text-error"
-                  @click="deleteRow(index)"
-              >
-                <v-list-item-title>删除此阶梯</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-col>
+            <!-- 行操作菜单 -->
+            <v-menu location="bottom end">
+              <template #activator="{ props: menuProps }">
+                <v-btn
+                    v-bind="menuProps"
+                    icon="mdi-cog-outline"
+                    size="x-small"
+                    variant="text"
+                    color="grey-lighten-1"
+                ></v-btn>
+              </template>
+              <v-list min-width="260" class="pa-1" border rounded="lg">
+                <v-list-item
+                    prepend-icon="mdi-arrow-up"
+                    :disabled="index === 0"
+                    @click="moveRow(index, -1)">
+                  <v-list-item-title>上移阶梯</v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                    prepend-icon="mdi-arrow-down"
+                    :disabled="index === rankingData.length - 1"
+                    @click="moveRow(index, 1)">
+                  <v-list-item-title>下移阶梯</v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                    prepend-icon="mdi-broom"
+                    :disabled="!i.content.length"
+                    @click="clearRow(index)">
+                  <v-list-item-title>清空本行物品</v-list-item-title>
+                </v-list-item>
+                <v-divider class="my-1"></v-divider>
+                <v-list-item
+                    prepend-icon="mdi-delete-outline"
+                    :disabled="rankingData.length <= 1"
+                    class="text-error"
+                    @click="deleteRow(index)">
+                  <v-list-item-title>删除此阶梯</v-list-item-title>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </v-col>
+        </template>
       </v-row>
     </div>
 
@@ -800,8 +795,7 @@ defineExpose({
           color="amber"
           prepend-icon="mdi-plus"
           class="text-none font-weight-bold"
-          @click="addRow"
-      >
+          @click="addRow">
         新增自定义评级阶梯
       </v-btn>
     </div>

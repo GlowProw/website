@@ -125,7 +125,7 @@ const runWorkshopVerify = () => {
     verify: []
   };
 
-  // 1. 验证配置名称（必选项）
+  // 验证配置名称（必选项）
   if (!publishData.value?.name || !publishData.value.name.trim()) {
     verification.verify.push({
       required: true,
@@ -135,7 +135,7 @@ const runWorkshopVerify = () => {
     verification.required += 1;
   }
 
-  // 2. 验证各个工坊组件 (assembly, wheel, warehouse, mastery)
+  // 验证各个工坊组件 (assembly, wheel, warehouse, mastery)
   const refs = assemblyMainSubjectView.value?.refs;
   if (refs) {
     const checkComponents = ['assembly', 'wheel', 'warehouse', 'mastery'];

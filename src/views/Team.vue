@@ -207,7 +207,6 @@ const stopRefresh = () => {
 const onToggleRefresh = () => {
   if (refreshConfig.value.enabled) {
     stopRefresh()
-    notice.info(t('teamUp.refresh.stopped'))
     return
   }
   clearRefreshTimers()

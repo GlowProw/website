@@ -79,11 +79,15 @@
     },
     "aiConnector": {
       "name": "AI Connector",
-      "description": "Connect Glow Prow to Claude, ChatGPT, Grok and other AI assistants: ask about loadouts, codex items, Twitch drops and the season calendar. Answers come from real site data, not guesses.",
+      "description": "Connect Glow Prow to Claude, ChatGPT, WorkBuddy, Grok and other AI assistants: query loadouts, codex items, Twitch drops, season calendar, LFG team-ups, and State of War intelligence directly from live site data.",
       "features": {
         "assembly": "Loadout Query",
         "codex": "Codex Item Lookup",
+        "team": "LFG Team-ups",
+        "war": "State of War",
         "drops": "Drops & Calendar",
+        "site": "Site Navigation",
+        "account": "Account & Assets",
         "login": "Account Sign-in"
       },
       "connector": {
@@ -102,8 +106,12 @@
         "note": "Answers come from public site data and what you authorized, not guesses.",
         "assembly": "Which ship loadouts are trending right now?",
         "codex": "What are the stats and sources for Dardanelles Gun or culverin1?",
+        "team": "Are there any active teams looking for fortress raiding, bounties or trading?",
+        "war": "Which faction is leading the State of War right now, and how is the conflict shaping up?",
         "drops": "Which Twitch drop campaigns are active?",
-        "calendar": "What world events are coming up this season?"
+        "calendar": "What world events are coming up this season?",
+        "site": "Where can I find the interactive map or tier lists on Glow Prow?",
+        "account": "Show my account profile and how many likes my published loadouts have received?"
       },
       "connect": {
         "title": "How to connect",

@@ -211,7 +211,7 @@ const onAddCalculator = () => {
             <div class="mt-5 d-flex ga-2">
               <v-chip :to="`/codex/items?type=${itemDetailData.type}`"
                       class="badge-flavor text-center tag-badge text-black">
-                {{ t(`codex.types.${itemDetailData.type}`) || '' }}
+                {{ t(`codex.types.${itemDetailData.type}`) }}
               </v-chip>
               <v-chip v-if="itemDetailData.tier"
                       :to="`/codex/items?tier=${itemDetailData.tier}`"

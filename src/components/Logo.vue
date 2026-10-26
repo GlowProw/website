@@ -62,8 +62,7 @@ defineOptions({
     :is="props.noLink ? 'span' : 'router-link'"
     :to="props.noLink ? undefined : props.to"
     class="logo d-inline-flex align-center"
-    :class="props.class"
-  >
+    :class="props.class">
     <svg
       version="1.1"
       xmlns="http://www.w3.org/2000/svg"
@@ -74,8 +73,7 @@ defineOptions({
       class="logo-svg mx-1"
       :class="{ 'is-dark': isDarkTheme, 'is-light': !isDarkTheme }"
       :aria-label="`${t('name')} Logo`"
-      role="img"
-    >
+      role="img">
       <title>{{ t('name') }} Logo</title>
       <path
         transform="translate(0,0)"

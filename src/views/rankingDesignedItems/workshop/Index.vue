@@ -457,8 +457,7 @@ onMounted(() => {
                 variant="tonal"
                 prepend-icon="mdi-content-save-outline"
                 :loading="draftSaveQuickArchivingLoading"
-                @click="onQuickSaveDraft"
-              >
+                @click="onQuickSaveDraft">
                 {{ t('rankingDesignedItems.workshop.quickSaveDraft') }}
               </v-btn>
               <v-menu location="bottom right">
@@ -529,8 +528,7 @@ onMounted(() => {
                 hide-details="auto"
                 maxlength="140"
                 :placeholder="t('rankingDesignedItems.publish.namePlaceholder')"
-                variant="underlined"
-              >
+                variant="underlined">
               </v-text-field>
             </v-col>
 
@@ -657,8 +655,7 @@ onMounted(() => {
           variant="flat"
           class="text-black font-weight-bold px-6"
           :loading="draftSaveLoading"
-          @click="onSaveNewDraft"
-        >
+          @click="onSaveNewDraft">
           {{ t('basic.button.submit') }}
         </v-btn>
       </v-card-actions>
@@ -680,8 +677,7 @@ onMounted(() => {
             :key="index"
             border
             rounded="lg"
-            class="mb-2 px-3 py-2 bg-grey-darken-4"
-          >
+            class="mb-2 px-3 py-2 bg-grey-darken-4">
             <template v-slot:prepend>
               <v-avatar color="amber" variant="tonal" size="36" rounded="lg">
                 <v-icon :icon="item.id === 'quickArchiving' ? 'mdi-clock-fast' : 'mdi-file-document-outline'" size="18"></v-icon>
@@ -701,8 +697,7 @@ onMounted(() => {
                   color="amber"
                   size="small"
                   class="text-black font-weight-bold"
-                  @click="onUseDraft(item)"
-                >
+                  @click="onUseDraft(item)">
                   {{ t('basic.button.use') }}
                 </v-btn>
                 <v-btn

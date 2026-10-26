@@ -248,7 +248,7 @@ const initScalar = async () => {
           throw new Error(`OpenAPI 规范请求返回 HTTP ${response.status} ${response.statusText}`);
         }
 
-        const ct = response.headers.get('content-type') || '';
+        const ct = response.headers.get('content-type');
 
         if (!ct.includes('application/json')) {
           throw new Error(`OpenAPI 规范响应 Content-Type 异常（${ct}），接口可能被 CDN/路由规则拦截`);

@@ -70,22 +70,17 @@ defineOptions({
             sticky
             scrim
             footer-hide
+            :title="t(`codex.${type}s.title`)"
             @update:modelValue="(status) => !status ? onClose() : null">
     <v-card border>
-      <v-card-title>
-        <v-row>
-          <b class="font-weight-bold text-h5 pa-5">{{ t(`codex.${type}s.title`) }}</b>
-          <v-spacer></v-spacer>
-          <v-col cols="auto">
+      <v-card-text class="pa-0">
+        <AssemblyClassificationShowList v-model="value" :tags="tags" :loadDataType="type">
+          <template v-slot:close>
             <v-btn icon variant="text" class="ml-1" @click="onClose">
               <v-icon icon="mdi-close"/>
             </v-btn>
-          </v-col>
-        </v-row>
-      </v-card-title>
-
-      <v-card-text class="pa-0">
-        <AssemblyClassificationShowList v-model="value" :tags="tags" :loadDataType="type"></AssemblyClassificationShowList>
+          </template>
+        </AssemblyClassificationShowList>
       </v-card-text>
       <v-divider/>
 

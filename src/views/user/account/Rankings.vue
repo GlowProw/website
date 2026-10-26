@@ -122,6 +122,7 @@ const toggleSelectAll = () => {
  */
 const toggleItem = (item: any) => {
   const index = selectedRankings.value.findIndex(i => i.uuid === item.uuid);
+  
   if (index >= 0) {
     selectedRankings.value.splice(index, 1);
   } else {
@@ -145,9 +146,12 @@ const onDeleteRanking = async (item: any) => {
   try {
     const confirmMsg = t("rankingDesignedItems.account.deleteConfirm", { name: item.name });
     if (!confirm(confirmMsg)) return;
+
     loading.value = true;
+
     await rankingApi.deleteRanking(item.uuid);
-    notice.success(t("basic.tips.deleted") || "删除成功");
+    notice.success(t("basic.tips.deleted"));
+
     await getMyRankingsData();
   } catch (e) {
     handleApiError(e, notice, t, { component: "AccountRankings" });
@@ -164,11 +168,15 @@ const onBatchDeleteRankings = async () => {
   try {
     const confirmMsg = t("rankingDesignedItems.account.batchDeleteConfirm", { count: selectedRankings.value.length });
     if (!confirm(confirmMsg)) return;
+    
     loading.value = true;
+
     for (const item of selectedRankings.value) {
       await rankingApi.deleteRanking(item.uuid);
     }
-    notice.success(t("basic.tips.deleted") || "删除成功");
+
+    notice.success(t("basic.tips.deleted"));
+
     selectedRankings.value = [];
     await getMyRankingsData();
   } catch (e) {

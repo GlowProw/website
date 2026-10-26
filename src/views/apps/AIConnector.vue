@@ -70,25 +70,25 @@
         <v-col cols="12" lg="6">
           <!-- 连接器 URL S -->
           <div>
-            <h2 class="mb-2 text-h4"> {{ t('apps.aiConnector.connector.title') }}</h2>
+            <h2 class="mb-2 text-h3"> {{ t('apps.aiConnector.connector.title') }}</h2>
 
             <p class="text-medium-emphasis mb-6">
               {{ t('apps.aiConnector.connector.subtitle') }}
             </p>
 
-            <v-row>
-              <v-col cols="12" lg="6">
+            <HorizontalScrollList :is-indicator="false">
+              <div class="d-flex ga-5">
                 <!-- 中文优化版卡片 -->
-                <v-card variant="flat" class="pa-4 h-100" rounded="xl">
+                <v-card variant="flat" width="400" class="pa-4 h-100 d-flex flex-column" rounded="xl">
                   <div class="d-flex align-center justify-space-between mb-2 flex-wrap ga-2">
                     <div class="d-flex align-center ga-2">
                       <span class="font-weight-bold">{{ t('apps.aiConnector.connector.versionZh') }}</span>
                     </div>
-
                   </div>
                   <p class="text-caption text-medium-emphasis mb-2">
                     {{ t('apps.aiConnector.connector.versionZhDesc') }}
                   </p>
+                  <v-spacer></v-spacer>
                   <div class="d-flex align-center bg-black rounded-lg pa-2">
                     <code class="text-amber connector-url flex-grow-1">{{ connectorUrlZh }}</code>
                     <v-btn size="small" variant="flat" prepend-icon="mdi-content-copy"
@@ -97,10 +97,9 @@
                     </v-btn>
                   </div>
                 </v-card>
-              </v-col>
-              <v-col cols="12" lg="6">
+
                 <!-- 国际通用版卡片 -->
-                <v-card variant="flat" class="pa-4 h-100" rounded="xl">
+                <v-card variant="flat" width="400" class="pa-4 h-100 d-flex flex-column" rounded="xl">
                   <div class="d-flex align-center justify-space-between mb-2 flex-wrap ga-2">
                     <div class="d-flex align-center ga-2">
                       <span class="font-weight-bold">{{ t('apps.aiConnector.connector.versionEn') }}</span>
@@ -108,11 +107,11 @@
                         Claude / ChatGPT / Cursor
                       </v-chip>
                     </div>
-
                   </div>
                   <p class="text-caption text-medium-emphasis mb-2">
                     {{ t('apps.aiConnector.connector.versionEnDesc') }}
                   </p>
+                  <v-spacer></v-spacer>
                   <div class="d-flex align-center bg-black rounded-lg pa-2">
                     <code class="text-amber text-medium-emphasis connector-url flex-grow-1">{{ connectorUrlEn }}</code>
                     <v-btn color="grey-lighten-2" size="small" variant="tonal" prepend-icon="mdi-content-copy"
@@ -121,8 +120,8 @@
                     </v-btn>
                   </div>
                 </v-card>
-              </v-col>
-            </v-row>
+              </div>
+            </HorizontalScrollList>
 
             <v-alert type="info" variant="tonal" density="compact" class="mt-4" border="start">
               {{ t('apps.aiConnector.connector.note') }}
@@ -142,11 +141,11 @@
               {{ t('apps.aiConnector.ask.note') }}
             </p>
 
-            <v-row density="compact">
-              <v-col cols="12" md="12" v-for="(example, key) in askExamples" :key="key">
+            <v-row>
+              <v-col cols="12" lg="6" v-for="(example, key) in askExamples" :key="key">
                 <div class="h-100 ask-card">
-                  <div class="d-flex align-center ga-4">
-                    <v-avatar color="amber" variant="tonal" size="45" rounded="lg">
+                  <div class="d-flex ga-4">
+                    <v-avatar color="amber" variant="tonal" size="55" rounded="lg">
                       <v-icon :icon="askIcons[key]" size="25"></v-icon>
                     </v-avatar>
                     <span class="text-body-1">“{{ example }}”</span>
@@ -165,41 +164,45 @@
   <v-container>
     <v-row class="">
       <v-col cols="12" lg="3">
-        <div class="d-flex align-center ga-2 mb-2">
-          <h3 class="text-h4 font-weight-bold">{{ t('apps.aiConnector.connect.title') }}</h3>
-        </div>
-        <p class="text-body-1 text-medium-emphasis mb-6">
-          {{ t('apps.aiConnector.connect.subtitle') }}
-        </p>
+        <AffixContainerView>
+          <div class="d-flex align-center ga-2 mb-2">
+            <h3 class="text-h4 font-weight-bold">{{ t('apps.aiConnector.connect.title') }}</h3>
+          </div>
+          <p class="text-body-1 text-medium-emphasis mb-6">
+            {{ t('apps.aiConnector.connect.subtitle') }}
+          </p>
+        </AffixContainerView>
       </v-col>
-      <v-col cols="12" lg="9" class="connect-card">
-        <v-tabs v-model="connectTab" bg-color="transparent" color="amber" grow>
-          <v-tab v-for="tab in connectTabs" :key="tab" :value="tab">
-            {{ t(`apps.aiConnector.connect.${tab}`) }}
-          </v-tab>
-        </v-tabs>
+      <v-col cols="12" lg="9">
+        <v-card rounded="30">
+          <v-tabs v-model="connectTab" bg-color="transparent" color="amber" grow>
+            <v-tab v-for="tab in connectTabs" :key="tab" :value="tab">
+              {{ t(`apps.aiConnector.connect.${tab}`) }}
+            </v-tab>
+          </v-tabs>
+          <v-divider></v-divider>
+          <v-card-text class="pa-6 rounded-lg bg-transparent">
+            <v-window v-model="connectTab" selected-class="bg-transparent" class="bg-transparent">
+              <v-window-item class="bg-transparent" v-for="tab in connectTabs" :key="tab" :value="tab">
+                <ol class="steps pl-6 mb-0">
+                  <li v-for="(step, index) in connectSteps(tab)" :key="index" class="text-body-1 mb-3">
+                    {{ step }}
+                  </li>
+                </ol>
 
-        <v-card-text class="pa-6 rounded-lg bg-transparent">
-          <v-window v-model="connectTab" selected-class="bg-transparent" class="bg-transparent">
-            <v-window-item class="bg-transparent" v-for="tab in connectTabs" :key="tab" :value="tab">
-              <ol class="steps pl-6 mb-0">
-                <li v-for="(step, index) in connectSteps(tab)" :key="index" class="text-body-1 mb-3">
-                  {{ step }}
-                </li>
-              </ol>
+                <template v-if="tab === 'claudeCode'">
+                  <div class="text-caption opacity-60 mt-4 mb-2">{{ t('apps.aiConnector.connect.codeBlockTitle') }}</div>
+                  <pre class="code-block">{{ t('apps.aiConnector.connect.command') }}</pre>
+                </template>
 
-              <template v-if="tab === 'claudeCode'">
-                <div class="text-caption opacity-60 mt-4 mb-2">{{ t('apps.aiConnector.connect.codeBlockTitle') }}</div>
-                <pre class="code-block">{{ t('apps.aiConnector.connect.command') }}</pre>
-              </template>
-
-              <template v-if="tab === 'other'">
-                <div class="text-caption opacity-60 mt-4 mb-2">{{ t('apps.aiConnector.connect.codeBlockTitle') }}</div>
-                <pre class="code-block">{{ configExample }}</pre>
-              </template>
-            </v-window-item>
-          </v-window>
-        </v-card-text>
+                <template v-if="tab === 'other'">
+                  <div class="text-caption opacity-60 mt-4 mb-2">{{ t('apps.aiConnector.connect.codeBlockTitle') }}</div>
+                  <pre class="code-block">{{ configExample }}</pre>
+                </template>
+              </v-window-item>
+            </v-window>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
   </v-container>
@@ -208,7 +211,9 @@
   <v-container class="my-10">
     <v-row>
       <v-col cols="12" lg="3">
-        <h3 class="text-h4 font-weight-bold">{{ t('apps.aiConnector.faq.title') }}</h3>
+        <AffixContainerView>
+          <h3 class="text-h4 font-weight-bold">{{ t('apps.aiConnector.faq.title') }}</h3>
+        </AffixContainerView>
       </v-col>
       <v-col>
         <!-- 管理或断开连接 S -->
@@ -301,6 +306,8 @@ import {appApps, http} from "@/assets/sripts/index";
 
 import Silk from "@/components/Silk.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 
 const {t, tm, locale} = useI18n();
 const id = ref('aiConnector');
@@ -330,7 +337,11 @@ const copiedEn = ref(false);
 const connectorFeatures = computed(() => [
   t('apps.aiConnector.features.assembly'),
   t('apps.aiConnector.features.codex'),
+  t('apps.aiConnector.features.team'),
+  t('apps.aiConnector.features.war'),
   t('apps.aiConnector.features.drops'),
+  t('apps.aiConnector.features.site'),
+  t('apps.aiConnector.features.account'),
   t('apps.aiConnector.features.login'),
 ]);
 
@@ -338,15 +349,23 @@ const connectorFeatures = computed(() => [
 const askExamples = computed(() => ({
   assembly: t('apps.aiConnector.ask.assembly'),
   codex: t('apps.aiConnector.ask.codex'),
+  team: t('apps.aiConnector.ask.team'),
+  war: t('apps.aiConnector.ask.war'),
   drops: t('apps.aiConnector.ask.drops'),
   calendar: t('apps.aiConnector.ask.calendar'),
+  site: t('apps.aiConnector.ask.site'),
+  account: t('apps.aiConnector.ask.account'),
 }));
 
 const askIcons: Record<string, string> = {
   assembly: 'mdi-sail-boat',
   codex: 'mdi-book-open-variant',
+  team: 'mdi-account-group-outline',
+  war: 'mdi-shield-sword-outline',
   drops: 'mdi-gift-outline',
   calendar: 'mdi-calendar-month-outline',
+  site: 'mdi-compass-outline',
+  account: 'mdi-account-circle-outline',
 };
 
 /** 如何连接 */

@@ -252,9 +252,8 @@ const formatNumber = (val: number) => val.toLocaleString("en-US");
     width="1080px"
     variant="text"
     border
-    class="py-12 px-12 mx-auto mb-10 infamy-guide d-flex flex-column gap-16"
-  >
-    <!-- 1. 恶名晋升之旅 (Journey to Kingpin) -->
+    class="py-12 px-12 mx-auto mb-10 infamy-guide d-flex flex-column gap-16">
+    <!-- 恶名晋升之旅 (Journey to Kingpin) -->
     <div>
       <div class="text-center mb-8">
         <h2 class="text-h4 font-weight-bold mb-2">恶名系统与晋升之旅</h2>
@@ -271,12 +270,10 @@ const formatNumber = (val: number) => val.toLocaleString("en-US");
           sm="6"
           md="4"
           lg="2-4"
-          class="d-flex"
-        >
+          class="d-flex">
           <v-card
             variant="outlined"
-            class="rank-card px-4 py-8 d-flex flex-column align-center text-center w-100"
-          >
+            class="rank-card px-4 py-8 d-flex flex-column align-center text-center w-100">
     
             <div class="rank-icon-wrapper mb-3">
               <v-img
@@ -295,8 +292,7 @@ const formatNumber = (val: number) => val.toLocaleString("en-US");
               size="x-small"
               color="amber-accent-3"
               variant="tonal"
-              class="mb-3 font-weight-medium"
-            >
+              class="mb-3 font-weight-medium">
               恶名: {{ formatNumber(item.requiredInfamy) }}
             </v-chip>
             <v-chip 
@@ -315,7 +311,7 @@ const formatNumber = (val: number) => val.toLocaleString("en-US");
       </v-row>
     </div>
 
-    <!-- 2. 魁首巅峰里程碑 (Kingpin and Beyond) -->
+    <!-- 魁首巅峰里程碑 (Kingpin and Beyond) -->
     <div class="mt-4">
       <div class="text-center mb-8">
         <h2 class="text-h4 font-weight-bold mb-2">魁首巅峰里程碑</h2>
@@ -344,12 +340,10 @@ const formatNumber = (val: number) => val.toLocaleString("en-US");
             sm="6"
             md="4"
             lg="2-4"
-            class="d-flex"
-          >
+            class="d-flex">
             <v-card
               variant="outlined"
-              class="rank-card px-4 py-8 d-flex flex-column align-center text-center w-100"
-            >
+              class="rank-card px-4 py-8 d-flex flex-column align-center text-center w-100">
               <div class="rank-icon-wrapper mb-3">
                 <v-img
                   :src="item.icon"
@@ -366,8 +360,7 @@ const formatNumber = (val: number) => val.toLocaleString("en-US");
                 size="x-small"
                 color="amber-accent-3"
                 variant="tonal"
-                class="mb-3 font-weight-medium"
-              >
+                class="mb-3 font-weight-medium">
                 恶名: {{ formatNumber(item.requiredInfamy) }}
               </v-chip>
 

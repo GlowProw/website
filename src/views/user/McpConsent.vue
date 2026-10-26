@@ -6,6 +6,8 @@ import {useDisplay} from "vuetify/framework";
 import {apis} from "@/assets/sripts";
 import {useNoticeStore} from "~/stores/noticeStore";
 import Silk from "@/components/Silk.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
+import HalfScreenBannerText from "@/components/HalfScreenBannerText.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -27,71 +29,71 @@ const scopeDescription = ref("");
 const isExpired = computed(() => errorCode.value === "consent.expired" || errorCode.value === "consent.unauthenticated");
 
 onMounted(async () => {
-    if (!code.value) {
-        loading.value = false;
-        errorCode.value = "consent.invalid";
-        return;
-    }
-    try {
-        const res = await apis.mcpOAuthApi().getConsent(code.value);
-        const data = (res?.data || {}) as any;
-        clientName.value = data.client?.clientName || "";
-        clientUri.value = data.client?.clientUri || null;
-        logoUri.value = data.client?.logoUri || null;
-        scopeDescription.value = data.scopeDescription || "";
-    } catch (err: any) {
-        errorCode.value = err?.code || "error";
-    } finally {
-        loading.value = false;
-    }
+  if (!code.value) {
+    loading.value = false;
+    errorCode.value = "consent.invalid";
+    return;
+  }
+  try {
+    const res = await apis.mcpOAuthApi().getConsent(code.value);
+    const data = (res?.data || {}) as any;
+    clientName.value = data.client?.clientName || "";
+    clientUri.value = data.client?.clientUri || null;
+    logoUri.value = data.client?.logoUri || null;
+    scopeDescription.value = data.scopeDescription || "";
+  } catch (err: any) {
+    errorCode.value = err?.code || "error";
+  } finally {
+    loading.value = false;
+  }
 });
 
 /**
  * 允许访问：提交授权决定后整页跳转到客户端回跳地址
  **/
 const onAllow = async () => {
-    if (submitting.value) return;
-    submitting.value = true;
-    try {
-        const res = await apis.mcpOAuthApi().submitConsent(code.value, "allow");
-        const data = (res?.data || {}) as any;
-        if (data?.redirectTo) {
-            window.location.href = data.redirectTo;
-            return;
-        }
-        errorCode.value = data?.code || "error";
-    } catch (err: any) {
-        errorCode.value = err?.code || "error";
-    } finally {
-        submitting.value = false;
+  if (submitting.value) return;
+  submitting.value = true;
+  try {
+    const res = await apis.mcpOAuthApi().submitConsent(code.value, "allow");
+    const data = (res?.data || {}) as any;
+    if (data?.redirectTo) {
+      window.location.href = data.redirectTo;
+      return;
     }
+    errorCode.value = data?.code || "error";
+  } catch (err: any) {
+    errorCode.value = err?.code || "error";
+  } finally {
+    submitting.value = false;
+  }
 };
 
 /**
  * 拒绝：同样提交决定，后端按 OAuth 协议把 error 带回客户端 redirect_uri
  **/
 const onDeny = async () => {
-    if (submitting.value) return;
-    submitting.value = true;
-    try {
-        const res = await apis.mcpOAuthApi().submitConsent(code.value, "deny");
-        const data = (res?.data || {}) as any;
-        if (data?.redirectTo) {
-            window.location.href = data.redirectTo;
-            return;
-        }
-        // 拒绝但无回跳地址：直接回到 AI 连接器页
-        router.push("/apps/ai-connector");
-    } catch (err: any) {
-        notice.error(err?.message || t("mcpConsent.error"));
-    } finally {
-        submitting.value = false;
+  if (submitting.value) return;
+  submitting.value = true;
+  try {
+    const res = await apis.mcpOAuthApi().submitConsent(code.value, "deny");
+    const data = (res?.data || {}) as any;
+    if (data?.redirectTo) {
+      window.location.href = data.redirectTo;
+      return;
     }
+    // 拒绝但无回跳地址：直接回到 AI 连接器页
+    router.push("/apps/ai-connector");
+  } catch (err: any) {
+    notice.error(err?.message || t("mcpConsent.error"));
+  } finally {
+    submitting.value = false;
+  }
 };
 
 /** 会话失效时重新发起连接 */
 const onRetry = () => {
-    router.push("/apps/ai-connector");
+  router.push("/apps/ai-connector");
 };
 </script>
 
@@ -130,7 +132,6 @@ const onRetry = () => {
 
             <!-- 会话失效 / 错误 S -->
             <div v-else-if="errorCode" class="text-center py-12">
-              <v-icon icon="mdi-alert-circle" color="red" size="64" class="mb-4"></v-icon>
               <h3 class="text-h5 font-weight-bold text-red">{{ t("mcpConsent.error") }}</h3>
               <p class="text-caption opacity-70 mt-2 mb-6">
                 {{ isExpired ? t("mcpConsent.expired") : t("mcpConsent.error") }}
@@ -141,28 +142,15 @@ const onRetry = () => {
             </div>
             <!-- 会话失效 / 错误 E -->
 
-            <!-- 同意页 S -->
+            <!-- 同意页 S  -->
             <div v-else>
-              <div class="d-flex align-center gap-3 mb-5">
-                <v-avatar size="44" rounded="lg" color="grey-darken-3" class="mr-1">
-                  <v-img v-if="logoUri" :src="logoUri" cover></v-img>
-                  <v-icon v-else icon="mdi-robot-outline" color="amber"></v-icon>
-                </v-avatar>
-                <div>
-                  <div class="text-h6 font-weight-bold">{{ t("mcpConsent.title") }}</div>
-                  <a v-if="clientUri" :href="clientUri" target="_blank" rel="noopener"
-                     class="text-caption text-amber text-decoration-none">{{ clientName }}</a>
-                  <div v-else class="text-caption text-amber">{{ clientName }}</div>
-                </div>
-              </div>
-
-              <p class="text-body-2 opacity-80 mb-5">
-                <span class="text-amber font-weight-bold">{{ clientName }}</span>
-                {{ t("mcpConsent.subtitle", { client: clientName }) }}
+              <p class="opacity-60 mb-5">
+                <span class="text-amber font-weight-bold u">{{ clientName || 'Clien tName' }}</span>
+                {{ t("mcpConsent.subtitle", {client: ''}) }}
               </p>
 
               <div class="scope-box mb-6">
-                <div class="text-caption font-weight-bold text-amber mb-1">{{ t("mcpConsent.scopeTitle") }}</div>
+                <div class="font-weight-bold text-amber mb-1">{{ t("mcpConsent.scopeTitle") }}</div>
                 <div class="text-body-2">{{ scopeDescription }}</div>
               </div>
 

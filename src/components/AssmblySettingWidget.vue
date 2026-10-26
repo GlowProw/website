@@ -324,8 +324,7 @@ defineOptions({
                     v-model="modelValue.assembly.attr.language"
                     multiple
                     :items="languages"
-                    :label="t('assembly.setting.selectLanguage')"
-                >
+                    :label="t('assembly.setting.selectLanguage')">
                   <template v-slot:selection="{ item }">
                     <v-chip size="small" class="mr-1">
                       {{ getLanguageLabel(item.value || item) }}

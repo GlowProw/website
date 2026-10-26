@@ -97,7 +97,7 @@ export function normalizeVideoUrl(input: string): NormalizeVideoResult {
     if (isWhitelistedHost(host, 'youtube.com') || isWhitelistedHost(host, 'youtube-nocookie.com')) {
         let id = ''
         if (path === '/watch') {
-            id = url.searchParams.get('v') || ''
+            id = url.searchParams.get('v')
         } else if (path.startsWith('/shorts/') || path.startsWith('/embed/') || path.startsWith('/v/')) {
             id = decodeURIComponent(path.split('/')[2] || '')
         }

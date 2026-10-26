@@ -185,7 +185,7 @@ const onCodexHistory = () => {
               <v-chip class="badge-flavor text-center tag-badge text-black"
                       v-if="npcDetailData.type"
                       :to="`/codex/npcs?type=${npcDetailData.type}`">
-                {{ t(`codex.npc.types.${npcDetailData.type}`) || '' }}
+                {{ t(`codex.npc.types.${npcDetailData.type}`) }}
               </v-chip>
               <template v-if="Array.isArray(npcDetailData.category)">
                 <v-chip class="badge-flavor text-center tag-badge text-black"

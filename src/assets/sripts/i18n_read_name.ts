@@ -612,7 +612,7 @@ export function useI18nReadName() {
                 const factionName = t(`snb.factions.${skill.type}.name`);
                 const interpolateParams = { ...(skill.attr || {}), faction: factionName };
                 if (stage) {
-                    return t(`snb.empireSkills.${id}.effects.${stage}`, interpolateParams) || '';
+                    return t(`snb.empireSkills.${id}.effects.${stage}`, interpolateParams);
                 }
                 if (skill.stage && skill.stage > 1) {
                     const descList: string[] = [];
@@ -624,7 +624,7 @@ export function useI18nReadName() {
                     }
                     if (descList.length > 0) return descList.join('\n');
                 }
-                return t(`snb.empireSkills.${id}.effects.general`, interpolateParams) || t(`snb.empireSkills.${id}.effects.1`, interpolateParams) || '';
+                return t(`snb.empireSkills.${id}.effects.general`, interpolateParams) || t(`snb.empireSkills.${id}.effects.1`, interpolateParams);
             }
         };
     }

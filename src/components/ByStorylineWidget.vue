@@ -382,7 +382,7 @@ defineOptions({
               <!-- 故事线步骤流 (Flow Steps) -->
               <div v-show="!collapsedArcs[arc.arcId]" class="arc-steps-wrapper">
                 <template v-for="(step, sIdx) in arc.steps" :key="sIdx">
-                  <!-- 1. 单一阶段节点 (Single Node) -->
+                  <!-- 单一阶段节点 (Single Node) -->
                   <template v-if="step.type === 'single' && step.questId">
                     <div class="flow-step-block">
                       <!-- 流程连接线 (非首个节点) -->
@@ -422,7 +422,7 @@ defineOptions({
                     </div>
                   </template>
 
-                  <!-- 2. 并行分支分叉 (Parallel Fork Block) -->
+                  <!-- 并行分支分叉 (Parallel Fork Block) -->
                   <template v-else-if="step.type === 'fork' && step.branches">
                     <div class="flow-fork-tree my-1">
                       <!-- 上方流程连线 -->
@@ -518,7 +518,7 @@ defineOptions({
                     </div>
                   </template>
 
-                  <!-- 3. 汇聚节点 (Merge Join Block) -->
+                  <!-- 汇聚节点 (Merge Join Block) -->
                   <template v-else-if="step.type === 'merge' && step.questId">
                     <div class="flow-step-block flow-merge-block">
                       <!-- 流程连接线 -->
