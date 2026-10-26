@@ -375,10 +375,9 @@ function onFileImport(e: Event) {
             :title="t('basic.button.reset')"/>
       </div>
     </template>
+    <!-- 配置文件上传 -->
+    <input type="file" ref="fileInput" @change="onFileImport" style="display: none"/>
   </AffixBoxHasTitleView>
-
-  <!-- 配置文件上传 -->
-  <input type="file" ref="fileInput" @change="onFileImport" style="display: none"/>
 </template>
 
 <style scoped lang="less">

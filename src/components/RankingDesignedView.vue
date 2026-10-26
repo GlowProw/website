@@ -15,8 +15,18 @@ import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import ModName from "@/components/snbWidget/modName.vue";
 import UltimateName from "@/components/snbWidget/ultimateName.vue";
+import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
+import ShipName from "@/components/snbWidget/shipName.vue";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
+import CommoditieName from "@/components/snbWidget/commoditieName.vue";
+import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
+import SetName from "@/components/snbWidget/setName.vue";
+import TreasureMapIconWidget from "@/components/snbWidget/treasureMapIconWidget.vue";
+import TreasureMapName from "@/components/snbWidget/treasureMapName.vue";
+import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.vue";
+import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import ItemView from "@/components/ItemView.vue";
-import RankingRightClickMenu from "@/components/RankingRightClickMenu.vue";
+import FullItemRightClickMenu from "@/components/FullItemRightClickMenu.vue";
 import RankingDesignedItemsDataProcessing from "@/assets/sripts/ranking_designed_items_data_processing";
 import {RankingAttr} from "@/assets/types/Ranking";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -76,6 +86,7 @@ const itemCategory = ref<string | null>(null);
 // 排行全局属性
 const attr: Ref<RankingAttr> = ref({
   useVersion: RankingDesignedItemsDataProcessing.nowVersion,
+  isShowItemName: true,
 });
 
 // 物品类别对应类型名称映射
@@ -86,6 +97,13 @@ const categoryTypeMap: Record<string, string> = {
   ultimate: "Ultimate",
   modification: "Modification",
   ship: "Ship",
+  commoditie: "Commoditie",
+  commodity: "Commoditie",
+  set: "Set",
+  treasuremap: "TreasureMap",
+  treasureMap: "TreasureMap",
+  maplocation: "MapLocation",
+  mapLocation: "MapLocation",
 };
 
 // 预设阶梯色板
@@ -401,11 +419,17 @@ const addRow = () => {
 };
 
 /**
- * 设置轮盘属性
+ * 设置天梯属性
  *
- * @param attrData
+ * @param attrData 属性配置对象
  */
 const setSetting = (attrData: any) => {
+  if (attrData) {
+    attr.value = {
+      ...attr.value,
+      ...attrData,
+    };
+  }
   return {onLoad};
 };
 
@@ -541,7 +565,7 @@ defineExpose({
                   <ItemSlotBase size="90px">
                     <ItemIconWidget :id="j.id" :is-open-detail="false"></ItemIconWidget>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;">
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
                     <ItemNameRarity :id="j.id">
                       <ItemName :id="j.id"></ItemName>
                     </ItemNameRarity>
@@ -555,7 +579,7 @@ defineExpose({
                   <ItemSlotBase size="90px">
                     <MaterialIconWidget :id="j.id" :is-open-detail="false"></MaterialIconWidget>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;">
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
                     <MaterialName :id="j.id"></MaterialName>
                   </div>
                 </v-card>
@@ -567,7 +591,7 @@ defineExpose({
                   <ItemSlotBase size="90px">
                     <CosmeticIconWidget :id="j.id" :is-open-detail="false"></CosmeticIconWidget>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;">
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
                     <CosmeticName :id="j.id"></CosmeticName>
                   </div>
                 </v-card>
@@ -579,8 +603,68 @@ defineExpose({
                   <ItemSlotBase size="90px">
                     <UltimateIconWidget :id="j.id" :is-open-detail="false"></UltimateIconWidget>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;">
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
                     <UltimateName :id="j.id"></UltimateName>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- 船只类型渲染 -->
+              <template v-else-if="j._typeStringName === 'Ship' || String(j.category).toLowerCase() === 'ship'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <ShipIconWidget :id="j.id" :is-open-detail="false"></ShipIconWidget>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
+                    <ShipName :id="j.id"></ShipName>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- 商品类型渲染 -->
+              <template v-else-if="j._typeStringName === 'Commoditie' || String(j.category).toLowerCase() === 'commoditie' || String(j.category).toLowerCase() === 'commodity'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <CommoditieIconWidget :id="j.id" :is-open-detail="false"></CommoditieIconWidget>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
+                    <CommoditieName :id="j.id"></CommoditieName>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- 套装类型渲染 -->
+              <template v-else-if="j._typeStringName === 'Set' || String(j.category).toLowerCase() === 'set'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <SetIconWidget :id="j.id" :is-open-detail="false"></SetIconWidget>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
+                    <SetName :id="j.id"></SetName>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- 藏宝图类型渲染 -->
+              <template v-else-if="j._typeStringName === 'TreasureMap' || String(j.category).toLowerCase() === 'treasuremap'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <TreasureMapIconWidget :id="j.id" :is-open-detail="false"></TreasureMapIconWidget>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
+                    <TreasureMapName :id="j.id"></TreasureMapName>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- 地图标点类型渲染 -->
+              <template v-else-if="j._typeStringName === 'MapLocation' || String(j.category).toLowerCase() === 'maplocation'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <MapLocationIconWidget :id="j.id" :is-open-detail="false"></MapLocationIconWidget>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
+                    <MapLocationName :id="j.id"></MapLocationName>
                   </div>
                 </v-card>
               </template>
@@ -591,7 +675,7 @@ defineExpose({
                   <ItemSlotBase size="90px">
                     <ModIconWidget :id="j.id" :is-open-detail="false"></ModIconWidget>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;">
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
                     <ModName :id="j.id" :grade="j.grade"></ModName>
                   </div>
                 </v-card>
@@ -603,7 +687,7 @@ defineExpose({
                   <ItemSlotBase size="90px">
                     <ItemIconWidget :id="j.id" :is-open-detail="false"></ItemIconWidget>
                   </ItemSlotBase>
-                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;">
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName">
                     <ItemNameRarity :id="j.id">
                       <ItemName :id="j.id"></ItemName>
                     </ItemNameRarity>
@@ -625,18 +709,20 @@ defineExpose({
 
             <!-- 添加新物品按钮 -->
             <v-col v-if="!readonly" cols="auto" class="my-2 ml-3">
-              <FullItemRightClickMenu></FullItemRightClickMenu>
-              <RankingRightClickMenu
+              <FullItemRightClickMenu
                   :visible-categories="visibleCategories"
                   @clickMenuItem="(data) => openInsertDataPanel(data.tags, index, data.category)">
-                <v-card
-                    width="99px"
-                    height="99px"
-                    class="d-flex flex-column justify-center align-center cursor-pointer add-slot-card">
-                  <v-icon size="32" color="amber">mdi-plus</v-icon>
-                  <span class="text-caption text-medium-emphasis mt-1">添加物品</span>
-                </v-card>
-              </RankingRightClickMenu>
+                <template v-slot="menuProps">
+                  <v-card
+                      v-bind="menuProps"
+                      width="99px"
+                      height="99px"
+                      class="d-flex flex-column justify-center align-center cursor-pointer add-slot-card">
+                    <v-icon size="32" color="amber">mdi-plus</v-icon>
+                    <span class="text-caption text-medium-emphasis mt-1">{{ t('rankingDesignedItems.workshop.addItem') }}</span>
+                  </v-card>
+                </template>
+              </FullItemRightClickMenu>
             </v-col>
           </v-row>
 

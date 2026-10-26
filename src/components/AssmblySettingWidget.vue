@@ -11,6 +11,7 @@ import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import ImgView from "@/components/ImgView.vue";
+import languagesConfig from "@/config/languages";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -37,7 +38,22 @@ let emit = defineEmits(['update:modelValue']),
     deleteDialog = ref(false),
     tabValue = ref('assembly')
 
-let languages = computed(() => Object.keys(messages.value)),
+let languages = computed(() => {
+      return languagesConfig.child.map(item => ({
+        label: item.label,
+        value: item.value
+      }));
+    }),
+    /**
+     * 语言友好标签解析（兼容下划线和连字符格式）
+     */
+    getLanguageLabel = (val: any) => {
+      if (!val) return "";
+      const raw = typeof val === 'object' ? (val.value || val.title || '') : String(val);
+      const normalized = raw.replace("_", "-").toLowerCase();
+      const found = languagesConfig.child.find((item) => item.value.toLowerCase() === normalized);
+      return found ? found.label : raw;
+    },
     // 密码是否已设置：保存后立即切换按钮状态，无需等待重新拉取
     passwordOperated = ref<'none' | 'set' | null>(null),
     passwordDialog = ref(false),
@@ -304,11 +320,18 @@ defineOptions({
               <v-col>
                 <v-select
                     item-title="label"
+                    item-value="value"
                     v-model="modelValue.assembly.attr.language"
                     multiple
                     :items="languages"
                     :label="t('assembly.setting.selectLanguage')"
-                ></v-select>
+                >
+                  <template v-slot:selection="{ item }">
+                    <v-chip size="small" class="mr-1">
+                      {{ getLanguageLabel(item.raw ?? item) }}
+                    </v-chip>
+                  </template>
+                </v-select>
               </v-col>
             </v-row>
 

@@ -28,8 +28,25 @@ const tabValue = ref("common");
 const delRankingLoading = ref(false);
 const deleteDialog = ref(false);
 
+import languagesConfig from "@/config/languages";
+
 // 可用语言集合
-const languages = computed(() => Object.keys(messages.value));
+const languages = computed(() => {
+  return languagesConfig.child.map((item) => ({
+    label: item.label,
+    value: item.value,
+  }));
+});
+
+/**
+ * 语言友好标签解析（兼容下划线和连字符格式）
+ */
+const getLanguageLabel = (val: string) => {
+  if (!val) return "";
+  const normalized = String(val).replace("_", "-").toLowerCase();
+  const found = languagesConfig.child.find((item) => item.value.toLowerCase() === normalized);
+  return found ? found.label : val;
+};
 
 // 可见性选项配置
 const visibilityOptions = computed(() => [
@@ -53,7 +70,7 @@ const initAttr = () => {
     if (attr.isLike === undefined) attr.isLike = true;
     if (attr.isComment === undefined) attr.isComment = true;
     if (attr.isAllowClone === undefined) attr.isAllowClone = true;
-    if (attr.isShowItemName === undefined) attr.isShowItemName = false;
+    if (attr.isShowItemName === undefined) attr.isShowItemName = true;
     if (attr.isAnonymous === undefined) attr.isAnonymous = false;
     if (!attr.useVersion) attr.useVersion = RankingDesignedItemsDataProcessing.nowVersion;
   } else {
@@ -67,7 +84,7 @@ const initAttr = () => {
     if (attr.isLike === undefined) attr.isLike = true;
     if (attr.isComment === undefined) attr.isComment = true;
     if (attr.isAllowClone === undefined) attr.isAllowClone = true;
-    if (attr.isShowItemName === undefined) attr.isShowItemName = false;
+    if (attr.isShowItemName === undefined) attr.isShowItemName = true;
     if (attr.isAnonymous === undefined) attr.isAnonymous = false;
     if (!attr.useVersion) attr.useVersion = RankingDesignedItemsDataProcessing.nowVersion;
   }
@@ -171,18 +188,24 @@ defineOptions({
             <!-- 语种设置 S -->
             <v-row align="center">
               <v-col cols="12" sm="6">
-                <b>{{ t('assembly.setting.language') }}</b>
+                <b>{{ t('rankingDesignedItems.setting.language') || t('basic.language') || '语种' }}</b>
                 <p class="text-caption text-medium-emphasis">
-                  {{ t('assembly.setting.languageDescription') }}
+                  {{ t('rankingDesignedItems.setting.languageDescription') || t('assembly.setting.languageDescription') }}
                 </p>
               </v-col>
               <v-col cols="12" sm="6">
                 <v-select
                     v-model="targetAttr.language"
                     :items="languages"
+                    item-title="label"
+                    item-value="value"
                     density="compact"
                     hide-details
-                    :label="t('assembly.setting.selectLanguage')"></v-select>
+                    :label="t('assembly.setting.selectLanguage')">
+                  <template v-slot:selection="{ item }">
+                    {{ getLanguageLabel(item.value || item.title || targetAttr.language) }}
+                  </template>
+                </v-select>
               </v-col>
             </v-row>
             <v-divider class="my-3"></v-divider>

@@ -6,10 +6,10 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
 import Silk from "@/components/Silk.vue";
-import Textarea from "@/components/textarea/index.vue";
 import RolesTagWidget from "@/components/RolesTagWidget.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AccountAchievementWidget from "@/components/AccountAchievementWidget.vue";
+import Textarea from "@/components/textarea/index.vue";
 import {AccountCardWidgetProps, SpaceUserResult} from "@/assets/types/User";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
@@ -56,23 +56,18 @@ const getUserInfo = async () => {
   }
 }
 
-// 详情页 id 异步到位的场景
-watch(() => props.id, (value) => {
-  if (value && userInfoData.value.id == null)
-    getUserInfo()
-})
-
-// hover 兜底：前两条路径都未拿到时，打开卡片再拉一次
+// 仅当用户 hover 展开气泡卡片且未拉取过时，才请求用户信息
 watch(() => model.value, (value) => {
-  if (value && userInfoData.value.id == null)
-    getUserInfo()
-})
+  if (value && userInfoData.value.id == null) {
+    getUserInfo();
+  }
+});
 
-const userInfo = computed(() => userInfoData.value as any)
+const userInfo = computed(() => userInfoData.value as any);
 
 defineOptions({
-  name: 'AccountCardWidget'
-})
+  name: 'AccountCardWidget',
+});
 </script>
 
 <template>
@@ -95,7 +90,12 @@ defineOptions({
         <slot></slot>
       </div>
     </template>
-    <v-card class="border border-opacity-0 overflow-hidden elevation-24" elevation="24" min-width="400" max-width="600" min-height="200">
+    <v-card v-if="model"
+            class="border border-opacity-0 overflow-hidden elevation-24"
+            elevation="24"
+            min-width="400"
+            max-width="600"
+            min-height="200">
       <Banner>
         <v-card height="260px" variant="text" class="mt-n5 mx-n10">
           <template v-slot:image>
@@ -125,11 +125,9 @@ defineOptions({
       <v-divider opacity=".06"></v-divider>
 
       <v-card-text class="pt-10 pb-6 px-10 background-flavor">
-        <Textarea
-            readonly
-            class="w-100 mb-6"
-            min-height="auto"
-            :value="userInfo.attr?.introduction || '🚢 🌊🌊🌊'"></Textarea>
+        <div class="w-100 mb-6 text-body-2 text-medium-emphasis text-break" style="white-space: pre-wrap;">
+          <Textarea readonly min-height="auto" :value="userInfo.attr?.introduction || '🚢 🌊🌊🌊'"></Textarea>
+        </div>
 
         <AccountAchievementWidget v-if="userInfo.userId || id"
                                   :user-id="String(userInfo.userId || id)"/>

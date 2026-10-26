@@ -20,6 +20,7 @@ import WarehouseDataProcessing from "@/assets/sripts/warehouse_data_processing"
 import MasteryDataProcessing from "@/assets/sripts/mastery_data_processing"
 import {useGoTo} from "vuetify/framework";
 import {useAppStore} from "~/stores/appStore";
+import { cancelAndBack } from "@/assets/sripts/navigation";
 
 const route = useRoute(),
     router = useRouter(),
@@ -335,7 +336,7 @@ const onPublish = async () => {
               <p class="opacity-80 mt-5">{{ t('basic.assembly.publish.subtitle') }}</p>
             </v-col>
             <v-col cols="auto">
-              <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
+              <v-btn v-if="isEditModel" variant="elevated" @click="cancelAndBack(router, route)">
                 {{ t('basic.button.prev') }}
               </v-btn>
               <v-btn :color="`var(--main-color)`" :disabled="isPush" :loading="publishLoading" class="ml-2" variant="elevated" @click="() => isEditModel ? onEdit() : onPublish()">
@@ -361,7 +362,7 @@ const onPublish = async () => {
       <v-row align="start" no-gutters>
         <v-spacer></v-spacer>
         <v-col cols="auto">
-          <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
+          <v-btn v-if="isEditModel" variant="elevated" @click="cancelAndBack(router, route)">
             {{ t('basic.button.prev') }}
           </v-btn>
           <v-btn :color="`var(--main-color)`" :disabled="isPush" :loading="publishLoading" class="ml-2" variant="elevated" @click="() => isEditModel ? onEdit() : onPublish()">

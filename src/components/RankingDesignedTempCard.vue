@@ -12,10 +12,10 @@
           <v-col cols="auto">
             <AccountCardWidget :id="item.userId">
               <div class="d-flex align-center">
-                <v-card v-if="item.userAvatar" class="mr-1">
+                <v-card v-if="item.userAvatar && !item.attr?.isAnonymous" class="mr-1">
                   <UserAvatar size="20" :src="item.userAvatar"></UserAvatar>
                 </v-card>
-                <span class="u">{{ item.username || t('assembly.anonymous') }}</span>
+                <span class="u">{{ item.attr?.isAnonymous ? t('assembly.anonymous') : (item.username || t('assembly.anonymous')) }}</span>
               </div>
             </AccountCardWidget>
           </v-col>
@@ -88,9 +88,22 @@ const rankingViewRef = ref<any>(null);
  * 载入天梯数据到画布视图
  */
 const loadData = () => {
-  if (rankingViewRef.value?.onLoad && props.item) {
-    const raw = props.item.ranking || props.item.data || [];
-    rankingViewRef.value.onLoad(raw);
+  if (rankingViewRef.value && props.item) {
+    if (typeof rankingViewRef.value.setSetting === "function") {
+      let rawAttr = props.item.ranking?.attr || props.item.attr || {};
+      if (typeof rawAttr === "string") {
+        try {
+          rawAttr = JSON.parse(rawAttr);
+        } catch {
+          rawAttr = {};
+        }
+      }
+      rankingViewRef.value.setSetting(rawAttr);
+    }
+    if (typeof rankingViewRef.value.onLoad === "function") {
+      const raw = props.item.ranking || props.item.data || [];
+      rankingViewRef.value.onLoad(raw);
+    }
   }
 };
 

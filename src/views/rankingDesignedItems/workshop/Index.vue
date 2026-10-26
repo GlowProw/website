@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, nextTick } from "vue";
+import { computed, ref, onMounted, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
@@ -15,6 +15,7 @@ import Textarea from "@/components/textarea/index.vue";
 import RankingDesignedView from "@/components/RankingDesignedView.vue";
 import ZoomableCanvas from "@/components/ZoomableCanvas.vue";
 import RankingDesignedItemsDataProcessing from "@/assets/sripts/ranking_designed_items_data_processing";
+import { cancelAndBack } from "@/assets/sripts/navigation";
 
 import { v6 as uuidv6 } from "uuid";
 import EmptyView from "@/components/EmptyView.vue";
@@ -65,14 +66,17 @@ const publishData = ref<any>({
       language: locale.value,
       isComment: true,
       isLike: true,
+      isAllowClone: true,
+      isShowItemName: true,
+      isAnonymous: false,
     },
   },
 });
 
 const formRules = {
   name: [
-    (v: string) => !!(v && v.trim()) || t("basic.assembly.publish.nameRequired"),
-    (v: string) => !v || v.length <= 140 || t("basic.rules.assembly.nameLength"),
+    (v: string) => !!(v && v.trim()) || t("rankingDesignedItems.publish.nameRequired"),
+    (v: string) => !v || v.length <= 140 || t("rankingDesignedItems.publish.nameLength"),
   ],
 };
 
@@ -84,6 +88,15 @@ const isEditModel = computed(() => {
 const isPushDisabled = computed(() => {
   return !publishData.value?.name || publishData.value.name.trim() === "";
 });
+
+/**
+ * 监听天梯属性变更，实时同步至画布
+ */
+watch(() => publishData.value.ranking?.attr, (newVal) => {
+  if (rankingDesignedView.value && typeof rankingDesignedView.value.setSetting === "function") {
+    rankingDesignedView.value.setSetting(newVal || {});
+  }
+}, { deep: true });
 
 /**
  * 切换追加推荐标签
@@ -133,7 +146,7 @@ const onQuickSaveDraft = () => {
   const draftPayload = {
     ...publishData.value,
     id: "quickArchiving",
-    name: publishData.value.name || t("assembly.workshop.quickArchiving"),
+    name: publishData.value.name || t("rankingDesignedItems.workshop.quickArchiving"),
     ranking: currentRankingData,
     updateTime: new Date().toISOString(),
   };
@@ -144,7 +157,7 @@ const onQuickSaveDraft = () => {
     category: "ranking",
   });
 
-  notice.success((t("assembly.workshop.quickSaveDraft") || "暂存草稿") + " " + t("basic.tips.success"));
+  notice.success((t("rankingDesignedItems.workshop.quickSaveDraft") || "暂存草稿") + " " + t("basic.tips.success"));
 };
 
 /**
@@ -152,7 +165,7 @@ const onQuickSaveDraft = () => {
  */
 const onSaveNewDraft = () => {
   if (!newDraftName.value.trim()) {
-    notice.warning(t("assembly.workshop.inputDraftName") || "请输入草稿名称");
+    notice.warning(t("rankingDesignedItems.workshop.inputDraftName") || "请输入草稿名称");
     return;
   }
   if (!rankingDesignedView.value) return;
@@ -249,9 +262,17 @@ const loadExistingData = async () => {
       if (d.ranking?.visibility) {
         publishData.value.ranking.visibility = d.ranking.visibility;
       }
+      if (d.ranking?.attr) {
+        publishData.value.ranking.attr = { ...publishData.value.ranking.attr, ...d.ranking.attr };
+      }
       nextTick(() => {
-        if (rankingDesignedView.value && (d.ranking || d.data)) {
-          rankingDesignedView.value.onLoad(d.ranking || d.data);
+        if (rankingDesignedView.value) {
+          if (typeof rankingDesignedView.value.setSetting === "function") {
+            rankingDesignedView.value.setSetting(publishData.value.ranking.attr || {});
+          }
+          if (d.ranking || d.data) {
+            rankingDesignedView.value.onLoad(d.ranking || d.data);
+          }
         }
       });
       return;
@@ -270,10 +291,27 @@ const loadExistingData = async () => {
         : (typeof item.tags === "string" ? JSON.parse(item.tags) : []);
       publishData.value.ranking.visibility = item.visibility || "publicly";
 
+      let parsedAttr = item.attr;
+      if (typeof parsedAttr === "string") {
+        try {
+          parsedAttr = JSON.parse(parsedAttr);
+        } catch {
+          parsedAttr = {};
+        }
+      }
+      if (parsedAttr && typeof parsedAttr === "object") {
+        publishData.value.ranking.attr = { ...publishData.value.ranking.attr, ...parsedAttr };
+      }
+
       const tiers = typeof item.data === "string" ? JSON.parse(item.data) : item.data;
       nextTick(() => {
-        if (rankingDesignedView.value && tiers) {
-          rankingDesignedView.value.onLoad(tiers);
+        if (rankingDesignedView.value) {
+          if (typeof rankingDesignedView.value.setSetting === "function") {
+            rankingDesignedView.value.setSetting(publishData.value.ranking.attr || {});
+          }
+          if (tiers) {
+            rankingDesignedView.value.onLoad(tiers);
+          }
         }
       });
     }
@@ -291,7 +329,7 @@ const onSubmit = async () => {
   if (!rankingDesignedView.value) return;
 
   if (!publishData.value.name || !publishData.value.name.trim()) {
-    notice.error(t("basic.assembly.publish.nameRequired"));
+    notice.error(t("rankingDesignedItems.publish.nameRequired"));
     await goto("#info", { duration: 1000, offset: -120 });
     return;
   }
@@ -328,7 +366,7 @@ const onSubmit = async () => {
         });
       }
 
-      notice.success(t("basic.tips.updated") || "Updated successfully");
+      notice.success(t("rankingDesignedItems.updated") || "Updated successfully");
       await router.push(`/ranking-designed-items/browse/${targetUuid}/detail`);
     } else {
       const res = await rankingApi.publishRanking(payload);
@@ -343,7 +381,7 @@ const onSubmit = async () => {
         });
       }
 
-      notice.success(t("basic.tips.published") || "Published successfully!");
+      notice.success(t("rankingDesignedItems.published") || "Published successfully!");
       if (newUuid) {
         await router.push(`/ranking-designed-items/browse/${newUuid}/detail`);
       } else {
@@ -413,7 +451,7 @@ onMounted(() => {
                 :loading="draftSaveQuickArchivingLoading"
                 @click="onQuickSaveDraft"
               >
-                {{ t('assembly.workshop.quickSaveDraft') || '暂存草稿' }}
+                {{ t('rankingDesignedItems.workshop.quickSaveDraft') || '暂存草稿' }}
               </v-btn>
               <v-menu location="bottom right">
                 <template v-slot:activator="{ props }">
@@ -426,13 +464,13 @@ onMounted(() => {
                     <template v-slot:prepend>
                       <v-icon icon="mdi-content-save-plus-outline" size="small"></v-icon>
                     </template>
-                    <v-list-item-title>{{ t('assembly.workshop.saveAsDraft') || '另存为草稿' }}</v-list-item-title>
+                    <v-list-item-title>{{ t('rankingDesignedItems.workshop.saveAsDraft') || '另存为草稿' }}</v-list-item-title>
                   </v-list-item>
                   <v-list-item @click="onOpenDraftPanel">
                     <template v-slot:prepend>
                       <v-icon icon="mdi-folder-open-outline" size="small"></v-icon>
                     </template>
-                    <v-list-item-title>{{ t('assembly.workshop.loadDraft') || '草稿箱' }}</v-list-item-title>
+                    <v-list-item-title>{{ t('rankingDesignedItems.workshop.loadDraft') || '草稿箱' }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -449,7 +487,7 @@ onMounted(() => {
               {{ isEditModel ? (t('basic.button.save') || '保存修改') : (t('basic.button.commit') || '发布天梯') }}
             </v-btn>
 
-            <v-btn v-if="isEditModel" size="large" variant="tonal" @click="router.go(-1)">
+            <v-btn v-if="isEditModel" size="large" variant="tonal" @click="cancelAndBack(router, route)">
               {{ t('basic.button.cancel') }}
             </v-btn>
           </v-col>
@@ -478,24 +516,24 @@ onMounted(() => {
               <v-text-field
                 v-model="publishData.name"
                 :rules="formRules.name"
-                :label="t('basic.assembly.publish.name')"
+                :label="t('rankingDesignedItems.publish.name')"
                 size="l-large"
                 hide-details="auto"
                 maxlength="140"
-                :placeholder="t('rankingDesignedItems.publish.namePlaceholder') || t('basic.assembly.publish.namePlaceholder')"
+                :placeholder="t('rankingDesignedItems.publish.namePlaceholder')"
                 variant="underlined"
               >
               </v-text-field>
             </v-col>
 
             <v-col cols="12">
-              <div class="mt-4 mb-3 font-weight-bold">{{ t('basic.assembly.publish.description') }}</div>
+              <div class="mt-4 mb-3 font-weight-bold">{{ t('rankingDesignedItems.publish.description') }}</div>
               <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.05))`" border class="pl-3 pr-3">
                 <Textarea
                   v-model="publishData.description"
                   :maxlength="10000"
                   class="mt-3 mb-2"
-                  :placeholder="t('rankingDesignedItems.publish.descriptionPlaceholder') || t('basic.assembly.publish.descriptionPlaceholder')">
+                  :placeholder="t('rankingDesignedItems.publish.descriptionPlaceholder')">
                 </Textarea>
                 <template v-if="appStore.isDebug">
                   {{ publishData.description }}
@@ -504,7 +542,7 @@ onMounted(() => {
             </v-col>
 
             <v-col cols="12">
-              <v-divider class="my-4">{{ t('basic.assembly.publish.extra') }}</v-divider>
+              <v-divider class="my-4">{{ t('rankingDesignedItems.publish.extra') }}</v-divider>
               <RankingSettingWidget v-model="publishData" :is-show-delete="false"></RankingSettingWidget>
             </v-col>
           </v-row>
@@ -525,9 +563,9 @@ onMounted(() => {
               clearable
               item-title="label"
               item-value="value"
-              :label="t('basic.assembly.publish.tags')"
+              :label="t('rankingDesignedItems.publish.tags')"
               multiple
-              :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
+              :placeholder="t('rankingDesignedItems.publish.tagsPlaceholder')"
               variant="underlined">
               <template v-slot:prepend>
                 <v-icon>mdi-tag-multiple</v-icon>
@@ -587,12 +625,12 @@ onMounted(() => {
     <v-card border class="bg-grey-darken-4 pa-2">
       <v-card-title class="py-8 border rounded-lg text-center bg-black mb-4">
         <v-icon size="64" class="mb-2 text-amber">mdi-content-save-plus-outline</v-icon>
-        <p class="text-h6 font-weight-bold">{{ t('assembly.workshop.saveAsDraft') || '另存为草稿' }}</p>
+        <p class="text-h6 font-weight-bold">{{ t('rankingDesignedItems.workshop.saveAsDraft') || '另存为草稿' }}</p>
       </v-card-title>
       <v-card-text>
         <v-text-field
           v-model="newDraftName"
-          :label="t('assembly.workshop.inputDraftName') || '请输入草稿名称'"
+          :label="t('rankingDesignedItems.workshop.inputDraftName') || '请输入草稿名称'"
           variant="outlined"
           density="comfortable"
           maxlength="140"
@@ -625,7 +663,7 @@ onMounted(() => {
     <v-card border class="bg-grey-darken-4 pa-2">
       <v-card-title class="py-8 border rounded-lg text-center bg-black mb-4">
         <v-icon size="64" class="mb-2 text-amber">mdi-folder-open-outline</v-icon>
-        <p class="text-h6 font-weight-bold">{{ t('assembly.workshop.draft') || '草稿箱' }}</p>
+        <p class="text-h6 font-weight-bold">{{ t('rankingDesignedItems.workshop.draft') || '草稿箱' }}</p>
       </v-card-title>
       <v-card-text>
         <v-list v-if="draftList.length > 0" bg-color="transparent" class="px-0">
@@ -642,7 +680,7 @@ onMounted(() => {
               </v-avatar>
             </template>
             <v-list-item-title class="font-weight-bold">
-              {{ item.id === 'quickArchiving' ? (t('assembly.workshop.quickArchiving') || '快速暂存草稿') : (item.name || '未命名草稿') }}
+              {{ item.id === 'quickArchiving' ? (t('rankingDesignedItems.workshop.quickArchiving') || '快速暂存草稿') : (item.name || '未命名草稿') }}
             </v-list-item-title>
             <v-list-item-subtitle class="opacity-60 text-caption mt-1">
               <span v-if="item.updateTime">{{ new Date(item.updateTime).toLocaleString() }} · </span>

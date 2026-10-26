@@ -3585,8 +3585,22 @@
     "workshop": {
       "title": "设计工坊",
       "createTitle": "拖拽物品至各阶梯完成评级分层",
-      "editTitle": "编辑天梯"
+      "editTitle": "编辑天梯",
+      "addItem": "添加物品",
+      "quickSaveDraft": "暂存草稿",
+      "quickArchiving": "快速暂存草稿",
+      "saveAsDraft": "另存为草稿",
+      "loadDraft": "草稿箱",
+      "draft": "草稿箱",
+      "inputDraftName": "请输入草稿名称"
     },
+    "updated": "天梯更新成功",
+    "published": "天梯发布成功",
+    "cloneSuccess": "天梯副本已载入",
+    "copySuccess": "分享链接已复制",
+    "notFound": "未找到指定天梯",
+    "clone": "克隆天梯",
+    "byCloningUuid": "衍生自天梯",
     "browse": {
       "title": "天梯广场",
       "subtitle": "浏览并探索社区玩家创建的物品、武器与装备评级榜单",
@@ -3634,9 +3648,13 @@
       "topViewed": "天梯前10游览列表"
     },
     "publish": {
+      "title": "发布天梯",
+      "preview": "天梯预览",
       "subtitle": "确认天梯信息并分享给全站玩家",
       "name": "榜单标题",
       "namePlaceholder": "输入天梯榜单名称...",
+      "nameRequired": "天梯标题不能为空",
+      "nameLength": "天梯名称不能超过140个字符",
       "description": "详细说明",
       "descriptionPlaceholder": "添加对该分级方案的见解或搭配建议...",
       "tags": "分类标签",
@@ -3645,7 +3663,12 @@
       "visibilityPublic": "公开（广场全员可见）",
       "visibilityUnlisted": "仅链接可见",
       "visibilityPrivate": "私密（仅自己可见）",
-      "recommendedTags": "推荐标签"
+      "recommendedTags": "推荐标签",
+      "extra": "扩展设置"
+    },
+    "setting": {
+      "language": "语种",
+      "languageDescription": "你可以定义此天梯的语种"
     },
     "verify": {
       "tierEmpty": "阶梯列表不能为空，至少需要 1 个评级阶梯",
@@ -5071,7 +5094,7 @@
         "description": "生成海盗签名图片，分享到社区网站上"
       },
       "ranking-of-designed-items": {
-        "title": "物品排名(开发中)",
+        "title": "物品排名",
         "description": "生成物品玩家心中排名以及评价"
       },
       "impression-of-monsters": {

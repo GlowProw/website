@@ -13,6 +13,7 @@ import Textarea from "@/components/textarea/index.vue";
 import Silk from "@/components/Silk.vue";
 import RankingDesignedItemsDataProcessing from "@/assets/sripts/ranking_designed_items_data_processing";
 import RankingDesignedMainSubjectView from "@/components/RankingDesignedMainSubjectView.vue";
+import { cancelAndBack } from "@/assets/sripts/navigation";
 
 const route = useRoute();
 const router = useRouter();
@@ -52,8 +53,8 @@ const rankingDesignedMainSubjectView = ref<any>(null);
 
 const formRules = {
   name: [
-    (v: string) => !!v || t("basic.assembly.publish.nameRequired"),
-    (v: string) => !v || v.length <= 140 || t("basic.rules.assembly.nameLength"),
+    (v: string) => !!v || t("rankingDesignedItems.publish.nameRequired"),
+    (v: string) => !v || v.length <= 140 || t("rankingDesignedItems.publish.nameLength"),
   ],
 };
 
@@ -177,7 +178,7 @@ const onEdit = async () => {
       });
     }
 
-    notice.success(t("basic.tips.updated") || "Updated successfully");
+    notice.success(t("rankingDesignedItems.updated") || "Updated successfully");
     await router.push(`/ranking-designed-items/browse/${targetUuid}/detail`);
   } catch (e: any) {
     handleApiError(e, notice, t, { component: "RankingDesignedPublish" });
@@ -214,7 +215,7 @@ const onPublish = async () => {
         });
       }
 
-      notice.success(t("basic.tips.published") || "Published successfully!");
+      notice.success(t("rankingDesignedItems.published") || "Published successfully!");
       await router.push(`/ranking-designed-items/browse/${publishedUuid}/detail`);
     } else {
       notice.error(res.message || "Failed to publish ranking");
@@ -249,17 +250,17 @@ const onPublish = async () => {
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/ranking-designed-items/workshop">{{ t('rankingDesignedItems.workshop.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
-          <v-breadcrumbs-item>{{ isEditModel ? t('basic.button.edit') : t('basic.assembly.publish.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-item>{{ isEditModel ? t('basic.button.edit') : t('rankingDesignedItems.publish.title') }}</v-breadcrumbs-item>
         </v-breadcrumbs>
 
         <v-container class="pa-7">
           <v-row align="start" no-gutters>
             <v-col>
-              <h1 class="text-amber">{{ t('basic.assembly.publish.preview') }}</h1>
-              <p class="opacity-80 mt-5">{{ t('basic.assembly.publish.subtitle') }}</p>
+              <h1 class="text-amber">{{ t('rankingDesignedItems.publish.preview') }}</h1>
+              <p class="opacity-80 mt-5">{{ t('rankingDesignedItems.publish.subtitle') }}</p>
             </v-col>
             <v-col cols="auto">
-              <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
+              <v-btn v-if="isEditModel" variant="elevated" @click="cancelAndBack(router, route)">
                 {{ t('basic.button.prev') }}
               </v-btn>
               <v-btn
@@ -294,7 +295,7 @@ const onPublish = async () => {
       <v-row align="start" no-gutters>
         <v-spacer></v-spacer>
         <v-col cols="auto">
-          <v-btn v-if="isEditModel" variant="elevated" @click="router.go(-1)">
+          <v-btn v-if="isEditModel" variant="elevated" @click="cancelAndBack(router, route)">
             {{ t('basic.button.prev') }}
           </v-btn>
           <v-btn
@@ -322,23 +323,23 @@ const onPublish = async () => {
               <v-text-field
                   v-model="publishData.name"
                   :rules="formRules.name"
-                  :label="t('basic.assembly.publish.name')"
+                  :label="t('rankingDesignedItems.publish.name')"
                   size="l-large"
                   hide-details
                   maxlength="140"
-                  :placeholder="t('basic.assembly.publish.namePlaceholder')"
+                  :placeholder="t('rankingDesignedItems.publish.namePlaceholder')"
                   variant="underlined">
               </v-text-field>
             </v-col>
             <v-col cols="12">
-              <div class="mt-4 mb-3 font-weight-bold">{{ t('basic.assembly.publish.description') }}</div>
+              <div class="mt-4 mb-3 font-weight-bold">{{ t('rankingDesignedItems.publish.description') }}</div>
 
               <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.05))`" border class="pl-3 pr-3">
                 <Textarea
                     v-model="publishData.description"
                     :maxlength="10000"
                     class="mt-3 mb-2"
-                    :placeholder="t('basic.assembly.publish.descriptionPlaceholder')">
+                    :placeholder="t('rankingDesignedItems.publish.descriptionPlaceholder')">
                 </Textarea>
                 <template v-if="appStore.isDebug">
                   {{ publishData.description }}
@@ -346,7 +347,7 @@ const onPublish = async () => {
               </v-card>
             </v-col>
             <v-col cols="12">
-              <v-divider class="my-4">{{ t('basic.assembly.publish.extra') }}</v-divider>
+              <v-divider class="my-4">{{ t('rankingDesignedItems.publish.extra') }}</v-divider>
 
               <!-- 额外设置（可见性单选与互动权限） -->
               <v-card border class="pa-4 bg-transparent mt-3">
@@ -378,9 +379,9 @@ const onPublish = async () => {
                 clearable
                 item-title="label"
                 item-value="value"
-                :label="t('basic.assembly.publish.tags')"
+                :label="t('rankingDesignedItems.publish.tags')"
                 multiple
-                :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
+                :placeholder="t('rankingDesignedItems.publish.tagsPlaceholder')"
                 variant="underlined">
               <template v-slot:prepend>
                 <v-icon>mdi-tag-multiple</v-icon>

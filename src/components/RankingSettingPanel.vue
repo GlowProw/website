@@ -26,8 +26,25 @@ const delLoading = ref(false);
 const deleteDialog = ref(false);
 const tabValue = ref("conventional");
 
+import languagesConfig from "@/config/languages";
+
 // 可用语言列表
-const languages = computed(() => Object.keys(messages.value));
+const languages = computed(() => {
+  return languagesConfig.child.map((item) => ({
+    label: item.label,
+    value: item.value,
+  }));
+});
+
+/**
+ * 语言友好标签解析（兼容下划线和连字符格式）
+ */
+const getLanguageLabel = (val: string) => {
+  if (!val) return "";
+  const normalized = String(val).replace("_", "-").toLowerCase();
+  const found = languagesConfig.child.find((item) => item.value.toLowerCase() === normalized);
+  return found ? found.label : val;
+};
 
 // 可见性选项配置
 const settingConfig = ref({
@@ -59,7 +76,7 @@ const settingData: Ref<{
     isComment: true,
     isLike: true,
     isAllowClone: true,
-    isShowItemName: false,
+    isShowItemName: true,
     isAnonymous: false,
   },
 });
@@ -251,18 +268,24 @@ defineOptions({
                 <!-- 语种 -->
                 <v-row align="center">
                   <v-col cols="12" sm="6">
-                    <b>{{ t("assembly.setting.language") }}</b>
+                    <b>{{ t('rankingDesignedItems.setting.language') || t('basic.language') || '语种' }}</b>
                     <p class="text-caption text-medium-emphasis">
-                      {{ t("assembly.setting.languageDescription") }}
+                      {{ t('rankingDesignedItems.setting.languageDescription') || t("assembly.setting.languageDescription") }}
                     </p>
                   </v-col>
                   <v-col cols="12" sm="6">
                     <v-select
                         density="compact"
                         hide-details
+                        item-title="label"
+                        item-value="value"
                         v-model="settingData.attr.language"
                         :items="languages"
-                        :label="t('assembly.setting.selectLanguage')"></v-select>
+                        :label="t('assembly.setting.selectLanguage')">
+                      <template v-slot:selection="{ item }">
+                        {{ getLanguageLabel(item.value || item.title || settingData.attr.language) }}
+                      </template>
+                    </v-select>
                   </v-col>
                 </v-row>
                 <v-divider class="my-3"></v-divider>

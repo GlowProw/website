@@ -25,6 +25,7 @@ import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import { cancelAndBack } from "@/assets/sripts/navigation";
 
 const {t, locale} = useI18n(),
     route = useRoute(),
@@ -1086,7 +1087,7 @@ usePageHotkeys({
     <AffixContainerView :offset-bottom="0">
       <v-divider class="my-5"></v-divider>
       <v-row align="center" justify="end" no-gutters>
-        <v-btn v-if="isEditModel" class="mr-3" @click="router.go(-1)">
+        <v-btn v-if="isEditModel" class="mr-3" @click="cancelAndBack(router, route)">
           {{ t('basic.button.cancel') }}
         </v-btn>
         <v-btn

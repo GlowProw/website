@@ -71,8 +71,8 @@ defineExpose({
             sticky
             transfer
             footer-hide>
-    <v-card border>
-      <v-card-title class="py-10 text-center bg-black mb-4 mx-n5">
+    <v-card border rounded="lg">
+      <v-card-title class="py-10 text-center rounded-lg bg-black ma-2 mb-4">
         <v-icon size="80">mdi-link</v-icon>
       </v-card-title>
 

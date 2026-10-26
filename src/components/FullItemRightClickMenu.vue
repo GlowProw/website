@@ -233,66 +233,67 @@ const onClickMenu = (tags: string[] = [], category?: string) => {
 <template>
   <v-menu location="bottom end" :offset="[10, 20]" :width="filteredMenuConfig.width">
     <template v-slot:activator="{ props }">
-      <slot v-bind="props"></slot>
+      <div v-bind="props" class="cursor-pointer">
+        <slot v-bind="props"></slot>
+      </div>
     </template>
 
-    <v-card border>
-      <v-list :width="filteredMenuConfig.width" density="compact" class="overflow-x-hidden">
-        <template v-for="(root, rootIndex) in filteredMenuConfig.menu" :key="rootIndex">
-          <template v-if="!root.divider">
-            <!-- 无子菜单的项整行可点击；有子菜单的项由内嵌 submenu 悬停/点击展开 -->
-            <v-list-item
-                :link="!root.menus"
-                @click="root.menus ? null : onClickMenu(root.value || [], root.category)">
+    <v-list :width="filteredMenuConfig.width"
+            class="overflow-x-hidden pa-1"
+            border rounded="lg">
+      <template v-for="(root, rootIndex) in filteredMenuConfig.menu" :key="rootIndex">
+        <template v-if="!root.divider">
+          <!-- 无子菜单的项整行可点击；有子菜单的项由内嵌 submenu 悬停/点击展开 -->
+          <v-list-item
+              rounded="lg"
+              :link="!root.menus"
+              @click="root.menus ? null : onClickMenu(root.value || [], root.category)">
 
-              {{ t(root.label) }}
+            {{ t(root.label) }}
 
-              <!-- 右侧箭头图标 开始 -->
-              <template v-slot:append v-if="root.menus">
-                <v-icon icon="mdi-menu-right"></v-icon>
-              </template>
+            <!-- 右侧箭头图标 开始 -->
+            <template v-slot:append v-if="root.menus">
+              <v-icon icon="mdi-menu-right"></v-icon>
+            </template>
 
-              <template v-if="root.menus">
-                <v-menu :open-on-focus="false"
-                        open-on-hover
-                        :offset="[-15, 5]"
-                        :width="filteredMenuConfig.width"
-                        activator="parent"
-                        submenu>
-                  <v-card border>
-                    <v-list class="overflow-x-hidden">
-                      <template v-for="(i, iIndex) in root.menus" :key="iIndex">
-                        <template v-if="!i.divider">
-                          <v-list-item link @click="onClickMenu(i.value || [], i.category)">
-                            <v-list-item-title>
-                              <!-- 优先展示多语言标签，否则拼接类型名 -->
-                              <template v-if="i.label">{{ t(i.label) }}</template>
-                              <template v-else>
+            <template v-if="root.menus">
+              <v-menu :open-on-focus="false"
+                      open-on-hover
+                      :offset="[-15, 5]"
+                      :width="filteredMenuConfig.width"
+                      activator="parent"
+                      submenu>
+                <v-list class="overflow-x-hidden pa-1" border rounded="lg">
+                  <template v-for="(i, iIndex) in root.menus" :key="iIndex">
+                    <template v-if="!i.divider">
+                      <v-list-item link rounded="lg" @click="onClickMenu(i.value || [], i.category)">
+                        <v-list-item-title>
+                          <!-- 优先展示多语言标签，否则拼接类型名 -->
+                          <template v-if="i.label">{{ t(i.label) }}</template>
+                          <template v-else>
                                 <span v-for="(tr, trIndex) in (i.value || [])" :key="trIndex">
                                   <template v-if="trIndex != 0">,</template>{{ t(`codex.types.${tr}`) }}
                                 </span>
-                              </template>
-                            </v-list-item-title>
-                          </v-list-item>
-                        </template>
+                          </template>
+                        </v-list-item-title>
+                      </v-list-item>
+                    </template>
 
-                        <template v-else>
-                          <v-divider class="my-2"></v-divider>
-                        </template>
-                      </template>
-                    </v-list>
-                  </v-card>
-                </v-menu>
-              </template>
-            </v-list-item>
-          </template>
-
-          <template v-else>
-            <v-divider class="my-2"></v-divider>
-          </template>
+                    <template v-else>
+                      <v-divider class="my-2"></v-divider>
+                    </template>
+                  </template>
+                </v-list>
+              </v-menu>
+            </template>
+          </v-list-item>
         </template>
-      </v-list>
-    </v-card>
+
+        <template v-else>
+          <v-divider class="my-2"></v-divider>
+        </template>
+      </template>
+    </v-list>
   </v-menu>
 </template>
 

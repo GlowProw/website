@@ -1,5 +1,12 @@
 export interface RankingAttr {
-    useVersion?: string
+    useVersion?: string;
+    isShowItemName?: boolean;
+    isLike?: boolean;
+    isComment?: boolean;
+    isAllowClone?: boolean;
+    isAnonymous?: boolean;
+    password?: string | number | null | unknown;
+    language?: string;
 }
 
 export interface RankingValidationRule {

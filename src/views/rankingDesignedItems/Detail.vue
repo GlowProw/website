@@ -138,7 +138,7 @@ const getRankingDetail = async (force: boolean = false) => {
     const d = result.data?.data || result.data;
 
     if (!d) {
-      notice.error(t("basic.tips.notFound") || "Ranking not found");
+      notice.error(t("rankingDesignedItems.notFound") || t("basic.tips.notFound") || "Ranking not found");
       router.push("/ranking-designed-items/browse");
       return;
     }
@@ -248,12 +248,17 @@ const applyRankingData = () => {
   const view =
       rankingMainSubjectView.value.refs?.rankingDesignedRef ||
       rankingMainSubjectView.value;
-  if (view && typeof view.onLoad === "function") {
-    const rawData =
-        typeof detailData.value.data === "string"
-            ? JSON.parse(detailData.value.data)
-            : detailData.value.data;
-    view.onLoad(rawData);
+  if (view) {
+    if (typeof view.setSetting === "function") {
+      view.setSetting(detailData.value.attr || {});
+    }
+    if (typeof view.onLoad === "function") {
+      const rawData =
+          typeof detailData.value.data === "string"
+              ? JSON.parse(detailData.value.data)
+              : detailData.value.data;
+      view.onLoad(rawData);
+    }
   }
 };
 
@@ -271,12 +276,15 @@ const onCloneRanking = async () => {
   }
   try {
     cloneLoading.value = true;
-    // 携带克隆来源并跳转工坊
-    notice.success(t("basic.tips.cloneSuccess") || "已载入副本");
-    await router.push({
-      path: "/ranking-designed-items/workshop",
-      query: {clone: detailData.value.uuid},
-    });
+    const result = await rankingApi.cloneRanking(detailData.value.uuid);
+    const clonedItem = result.data?.data || result.data;
+
+    notice.success(t("rankingDesignedItems.cloneSuccess") || "已载入副本");
+    if (clonedItem?.uuid) {
+      await router.push(`/ranking-designed-items/workshop/${clonedItem.uuid}/edit`);
+    } else {
+      await router.push("/ranking-designed-items/workshop");
+    }
   } catch (e) {
     handleApiError(e, notice, t, {component: "RankingDesignedDetail"});
   } finally {
@@ -290,7 +298,7 @@ const onCloneRanking = async () => {
 const onCopyShare = async () => {
   try {
     await navigator.clipboard.writeText(window.location.href);
-    notice.success(t("basic.tips.copySuccess") || "分享链接已复制");
+    notice.success(t("rankingDesignedItems.copySuccess") || t("basic.tips.copySuccess") || "分享链接已复制");
   } catch {
     notice.error("Failed to copy link");
   }
@@ -378,7 +386,7 @@ onMounted(async () => {
                     detailData.attr?.isAllowClone !== false
                   "
                     :loading="cloneLoading"
-                    :title="t('assembly.clone')"
+                    :title="t('rankingDesignedItems.clone') || t('assembly.clone')"
                     @click="onCloneRanking"
                     icon="mdi-content-copy"></v-btn>
 
@@ -429,7 +437,7 @@ onMounted(async () => {
                     :to="`/ranking-designed-items/browse/${detailData.cloningUuid}/detail`"
                     target="_blank"
                     v-if="detailData.cloningUuid">
-                  {{ t("assembly.byCloningUuid") }}: {{ detailData.cloningUuid }}
+                  {{ t("rankingDesignedItems.byCloningUuid") || t("assembly.byCloningUuid") }}: {{ detailData.cloningUuid }}
                 </v-chip>
 
                 <AssemblyTagChip
@@ -501,14 +509,14 @@ onMounted(async () => {
             </v-col>
             <v-col cols="auto">
               <AccountCardWidget :id="detailData.userId">
-                <v-card v-if="detailData.authorAvatar" class="mr-1">
+                <v-card v-if="detailData.authorAvatar && !(detailData.attr?.isAnonymous && !detailData.isOwner)" class="mr-1">
                   <UserAvatar size="25" :src="detailData.authorAvatar"></UserAvatar>
                 </v-card>
                 <p class="u text-amber">
                   {{
-                    detailData.authorAlternativeName ||
-                    detailData.authorUsername ||
-                    t("assembly.anonymous")
+                    detailData.attr?.isAnonymous && !detailData.isOwner
+                      ? t("assembly.anonymous")
+                      : (detailData.authorAlternativeName || detailData.authorUsername || t("assembly.anonymous"))
                   }}
                 </p>
               </AccountCardWidget>

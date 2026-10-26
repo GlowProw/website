@@ -237,8 +237,12 @@ const basePath = computed(() => {
 
 const assemblysRoute = computed(() => `${basePath.value}/assemblys`);
 const teamupsRoute = computed(() => `${basePath.value}/teamups`);
+const rankingsRoute = computed(() => `${basePath.value}/rankings`);
 
 const currentSubTab = computed(() => {
+  if (route.name === 'SpaceRankings' || route.name === 'SpaceUserRankings' || route.path.endsWith('/rankings')) {
+    return 'ranking';
+  }
   if (route.name === 'SpaceTeamups' || route.name === 'SpaceUserTeamups' || route.path.endsWith('/teamups')) {
     return 'teamUp';
   }
@@ -257,6 +261,12 @@ const spaceSubTabs = computed(() => [
     value: 'teamUp',
     icon: 'mdi-bullhorn-outline',
     to: teamupsRoute.value,
+  },
+  {
+    name: 'rankingDesignedItems.title',
+    value: 'ranking',
+    icon: 'mdi-format-list-numbered',
+    to: rankingsRoute.value,
   },
 ]);
 

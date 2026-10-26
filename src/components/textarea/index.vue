@@ -92,7 +92,12 @@ const emit = defineEmits([
       'update:modelValue',
       'focused', 'ready', 'blur'
     ]),
-    {t} = useI18n(),
+    {t, locale: i18nLocale} = useI18n(),
+
+    // 当前生效语言（优先使用指定的 props.locale，否则取全局 i18n 语言）
+    effectiveLocale = computed(() => {
+      return props.locale || i18nLocale.value || 'zh-CN';
+    }),
 
     tiptap: Ref<any> = ref<any>(null),
     isOpenEmoji = ref(false),
@@ -528,87 +533,81 @@ defineOptions({
   <div v-if="tiptap"
        class="textarea-wrapper container readonly html-widget-box bg-transparent"
        :class="{ 'force-show-all-lang': forceShowAllLang, 'is-textized': textization && textization.length > 0 }"
-       :data-locale="props.locale">
+       :data-locale="effectiveLocale">
     <div class="mb-3 control-group editor-toolbar" v-if="!props.readonly">
       <v-row :gutter="20" type="flex" align="center">
         <v-col>
-          <div class="bg-transparent">
-            <v-btn
-                icon
-                class="btn mr-2"
+          <div class="bg-transparent d-flex ga-2">
+            <v-icon-btn
+                class="btn"
                 density="compact"
                 elevation="0"
                 @click="onLink"
                 :disabled="isOpenLink"
                 v-if="toolbarAs.indexOf('link') >= 0">
               <v-icon icon="mdi-link"></v-icon>
-            </v-btn>
-            <v-btn
-                icon
-                class="btn mr-2"
+            </v-icon-btn>
+            <v-icon-btn
+                class="btn"
                 density="compact"
                 elevation="0"
                 @click="onImg"
                 :disabled="isOpenImg"
                 v-if="toolbarAs.indexOf('img') >= 0">
               <v-icon icon="mdi-image-outline"></v-icon>
-            </v-btn>
-            <v-btn
-                icon
-                class="btn mr-5"
+            </v-icon-btn>
+            <v-icon-btn
+                class="btn"
                 density="compact"
                 elevation="0"
                 @click="onVideo"
                 :disabled="isOpenVideo"
                 v-if="toolbarAs.indexOf('video') >= 0">
               <v-icon icon="mdi-video-outline"></v-icon>
-            </v-btn>
+            </v-icon-btn>
 
-            <v-btn
-                icon
-                class="btn mr-5"
+            <v-icon-btn
+                class="btn"
                 density="compact"
                 elevation="0"
                 @click="onEmote"
                 :disabled="isOpenEmoji"
                 v-if="toolbarAs.indexOf('emote') >= 0">
               <v-icon icon="mdi-emoticon-happy-outline"></v-icon>
-            </v-btn>
+            </v-icon-btn>
 
             <FullItemRightClickMenu
                 :visible-categories="[toolbarAs.indexOf('ship') >= 0 ? 'ship' : null,'item','material','cosmetic','set', toolbarAs.indexOf('ultimate') >= 0 ? 'ultimate' : null, toolbarAs.indexOf('mod') >= 0 ? 'modification' : null]"
                 @clickMenuItem="(e) => onItem(e)">
               <template v-slot="menuProps">
-                <v-btn
-                    icon
-                    class="btn mr-2"
+                <v-icon-btn
+                    class="btn"
                     density="compact"
                     elevation="0"
                     v-bind="menuProps"
                     :disabled="isOpenItem"
                     v-if="toolbarAs.indexOf('item') >= 0">
                   <v-icon icon="mdi-cube-outline"></v-icon>
-                </v-btn>
+                </v-icon-btn>
               </template>
             </FullItemRightClickMenu>
 
             <v-menu location="bottom right"
                     v-if="toolbarAs.indexOf('lang') >= 0">
               <template v-slot:activator="{ props }">
-                <v-btn
-                    icon
-                    class="btn mr-2"
+                <v-icon-btn
+                    class="btn"
                     density="compact"
                     elevation="0"
                     v-bind="props"
                     :disabled="isOpenLang || isLangActive"
                     :v-tooltip="t('basic.language')">
                   <v-icon icon="mdi-translate"></v-icon>
-                </v-btn>
+                </v-icon-btn>
               </template>
 
-              <v-list min-width="150" density="compact">
-                <v-list-item link v-for="l in languagesConfig.child" :key="l.value" @click="onInsertLang(l.value)">
+              <v-list min-width="150" border class="pa-2" rounded="lg">
+                <v-list-item link rounded="lg" v-for="l in languagesConfig.child" :key="l.value" @click="onInsertLang(l.value)">
                   <v-list-item-title>{{ l.label }}</v-list-item-title>
                 </v-list-item>
               </v-list>
@@ -625,26 +624,33 @@ defineOptions({
         :style="`min-height:${minHeight}`"
         :editor="tiptap"/>
 
-    <LinkView ref="linkWidget" :editor="tiptap" @finish="onInsertLink" @close="() => isOpenLink = false"/>
-    <ImgView ref="imgWidget" :editor="tiptap" @finish="onInsertImg" @close="() => isOpenImg = false"/>
-    <VideoView ref="videoWidget" :editor="tiptap" @finish="onInsertVideo" @close="() => isOpenVideo = false"/>
-    <ItemView ref="itemWidget" :editor="tiptap" @finish="onInsertItem" @close="() => isOpenItem = false"/>
-    <ShipView ref="shipWidget" :editor="tiptap" @finish="onInsertShip" @close="() => isOpenShip = false"/>
-    <UltimateView ref="ultimateWidget" :editor="tiptap" @finish="onInsertUltimate" @close="() => isOpenUltimate = false"/>
-    <ModView ref="modWidget" :editor="tiptap" @finish="onInsertMod" @close="() => isOpenMod = false"/>
-    <EmoteView ref="emoteWidget" :editor="tiptap" @finish="onInsertEmote" @close="() => isOpenEmoji = false"/>
+    <template v-if="!readonly">
+      <LinkView ref="linkWidget" :editor="tiptap" @finish="onInsertLink" @close="() => isOpenLink = false"/>
+      <ImgView ref="imgWidget" :editor="tiptap" @finish="onInsertImg" @close="() => isOpenImg = false"/>
+      <VideoView ref="videoWidget" :editor="tiptap" @finish="onInsertVideo" @close="() => isOpenVideo = false"/>
+      <ItemView ref="itemWidget" :editor="tiptap" @finish="onInsertItem" @close="() => isOpenItem = false"/>
+      <ShipView ref="shipWidget" :editor="tiptap" @finish="onInsertShip" @close="() => isOpenShip = false"/>
+      <UltimateView ref="ultimateWidget" :editor="tiptap" @finish="onInsertUltimate" @close="() => isOpenUltimate = false"/>
+      <ModView ref="modWidget" :editor="tiptap" @finish="onInsertMod" @close="() => isOpenMod = false"/>
+      <EmoteView ref="emoteWidget" :editor="tiptap" @finish="onInsertEmote" @close="() => isOpenEmoji = false"/>
+    </template>
   </div>
 </template>
 
 <style lang="less">
-html[lang="zh-CN"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="zh-CN"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
-html[lang="en-US"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="en-US"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
-html[lang="zh-TW"] div.textarea-wrapper:not([data-locale]) div[data-lang]:not([data-lang="zh-TW"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
-div[data-locale="zh-CN"] div[data-lang]:not([data-lang="zh-CN"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
-div[data-locale="en-US"] div[data-lang]:not([data-lang="en-US"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
-div[data-locale="zh-TW"] div[data-lang]:not([data-lang="zh-TW"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *) {
-  display: none !important;
-}
+// 多语言动态展示与自动回退（Fallback）控制：
+// 1. 动态支持所有常用国际化语言
+// 2. 使用 :has(div[data-lang="..."]) 判定：只有当富文本内确实包含该语言内容块时，才隐藏其他语言块
+// 3. 若富文本内没有对应语言块（如用户切换到其他语言，但内容仅有一种语言），则不触发隐藏，保证兜底可见避免空白
+@languages-list: 'zh-CN', 'zh-TW', 'en-US', 'ja-JP', 'ko-KR', 'de-DE', 'fr-FR', 'es-ES', 'ru-RU', 'pt-BR', 'it-IT', 'th-TH', 'vi-VN';
+
+each(@languages-list, {
+  @loc: ~"@{value}";
+  html[lang="@{loc}"] div.textarea-wrapper:not([data-locale]):has(div[data-lang="@{loc}"]) div[data-lang]:not([data-lang="@{loc}"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *),
+  div[data-locale="@{loc}"]:has(div[data-lang="@{loc}"]) div[data-lang]:not([data-lang="@{loc}"]):not(.ProseMirror[contenteditable="true"] *):not(.force-show-all-lang *) {
+    display: none !important;
+  }
+});
 
 .tiptap {
   font-family: "Ionicons", sans-serif;

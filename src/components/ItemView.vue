@@ -71,7 +71,7 @@ defineOptions({
             scrim
             footer-hide
             @update:modelValue="(status) => !status ? onClose() : null">
-    <v-card>
+    <v-card border>
       <v-card-title>
         <v-row>
           <b class="font-weight-bold text-h5 pa-5">{{ t(`codex.${type}s.title`) }}</b>
@@ -84,7 +84,10 @@ defineOptions({
         </v-row>
       </v-card-title>
 
-      <AssemblyClassificationShowList v-model="value" :tags="tags" :loadDataType="type"></AssemblyClassificationShowList>
+      <v-card-text class="pa-0">
+        <AssemblyClassificationShowList v-model="value" :tags="tags" :loadDataType="type"></AssemblyClassificationShowList>
+      </v-card-text>
+      <v-divider/>
 
       <v-card-actions>
         <v-spacer></v-spacer>

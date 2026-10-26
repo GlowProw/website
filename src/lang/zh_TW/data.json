@@ -3507,8 +3507,22 @@
     "workshop": {
       "title": "設計工坊",
       "createTitle": "拖曳物品至各階梯完成評級分層",
-      "editTitle": "編輯自訂天梯"
+      "editTitle": "編輯自訂天梯",
+      "addItem": "新增物品",
+      "quickSaveDraft": "暫存草稿",
+      "quickArchiving": "快速暫存草稿",
+      "saveAsDraft": "另存為草稿",
+      "loadDraft": "草稿箱",
+      "draft": "草稿箱",
+      "inputDraftName": "請輸入草稿名稱"
     },
+    "updated": "天梯更新成功",
+    "published": "天梯發布成功",
+    "cloneSuccess": "天梯副本已載入",
+    "copySuccess": "分享連結已複製",
+    "notFound": "未找到指定天梯",
+    "clone": "克隆天梯",
+    "byCloningUuid": "衍生自天梯",
     "browse": {
       "title": "天梯廣場",
       "subtitle": "瀏覽並探索社群玩家建立的物品、武器與裝備評級榜單",
@@ -3547,6 +3561,7 @@
       "batchDeleteConfirm": "確定要刪除選取的 {count} 個天梯榜單嗎？"
     },
     "detail": {
+      "title": "天梯詳情",
       "noDescription": "這個人很懶，對此天梯什麼都沒說",
       "editBtn": "編輯天梯"
     },
@@ -3555,9 +3570,13 @@
       "topViewed": "天梯前10遊覽列表"
     },
     "publish": {
+      "title": "發布天梯",
+      "preview": "天梯預覽",
       "subtitle": "確認天梯資訊並分享給全站玩家",
       "name": "榜單標題",
       "namePlaceholder": "輸入天梯榜單名稱...",
+      "nameRequired": "天梯標題不能為空",
+      "nameLength": "天梯名稱不能超過140個字符",
       "description": "詳細說明",
       "descriptionPlaceholder": "新增對該分級方案的見解或搭配建議...",
       "tags": "分類標籤",
@@ -3566,11 +3585,16 @@
       "visibilityPublic": "公開（廣場全員可見）",
       "visibilityUnlisted": "僅連結可見",
       "visibilityPrivate": "私密（僅自己可見）",
-      "recommendedTags": "推薦標籤"
+      "recommendedTags": "推薦標籤",
+      "extra": "擴展設置"
+    },
+    "setting": {
+      "language": "語種",
+      "languageDescription": "你可以定義此天梯的語種"
     },
     "verify": {
       "tierEmpty": "階梯列表不能為空，至少需要 1 個評級階梯",
-      "tierMaxExceeded": "階梯層數不能超過 20 層",
+      "tierMaxExceeded": "階梯層数不能超過 20 層",
       "itemsAllEmpty": "天梯內尚未放入任何物品，請至少添加 1 個物品後再發佈",
       "tierItemMaxExceeded": "單層階梯物品數量不能超過 100 個",
       "tierLabelEmpty": "請為所有階梯行填寫有效的標題標籤"
@@ -5016,7 +5040,7 @@
         "description": "生成海盗签名图片，分享到社区网站上"
       },
       "ranking-of-designed-items": {
-        "title": "物品排名(开发中)",
+        "title": "物品排名",
         "description": "生成物品玩家心中排名以及评价"
       },
       "impression-of-monsters": {

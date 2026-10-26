@@ -3588,8 +3588,22 @@
     "workshop": {
       "title": "Design Workshop",
       "createTitle": "Drag and drop items to tier ranks",
-      "editTitle": "Edit Custom Tier List"
+      "editTitle": "Edit Custom Tier List",
+      "addItem": "Add Item",
+      "quickSaveDraft": "Quick Save Draft",
+      "quickArchiving": "Quick Archive",
+      "saveAsDraft": "Save as Draft",
+      "loadDraft": "Draft Box",
+      "draft": "Draft Box",
+      "inputDraftName": "Please enter draft name"
     },
+    "updated": "Tier list updated successfully",
+    "published": "Tier list published successfully",
+    "cloneSuccess": "Tier list replica loaded",
+    "copySuccess": "Share link copied",
+    "notFound": "Tier list not found",
+    "clone": "Clone Tier List",
+    "byCloningUuid": "Cloned from",
     "browse": {
       "title": "Tier List Plaza",
       "subtitle": "Explore and discover community-created item, weapon and gear rankings",
@@ -3628,6 +3642,7 @@
       "batchDeleteConfirm": "Are you sure you want to delete {count} selected tier lists?"
     },
     "detail": {
+      "title": "Tier List Details",
       "noDescription": "No description provided for this tier list",
       "editBtn": "Edit Tier List"
     },
@@ -3636,9 +3651,13 @@
       "topViewed": "Top 10 Most Viewed Tier Lists"
     },
     "publish": {
+      "title": "Publish Tier List",
+      "preview": "Tier List Preview",
       "subtitle": "Confirm details and share with the community",
       "name": "Title",
       "namePlaceholder": "Enter tier list title...",
+      "nameRequired": "Tier list title cannot be empty",
+      "nameLength": "Tier list title must not exceed 140 characters",
       "description": "Description",
       "descriptionPlaceholder": "Share tips or reasoning behind this tier list...",
       "tags": "Tags",
@@ -3647,7 +3666,12 @@
       "visibilityPublic": "Public (Visible in Browse)",
       "visibilityUnlisted": "Unlisted (Link only)",
       "visibilityPrivate": "Private (Self only)",
-      "recommendedTags": "Recommended Tags"
+      "recommendedTags": "Recommended Tags",
+      "extra": "Extra Settings"
+    },
+    "setting": {
+      "language": "Language",
+      "languageDescription": "You can define the language for this tier list"
     },
     "verify": {
       "tierEmpty": "Tier list cannot be empty, at least 1 tier is required",
@@ -5064,7 +5088,7 @@
         "description": "Generate pirate signature images to share on community websites"
       },
       "ranking-of-designed-items": {
-        "title": "Item Ranking (Under Development)",
+        "title": "Item Ranking",
         "description": "Generate player rankings and evaluations for items"
       },
       "impression-of-monsters": {

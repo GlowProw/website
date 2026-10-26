@@ -45,6 +45,19 @@ export interface MediaQuotaDetail {
     } | null;
 }
 
+// 媒体配额全局内存缓存（TTL 60秒）与并发请求去重
+let mediaQuotaCache: { data: MediaQuotaDetail; expireAt: number } | null = null;
+let mediaQuotaInFlightPromise: Promise<MediaQuotaDetail> | null = null;
+const MEDIA_QUOTA_CACHE_TTL = 60 * 1000;
+
+/**
+ * 主动使媒体配额缓存失效（上传、重传、删除后调用）
+ */
+export const invalidateMediaQuotaCache = () => {
+    mediaQuotaCache = null;
+    mediaQuotaInFlightPromise = null;
+};
+
 export function useMediaApi() {
     const createHttp = () => useHttpToken();
     const http = createHttp();
@@ -52,15 +65,36 @@ export function useMediaApi() {
 
     /**
      * 获取用户媒体配额与容量使用详情
+     * @param force 是否强制绕过缓存拉取最新数据
      */
-    const getMediaQuota = async (): Promise<MediaQuotaDetail> => {
-        try {
-            const result = await http.get('media/quota');
-            const res = handleResponse(result);
-            return (res as any)?.data || res;
-        } catch (error) {
-            return handleError(error);
+    const getMediaQuota = async (force = false): Promise<MediaQuotaDetail> => {
+        const now = Date.now();
+        if (!force && mediaQuotaCache && mediaQuotaCache.expireAt > now) {
+            return mediaQuotaCache.data;
         }
+
+        if (mediaQuotaInFlightPromise) {
+            return mediaQuotaInFlightPromise;
+        }
+
+        mediaQuotaInFlightPromise = (async () => {
+            try {
+                const result = await http.get('media/quota');
+                const res = handleResponse(result);
+                const data = ((res as any)?.data || res) as MediaQuotaDetail;
+                mediaQuotaCache = {
+                    data,
+                    expireAt: Date.now() + MEDIA_QUOTA_CACHE_TTL,
+                };
+                return data;
+            } catch (error) {
+                return handleError(error);
+            } finally {
+                mediaQuotaInFlightPromise = null;
+            }
+        })();
+
+        return mediaQuotaInFlightPromise;
     };
 
     /**
@@ -100,6 +134,7 @@ export function useMediaApi() {
                 data: formData,
             });
             const res = handleResponse(result);
+            invalidateMediaQuotaCache();
             return (res as any)?.data?.data || (res as any)?.data;
         } catch (error) {
             return handleError(error);
@@ -144,6 +179,7 @@ export function useMediaApi() {
                 }
             }
 
+            invalidateMediaQuotaCache();
             return (lastResult as any)?.data?.data || (lastResult as any)?.data;
         } catch (error) {
             return handleError(error);
@@ -161,6 +197,7 @@ export function useMediaApi() {
                 data: formData,
             });
             const res = handleResponse(result);
+            invalidateMediaQuotaCache();
             return (res as any)?.data?.data || (res as any)?.data;
         } catch (error) {
             return handleError(error);
@@ -174,6 +211,7 @@ export function useMediaApi() {
         try {
             const result = await http.del(`media/${uuid}`);
             const res = handleResponse(result);
+            invalidateMediaQuotaCache();
             return (res as any)?.data?.data || (res as any)?.data;
         } catch (error) {
             return handleError(error);

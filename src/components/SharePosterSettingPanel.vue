@@ -38,6 +38,17 @@ const activeTab = ref<'assembly' | 'mastery'>('assembly');
 const isBothMode = computed(() => props.type === 'both' && props.hasMastery);
 const showMasteryOnly = computed(() => props.type === 'mastery');
 const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type === 'both' && !props.hasMastery));
+
+/**
+ * 语言友好标签解析（兼容下划线和连字符格式）
+ */
+const getLanguageLabel = (val: any) => {
+  if (!val) return "";
+  const raw = typeof val === 'object' ? (val.value || val.label || val.title || '') : String(val);
+  const normalized = raw.replace("_", "-").toLowerCase();
+  const found = languagesConfig.child.find((item: any) => item.value.toLowerCase() === normalized);
+  return found ? found.label : raw;
+};
 </script>
 
 <template>
@@ -122,6 +133,9 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
                 v-model="assemblyModelValue.language"
                 :items="generateImageConfig.languages"
                 hide-details>
+              <template v-slot:selection="{ item }">
+                {{ getLanguageLabel(item.value || item.title || assemblyModelValue.language) }}
+              </template>
             </v-select>
           </v-col>
 
@@ -272,6 +286,9 @@ const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type
                 v-model="masteryModelValue.language"
                 :items="generateImageConfig.languages"
                 hide-details>
+              <template v-slot:selection="{ item }">
+                {{ getLanguageLabel(item.value || item.title || masteryModelValue.language) }}
+              </template>
             </v-select>
           </v-col>
 

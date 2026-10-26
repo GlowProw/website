@@ -336,7 +336,8 @@ defineOptions({name: 'AssemblyClassificationShowList'})
 <template>
   <div class="w-100">
     <!-- 选择头 S -->
-    <v-row class="mb-1 pl-8 pr-8">
+    <AffixContainerView :offsetTop="0">
+      <v-row class="mb-1 pl-8 pr-8">
       <v-col cols="6">
         <v-text-field
             v-model="searchQuery"
@@ -386,11 +387,12 @@ defineOptions({name: 'AssemblyClassificationShowList'})
         ></v-select>
       </v-col>
     </v-row>
+    </AffixContainerView>
     <!-- 选择头 E -->
 
     <v-divider class="mb-n1" color="#000" thickness="1"></v-divider>
 
-    <div class="bg-shades-black background-flavor w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
+    <div class="w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
       <!-- 我的最爱 S -->
       <div v-if="isStar && processedStarData.length > 0" class="w-100 pb-3">
         <div class="text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-2 pb-2 ml-n2 mr-n2 mb-4">
@@ -442,20 +444,22 @@ defineOptions({name: 'AssemblyClassificationShowList'})
               v-for="(category, index) in resultData"
               :key="category.type"
               :class="{ 'mb-8': category.model }">
-            <div
-                :class="{ 'mb-4': category.model }"
-                class="cursor-pointer text-center title-long-flavor text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
-                @click="toggleCategory(castToAny(category))">
-              <span v-if="category.type">
-                 {{ t(`codex.types.${category.type}`) }} ({{ category.child.length }})
-              </span>
-              <span v-else>
-                {{ t(`codex.types.none`) }}
-              </span>
-              <v-icon class="ml-3">
-                {{ category.model ? 'mdi-triangle-small-up' : 'mdi-triangle-small-down' }}
-              </v-icon>
-            </div>
+            <AffixContainerView :offsetTop="0">
+              <div
+                  :class="{ 'mb-4': category.model }"
+                  class="cursor-pointer text-center text-amber font-weight-bold bg-black pl-4 lr-4 pt-4 pb-4 ml-n2 mr-n2"
+                  @click="toggleCategory(castToAny(category))">
+                <span v-if="category.type">
+                  {{ t(`codex.types.${category.type}`) }} ({{ category.child.length }})
+                </span>
+                <span v-else>
+                  {{ t(`codex.types.none`) }}
+                </span>
+                <v-icon class="ml-3">
+                  {{ category.model ? 'mdi-triangle-small-up' : 'mdi-triangle-small-down' }}
+                </v-icon>
+              </div>
+            </AffixContainerView>
 
             <v-row v-if="category.model" class="pl-8 pr-8">
               <v-col

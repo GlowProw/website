@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
-import {Apis} from "@/assets/sripts/api";
+import {apis, number} from "@/assets/sripts";
 import type {PublicAchievementSummary} from "@/assets/types/Achievement";
 
 const props = defineProps<{
@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const {t, te} = useI18n(),
-    api = Apis.accountGrowthApi()
+    api = apis.accountGrowthApi()
 
 const loading = ref(true),
     summary = ref<PublicAchievementSummary | null>(null)
@@ -82,45 +82,35 @@ defineOptions({
 </script>
 
 <template>
-  <div v-if="loading" class="d-flex justify-center py-2">
-    <Loading size="20"></Loading>
-  </div>
-
-  <div v-else-if="!summary || summary.hidden" class="text-caption opacity-50 py-1">
-    {{ t('account.achievements.widget.hidden') }}
-  </div>
-
-  <template v-else-if="summary.level">
-    <v-row density="compact">
-      <v-col cols="auto">
-        <v-img :src="levelIcon(summary.level.key)" width="35" height="35" contain/>
-      </v-col>
-      <v-col>
-        <div class="d-flex align-center flex-wrap ga-2">
-          <span class="text-caption font-weight-bold">{{ levelName(summary.level.key) }}</span>
-          <v-chip size="x-small" color="amber" variant="tonal" density="comfortable">
-            {{ t('account.achievements.levelBadge', {level: romanLevel(summary.level.level)}) }}
-          </v-chip>
-        </div>
-        <v-row class="d-flex mb-2 ga-2">
-          <v-col>
-            <v-progress-linear class="mt-2" :model-value="Math.round((summary.progress || 0) * 100)"
-                               color="amber" height="3" rounded/>
+  <template v-if="summary.level">
+    <div class="achievement-list d-flex flex-wrap ga-1 gap-1">
+      <v-chip>
+        <v-row density="compact" align="center">
+          <v-col cols="auto">
+            <v-img :src="levelIcon(summary.level.key)" width="23" height="23" contain/>
           </v-col>
-
-          <v-col cols="auto" class="text-caption">
-            {{ t('account.achievements.points', {points: summary.points || 0}) }}
+          <v-col>
+            <div class="d-flex align-center flex-wrap ga-2">
+              <span class="text-caption font-weight-bold">{{ levelName(summary.level.key) }} {{ number.intToRoman(summary.level.level) }}</span>
+            </div>
+            <v-progress-linear :model-value="Math.round((summary.progress || 0) * 100)"
+                               color="amber"
+                               height="3"
+                               class="d-flex align-center"
+                               style="font-size: 8px; min-width: 100px; padding: 2px 0"
+                               rounded>
+            </v-progress-linear>
           </v-col>
         </v-row>
-      </v-col>
-    </v-row>
-
-    <div v-if="summary.achievements?.length" class="achievement-list d-flex flex-wrap ga-1 gap-1">
-      <v-chip v-for="item in summary.achievements" :key="item.key" class="card-flavor text-black bg-amber" color="amber" density="compact" variant="tonal">
-        {{ achievementName(item.key) }}
       </v-chip>
+
+      <template v-if="summary.achievements?.length">
+        <v-chip v-for="item in summary.achievements" :key="item.key" class="" color="amber" variant="tonal">
+          {{ achievementName(item.key) }}
+        </v-chip>
+      </template>
+      <div v-else class="text-caption opacity-50">{{ t('account.achievements.widget.empty') }}</div>
     </div>
-    <div v-else class="text-caption opacity-50">{{ t('account.achievements.widget.empty') }}</div>
   </template>
 </template>
 

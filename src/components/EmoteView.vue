@@ -116,12 +116,12 @@ defineExpose({
       sticky
       transfer
       footer-hide>
-    <v-card border class="emote-tab">
-      <v-card-title class="py-10 text-center bg-black mx-n5">
+    <v-card border rounded="lg" class="emote-tab">
+      <v-card-title class="py-10 text-center bg-black ma-2 rounded-lg">
         <v-icon size="80">mdi-emoticon</v-icon>
       </v-card-title>
 
-      <v-tabs v-model="emoteTabValue" size="small" class="bg-black">
+      <v-tabs v-model="emoteTabValue" size="small">
         <v-tab
             v-for="(item, index) in emojis.child"
             :key="index"

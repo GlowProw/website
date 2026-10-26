@@ -145,9 +145,24 @@ export function useRankingDesignedApi() {
         }
     };
 
+    /**
+     * 克隆天梯榜单
+     * @param uuid 榜单全局标识
+     * @param name 可选自定义名称
+     */
+    const cloneRanking = async (uuid: string, name?: string) => {
+        try {
+            const result = await http.post("rankingDesigned/clone", { uuid, name });
+            return handleResponse(result);
+        } catch (error) {
+            return handleError(error);
+        }
+    };
+
     return {
         publishRanking,
         editRanking,
+        cloneRanking,
         getRankingList,
         getRankingItem,
         deleteRanking,

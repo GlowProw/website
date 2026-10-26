@@ -74,7 +74,17 @@ let form = ref<any>(null),
 
     userAttrLanguages = computed(() => {
       return languages.child
-    })
+    }),
+    /**
+     * 语言友好标签解析（兼容下划线和连字符格式）
+     */
+    getLanguageLabel = (val: any) => {
+      if (!val) return "";
+      const raw = typeof val === 'object' ? (val.value || val.label || '') : String(val);
+      const normalized = raw.replace("_", "-").toLowerCase();
+      const found = languages.child.find((item: any) => item.value.toLowerCase() === normalized);
+      return found ? found.label : raw;
+    };
 
 onMounted(() => {
   getUserAccount()
@@ -427,7 +437,7 @@ defineOptions({
                 <label class="text-caption font-weight-bold opacity-80 mb-1 d-block">
                   {{ t('account.information.form.language.name') }}
                 </label>
-                <v-combobox
+                <v-select
                     v-model="userAccountData.attr.language"
                     item-title="label"
                     item-value="value"
@@ -435,7 +445,10 @@ defineOptions({
                     :items="userAttrLanguages"
                     variant="outlined"
                     density="compact">
-                </v-combobox>
+                  <template v-slot:selection="{ item }">
+                    {{ getLanguageLabel(item.value || item.title || userAccountData.attr.language) }}
+                  </template>
+                </v-select>
               </v-col>
 
               <v-col cols="12" md="12">

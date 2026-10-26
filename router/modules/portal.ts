@@ -23,6 +23,7 @@ const AccountMessagesSettingsPage = () => import('@/views/user/account/MessagesS
 const SpacePage = () => import('@/views/user/space/Index.vue');
 const SpaceAssemblysPage = () => import('@/views/user/space/Assemblys.vue');
 const SpaceTeamupsPage = () => import('@/views/user/space/Teamups.vue');
+const SpaceRankingsPage = () => import('@/views/user/space/Rankings.vue');
 const SigninPage = () => import('@/views/user/Signin.vue');
 const SignupPage = () => import('@/views/user/Signup.vue');
 const ActivatePage = () => import('@/views/user/Activate.vue');
@@ -236,6 +237,12 @@ export const portalRoutes: RouteRecordRaw[] = [
                         component: SpaceTeamupsPage,
                         meta: { title: 'space.title' }
                     },
+                    {
+                        path: 'rankings',
+                        name: 'SpaceRankings',
+                        component: SpaceRankingsPage,
+                        meta: { title: 'space.title' }
+                    },
                 ]
             },
             {
@@ -254,6 +261,12 @@ export const portalRoutes: RouteRecordRaw[] = [
                         path: 'teamups',
                         name: 'SpaceUserTeamups',
                         component: SpaceTeamupsPage,
+                        meta: { title: 'space.title' }
+                    },
+                    {
+                        path: 'rankings',
+                        name: 'SpaceUserRankings',
+                        component: SpaceRankingsPage,
                         meta: { title: 'space.title' }
                     },
                 ]

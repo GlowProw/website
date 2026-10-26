@@ -75,8 +75,8 @@ defineOptions({
             sticky
             transfer
             footer-hide>
-    <v-card border>
-      <v-card-title class="py-10 text-center bg-black mb-4 mx-n5">
+    <v-card border rounded="lg">
+      <v-card-title class="py-10 text-center bg-black rounded-lg ma-2 mb-4">
         <v-icon size="80">mdi-video</v-icon>
       </v-card-title>
       <v-card-text>

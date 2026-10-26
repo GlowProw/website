@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, ref, watch} from "vue";
 import {Editor} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
 import {Apis, type MediaItem} from "@/assets/sripts/api";
@@ -33,14 +33,18 @@ const fileInputRef = ref<HTMLInputElement | null>(null);
 // 单文件上限（从媒体配额接口动态获取；null 表示不限）
 const maxFileSize = ref<number | null>(null);
 
-onMounted(async () => {
+/**
+ * 惰性拉取媒体配额与单文件上限（仅在弹窗打开或准备上传时触发）
+ */
+const ensureQuota = async () => {
+  if (!authStore.isLogin || maxFileSize.value !== null) return;
   try {
     const quota = await mediaApi.getMediaQuota();
     maxFileSize.value = quota?.storage?.maxFileSize ?? null;
   } catch {
     // 拉取失败时不拦截，真正上传时后端仍会校验
   }
-});
+};
 
 // 媒体库选择相关
 const selectedMediaId = ref<string | null>(null);
@@ -135,6 +139,7 @@ const triggerFileInput = () => {
     notice.warning('请先登录账号后再使用本地图片上传功能');
     return;
   }
+  ensureQuota();
   fileInputRef.value?.click();
 };
 
@@ -203,6 +208,7 @@ const onFinish = () => {
  */
 const openPanel = (src?: string) => {
   onPanelToggle();
+  ensureQuota();
   data.value.src = src || '';
   selectedMediaId.value = null;
   if (src) {
@@ -249,7 +255,7 @@ defineOptions({
       :transitionNames="['fade']"
       @update:model-value="(status) => !status ? $emit('close') : null">
     <v-card border rounded="lg" class="bg-grey-darken-4">
-      <v-card-title class="py-10 text-center bg-black mx-n5">
+      <v-card-title class="py-10 text-center bg-black rounded-lg ma-2">
         <v-icon size="80">mdi-image-plus-outline</v-icon>
       </v-card-title>
 
