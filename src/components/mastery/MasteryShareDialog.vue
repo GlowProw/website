@@ -35,11 +35,10 @@ function onImport() {
   <v-dialog
       :model-value="modelValue"
       @update:model-value="emit('update:modelValue', $event)"
-      max-width="560">
-    <v-card class="bg-surface-darken-1 border">
-      <v-card-title class="py-10 text-center bg-black mb-4">
-        <v-icon size="80">mdi-share-variant</v-icon>
-        <p class="mt-5 text-h6 font-weight-bold">{{ t('mastery.shareDialog.title') }}</p>
+    <v-card border class="bg-grey-darken-4 pa-2">
+      <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
+        <v-icon size="80" class="mb-2">mdi-share-variant</v-icon>
+        <p class="text-h6 font-weight-bold">{{ t('mastery.shareDialog.title') }}</p>
       </v-card-title>
 
       <v-card-text>
@@ -125,6 +124,12 @@ function onImport() {
           </v-text-field>
         </div>
       </v-card-text>
+      <v-card-actions class="px-4 pb-4">
+        <v-spacer></v-spacer>
+        <v-btn variant="tonal" color="amber" @click="emit('update:modelValue', false)">
+          {{ t('common.close') }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

@@ -89,6 +89,10 @@
       "connector": {
         "title": "连接器 URL",
         "subtitle": "当您的 AI 助手请求服务器或连接器 URL 时，请粘贴此地址。您需要使用闪耀船首账户登录。",
+        "versionZh": "中文模型优化版（推荐国内模型）",
+        "versionZhDesc": "专为 WorkBuddy、豆包、通义千问、GLM、DeepSeek 等国内中文模型深度优化，提供纯中文直观工具名、强指令提示词及中英双向物品互搜。",
+        "versionEn": "国际通用版",
+        "versionEnDesc": "提供标准英文 MCP 工具集，适配 Claude Desktop、Cursor、ChatGPT 等海外英文客户端。",
         "note": "授权时会跳转至闪耀船首网站完成登录与授权确认；授权后可随时在账户设置中断开。",
         "copy": "复制",
         "copied": "已复制到剪贴板"
@@ -97,13 +101,14 @@
         "title": "向您的 AI 询问闪耀船首的数据",
         "note": "答案来自站点公开数据与您授权的内容，而非猜测。",
         "assembly": "现在有哪些高赞的船只配装？",
-        "codex": "culverin1 这类武器在哪些地图掉落？",
+        "codex": "帮我查一下达达尼尔炮或者 dardanelles 的属性和掉落？",
         "drops": "现在有哪些进行中的 Twitch 掉宝活动？",
         "calendar": "本赛季日历接下来有哪些世界事件？"
       },
       "connect": {
         "title": "如何连接",
         "subtitle": "选择您的助手查看接入方式，都使用上方的连接器 URL。",
+        "workbuddy": "WorkBuddy / 豆包",
         "claude": "Claude",
         "claudeCode": "Claude Code",
         "chatgpt": "ChatGPT",
@@ -112,6 +117,13 @@
         "command": "claude mcp add --transport http glow-prow https://api.glow-prow.top/api/mcp",
         "codeBlockTitle": "或在客户端配置中添加远程 MCP 服务器：",
         "steps": {
+          "workbuddy": [
+            "打开 WorkBuddy 客户端，进入「连接器 / MCP 设置」页面。",
+            "点击「添加 / 自定义连接器」，名称填写「闪耀船首」。",
+            "服务器 URL 粘贴上方的「中文模型优化版」地址（.../api/mcp/zh）。",
+            "点击连接或认证，在弹出的浏览器页面中登录并点击「允许访问」。",
+            "在对话中直接发送中文问题（如“帮我查一下达达尼尔炮”或“有哪些双桅配装”），模型将自动精准调用对应工具。"
+          ],
           "claude": [
             "打开 Claude 的「自定义」设置，选择「连接器」。",
             "点击「+ 添加」，再点击「添加自定义连接器」。",
@@ -5309,6 +5321,7 @@
     "choosePlatform": "选择支付平台",
     "noPlatform": "支付渠道尚未配置，请稍后再来",
     "platformAfdian": "爱发电",
+    "platformPatreon": "Patreon",
     "portalDisplay": "获得门户展示",
     "benefitRole": "获得「{role}」特权身份",
     "benefitAvatar": "头像更换额度 +3 次（支持随时删除恢复默认）",

@@ -9,4 +9,6 @@ export interface SignupParams {
     password: string
     email: string
     captcha: CaptchaParams
+    language?: string
 }
+

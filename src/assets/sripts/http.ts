@@ -65,9 +65,35 @@ export default class Http extends Api_config {
                 const authHeader = generateAuthGpHeader();
                 if (config.headers) {
                     config.headers['x-auth-gp'] = authHeader;
+
+                    // 自动携带当前网页语言给后端 (x-lang)
+                    if (!config.headers['x-lang']) {
+                        let currentLang = '';
+                        if (typeof window !== 'undefined' && window.location) {
+                            const seg = window.location.pathname.split('/').filter(Boolean)[0];
+                            if (seg && ['zh-CN', 'zh-TW', 'en-US'].includes(seg)) {
+                                currentLang = seg;
+                            }
+                        }
+                        if (!currentLang && typeof window !== 'undefined' && window.localStorage) {
+                            try {
+                                const raw = window.localStorage.getItem('lang');
+                                if (raw) {
+                                    const parsed = JSON.parse(raw);
+                                    const val = parsed?.data?.value ?? parsed?.value ?? parsed;
+                                    if (typeof val === 'string' && val) currentLang = val;
+                                }
+                            } catch {
+                                // ignore
+                            }
+                        }
+                        if (currentLang) {
+                            config.headers['x-lang'] = currentLang;
+                        }
+                    }
                 }
             } catch (e) {
-                console.error('Failed to attach x-auth-gp header:', e);
+                console.error('Failed to attach headers:', e);
             }
             return config;
         });

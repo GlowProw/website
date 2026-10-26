@@ -133,10 +133,10 @@ const loadAiConnectors = async () => {
 /** AI 连接器展示名：优先用后端 config.aiMcp.name，回退语言包 */
 const aiConnectorName = computed(() => aiConnectorInfo.value?.name || t('account.bindings.platforms.ai-connector.name'));
 
-/** 复制 MCP 连接器地址 */
+/** 复制 MCP 连接器地址（优先复制针对中文大模型优化的地址） */
 const aiConnectorUrlCopied = ref(false);
 const copyAiConnectorUrl = async () => {
-  const url = aiConnectorInfo.value?.url;
+  const url = aiConnectorInfo.value?.urlZh || aiConnectorInfo.value?.url;
   if (!url) return;
   try {
     await navigator.clipboard.writeText(url);
@@ -215,7 +215,7 @@ defineOptions({
           <v-card border variant="text" class="h-100 hover-card transition-all d-flex flex-column justify-space-between">
             <v-card-title class="py-16 d-flex justify-start align-center text-center bg-black mb-4"
                           :color="item.color">
-              <v-img v-if="item.platform === 'discord'" :src="discordLogo" alt="Discord" width="60" height="60" class="mx-auto" />
+              <v-img v-if="item.platform === 'discord'" :src="discordLogo" alt="Discord" width="60" height="60" class="mx-auto"/>
               <v-icon v-else :icon="item.icon" size="60" class="mx-auto"></v-icon>
             </v-card-title>
 
@@ -263,27 +263,17 @@ defineOptions({
             </v-card-actions>
           </v-card>
         </v-col>
-      </v-row>
 
-      <template v-slot:title>
-        {{ t('account.bindings.title') }}
-      </template>
-    </AffixBoxHasTitleView>
-    <!-- 第三方主流登录平台卡片 E -->
+        <v-col cols="12" lg="4">
+          <v-card border variant="text" class="h-100 hover-card transition-all d-flex flex-column justify-space-between">
+            <v-card-title class="py-16 d-flex justify-start align-center text-center bg-black mb-4">
+              <v-icon icon="mdi-robot-outline" size="60" class="mx-auto"></v-icon>
+            </v-card-title>
 
-    <!-- AI 连接器（MCP）卡片 S -->
-    <AffixBoxHasTitleView class="mt-6">
-      <v-row>
-        <v-col cols="12">
-          <v-card border variant="text" class="pa-4 hover-card transition-all">
-            <div class="d-flex align-center flex-wrap ga-4">
-              <v-avatar color="amber" variant="tonal" size="48" rounded="lg">
-                <v-icon icon="mdi-robot-outline" size="26"></v-icon>
-              </v-avatar>
-
+            <v-card-text class="d-flex align-start justify-space-between mb-3">
               <div>
                 <div class="d-flex align-center ga-2">
-                  <span class="font-weight-bold text-body-1 u">{{ aiConnectorName }}</span>
+                  <span class="font-weight-bold text-body-1 u">{{ t('account.bindings.aiConnector.title') }}</span>
                   <v-chip
                       size="x-small"
                       :color="aiConnectors.length ? 'amber' : 'default'"
@@ -305,57 +295,44 @@ defineOptions({
                 <div class="text-caption opacity-60 mt-1">
                   {{ t('account.bindings.platforms.ai-connector.desc') }}
                 </div>
-
-                <!-- MCP 连接器地址（config.aiMcp.endpoint 按环境动态解析） -->
-                <div v-if="aiConnectorInfo.url" class="d-flex align-center ga-2 mt-2 flex-wrap">
-                  <code class="text-amber text-caption">{{ aiConnectorInfo.url }}</code>
-                  <v-btn
-                      size="x-small"
-                      variant="text"
-                      density="compact"
-                      :icon="aiConnectorUrlCopied ? 'mdi-check' : 'mdi-content-copy'"
-                      @click="copyAiConnectorUrl">
-                  </v-btn>
-                </div>
               </div>
-
               <v-spacer></v-spacer>
+            </v-card-text>
 
-              <div class="d-flex ga-2">
-                <v-btn
-                    variant="tonal"
-                    prepend-icon="mdi-book-open-variant"
-                    :to="{ name: 'AIConnector' }">
-                  {{ t('account.bindings.aiConnector.docs') }}
-                </v-btn>
-                <v-btn
-                    variant="tonal"
-                    color="amber"
-                    prepend-icon="mdi-cog-outline"
-                    :loading="aiConnectorLoading"
-                    @click="aiConnectorDialog = true">
-                  {{ t('account.bindings.aiConnector.manage') }}
-                </v-btn>
-              </div>
-            </div>
+            <v-card-actions class="d-flex justify-end pt-2">
+              <v-btn
+                  variant="tonal"
+                  prepend-icon="mdi-book-open-variant"
+                  :to="{ name: 'AIConnector' }">
+                {{ t('account.bindings.aiConnector.docs') }}
+              </v-btn>
+              <v-btn
+                  variant="tonal"
+                  color="amber"
+                  prepend-icon="mdi-cog-outline"
+                  :loading="aiConnectorLoading"
+                  @click="aiConnectorDialog = true">
+                {{ t('account.bindings.aiConnector.manage') }}
+              </v-btn>
+            </v-card-actions>
           </v-card>
         </v-col>
       </v-row>
 
       <template v-slot:title>
-        {{ t('account.bindings.aiConnector.title') }}
+        {{ t('account.bindings.title') }}
       </template>
     </AffixBoxHasTitleView>
-    <!-- AI 连接器（MCP）卡片 E -->
+    <!-- 第三方主流登录平台卡片 E -->
 
     <!-- AI 连接器管理弹窗 S -->
     <v-dialog :model-value="aiConnectorDialog" max-width="560" @update:model-value="aiConnectorDialog = $event">
-      <v-card class="bg-grey-darken-4 pa-2">
-        <v-card-title class="d-flex align-center ga-2">
-          <v-icon icon="mdi-robot-outline" color="amber"></v-icon>
-          {{ t('account.bindings.aiConnector.dialogTitle') }}
+      <v-card border class="bg-grey-darken-4 pa-2">
+        <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
+          <v-icon size="80" class="mb-2">mdi-robot-outline</v-icon>
+          <p>{{ t('account.bindings.aiConnector.dialogTitle') }}</p>
         </v-card-title>
-        <v-card-text class="text-body-2">
+        <v-card-text>
           <p class="opacity-60 mb-4">{{ t('account.bindings.aiConnector.dialogDesc') }}</p>
 
           <v-list v-if="aiConnectors.length" bg-color="transparent" class="px-0">
@@ -400,13 +377,14 @@ defineOptions({
     </v-dialog>
     <!-- AI 连接器管理弹窗 E -->
 
-    <v-dialog :model-value="qqBotDialog" max-width="460" @update:model-value="qqBotDialog = $event">
-      <v-card class="bg-grey-darken-4 pa-2">
-        <v-card-title class="d-flex align-center ga-2">
-          <v-icon icon="mdi-robot-outline" color="amber"></v-icon>
-          {{ t('account.bindings.qqBot.dialogTitle') }}
+    <!-- QQ机器人绑定 S -->
+    <v-dialog :model-value="qqBotDialog" max-width="560" @update:model-value="qqBotDialog = $event">
+      <v-card border class="bg-grey-darken-4 pa-2">
+        <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
+          <v-icon size="80" class="mb-2">mdi-robot-outline</v-icon>
+          <p>{{ t('account.bindings.qqBot.dialogTitle') }}</p>
         </v-card-title>
-        <v-card-text class="text-body-2">
+        <v-card-text>
           <ol class="pl-4 mb-3">
             <li class="mb-2">{{ t('account.bindings.qqBot.step1') }}</li>
             <li class="mb-2">{{ t('account.bindings.qqBot.step2') }}</li>
@@ -424,6 +402,7 @@ defineOptions({
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <!-- QQ机器人绑定 E -->
 
     <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
       <Loading size="50"></Loading>

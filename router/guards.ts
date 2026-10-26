@@ -103,14 +103,20 @@ export function setupRouterGuards(r: any) {
             let normalizedTo = to;
             if (typeof to === 'object' && to !== null) {
                 if ('name' in to && to.name && (!to.params || !to.params.lang)) {
+                    const pathStr = (currentLocation?.path || r.currentRoute?.value?.path || '') as string;
+                    const pathFirstSeg = pathStr.split('/').filter(Boolean)[0];
+                    const langFromPath = pathFirstSeg && isSupportedLang(pathFirstSeg) ? pathFirstSeg : '';
+
                     const currentLang = (currentLocation?.params?.lang as string)
                         || (r.currentRoute?.value?.params?.lang as string)
+                        || langFromPath
                         || DEFAULT_LANG;
+
                     normalizedTo = {
                         ...to,
                         params: {
-                            lang: currentLang,
-                            ...to.params,
+                            ...(to.params || {}),
+                            lang: (to.params && to.params.lang) ? to.params.lang : currentLang,
                         }
                     };
                 }

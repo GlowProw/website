@@ -193,7 +193,7 @@ const onContinuePay = async (o: MyOrder): Promise<void> => {
       period: (['monthly', 'yearly', 'once'] as const).includes(o.period as any)
           ? o.period as 'monthly' | 'yearly' | 'once'
           : 'once',
-      platform: o.platform === 'paypal' ? 'paypal' : (o.platform === 'stripe' ? 'stripe' : 'afdian'),
+      platform: o.platform === 'paypal' ? 'paypal' : (o.platform === 'stripe' ? 'stripe' : (o.platform === 'patreon' ? 'patreon' : 'afdian')),
       // 复用原待支付订单，避免继续支付时重复建单
       orderId: o.id,
       // 自定义一次性赞助按原金额重开支付单（旧单超时后由服务端自动关闭）
@@ -414,6 +414,10 @@ const onCustomClick = (): void => {
     notice.warning(t('subscription.loginFirst'))
     return
   }
+  if (!hasCustomPlatformAvailable.value) {
+    notice.warning(t('subscription.noPlatform'))
+    return
+  }
   const amount = Number(customAmount.value)
   if (!Number.isFinite(amount) || amount < 5) {
     notice.warning(t('subscription.customMin'))
@@ -423,13 +427,49 @@ const onCustomClick = (): void => {
 }
 
 /**
+ * 校验指定支付平台在当前待结账档位下是否可用
+ * 若为自定义赞助（tier === 'custom'），仅支持提供自定义金额结算的渠道（Patreon 不支持自定义金额）
+ *
+ * @param {'afdian' | 'stripe' | 'paypal' | 'patreon'} p - 支付渠道标识
+ * @returns {boolean} 是否应展示对应支付按钮
+ */
+const isPlatformAvailable = (p: 'afdian' | 'stripe' | 'paypal' | 'patreon'): boolean => {
+  if (!plans.value?.platforms[p]) return false
+  if (pendingTier.value?.tier === 'custom') {
+    // Patreon 不支持自定义赞助，不展示对应按钮
+    if (p === 'patreon') return false
+    if (plans.value.customPlatforms && plans.value.customPlatforms[p] === false) return false
+  }
+  return true
+}
+
+/**
+ * 当前结算弹窗下是否有至少一个可用渠道
+ */
+const hasAnyPlatformAvailable = computed<boolean>(() => {
+  return (['afdian', 'paypal', 'patreon', 'stripe'] as const).some(p => isPlatformAvailable(p))
+})
+
+/**
+ * 全站是否至少存在一个支持自定义赞助的渠道
+ */
+const hasCustomPlatformAvailable = computed<boolean>(() => {
+  if (!plans.value) return false
+  return (['afdian', 'paypal', 'stripe'] as const).some(p => {
+    if (!plans.value?.platforms[p]) return false
+    if (plans.value.customPlatforms && plans.value.customPlatforms[p] === false) return false
+    return true
+  })
+})
+
+/**
  * 确认选择支付平台并正式发起下单流程
  * 验证登录态，提交创建订单请求，并在成功后于新窗口打开三方收银台（爱发电 / Stripe / PayPal）
  *
  * @param {'afdian' | 'stripe' | 'paypal'} platform - 用户选择的支付渠道标识
  * @returns {Promise<void>}
  */
-const pay = async (platform: 'afdian' | 'stripe' | 'paypal'): Promise<void> => {
+const pay = async (platform: 'afdian' | 'stripe' | 'paypal' | 'patreon'): Promise<void> => {
   if (!pendingTier.value || submitting.value) return
   if (!authStore.user?.token) {
     notice.warning(t('subscription.loginFirst'))
@@ -604,7 +644,7 @@ onUnmounted(() => {
                       <span class="u">{{ getTierName(o.tier) }}</span>
                     </div>
                     <p class="text-medium-emphasis">
-                      {{ o.platform === 'paypal' ? 'PayPal' : (o.platform === 'stripe' ? 'Stripe' : t('subscription.platformAfdian')) }}
+                      {{ o.platform === 'paypal' ? 'PayPal' : (o.platform === 'stripe' ? 'Stripe' : (o.platform === 'patreon' ? 'Patreon' : t('subscription.platformAfdian'))) }}
                       · ¥{{ o.amountCny ?? o.amount }}
                     </p>
                     <div class="text-medium-emphasis mt-1">
@@ -745,7 +785,7 @@ onUnmounted(() => {
                                 type="number"
                                 :min="5"
                                 class="mt-3"
-                                :disabled="!authStore.isLogin"
+                                :disabled="!authStore.isLogin || !hasCustomPlatformAvailable"
                                 :label="t('subscription.customAmount')"
                                 hide-details></v-number-input>
 
@@ -760,8 +800,8 @@ onUnmounted(() => {
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn variant="text"
-                       :disabled="!authStore.isLogin"
-                       :title="!authStore.isLogin ? t('subscription.loginFirst') : undefined"
+                       :disabled="!authStore.isLogin || !hasCustomPlatformAvailable"
+                       :title="!authStore.isLogin ? t('subscription.loginFirst') : (!hasCustomPlatformAvailable ? t('subscription.noPlatform') : undefined)"
                        @click="onCustomClick">
                   {{ t('subscription.donateOnce') }}
                 </v-btn>
@@ -865,10 +905,10 @@ onUnmounted(() => {
 
     <!-- 支付平台选择弹窗 S -->
     <v-dialog v-model="checkoutDialog" max-width="460">
-      <v-card border>
-        <v-card-title class="py-16 text-center bg-black mb-4 text-amber text-h4 u">
-          <v-icon size="60">mdi-lightning-bolt</v-icon>
-          <p class="mt-2">{{ pendingTier ? getTierName(pendingTier.tier) : '' }}</p>
+      <v-card border class="bg-grey-darken-4 pa-2">
+        <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4 text-amber text-h5 u">
+          <v-icon size="80" class="mb-2">mdi-lightning-bolt</v-icon>
+          <p>{{ pendingTier ? getTierName(pendingTier.tier) : '' }}</p>
         </v-card-title>
         <v-card-text>
           <div class="text-h4 mb-3">
@@ -884,30 +924,39 @@ onUnmounted(() => {
             {{ t('subscription.choosePlatform') }}
           </div>
           <div class="d-flex ga-3 flex-wrap">
-            <v-btn :disabled="!plans?.platforms.afdian || submitting"
+            <v-btn v-if="isPlatformAvailable('afdian')"
+                   :disabled="submitting"
                    variant="tonal"
                    @click="pay('afdian')">
               {{ t('subscription.platformAfdian') }}
             </v-btn>
-            <v-btn :disabled="!plans?.platforms.paypal || submitting"
+            <v-btn v-if="isPlatformAvailable('paypal')"
+                   :disabled="submitting"
                    variant="tonal"
                    @click="pay('paypal')">
               PayPal
             </v-btn>
-            <v-btn :disabled="!plans?.platforms.stripe || submitting"
+            <v-btn v-if="isPlatformAvailable('patreon')"
+                   :disabled="submitting"
+                   variant="tonal"
+                   @click="pay('patreon')">
+              Patreon
+            </v-btn>
+            <v-btn v-if="isPlatformAvailable('stripe')"
+                   :disabled="submitting"
                    variant="tonal"
                    @click="pay('stripe')">
               Stripe
             </v-btn>
           </div>
-          <v-alert v-if="!plans?.platforms.afdian && !plans?.platforms.stripe && !plans?.platforms.paypal"
+          <v-alert v-if="!hasAnyPlatformAvailable"
                    type="warning" variant="text" density="compact" class="mt-3">
             {{ t('subscription.noPlatform') }}
           </v-alert>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions class="px-4 pb-4">
           <v-spacer></v-spacer>
-          <v-btn text="" @click="checkoutDialog = false">{{ t('subscription.cancel') }}</v-btn>
+          <v-btn variant="tonal" color="amber" @click="checkoutDialog = false">{{ t('subscription.cancel') }}</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>

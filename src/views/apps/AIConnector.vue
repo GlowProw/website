@@ -76,14 +76,47 @@
               {{ t('apps.aiConnector.connector.subtitle') }}
             </p>
 
-            <v-card variant="flat" class="pa-4 connector-url-card">
-              <div class="d-flex align-center ga-3 flex-wrap">
-                <code class="text-amber connector-url u">{{ connectorUrl }}</code>
-                <v-spacer></v-spacer>
-                <v-btn color="amber" variant="flat" prepend-icon="mdi-content-copy"
-                       @click="copyConnectorUrl">
-                  {{ copied ? t('apps.aiConnector.connector.copied') : t('apps.aiConnector.connector.copy') }}
+            <!-- 中文优化版卡片 -->
+            <v-card variant="flat" class="pa-4 connector-url-card mb-4 border border-warning" rounded="xl">
+              <div class="d-flex align-center justify-space-between mb-2 flex-wrap ga-2">
+                <div class="d-flex align-center ga-2">
+                  <span class="font-weight-bold">{{ t('apps.aiConnector.connector.versionZh') }}</span>
+                  <v-chip color="amber" size="x-small" variant="flat" class="text-black font-weight-bold">
+                    推荐国内模型 / WorkBuddy
+                  </v-chip>
+                </div>
+                <v-btn color="amber" size="small" variant="flat" prepend-icon="mdi-content-copy"
+                       @click="copyUrl(connectorUrlZh, 'zh')">
+                  {{ copiedZh ? t('apps.aiConnector.connector.copied') : t('apps.aiConnector.connector.copy') }}
                 </v-btn>
+              </div>
+              <p class="text-caption text-medium-emphasis mb-2">
+                {{ t('apps.aiConnector.connector.versionZhDesc') }}
+              </p>
+              <div class="d-flex align-center bg-black rounded-lg pa-2">
+                <code class="text-amber connector-url flex-grow-1">{{ connectorUrlZh }}</code>
+              </div>
+            </v-card>
+
+            <!-- 国际通用版卡片 -->
+            <v-card variant="flat" class="pa-4 connector-url-card" rounded="xl">
+              <div class="d-flex align-center justify-space-between mb-2 flex-wrap ga-2">
+                <div class="d-flex align-center ga-2">
+                  <span class="font-weight-bold">{{ t('apps.aiConnector.connector.versionEn') }}</span>
+                  <v-chip color="grey" size="x-small" variant="tonal">
+                    Claude / ChatGPT / Cursor
+                  </v-chip>
+                </div>
+                <v-btn color="grey-lighten-2" size="small" variant="tonal" prepend-icon="mdi-content-copy"
+                       @click="copyUrl(connectorUrlEn, 'en')">
+                  {{ copiedEn ? t('apps.aiConnector.connector.copied') : t('apps.aiConnector.connector.copy') }}
+                </v-btn>
+              </div>
+              <p class="text-caption text-medium-emphasis mb-2">
+                {{ t('apps.aiConnector.connector.versionEnDesc') }}
+              </p>
+              <div class="d-flex align-center bg-black rounded-lg pa-2">
+                <code class="text-medium-emphasis connector-url flex-grow-1">{{ connectorUrlEn }}</code>
               </div>
             </v-card>
 
@@ -264,26 +297,29 @@ import {appApps, http} from "@/assets/sripts/index";
 import Silk from "@/components/Silk.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 
-const {t, tm} = useI18n();
+const {t, tm, locale} = useI18n();
 const id = ref('aiConnector');
 
 /**
  * MCP 连接器地址：按当前环境的 API 配置动态生成
- * （开发环境 http://localhost:3000/api/mcp，生产 https://api.glow-prow.top/api/mcp）
+ * 中文优化版指向 /api/mcp/zh，通用版指向 /api/mcp
  */
 const apiBase = String(http.globalUrl?.location || '').replace(/\/+$/, '');
-const connectorUrl = `${apiBase}/mcp`;
+const connectorUrlZh = `${apiBase}/mcp/zh`;
+const connectorUrlEn = `${apiBase}/mcp`;
 
-/** 其他应用的示例配置 */
-const configExample = `{
+/** 其他应用的示例配置（默认展示中文推荐端点） */
+const configExample = computed(() => `{
   "mcpServers": {
     "glow-prow": {
-      "url": "${connectorUrl}"
+      "type": "http",
+      "url": "${connectorUrlZh}"
     }
   }
-}`;
+}`);
 
-const copied = ref(false);
+const copiedZh = ref(false);
+const copiedEn = ref(false);
 
 /** 特性标签：描述区与展示区共用 */
 const connectorFeatures = computed(() => [
@@ -309,8 +345,12 @@ const askIcons: Record<string, string> = {
 };
 
 /** 如何连接 */
-const connectTabs = ['claude', 'claudeCode', 'chatgpt', 'grok', 'other'];
-const connectTab = ref('claude');
+const isZhEnv = computed(() => String(locale.value || '').toLowerCase().startsWith('zh'));
+const connectTabs = computed(() => isZhEnv.value
+    ? ['workbuddy', 'claude', 'claudeCode', 'chatgpt', 'grok', 'other']
+    : ['claude', 'claudeCode', 'chatgpt', 'grok', 'workbuddy', 'other']
+);
+const connectTab = ref(isZhEnv.value ? 'workbuddy' : 'claude');
 
 const connectSteps = (tab: string): string[] => {
   const steps = tm(`apps.aiConnector.connect.steps.${tab}`) as unknown;
@@ -323,22 +363,31 @@ const faqItems = computed(() => {
   return Array.isArray(items) ? (items as Array<{ q: string; a: string }>) : [];
 });
 
-/** 复制连接器 URL */
-const copyConnectorUrl = async () => {
+/** 复制指定连接器 URL */
+const copyUrl = async (url: string, type: 'zh' | 'en') => {
   try {
-    await navigator.clipboard.writeText(connectorUrl);
-    copied.value = true;
-    setTimeout(() => (copied.value = false), 2000);
+    await navigator.clipboard.writeText(url);
+    if (type === 'zh') {
+      copiedZh.value = true;
+      setTimeout(() => (copiedZh.value = false), 2000);
+    } else {
+      copiedEn.value = true;
+      setTimeout(() => (copiedEn.value = false), 2000);
+    }
   } catch {
-    // 剪贴板不可用（非安全上下文等）时退回选中复制
     const input = document.createElement('input');
-    input.value = connectorUrl;
+    input.value = url;
     document.body.appendChild(input);
     input.select();
     try {
       document.execCommand('copy');
-      copied.value = true;
-      setTimeout(() => (copied.value = false), 2000);
+      if (type === 'zh') {
+        copiedZh.value = true;
+        setTimeout(() => (copiedZh.value = false), 2000);
+      } else {
+        copiedEn.value = true;
+        setTimeout(() => (copiedEn.value = false), 2000);
+      }
     } catch {
       /* ignore */
     } finally {

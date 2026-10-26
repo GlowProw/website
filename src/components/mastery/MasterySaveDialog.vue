@@ -71,10 +71,10 @@ defineOptions({name: 'MasterySaveDialog'});
       :model-value="modelValue"
       @update:model-value="emit('update:modelValue', $event)"
       max-width="580">
-    <v-card class="bg-surface-darken-1 border">
-      <v-card-title class="py-10 text-center bg-black mb-4">
-        <v-icon size="80">mdi-bookmark-multiple</v-icon>
-        <p class="mt-5 text-h6 font-weight-bold">{{ t('mastery.saveDialog.title') }}</p>
+    <v-card border class="bg-grey-darken-4 pa-2">
+      <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
+        <v-icon size="80" class="mb-2">mdi-bookmark-multiple</v-icon>
+        <p class="text-h6 font-weight-bold">{{ t('mastery.saveDialog.title') }}</p>
       </v-card-title>
 
       <div class="pa-5">
@@ -172,6 +172,12 @@ defineOptions({name: 'MasterySaveDialog'});
           </v-card>
         </v-list>
       </div>
+      <v-card-actions class="px-4 pb-4">
+        <v-spacer></v-spacer>
+        <v-btn variant="tonal" color="amber" @click="emit('update:modelValue', false)">
+          {{ t('common.close') }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>

@@ -207,44 +207,43 @@ const getSmugglersComment = async (reportId: string) => {
       <Loading size="50"></Loading>
     </div>
     <template v-else>
-      <HorizontalScrollList :is-indicator="false" v-if="commentData.length > 0">
-      <v-card
-          v-for="(i, index) in commentData" :key="index"
-          tile
-          variant="text">
-        <v-row no-gutters>
-          <v-col>
-            <v-card variant="text"
-                    width="550px"
-                    height="200px">
-              <v-row>
-                <v-col cols="auto">
-                  <AccountCardWidget :id="i.userId">
-                    <ItemSlotBase size="50px">
-                      <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
-                    </ItemSlotBase>
-                  </AccountCardWidget>
-                </v-col>
-                <v-col>
-                  <AccountCardWidget :id="i.userId">
-                    <b class="u">{{ i.username }}</b>
-                  </AccountCardWidget>
+      <div v-if="commentData.length > 0" class="connoisseurs-masonry">
+        <v-card
+            v-for="(i, index) in commentData"
+            :key="i.id || index"
+            border
+            rounded="lg"
+            variant="tonal"
+            class="connoisseurs-masonry-item pa-4">
+          <div class="d-flex ga-3">
+            <div class="flex-shrink-0">
+              <AccountCardWidget :id="i.userId">
+                <ItemSlotBase size="48px">
+                  <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="48px"></UserAvatar>
+                </ItemSlotBase>
+              </AccountCardWidget>
+            </div>
+            <div class="flex-grow-1 overflow-hidden">
+              <div class="d-flex align-center justify-space-between ga-2">
+                <AccountCardWidget :id="i.userId">
+                  <b class="u text-subtitle-2">{{ i.username }}</b>
+                </AccountCardWidget>
+                <div class="opacity-60 text-caption text-no-wrap">
+                  <TimeView :time="i.createdTime"></TimeView>
+                </div>
+              </div>
 
-                  <div class="opacity-60">
-                    <TimeView :time="i.createdTime"></TimeView>
-                  </div>
-
-                  <Textarea
-                      readonly
-                      class="opacity-60 mt-2"
-                      :value="i.content" v-if="i.content" min-height="30"></Textarea>
-                </v-col>
-              </v-row>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-card>
-      </HorizontalScrollList>
+              <Textarea
+                  readonly
+                  class="opacity-70 mt-2"
+                  :value="i.content"
+                  v-if="i.content"
+                  min-height="30">
+              </Textarea>
+            </div>
+          </div>
+        </v-card>
+      </div>
       <EmptyView v-else></EmptyView>
     </template>
   </v-container>
@@ -254,5 +253,26 @@ const getSmugglersComment = async (reportId: string) => {
 .quote {
   line-height: 1.8;
   quotes: "\"" "\"";
+}
+
+.connoisseurs-masonry {
+  column-count: 1;
+  column-gap: 16px;
+
+  @media (min-width: 600px) {
+    column-count: 2;
+  }
+
+  @media (min-width: 960px) {
+    column-count: 3;
+  }
+}
+
+.connoisseurs-masonry-item {
+  break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 16px;
+  vertical-align: top;
 }
 </style>

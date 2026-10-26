@@ -245,7 +245,6 @@ const getRoutes = () => {
         'setting/advanced',
         'setting/service-status',
         'space',
-        'oauth',
         'apps',
         'apps/view',
         'apps/qq-bot',

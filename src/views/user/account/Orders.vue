@@ -45,7 +45,8 @@ const platformOptions = computed(() => [
   {title: t('account.orders.allPlatforms'), value: 'all'},
   {title: t('subscription.platformAfdian'), value: 'afdian'},
   {title: 'Stripe', value: 'stripe'},
-  {title: 'PayPal', value: 'paypal'}
+  {title: 'PayPal', value: 'paypal'},
+  {title: 'Patreon', value: 'patreon'}
 ])
 
 onMounted(() => {
@@ -437,7 +438,7 @@ defineOptions({
                 <!-- 渠道 -->
                 <p class="d-flex align-center">
                   <v-icon size="14" class="mr-1">mdi-credit-card-outline</v-icon>
-                  {{ i.platform === 'paypal' ? 'PayPal' : (i.platform === 'stripe' ? 'Stripe' : t('subscription.platformAfdian')) }}
+                  {{ i.platform === 'paypal' ? 'PayPal' : (i.platform === 'stripe' ? 'Stripe' : (i.platform === 'patreon' ? 'Patreon' : t('subscription.platformAfdian'))) }}
                 </p>
 
                 <v-divider vertical inset class="mx-1"></v-divider>

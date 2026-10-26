@@ -223,12 +223,11 @@ onMounted(onLoad)
       </AffixBoxHasTitleView>
 
       <v-dialog v-model="codeDialog" width="520">
-        <v-card border>
-          <v-card-title class="py-10 text-center bg-black mx-n5">
-            <v-icon size="80">mdi-code-tags</v-icon>
+        <v-card border class="bg-grey-darken-4 pa-2">
+          <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
+            <v-icon size="80" class="mb-2">mdi-code-tags</v-icon>
             <p>{{ t('account.bot.guide.codeDialogTitle') }}</p>
           </v-card-title>
-          <v-divider opacity=".08"></v-divider>
           <v-card-text>
             <p class="mb-3">{{ t('account.bot.guide.codeHint', {minutes: bindTtl}) }}</p>
 
@@ -250,7 +249,7 @@ onMounted(onLoad)
 
             <p class="text-caption opacity-70 mt-4 mb-0">{{ t('account.bot.guide.codeUsage') }}</p>
           </v-card-text>
-          <v-card-actions>
+          <v-card-actions class="px-4 pb-4">
             <v-spacer></v-spacer>
             <v-btn variant="text" @click="codeDialog = false">{{ t('basic.button.close') }}</v-btn>
             <v-btn variant="tonal" color="amber" @click="onCheckBound">

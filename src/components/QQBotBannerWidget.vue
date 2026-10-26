@@ -74,9 +74,9 @@ defineOptions({name: "QQBotBannerWidget"});
             </div>
 
             <v-dialog v-model="model" max-width="680">
-              <v-card border class="mx-auto bg-grey-darken-4">
-                <v-card-title class="py-8 text-center bg-black mb-2 position-relative">
-                  <v-icon size="99">mdi-robot-outline</v-icon>
+              <v-card border class="mx-auto bg-grey-darken-4 pa-2">
+                <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4 position-relative">
+                  <v-icon size="80" class="mb-2">mdi-robot-outline</v-icon>
                   <v-btn
                       icon="mdi-close"
                       size="small"
@@ -137,6 +137,12 @@ defineOptions({name: "QQBotBannerWidget"});
                     </ul>
                   </div>
                 </v-card-text>
+                <v-card-actions class="px-4 pb-4">
+                  <v-spacer></v-spacer>
+                  <v-btn variant="tonal" color="amber" @click="model = false">
+                    {{ t('common.close') }}
+                  </v-btn>
+                </v-card-actions>
               </v-card>
             </v-dialog>
           </v-col>

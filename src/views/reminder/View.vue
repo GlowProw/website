@@ -594,9 +594,9 @@ const totalPages = computed(() => {
                 </div>
               </template>
 
-              <v-card border :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 540">
-                <v-card-title class="py-8 text-center bg-black mb-4">
-                  <v-icon size="64" :color="hasActiveFilters ? 'amber' : ''">
+              <v-card border class="bg-grey-darken-4 pa-2" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 540">
+                <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
+                  <v-icon size="80" :color="hasActiveFilters ? 'amber' : ''">
                     {{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}
                   </v-icon>
                 </v-card-title>

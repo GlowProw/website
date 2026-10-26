@@ -263,8 +263,8 @@ defineOptions({
             </div>
           </template>
 
-          <v-card border class="pa-5" :min-width="mobile ? '100%' : 550" :width="mobile ? '100%' : 400">
-            <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
+          <v-card border class="bg-grey-darken-4 pa-2" :min-width="mobile ? '100%' : 550" :width="mobile ? '100%' : 400">
+            <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
               <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
             </v-card-title>
 

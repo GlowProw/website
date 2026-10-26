@@ -89,6 +89,10 @@
       "connector": {
         "title": "Connector URL",
         "subtitle": "Paste this address when your AI assistant asks for a server or connector URL. You need to sign in with your Glow Prow account.",
+        "versionZh": "Chinese Optimized Endpoint (For Domestic Models)",
+        "versionZhDesc": "Specially optimized for Chinese models (WorkBuddy, Doubao, Qwen, GLM, DeepSeek) with native Chinese tool names and bilingual item query support.",
+        "versionEn": "Standard Global Endpoint",
+        "versionEnDesc": "Provides standard English MCP tools conforming to RFC specifications, tailored for Claude, Cursor, and ChatGPT.",
         "note": "Authorization redirects you to the Glow Prow website to sign in and confirm access; you can disconnect anytime in account settings.",
         "copy": "Copy",
         "copied": "Copied to clipboard"
@@ -97,13 +101,14 @@
         "title": "Ask your AI about Glow Prow data",
         "note": "Answers come from public site data and what you authorized, not guesses.",
         "assembly": "Which ship loadouts are trending right now?",
-        "codex": "Which maps drop weapons like culverin1?",
+        "codex": "What are the stats and sources for Dardanelles Gun or culverin1?",
         "drops": "Which Twitch drop campaigns are active?",
         "calendar": "What world events are coming up this season?"
       },
       "connect": {
         "title": "How to connect",
         "subtitle": "Pick your assistant for setup steps. Both use the connector URL above.",
+        "workbuddy": "WorkBuddy / Doubao",
         "claude": "Claude",
         "claudeCode": "Claude Code",
         "chatgpt": "ChatGPT",
@@ -112,6 +117,13 @@
         "command": "claude mcp add --transport http glow-prow https://api.glow-prow.top/api/mcp",
         "codeBlockTitle": "Or add a remote MCP server in your client config:",
         "steps": {
+          "workbuddy": [
+            "Open WorkBuddy, go to Connectors / MCP settings.",
+            "Click Add Custom Connector, set type to HTTP / Streamable HTTP.",
+            "Paste the Chinese Optimized Endpoint URL (.../api/mcp/zh).",
+            "Click Connect / Authenticate, sign in to your Glow Prow account and allow access.",
+            "In your chat, query weapons or loadouts directly; the model will automatically invoke the tools."
+          ],
           "claude": [
             "Open Claude settings, go to Connectors.",
             "Click Add custom connector.",
@@ -5304,6 +5316,7 @@
     "choosePlatform": "Choose payment platform",
     "noPlatform": "No payment channel is configured yet, check back soon",
     "platformAfdian": "Afdian",
+    "platformPatreon": "Patreon",
     "portalDisplay": "Portal Display Included",
     "benefitRole": "Grants \"{role}\" Privilege",
     "benefitAvatar": "Avatar upload quota +3 (delete & reset supported)",

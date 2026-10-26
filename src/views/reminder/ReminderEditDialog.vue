@@ -500,10 +500,10 @@ const onSave = () => {
 </script>
 
 <template>
-  <v-dialog v-model="visible" max-width="1024" scrollable content->
-    <v-card class="reminder-edit-card border">
-      <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
-        <v-icon size="80">mdi-plus</v-icon>
+  <v-dialog v-model="visible" max-width="1024" scrollable>
+    <v-card border class="reminder-edit-card bg-grey-darken-4 pa-2">
+      <v-card-title class="py-10 border rounded-lg text-center bg-black mb-4">
+        <v-icon size="80" class="mb-2">{{ isEditing ? 'mdi-pencil-outline' : 'mdi-plus' }}</v-icon>
         <p>
           {{ isEditing ? t('reminder.edit') : t('reminder.createNew') }}
         </p>
@@ -994,7 +994,7 @@ const onSave = () => {
 
       <v-divider></v-divider>
 
-      <v-card-actions class="pa-4 bg-surface">
+      <v-card-actions class="px-4 pb-4">
         <v-spacer></v-spacer>
         <v-btn variant="text" @click="visible = false">
           {{ t('reminder.cancel') }}

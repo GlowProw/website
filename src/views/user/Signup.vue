@@ -18,7 +18,7 @@ import ThirdPartyLoginWidget from "@/components/ThirdPartyLoginWidget.vue";
 
 const router = useRouter(),
     route = useRoute(),
-    {t} = useI18n(),
+    {t, locale} = useI18n(),
     notice = useNoticeStore(),
     rules = useRules(),
     {mobile, sm} = useDisplay()
@@ -77,6 +77,7 @@ const onRegister = async () => {
           password: signupFrom.value.password,
           email: signupFrom.value.email,
           captcha: signupFrom.value.captcha,
+          language: locale.value,
         }),
         d = result.data;
 

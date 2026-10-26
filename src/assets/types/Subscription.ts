@@ -45,6 +45,13 @@ export interface SubscriptionPlans {
     afdian: boolean
     stripe: boolean
     paypal?: boolean
+    patreon?: boolean
+  }
+  customPlatforms?: {
+    afdian?: boolean
+    stripe?: boolean
+    paypal?: boolean
+    patreon?: boolean
   }
 }
 
@@ -66,7 +73,7 @@ export interface SubscriptionProgress {
 export interface CreateOrderParams {
   tier: string
   period: 'monthly' | 'yearly' | 'once'
-  platform: 'afdian' | 'stripe' | 'paypal'
+  platform: 'afdian' | 'stripe' | 'paypal' | 'patreon'
   amount?: number
   // 继续支付时传入原待支付订单主键，服务端复用该单而非新建
   orderId?: number

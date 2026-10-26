@@ -51,7 +51,6 @@ const statusColor = computed(() => ({
 // 点击徽章进入服务状态页
 const statusPageTarget = computed(() => ({
   name: 'PortalSettingServiceStatus',
-  params: {lang: route.params.lang}
 }))
 
 defineOptions({

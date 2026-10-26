@@ -18,7 +18,7 @@ import {setTrustToken} from '@/assets/sripts/two_fa_trust';
 
 const route = useRoute();
 const router = useRouter();
-const {t, te} = useI18n();
+const {t, te, locale} = useI18n();
 const authStore = useAuthStore();
 const notice = useNoticeStore();
 const rules = useRules();
@@ -280,6 +280,7 @@ const onCompleteSignup = async () => {
       password: signupForm.value.password,
       email: signupForm.value.email || undefined,
       captcha: signupCaptcha.value,
+      language: locale.value,
     });
 
     if (res?.data?.code === 'signin.ok') {
