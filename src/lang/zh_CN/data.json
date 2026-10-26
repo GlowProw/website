@@ -329,6 +329,12 @@
           "quarterly": "本季度别名修改额度已用完，额度将于下季度首日重置；订阅任意赞助档位可获得额外 10 次"
         }
       },
+      "user": {
+        "sessionExpired": "登录会话已过期或已在同平台其他设备登录，请重新登录",
+        "tokenExpired": "登录令牌已过期，请重新登录",
+        "tokenRequired": "请先登录后再进行此操作",
+        "invalid": "无效的登录身份，请重新登录"
+      },
       "error": "应用程序错误: {content}",
       "avatar": {
         "upload": {
@@ -2336,9 +2342,12 @@
       "mapLocation": "地图地点",
       "ultimate": "终极技能",
       "modification": "模组",
-      "assemblyData": "配装数据",
+      "customData": "数据",
+      "assemblyData": "数据",
       "assembly": "配装",
+      "mastery": "精通",
       "wheel": "轮盘",
+      "shipyard": "船厂",
       "hold": "船仓"
     },
     "title": "手稿",
@@ -3605,7 +3614,14 @@
       "bottomTipCreate": "编排完成并完善信息后，点击右侧按钮直接发布",
       "draftEmpty": "草稿数据为空",
       "draftLoadSuccess": "草稿加载成功",
-      "untitledDraft": "未命名草稿"
+      "untitledDraft": "未命名草稿",
+      "addDataTitle": "添加{type}数据",
+      "tabInputUuid": "输入 UUID",
+      "tabGetMine": "获取自己",
+      "inputUuidHint": "填入对应数据记录的雪花 ID 或 UUID",
+      "loginRequired": "请先登录以获取您账号下的数据",
+      "noMyData": "暂无相关数据记录",
+      "uuidRequired": "请输入有效的 UUID"
     },
     "updated": "天梯更新成功",
     "published": "天梯发布成功",
@@ -3675,9 +3691,9 @@
       "tags": "分类标签",
       "tagsPlaceholder": "输入标签后回车添加",
       "visibility": "可见性",
-      "visibilityPublic": "公开（广场全员可见）",
+      "visibilityPublic": "公开",
       "visibilityUnlisted": "仅链接可见",
-      "visibilityPrivate": "私密（仅自己可见）",
+      "visibilityPrivate": "私密",
       "recommendedTags": "推荐标签",
       "extra": "扩展设置"
     },
@@ -3790,6 +3806,10 @@
     "restore": "恢复",
     "restoreConfirm": "确定要恢复这个配装吗？",
     "restoreSuccess": "恢复成功",
+    "copyAssemblyUuid": "复制配装UUID",
+    "copyMasteryUuid": "复制关联精通UUID",
+    "copyWheelUuid": "复制关联轮盘UUID",
+    "copyShipyardUuid": "复制关联船厂UUID",
     "compare": {
       "title": "配装对比",
       "button": "对比配装",
@@ -5327,7 +5347,7 @@
       "detailTitle": "赛季图鉴明细",
       "startDate": "赛季开始",
       "entriesCount": "条目",
-      "collectedCount": "累计收藏"
+      "collectedCount": "全站累计收藏"
     },
     "codex": {
       "title": "图鉴统计",

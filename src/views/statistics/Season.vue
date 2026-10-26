@@ -116,8 +116,9 @@ defineOptions({
 
 <template>
   <v-card variant="text">
-    <v-row class="mb-3">
-      <v-col cols="12" lg="auto">
+    <v-row class="mb-3" align="center">
+      <v-col cols="12" lg="auto" class="d-flex align-center ga-2">
+        <v-chip size="x-small" color="amber" variant="tonal">{{ t('statistics.season.summary.collections') || '全站统计' }}</v-chip>
         <span class="opacity-60">{{ t('statistics.common.asOf') }}: {{ data?.asOf || '-' }}</span>
       </v-col>
       <v-spacer class="hidden-sm hidden-md"></v-spacer>

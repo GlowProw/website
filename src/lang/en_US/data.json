@@ -329,6 +329,12 @@
           "quarterly": "Your quarterly alias change quota has been used up. It resets on the first day of next quarter. Any active subscription grants 10 extra changes."
         }
       },
+      "user": {
+        "sessionExpired": "Your session has expired or you have logged in from another device on the same platform. Please sign in again.",
+        "tokenExpired": "Your token has expired. Please sign in again.",
+        "tokenRequired": "Authentication required. Please sign in first.",
+        "invalid": "Invalid user account. Please sign in again."
+      },
       "error": "Application Error: {content}",
       "avatar": {
         "upload": {
@@ -2335,9 +2341,12 @@
       "mapLocation": "Map Location",
       "ultimate": "Ultimate",
       "modification": "Modification",
-      "assemblyData": "Assembly Data",
+      "customData": "Data",
+      "assemblyData": "Data",
       "assembly": "Assembly",
+      "mastery": "Mastery",
       "wheel": "Wheel",
+      "shipyard": "Shipyard",
       "hold": "Hold"
     },
     "title": "Codex",
@@ -3608,7 +3617,14 @@
       "bottomTipCreate": "Once arranged and details filled, click the button on the right to publish",
       "draftEmpty": "Draft data is empty",
       "draftLoadSuccess": "Draft loaded successfully",
-      "untitledDraft": "Untitled draft"
+      "untitledDraft": "Untitled draft",
+      "addDataTitle": "Add {type} Data",
+      "tabInputUuid": "Input UUID",
+      "tabGetMine": "My Data",
+      "inputUuidHint": "Enter Snowflake ID or UUID of the resource",
+      "loginRequired": "Please sign in to retrieve your data",
+      "noMyData": "No relevant data found",
+      "uuidRequired": "Please enter a valid UUID"
     },
     "updated": "Tier list updated successfully",
     "published": "Tier list published successfully",
@@ -3678,9 +3694,9 @@
       "tags": "Tags",
       "tagsPlaceholder": "Input tag and press Enter",
       "visibility": "Visibility",
-      "visibilityPublic": "Public (Visible in Browse)",
-      "visibilityUnlisted": "Unlisted (Link only)",
-      "visibilityPrivate": "Private (Self only)",
+      "visibilityPublic": "Public",
+      "visibilityUnlisted": "Unlisted",
+      "visibilityPrivate": "Private",
       "recommendedTags": "Recommended Tags",
       "extra": "Extra Settings"
     },
@@ -3792,6 +3808,10 @@
     "restore": "Restore",
     "restoreConfirm": "Are you sure you want to restore this build?",
     "restoreSuccess": "Restored successfully",
+    "copyAssemblyUuid": "Copy Assembly UUID",
+    "copyMasteryUuid": "Copy Associated Mastery UUID",
+    "copyWheelUuid": "Copy Associated Wheel UUID",
+    "copyShipyardUuid": "Copy Associated Shipyard UUID",
     "compare": {
       "title": "Assembly Comparison",
       "button": "Compare Assembly",
@@ -5322,7 +5342,7 @@
       "detailTitle": "Season codex details",
       "startDate": "Season start",
       "entriesCount": "Entries",
-      "collectedCount": "Total collections"
+      "collectedCount": "Global collections"
     },
     "codex": {
       "title": "Codex Statistics",

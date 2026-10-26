@@ -442,10 +442,15 @@ export function useI18nReadName() {
                     ],
                     befLocationName = asString(keysLocations, { backRawKey: true })
 
+                const finalCategory = category || (treasureMaps as any)[id]?.category;
+
                 if (treasureMaps[id]) {
-                    return `${t(`codex.treasureMap.names.${category}`, {
-                        location: befLocationName
-                    })} (${t(`codex.treasureMap.categorys.${category}`)})`
+                    if (finalCategory) {
+                        return `${t(`codex.treasureMap.names.${finalCategory}`, {
+                            location: befLocationName
+                        })} (${t(`codex.treasureMap.categorys.${finalCategory}`)})`
+                    }
+                    return `${befLocationName || String(id)}`
                 }
                 return String(id)
             },

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {TreasureMap} from "glow-prow-data";
+import {TreasureMap, TreasureMaps} from "glow-prow-data";
 import {computed} from "vue";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
@@ -9,8 +9,10 @@ const props = defineProps<{ data?: TreasureMap; id?: string; isShowTooltip?: boo
     {treasureMap} = useI18nReadName()
 
 let getTitle = computed(() => {
-  const mapId = props.id || props.data?.id
-  return `${treasureMap(mapId).name(props.data?.category) || '-'}`
+  const mapId = String(props.id || props.data?.id || '')
+  if (!mapId) return '-'
+  const cat = props.data?.category || (TreasureMaps as any)[mapId]?.category
+  return `${treasureMap(mapId).name(cat) || '-'}`
 })
 
 /**

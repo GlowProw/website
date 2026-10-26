@@ -132,20 +132,24 @@ const props = defineProps({
           "divider": true
         },
         {
-          "label": "codex.itemMenu.assemblyData",
+          "label": "codex.itemMenu.customData",
           "menus": [
             {
               "label": "codex.itemMenu.assembly",
-              "category": "1"
+              "category": "assembly"
+            },
+            {
+              "label": "codex.itemMenu.mastery",
+              "category": "mastery"
             },
             {
               "label": "codex.itemMenu.wheel",
               "category": "wheel"
             },
             {
-              "label": "codex.itemMenu.hold",
-              "category": "w2"
-            },
+              "label": "codex.itemMenu.shipyard",
+              "category": "shipyard"
+            }
           ]
         }
       ]

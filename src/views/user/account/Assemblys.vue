@@ -170,6 +170,27 @@ const onBatchDeleteAssemblies = async () => {
   }
 }
 
+/**
+ * 复制指定标识文本到剪贴板
+ * @param content 待复制内容
+ * @param successMsgKey 复制成功提示键或文案
+ */
+const copyToClipboard = async (content?: string, successMsgKey?: string) => {
+  if (!content) return
+  try {
+    await navigator.clipboard.writeText(content)
+    notice.success(t(successMsgKey || 'basic.button.copied') || '复制成功')
+  } catch (e) {
+    const textarea = document.createElement('textarea')
+    textarea.value = content
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    notice.success(t(successMsgKey || 'basic.button.copied') || '复制成功')
+  }
+}
+
 defineOptions({
   name: 'AccountAssemblys'
 })
@@ -334,6 +355,40 @@ defineOptions({
                       prepend-icon="mdi-cog"
                       @click="openSetting(i.uuid)">
                     <v-list-item-title>{{ t('basic.button.setting') }}</v-list-item-title>
+                  </v-list-item>
+
+                  <v-divider class="my-1"></v-divider>
+
+                  <!-- 复制配装UUID -->
+                  <v-list-item
+                      prepend-icon="mdi-content-copy"
+                      :disabled="!i.uuid"
+                      @click="copyToClipboard(i.uuid)">
+                    <v-list-item-title>{{ t('assembly.copyAssemblyUuid') || '复制配装UUID' }}</v-list-item-title>
+                  </v-list-item>
+
+                  <!-- 复制关联精通UUID -->
+                  <v-list-item
+                      prepend-icon="mdi-star-circle-outline"
+                      :disabled="!i.masteryUuid"
+                      @click="copyToClipboard(i.masteryUuid)">
+                    <v-list-item-title>{{ t('assembly.copyMasteryUuid') || '复制关联精通UUID' }}</v-list-item-title>
+                  </v-list-item>
+
+                  <!-- 复制关联轮盘UUID -->
+                  <v-list-item
+                      prepend-icon="mdi-ship-wheel"
+                      :disabled="!i.wheelUuid"
+                      @click="copyToClipboard(i.wheelUuid)">
+                    <v-list-item-title>{{ t('assembly.copyWheelUuid') || '复制关联轮盘UUID' }}</v-list-item-title>
+                  </v-list-item>
+
+                  <!-- 复制关联船厂UUID -->
+                  <v-list-item
+                      prepend-icon="mdi-ferry"
+                      :disabled="!i.warehouseUuid"
+                      @click="copyToClipboard(i.warehouseUuid)">
+                    <v-list-item-title>{{ t('assembly.copyShipyardUuid') || '复制关联船厂UUID' }}</v-list-item-title>
                   </v-list-item>
 
                   <v-divider class="my-1"></v-divider>

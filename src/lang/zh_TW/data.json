@@ -483,6 +483,12 @@
           "ok": "獲取點讚列表成功"
         }
       },
+      "user": {
+        "sessionExpired": "登入階段已過期或已在同平台其他裝置登入，請重新登入",
+        "tokenExpired": "登入權杖已過期，請重新登入",
+        "tokenRequired": "請先登入後再進行此操作",
+        "invalid": "無效的登入身分，請重新登入"
+      },
       "error": "应用程序错误: {content}",
       "avatar": {
         "upload": {
@@ -2299,6 +2305,25 @@
     }
   },
   "codex": {
+    "itemMenu": {
+      "ship": "船",
+      "item": "物品",
+      "material": "材料",
+      "commoditie": "商品",
+      "cosmetic": "裝飾品",
+      "set": "裝飾品集",
+      "treasureMap": "藏寶圖",
+      "mapLocation": "地圖地點",
+      "ultimate": "終極技能",
+      "modification": "模組",
+      "customData": "資料",
+      "assemblyData": "資料",
+      "assembly": "配裝",
+      "mastery": "精通",
+      "wheel": "輪盤",
+      "shipyard": "船廠",
+      "hold": "船倉"
+    },
     "title": "手稿",
     "description": "嗨，船长, 要看看我的宝贝嘛",
     "cabinetHistoryTitle": "游览历史",
@@ -3527,7 +3552,14 @@
       "bottomTipCreate": "編排完成並完善資訊後，點擊右側按鈕直接發布",
       "draftEmpty": "草稿資料為空",
       "draftLoadSuccess": "草稿載入成功",
-      "untitledDraft": "未命名草稿"
+      "untitledDraft": "未命名草稿",
+      "addDataTitle": "新增{type}資料",
+      "tabInputUuid": "輸入 UUID",
+      "tabGetMine": "取得自己",
+      "inputUuidHint": "填入對應資料記錄的雪花 ID 或 UUID",
+      "loginRequired": "請先登入以取得您帳號下的資料",
+      "noMyData": "暫無相關資料記錄",
+      "uuidRequired": "請輸入有效的 UUID"
     },
     "updated": "天梯更新成功",
     "published": "天梯發布成功",
@@ -3597,9 +3629,9 @@
       "tags": "分類標籤",
       "tagsPlaceholder": "輸入標籤後按 Enter 新增",
       "visibility": "可見性",
-      "visibilityPublic": "公開（廣場全員可見）",
+      "visibilityPublic": "公開",
       "visibilityUnlisted": "僅連結可見",
-      "visibilityPrivate": "私密（僅自己可見）",
+      "visibilityPrivate": "私密",
       "recommendedTags": "推薦標籤",
       "extra": "擴展設置"
     },
@@ -3711,6 +3743,10 @@
     "restore": "恢復",
     "restoreConfirm": "確定要恢復這個配裝嗎？",
     "restoreSuccess": "恢復成功",
+    "copyAssemblyUuid": "複製配裝UUID",
+    "copyMasteryUuid": "複製關聯精通UUID",
+    "copyWheelUuid": "複製關聯輪盤UUID",
+    "copyShipyardUuid": "複製關聯船廠UUID",
     "compare": {
       "title": "配裝對比",
       "button": "對比配裝",
@@ -5287,7 +5323,7 @@
       "detailTitle": "賽季圖鑑明細",
       "startDate": "賽季開始",
       "entriesCount": "條目",
-      "collectedCount": "累計收藏"
+      "collectedCount": "全站累計收藏"
     },
     "codex": {
       "title": "圖鑑統計",

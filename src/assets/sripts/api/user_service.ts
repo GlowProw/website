@@ -272,6 +272,25 @@ export function useUserApi() {
     };
 
     /**
+     * 获取自己指定类型的自定义数据（配装、精通、轮盘、船厂）
+     * @param params 查询分类与分页参数
+     */
+    const getMeCustomData = async (params: { category: string; page?: number; pageSize?: number }) => {
+        try {
+            const url = `user/me/custom-data`;
+            const result = await http.get(url, {
+                params
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
+    /**
      * 获取自己订单列表（包含订阅赞助记录）
      * @param params 分页与筛选参数
      */
@@ -718,6 +737,7 @@ export function useUserApi() {
         getMeTeamups,
         getUserAssemblys,
         getMeAssemblys,
+        getMeCustomData,
         getMyOrders,
         getUserComments,
         getUserLikes,

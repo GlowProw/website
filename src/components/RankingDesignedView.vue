@@ -27,6 +27,7 @@ import MapLocationIconWidget from "@/components/snbWidget/mapLocationIconWidget.
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import ItemView from "@/components/ItemView.vue";
 import FullItemRightClickMenu from "@/components/FullItemRightClickMenu.vue";
+import RankingCustomDataDialog from "@/components/RankingCustomDataDialog.vue";
 import RankingDesignedItemsDataProcessing from "@/assets/sripts/ranking_designed_items_data_processing";
 import {RankingAttr} from "@/assets/types/Ranking";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -83,6 +84,10 @@ const isOpenItem = ref(false);
 const itemInsertIndex = ref(0);
 const itemCategory = ref<string | null>(null);
 
+// 自定义数据（配装、精通、轮盘、船厂）弹窗控制
+const isCustomDataDialogOpen = ref(false);
+const customDataCategory = ref('assembly');
+
 // 排行全局属性
 const attr: Ref<RankingAttr> = ref({
   useVersion: RankingDesignedItemsDataProcessing.nowVersion,
@@ -104,6 +109,10 @@ const categoryTypeMap: Record<string, string> = {
   treasureMap: "TreasureMap",
   maplocation: "MapLocation",
   mapLocation: "MapLocation",
+  assembly: "Assembly",
+  mastery: "Mastery",
+  wheel: "Wheel",
+  shipyard: "Shipyard",
 };
 
 // 预设阶梯色板
@@ -317,11 +326,18 @@ const onDragEnd = () => {
  * @param category 物品大类
  */
 const openInsertDataPanel = (tags: any[] = [], index: number, category: string) => {
-  if (itemWidget.value) {
-    itemInsertIndex.value = index;
-    itemCategory.value = category;
-    isOpenItem.value = false;
+  itemInsertIndex.value = index;
+  itemCategory.value = category;
 
+  // 若为“数据”分类（配装、精通、轮盘、船厂），弹出专属选择弹窗
+  if (["assembly", "mastery", "wheel", "shipyard"].includes(category)) {
+    customDataCategory.value = category;
+    isCustomDataDialogOpen.value = true;
+    return;
+  }
+
+  if (itemWidget.value) {
+    isOpenItem.value = false;
     itemWidget.value.openPanel(tags, category as any);
   }
 };
@@ -472,10 +488,17 @@ const onLoad = (data: any) => {
 };
 
 /**
- * 导出数据
+ * 导出数据（清洗并剥离内部私有辅助字段）
  */
 const onExport = () => {
-  return rankingData.value;
+  return (rankingData.value || []).map((row: any) => ({
+    ...row,
+    content: (row?.content || []).map((item: any) => {
+      const copy = { ...item };
+      delete copy._typeStringName;
+      return copy;
+    }),
+  }));
 };
 
 defineExpose({
@@ -678,6 +701,62 @@ defineExpose({
                 </v-card>
               </template>
 
+              <!-- 配装类型渲染 -->
+              <template v-else-if="j._typeStringName === 'Assembly' || String(j.category).toLowerCase() === 'assembly'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <div class="d-flex flex-column align-center justify-center w-100 h-100">
+                      <v-icon size="36" color="amber">mdi-package-variant-closed</v-icon>
+                    </div>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="j.id">
+                    <span class="text-caption">{{ t('codex.itemMenu.assembly') }}: {{ String(j.id).slice(-4) }}</span>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- 精通类型渲染 -->
+              <template v-else-if="j._typeStringName === 'Mastery' || String(j.category).toLowerCase() === 'mastery'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <div class="d-flex flex-column align-center justify-center w-100 h-100">
+                      <v-icon size="36" color="amber">mdi-star-circle-outline</v-icon>
+                    </div>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="j.id">
+                    <span class="text-caption">{{ t('codex.itemMenu.mastery') }}: {{ String(j.id).slice(-4) }}</span>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- 轮盘类型渲染 -->
+              <template v-else-if="j._typeStringName === 'Wheel' || String(j.category).toLowerCase() === 'wheel'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <div class="d-flex flex-column align-center justify-center w-100 h-100">
+                      <v-icon size="36" color="amber">mdi-ship-wheel</v-icon>
+                    </div>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="j.id">
+                    <span class="text-caption">{{ t('codex.itemMenu.wheel') }}: {{ String(j.id).slice(-4) }}</span>
+                  </div>
+                </v-card>
+              </template>
+
+              <!-- 船厂类型渲染 -->
+              <template v-else-if="j._typeStringName === 'Shipyard' || String(j.category).toLowerCase() === 'shipyard'">
+                <v-card elevation="0" class="bg-transparent" width="90">
+                  <ItemSlotBase size="90px">
+                    <div class="d-flex flex-column align-center justify-center w-100 h-100">
+                      <v-icon size="36" color="amber">mdi-ferry</v-icon>
+                    </div>
+                  </ItemSlotBase>
+                  <div class="text-center mt-1 text-truncate" style="max-width: 90px;" v-if="attr.isShowItemName" :title="j.id">
+                    <span class="text-caption">{{ t('codex.itemMenu.shipyard') }}: {{ String(j.id).slice(-4) }}</span>
+                  </div>
+                </v-card>
+              </template>
+
               <!-- 兜底通用物品渲染 -->
               <template v-else>
                 <v-card elevation="0" class="bg-transparent" width="90">
@@ -806,6 +885,14 @@ defineExpose({
       @finish="(id) => onInsertData(id)"
       @close="() => (isOpenItem = false)"
   />
+
+  <!-- 数据选择弹窗 S -->
+  <RankingCustomDataDialog
+      v-model="isCustomDataDialogOpen"
+      :category="customDataCategory"
+      @select="(uuid) => onInsertData(uuid)">
+  </RankingCustomDataDialog>
+  <!-- 数据选择弹窗 E -->
 </template>
 
 <style scoped lang="less">
