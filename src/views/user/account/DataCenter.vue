@@ -2,7 +2,7 @@
 import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {Apis} from "@/assets/sripts/api";
-import type {StatsAssemblyTop, StatsOverview, StatsRange, StatsTrend, StatsVisitor} from "@/assets/types/Stats";
+import type {StatsAssemblyTop, StatsRankingTop, StatsOverview, StatsRange, StatsTrend, StatsVisitor} from "@/assets/types/Stats";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Loading from "@/components/Loading.vue";
 import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
@@ -15,6 +15,7 @@ const loading = ref(true);
 const overview = ref<StatsOverview | null>(null);
 const trend = ref<StatsTrend | null>(null);
 const topData = ref<StatsAssemblyTop | null>(null);
+const topRankingData = ref<StatsRankingTop | null>(null);
 
 // 当前选中指标（折线图切换）
 const currentMetric = ref<StatsTrend['metric']>('browse');
@@ -22,7 +23,7 @@ const currentMetric = ref<StatsTrend['metric']>('browse');
 const trendRange = ref<StatsRange>('30');
 
 const loadingTrend = computed(() => !trend.value);
-const loadingTop = computed(() => !topData.value);
+const loadingTop = computed(() => !topData.value || !topRankingData.value);
 
 // 概览页最下方：自己访客最多的 6 个配装（含最近访客信息）
 const topVisitorAssemblies = computed(() => (topData.value?.topViewed || []).slice(0, 6));
@@ -31,6 +32,11 @@ const topVisitorAssemblies = computed(() => (topData.value?.topViewed || []).sli
  * 配装详情页链接
  */
 const assemblyDetailLink = (uuid: string) => `/assembly/browse/${uuid}/detail`;
+
+/**
+ * 天梯详情页链接
+ */
+const rankingDetailLink = (uuid: string) => `/ranking-designed-items/browse/${uuid}/detail`;
 
 /**
  * 访客显示名：登录用户显示用户名，匿名访客显示脱敏标识
@@ -91,6 +97,15 @@ const metricCards = computed(() => [
     href: {name: 'AccountAssemblys'} as any,
   },
   {
+    metric: 'ranking' as const,
+    title: t('rankingDesignedItems.title'),
+    value: overview.value?.rankingCount || 0,
+    icon: 'mdi-format-list-numbered',
+    color: '#fb8c00',
+    clickable: false,
+    href: {name: 'AccountRankingDesigned'} as any,
+  },
+  {
     metric: 'collection' as const,
     title: t('account.dataCenter.overview.collected'),
     value: overview.value?.collectionCount || 0,
@@ -110,7 +125,7 @@ const cardHoverIndexMap = ref<Record<string, number | null>>({});
 onMounted(async () => {
   loading.value = true;
   try {
-    await Promise.all([loadOverview(), loadTrends(), loadTop()]);
+    await Promise.all([loadOverview(), loadTrends(), loadTop(), loadRankingTop()]);
   } catch (err) {
     console.warn('[DataCenter] load failed:', err);
   } finally {
@@ -144,6 +159,13 @@ const loadTrends = async () => {
  */
 const loadTop = async () => {
   topData.value = await statsApi.getAssemblyTop(20);
+};
+
+/**
+ * 加载天梯榜单排行榜数据
+ */
+const loadRankingTop = async () => {
+  topRankingData.value = await statsApi.getRankingTop(10);
 };
 
 /**
@@ -368,6 +390,72 @@ defineOptions({
           </AffixBoxHasTitleView>
         </v-col>
       </v-row>
+
+      <!-- 天梯前10点赞列表与前10游览列表 S -->
+      <v-row class="mt-2">
+        <v-col cols="12" md="6">
+          <AffixBoxHasTitleView>
+            <v-list density="compact" class="bg-transparent">
+              <v-list-item v-for="(r, i) in topRankingData?.topLiked || []" :key="'rl'+r.uuid">
+                <template v-slot:prepend>
+                  <span class="text-amber-accent-1 w-6 mr-3 ml-n2">#{{ i + 1 }}</span>
+                </template>
+                <v-list-item-title class="u">
+                  <router-link :to="rankingDetailLink(r.uuid)" target="_blank" class="text-decoration-none text-white">
+                    {{ r.name }}
+                  </router-link>
+                </v-list-item-title>
+                <template v-slot:append>
+                  <v-chip size="x-small" color="red" variant="tonal">
+                    <v-icon start size="12">mdi-heart</v-icon>
+                    {{ r.likeCount }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+              <div v-if="!topRankingData?.topLiked?.length" class="text-center opacity-40 py-4 text-caption">
+                {{ t('account.dataCenter.analysis.noData') }}
+              </div>
+            </v-list>
+
+            <template v-slot:title>
+              <v-icon size="18" color="red" class="mb-2">mdi-heart</v-icon>
+              {{ t('rankingDesignedItems.analysis.topLiked') || '天梯前10点赞列表' }}
+            </template>
+          </AffixBoxHasTitleView>
+        </v-col>
+
+        <v-col cols="12" md="6">
+          <AffixBoxHasTitleView>
+            <v-list density="compact" class="bg-transparent">
+              <v-list-item v-for="(r, i) in topRankingData?.topViewed || []" :key="'rv'+r.uuid">
+                <template v-slot:prepend>
+                  <span class="text-amber-accent-1 w-6 mr-3 ml-n2">#{{ i + 1 }}</span>
+                </template>
+                <v-list-item-title class="u">
+                  <router-link :to="rankingDetailLink(r.uuid)" target="_blank" class="text-decoration-none text-white">
+                    {{ r.name }}
+                  </router-link>
+                </v-list-item-title>
+                <template v-slot:append>
+                  <v-chip size="x-small" color="blue" variant="tonal">
+                    <v-icon start size="12">mdi-eye</v-icon>
+                    {{ r.viewCount }}
+                  </v-chip>
+                </template>
+              </v-list-item>
+              <div v-if="!topRankingData?.topViewed?.length" class="text-center opacity-40 py-4 text-caption">
+                {{ t('account.dataCenter.analysis.noData') }}
+              </div>
+            </v-list>
+
+            <template v-slot:title>
+              <v-icon size="18" color="blue" class="mb-2">mdi-eye</v-icon>
+              {{ t('rankingDesignedItems.analysis.topViewed') || '天梯前10游览列表' }}
+            </template>
+          </AffixBoxHasTitleView>
+        </v-col>
+      </v-row>
+      <!-- 天梯前10点赞列表与前10游览列表 E -->
     </div>
     <div v-else class="text-center opacity-60 py-12">
       <Loading size="50"></Loading>

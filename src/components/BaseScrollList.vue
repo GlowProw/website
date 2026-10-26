@@ -523,13 +523,7 @@ const handleWheel = (e: WheelEvent) => {
   lastScrollTime.value = now
 
   if (isVertical.value) {
-    // 垂直滚动模式
-    if (canScroll.value) {
-      e.preventDefault()
-      const delta = e.deltaY * props.wheelSensitivity
-      const newScrollTop = scrollWrapper.value.scrollTop + delta
-      smoothScrollTo(newScrollTop)
-    }
+    // 垂直滚动直接使用浏览器原生平滑滚动与系统级惯性，避免 JS 节流阻尼与 cancelAnimationFrame 导致滚轮粘手丢帧
     return
   }
 

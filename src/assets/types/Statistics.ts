@@ -111,9 +111,9 @@ export interface PublicSeasonItems {
 export interface PublicCodexItemWeek {
     weekStart: string;
     weekEnd: string;
-    collectors: number;
-    newCollectors: number;
     rate: number;
+    collectors?: number;
+    newCollectors?: number;
 }
 
 /**
@@ -123,11 +123,11 @@ export interface PublicCodexItemStats {
     targetType: string;
     targetId: string;
     asOf: string;
-    totalUsers: number;
-    collectors: number;
     rate: number;
     weekly: PublicCodexItemWeek[];
     updatedAt: number;
+    totalUsers?: number;
+    collectors?: number;
 }
 
 /**

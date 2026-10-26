@@ -7,6 +7,7 @@ const AccountPage = () => import('@/views/user/account/Index.vue');
 const AccountInformationPage = () => import('@/views/user/account/Information.vue');
 const AccountProfilePicturePage = () => import('@/views/user/account/ProfilePicture.vue');
 const AccountAssemblysPage = () => import('@/views/user/account/Assemblys.vue');
+const AccountRankingsPage = () => import('@/views/user/account/Rankings.vue');
 const AccountCommentsPage = () => import('@/views/user/account/Comments.vue');
 const Teamup = () => import('@/views/user/account/Teamup.vue');
 const AccountMapsPage = () => import('@/views/user/account/Maps.vue');
@@ -152,6 +153,11 @@ export const portalRoutes: RouteRecordRaw[] = [
                         path: 'assemblys',
                         name: 'AccountAssemblys',
                         component: AccountAssemblysPage
+                    },
+                    {
+                        path: 'rankings',
+                        name: 'AccountRankingDesigned',
+                        component: AccountRankingsPage
                     },
                     {
                         path: 'comments',

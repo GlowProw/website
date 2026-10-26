@@ -40,4 +40,4 @@ export interface UpdateCommentParams {
     content: string;
 }
 
-export type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic' | 'empireSkill' | 'mastery' | 'quest'
+export type commentTargetType = 'assembly' | 'item' | 'commoditie' | 'ship' | 'ultimate' | 'mod' | 'material' | 'set' | 'treasureMap' | 'npc' | 'mapLocation' | 'cosmetic' | 'empireSkill' | 'mastery' | 'quest' | 'rankingDesigned'

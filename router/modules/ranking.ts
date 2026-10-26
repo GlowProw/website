@@ -3,6 +3,7 @@ import { initItemAssets } from '../guards';
 
 const RankingDesignedItemsPage = () => import('@/views/rankingDesignedItems/Index.vue');
 const RankingDesignedItemsBrowsePage = () => import('@/views/rankingDesignedItems/Browse.vue');
+const RankingDesignedItemsDetailPage = () => import('@/views/rankingDesignedItems/Detail.vue');
 const RankingDesignedItemsWorkshopPage = () => import('@/views/rankingDesignedItems/workshop/Index.vue');
 const RankingDesignedItemsPublishPage = () => import('@/views/rankingDesignedItems/Publish.vue');
 
@@ -25,20 +26,40 @@ export const rankingRoutes: RouteRecordRaw[] = [
                 component: RankingDesignedItemsBrowsePage,
             },
             {
+                path: 'browse/:uuid/detail',
+                name: 'RankingDesignedItemsDetail',
+                component: RankingDesignedItemsDetailPage,
+            },
+            {
                 path: 'workshop',
                 name: 'RankingDesignedItemsWorkshop',
                 component: RankingDesignedItemsWorkshopPage,
             },
             {
+                path: 'workshop/:uid/edit',
+                name: 'RankingDesignedItemsWorkshopEdit',
+                component: RankingDesignedItemsWorkshopPage,
+            },
+            {
                 path: 'publish/:uid',
                 name: 'PublishRankingDesignedItems',
-                component: RankingDesignedItemsPublishPage,
+                redirect: to => ({ name: 'RankingDesignedItemsWorkshop' }),
             },
             {
                 path: 'edit/:uid',
                 name: 'EditRankingDesignedItems',
-                component: RankingDesignedItemsPublishPage,
+                redirect: to => ({ name: 'RankingDesignedItemsWorkshopEdit', params: { uid: to.params.uid } }),
             },
         ]
+    },
+    {
+        path: '/publish/:uid',
+        name: 'TopLevelPublishRankingDesignedItems',
+        redirect: to => ({
+            name: 'RankingDesignedItemsWorkshop',
+            params: { lang: to.params.lang }
+        })
     }
 ];
+
+

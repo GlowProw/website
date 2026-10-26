@@ -959,7 +959,7 @@ usePageHotkeys({
 
                       <p class="ml-2 text-red"  v-if="verificationWorkshop.required > 0">
                         <v-icon icon="mdi-alert-circle" size="22"></v-icon>
-                        {{ verificationWorkshop.required }} 项必选未完成
+                        {{ t('assembly.workshop.requiredIncomplete', { count: verificationWorkshop.required }) }}
                       </p>
                     </v-btn>
                   </div>
@@ -981,7 +981,7 @@ usePageHotkeys({
                   <v-card-text v-if="optionalVerifyList.length > 0" class="pa-3 bg-grey-darken-4 text-white">
                     <div class="d-flex align-center mb-2 text-amber font-weight-bold">
                       <v-icon icon="mdi-information-outline" size="16" class="mr-1"></v-icon>
-                      <span>建议完善项 ({{ optionalVerifyList.length }})</span>
+                      <span>{{ t('assembly.workshop.suggestedItems') }} ({{ optionalVerifyList.length }})</span>
                     </div>
                     <ul class="pl-4 mb-0 opacity-80">
                       <li v-for="(v, vIndex) in optionalVerifyList" :key="'opt-' + vIndex">

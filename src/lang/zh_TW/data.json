@@ -1890,6 +1890,7 @@
       }
     },
     "myAssembly": "我的配裝",
+    "myRankingDesigned": "天梯管理",
     "myComment": "我的評論",
     "myTeamup": "我的組隊",
     "myMap": "地圖管理",
@@ -3501,15 +3502,78 @@
     "viewOnMap": "在地圖上檢視"
   },
   "rankingDesignedItems": {
-    "title": "排序设计",
+    "title": "物品天梯榜單",
+    "keywords": "碧海黑帆,Skull and Bones,物品排行榜,裝備評級,天梯榜,Tier List",
     "workshop": {
-      "title": "工作台",
-      "createTitle": "創建自定義排名",
-      "editTitle": "編輯自定義排名"
+      "title": "設計工坊",
+      "createTitle": "拖曳物品至各階梯完成評級分層",
+      "editTitle": "編輯自訂天梯"
     },
     "browse": {
-      "title": "分享",
-      "newRanking": "创建新排行"
+      "title": "天梯廣場",
+      "subtitle": "瀏覽並探索社群玩家建立的物品、武器與裝備評級榜單",
+      "newRanking": "建立新榜單",
+      "searchPlaceholder": "搜尋天梯標題、作者名或標籤...",
+      "sortUpdated": "最新更新",
+      "sortLikes": "最多按讚",
+      "sortCreated": "最新發布",
+      "sortViews": "最多瀏覽",
+      "topItems": "前排重點物品",
+      "emptyTier": "暫無物品",
+      "emptyTitle": "暫無天梯榜單",
+      "emptyDesc": "快來建立並分享全站首個天梯評級吧！",
+      "noDesc": "暫無說明",
+      "createNow": "立即建立",
+      "noDescription": "暫無說明",
+      "layers": "{count} 層"
+    },
+    "visibility": {
+      "publicly": "公開",
+      "unlisted": "僅連結可見",
+      "private": "私密"
+    },
+    "tags": {
+      "all": "全部標籤",
+      "pvp": "PVP",
+      "pve": "PVE",
+      "weapon": "武器",
+      "armor": "防具",
+      "furniture": "家具",
+      "seasonHot": "賽季熱門",
+      "beginner": "新手推薦"
+    },
+    "account": {
+      "deleteConfirm": "確定要刪除天梯榜單 [{name}] 嗎？",
+      "batchDeleteConfirm": "確定要刪除選取的 {count} 個天梯榜單嗎？"
+    },
+    "detail": {
+      "noDescription": "這個人很懶，對此天梯什麼都沒說",
+      "editBtn": "編輯天梯"
+    },
+    "analysis": {
+      "topLiked": "天梯前10點贊列表",
+      "topViewed": "天梯前10遊覽列表"
+    },
+    "publish": {
+      "subtitle": "確認天梯資訊並分享給全站玩家",
+      "name": "榜單標題",
+      "namePlaceholder": "輸入天梯榜單名稱...",
+      "description": "詳細說明",
+      "descriptionPlaceholder": "新增對該分級方案的見解或搭配建議...",
+      "tags": "分類標籤",
+      "tagsPlaceholder": "輸入標籤後按 Enter 新增",
+      "visibility": "可見性",
+      "visibilityPublic": "公開（廣場全員可見）",
+      "visibilityUnlisted": "僅連結可見",
+      "visibilityPrivate": "私密（僅自己可見）",
+      "recommendedTags": "推薦標籤"
+    },
+    "verify": {
+      "tierEmpty": "階梯列表不能為空，至少需要 1 個評級階梯",
+      "tierMaxExceeded": "階梯層數不能超過 20 層",
+      "itemsAllEmpty": "天梯內尚未放入任何物品，請至少添加 1 個物品後再發佈",
+      "tierItemMaxExceeded": "單層階梯物品數量不能超過 100 個",
+      "tierLabelEmpty": "請為所有階梯行填寫有效的標題標籤"
     }
   },
   "teamUp": {
@@ -3894,6 +3958,8 @@
       "saveAsDraft": "另存草稿",
       "loadDraft": "載入草稿",
       "missingRequiredFields": "配裝似乎缺少必要選項，請船長添加必要內容",
+      "requiredIncomplete": "{count} 項必選未完成",
+      "suggestedItems": "建議完善項",
       "draft": "草稿",
       "inputDraftName": "輸入另存為草稿名稱",
       "quickArchiving": "快速儲存草稿",
@@ -5600,6 +5666,7 @@
     "boost": "贊助加成 ×{multiplier}",
     "resource": {
       "assembly": "配裝",
+      "ranking": "物品天梯",
       "comment": "評論",
       "teamup": "組隊",
       "map": "地圖",

@@ -2,7 +2,8 @@
 
 import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
-import {onMounted, ref, type Ref} from "vue";
+import {computed, onMounted, ref, type Ref} from "vue";
+import {useDisplay} from "vuetify";
 import {apis, getAppUrl} from "@/assets/sripts/index";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
@@ -110,6 +111,31 @@ const getSmugglersComment = async (reportId: string) => {
     browseLoading.value = false
   }
 }
+
+const display = useDisplay()
+
+/**
+ * 响应式计算瀑布流列数
+ */
+const columnCount = computed(() => {
+  if (display.smAndDown.value) return 1
+  if (display.mdAndDown.value) return 2
+  return 3
+})
+
+/**
+ * 将评论按轮流平衡方式分配至各列，自动补齐空白处
+ */
+const masonryColumns = computed(() => {
+  const count = columnCount.value
+  const cols: any[][] = Array.from({length: count}, () => [])
+  if (!commentData.value || commentData.value.length === 0) return cols
+
+  commentData.value.forEach((item, index) => {
+    cols[index % count].push(item)
+  })
+  return cols
+})
 </script>
 
 <template>
@@ -203,49 +229,55 @@ const getSmugglersComment = async (reportId: string) => {
     </v-row>
 
 
+    <!-- 鉴赏家评论瀑布流 S -->
     <div v-if="browseLoading" class="d-flex justify-center align-center py-10">
       <Loading size="50"></Loading>
     </div>
     <template v-else>
-      <div v-if="commentData.length > 0" class="connoisseurs-masonry">
-        <v-card
-            v-for="(i, index) in commentData"
-            :key="i.id || index"
-            border
-            rounded="lg"
-            variant="tonal"
-            class="connoisseurs-masonry-item pa-4">
-          <div class="d-flex ga-3">
-            <div class="flex-shrink-0">
-              <AccountCardWidget :id="i.userId">
-                <ItemSlotBase size="48px">
-                  <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="48px"></UserAvatar>
-                </ItemSlotBase>
-              </AccountCardWidget>
-            </div>
-            <div class="flex-grow-1 overflow-hidden">
-              <div class="d-flex align-center justify-space-between ga-2">
+      <div v-if="commentData.length > 0" class="d-flex ga-4 w-100 align-start flex-wrap">
+        <div
+            v-for="(col, colIndex) in masonryColumns.filter(c => c.length > 0)"
+            :key="colIndex"
+            class="d-flex flex-column ga-4 flex-1-1"
+            style="min-width: 280px; flex: 1;">
+          <v-card
+              v-for="(i, index) in col"
+              :key="i.id || index"
+              tile
+              variant="text"
+              class="pa-2">
+            <v-row no-gutters>
+              <v-col cols="auto">
                 <AccountCardWidget :id="i.userId">
-                  <b class="u text-subtitle-2">{{ i.username }}</b>
+                  <ItemSlotBase size="50px">
+                    <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
+                  </ItemSlotBase>
                 </AccountCardWidget>
-                <div class="opacity-60 text-caption text-no-wrap">
+              </v-col>
+              <v-col class="ml-3 min-w-0">
+                <AccountCardWidget :id="i.userId">
+                  <b class="u">{{ i.username }}</b>
+                </AccountCardWidget>
+
+                <div class="opacity-60">
                   <TimeView :time="i.createdTime"></TimeView>
                 </div>
-              </div>
 
-              <Textarea
-                  readonly
-                  class="opacity-70 mt-2"
-                  :value="i.content"
-                  v-if="i.content"
-                  min-height="30">
-              </Textarea>
-            </div>
-          </div>
-        </v-card>
+                <Textarea
+                    readonly
+                    class="opacity-60 mt-2"
+                    :value="i.content"
+                    v-if="i.content"
+                    min-height="30">
+                </Textarea>
+              </v-col>
+            </v-row>
+          </v-card>
+        </div>
       </div>
       <EmptyView v-else></EmptyView>
     </template>
+    <!-- 鉴赏家评论瀑布流 E -->
   </v-container>
 </template>
 
@@ -253,26 +285,5 @@ const getSmugglersComment = async (reportId: string) => {
 .quote {
   line-height: 1.8;
   quotes: "\"" "\"";
-}
-
-.connoisseurs-masonry {
-  column-count: 1;
-  column-gap: 16px;
-
-  @media (min-width: 600px) {
-    column-count: 2;
-  }
-
-  @media (min-width: 960px) {
-    column-count: 3;
-  }
-}
-
-.connoisseurs-masonry-item {
-  break-inside: avoid;
-  display: inline-block;
-  width: 100%;
-  margin-bottom: 16px;
-  vertical-align: top;
 }
 </style>

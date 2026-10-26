@@ -5,7 +5,7 @@
 /**
  * 额度资源类型：配装 / 评论（含回复）/ 组队 / 地图（集合、区域、路径）/ 别名修改
  */
-export type QuotaResourceKey = 'assembly' | 'comment' | 'teamup' | 'map' | 'media' | 'alias';
+export type QuotaResourceKey = 'assembly' | 'ranking' | 'comment' | 'teamup' | 'map' | 'media' | 'alias';
 
 /**
  * 单个周期桶：已用数量与上限（null 表示不限）

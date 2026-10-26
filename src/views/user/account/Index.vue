@@ -89,6 +89,11 @@ const dataCenterTabs = [
     icon: 'mdi-package-variant-closed'
   },
   {
+    name: 'account.myRankingDesigned',
+    value: 'AccountRankingDesigned',
+    icon: 'mdi-format-list-numbered'
+  },
+  {
     name: 'account.myComment',
     value: 'AccountComments',
     icon: 'mdi-comment-text-multiple-outline'

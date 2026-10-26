@@ -96,30 +96,29 @@ export default class AppFuns {
                 to: `/${lang}/calculator`
             },
             // {
-            //    title: 'header.functions.captain-signature.title',
-            //    icon: 'mdi-draw-pen',
-            //    description: 'header.functions.captain-signature.description',
-            //    to: ''
+            //     title: 'header.functions.captain-signature.title',
+            //     icon: 'mdi-draw-pen',
+            //     description: 'header.functions.captain-signature.description',
+            //     to: ''
+            // },
+            {
+                title: 'header.functions.ranking-of-designed-items.title',
+                icon: 'mdi-format-list-numbered',
+                description: 'header.functions.ranking-of-designed-items.description',
+                to: '/ranking-designed-items',
+            },
+            // {
+            //     title: 'header.functions.impression-of-monsters.title',
+            //     icon: 'mdi-help',
+            //     description: 'header.functions.impression-of-monsters.description',
+            //     to: ''
             // },
             // {
-            //     title: 'header.functions.ranking-of-designed-items.title',
-            //     icon: 'mdi-format-list-numbered',
-            //     description: 'header.functions.ranking-of-designed-items.description',
-            //     to: '',
-            //     testTo: '/ranking-designed-items'
+            //     title: 'header.functions.fashion-show.title',
+            //     icon: 'mdi-help',
+            //     description: 'header.functions.fashion-show.description',
+            //     to: ''
             // },
-            // {
-            //    title: 'header.functions.impression-of-monsters.title',
-            //    icon: 'mdi-help',
-            //    description: 'header.functions.impression-of-monsters.description',
-            //    to: ''
-            // },
-            // {
-            //    title: 'header.functions.fashion-show.title',
-            //    icon: 'mdi-help',
-            //    description: 'header.functions.fashion-show.description',
-            //    to: ''
-            // }
             {
                 title: 'header.functions.apps.title',
                 icon: 'mdi-application-outline',

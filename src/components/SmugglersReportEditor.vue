@@ -660,7 +660,7 @@ defineOptions({
         <!-- 顶部编辑状态提示条 E -->
 
         <!-- 输入与快速选择栏 S -->
-        <v-row dense class="align-center mb-3">
+        <v-row density="compact" class="align-center mb-3">
           <!-- 物品输入与搜索选择 -->
           <v-col cols="12" sm="12">
             <v-combobox

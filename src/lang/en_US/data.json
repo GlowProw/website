@@ -1914,6 +1914,7 @@
       }
     },
     "myAssembly": "My Builds",
+    "myRankingDesigned": "Tier Lists",
     "myComment": "My Comments",
     "myTeamup": "My Teams",
     "myMap": "Map Management",
@@ -3582,15 +3583,78 @@
     "viewOnMap": "View on map"
   },
   "rankingDesignedItems": {
-    "title": "Ranking Design",
+    "title": "Item Tier Lists",
+    "keywords": "Skull and Bones,Item Ranking,Tier List,Gear Rating,Ship Equipment Tier",
     "workshop": {
-      "title": "Workshop",
-      "createTitle": "Create Custom Ranking",
-      "editTitle": "Edit Custom Ranking"
+      "title": "Design Workshop",
+      "createTitle": "Drag and drop items to tier ranks",
+      "editTitle": "Edit Custom Tier List"
     },
     "browse": {
-      "title": "Share",
-      "newRanking": "Create New Ranking"
+      "title": "Tier List Plaza",
+      "subtitle": "Explore and discover community-created item, weapon and gear rankings",
+      "newRanking": "Create New Tier List",
+      "searchPlaceholder": "Search tier list title, author or tag...",
+      "sortUpdated": "Recently Updated",
+      "sortLikes": "Most Liked",
+      "sortCreated": "Newest",
+      "sortViews": "Most Viewed",
+      "topItems": "Top Tier Items",
+      "emptyTier": "No items in tier",
+      "emptyTitle": "No Tier Lists Found",
+      "emptyDesc": "Be the first to design and publish an item tier list!",
+      "noDesc": "No description provided",
+      "createNow": "Create Now",
+      "noDescription": "No description provided",
+      "layers": "{count} tiers"
+    },
+    "visibility": {
+      "publicly": "Public",
+      "unlisted": "Unlisted",
+      "private": "Private"
+    },
+    "tags": {
+      "all": "All Tags",
+      "pvp": "PVP",
+      "pve": "PVE",
+      "weapon": "Weapons",
+      "armor": "Armor",
+      "furniture": "Furniture",
+      "seasonHot": "Season Hot",
+      "beginner": "Beginners"
+    },
+    "account": {
+      "deleteConfirm": "Are you sure you want to delete tier list [{name}]?",
+      "batchDeleteConfirm": "Are you sure you want to delete {count} selected tier lists?"
+    },
+    "detail": {
+      "noDescription": "No description provided for this tier list",
+      "editBtn": "Edit Tier List"
+    },
+    "analysis": {
+      "topLiked": "Top 10 Most Liked Tier Lists",
+      "topViewed": "Top 10 Most Viewed Tier Lists"
+    },
+    "publish": {
+      "subtitle": "Confirm details and share with the community",
+      "name": "Title",
+      "namePlaceholder": "Enter tier list title...",
+      "description": "Description",
+      "descriptionPlaceholder": "Share tips or reasoning behind this tier list...",
+      "tags": "Tags",
+      "tagsPlaceholder": "Input tag and press Enter",
+      "visibility": "Visibility",
+      "visibilityPublic": "Public (Visible in Browse)",
+      "visibilityUnlisted": "Unlisted (Link only)",
+      "visibilityPrivate": "Private (Self only)",
+      "recommendedTags": "Recommended Tags"
+    },
+    "verify": {
+      "tierEmpty": "Tier list cannot be empty, at least 1 tier is required",
+      "tierMaxExceeded": "Maximum 20 tiers allowed",
+      "itemsAllEmpty": "No items added yet. Please add at least 1 item before publishing",
+      "tierItemMaxExceeded": "Maximum 100 items allowed per tier",
+      "tierLabelEmpty": "Please specify a valid label for each tier"
     }
   },
   "teamUp": {
@@ -3900,6 +3964,8 @@
       "saveAsDraft": "Save as Draft",
       "loadDraft": "Load Draft",
       "missingRequiredFields": "Build seems to be missing required selections, please add required items",
+      "requiredIncomplete": "{count} required items incomplete",
+      "suggestedItems": "Suggested Items",
       "draft": "Draft",
       "inputDraftName": "Enter draft name",
       "quickArchiving": "Quick Save Draft",
@@ -5646,6 +5712,7 @@
     "boost": "Sponsor bonus ×{multiplier}",
     "resource": {
       "assembly": "Loadouts",
+      "ranking": "Tier Lists",
       "comment": "Comments",
       "teamup": "Team-ups",
       "map": "Maps",

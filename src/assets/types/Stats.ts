@@ -12,6 +12,7 @@ export interface StatsOverview {
     commentCount: number;
     replyCount: number;
     assemblyCount: number;
+    rankingCount?: number;
     conversationCount: number;
     messageUnread: number;
     collectionCount: number;
@@ -53,6 +54,12 @@ export interface StatsAssemblyTop {
         commentCount: number;
         recentVisitors: StatsVisitor[];
     }>;
+    updatedAt: number;
+}
+
+export interface StatsRankingTop {
+    topLiked: Array<{ uuid: string; name: string; likeCount: number; viewCount: number }>;
+    topViewed: Array<{ uuid: string; name: string; viewCount: number; likeCount: number }>;
     updatedAt: number;
 }
 

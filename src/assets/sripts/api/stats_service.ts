@@ -5,6 +5,7 @@
 import {useHttpToken} from "@/assets/sripts/http_util";
 import type {
     StatsAssemblyTop,
+    StatsRankingTop,
     StatsOverview,
     StatsRange,
     StatsTrend,
@@ -45,5 +46,14 @@ export function useStatsApi() {
         } catch { return null; }
     };
 
-    return { getOverview, getTrend, getAssemblyTop };
+    const getRankingTop = async (limit = 10): Promise<StatsRankingTop | null> => {
+        try {
+            const res = await http.get(`stats/ranking-top?limit=${limit}`);
+            const body = (res as any).data;
+            if (body?.code === 0) return (body.data as StatsRankingTop) || null;
+            return null;
+        } catch { return null; }
+    };
+
+    return { getOverview, getTrend, getAssemblyTop, getRankingTop };
 }

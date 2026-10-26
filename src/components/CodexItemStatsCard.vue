@@ -58,7 +58,7 @@ const displayRate = computed(() => {
 })
 
 /**
- * 副标题：悬浮时展示周区间，否则展示取得人数与全站用户
+ * 副标题：悬浮时展示周区间
  */
 const displayDetail = computed(() => {
   const index = hoverIndex.value
@@ -66,8 +66,7 @@ const displayDetail = computed(() => {
     const week = stats.value?.weekly[index]
     return week ? `${week.weekStart.slice(5).replace('-', '/')} - ${week.weekEnd.slice(5).replace('-', '/')}` : ''
   }
-  if (!stats.value) return t('statistics.common.noData')
-  return `${t('statistics.codexItem.holders')} ${stats.value.collectors.toLocaleString()} / ${stats.value.totalUsers.toLocaleString()}`
+  return ''
 })
 
 /**
@@ -102,6 +101,7 @@ defineOptions({
 </script>
 
 <template>
+  <!-- 站内图鉴统计 S -->
   <div class="mb-3">
     <div class="d-flex font-weight-bold ga-2 mb-2">{{ t('statistics.codexItem.title') }}</div>
 
@@ -113,7 +113,7 @@ defineOptions({
       <v-col>
         <v-divider></v-divider>
       </v-col>
-      <v-col cols="auto" class="text-caption opacity-60 mt-1">{{ displayDetail }}</v-col>
+      <v-col cols="auto" class="text-caption opacity-60 mt-1" v-if="displayDetail">{{ displayDetail }}</v-col>
     </v-row>
 
     <template v-if="stats">
@@ -142,4 +142,5 @@ defineOptions({
       </div>
     </template>
   </div>
+  <!-- 站内图鉴统计 E -->
 </template>

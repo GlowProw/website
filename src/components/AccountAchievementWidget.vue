@@ -91,7 +91,7 @@ defineOptions({
   </div>
 
   <template v-else-if="summary.level">
-    <v-row dense>
+    <v-row density="compact">
       <v-col cols="auto">
         <v-img :src="levelIcon(summary.level.key)" width="35" height="35" contain/>
       </v-col>
