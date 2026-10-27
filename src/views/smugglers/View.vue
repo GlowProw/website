@@ -56,19 +56,32 @@ let smugglersData = ref<any>({}),
       pageSize: 6
     })
 
-// 最近已发布周报列表缓存与加载状态
-const recentReportsList = ref<any[]>([])
-const recentReportsLoading = ref(false)
+// 周报本地内存缓存（按 reportId 或 period 缓存）
+const reportCache = new Map<string, any>()
 
 // 当前用户生效时区
 const userTz = computed(() => getUserTimezone())
 
+// 是否允许回到本周（当查看非本周周报时显示）
+const canGoCurrent = computed(() => {
+  return smugglersData.value?.periodState !== 'current';
+});
+
+// 是否存在上一周周报（数据没有则为 false）
+const hasPreviousReport = computed(() => {
+  return !!smugglersData.value?.hasPrevious && !!smugglersData.value?.previousReportId;
+});
+
+// 是否存在下一周周报（数据没有则为 false）
+const hasNextReport = computed(() => {
+  return !!smugglersData.value?.hasNext && !!smugglersData.value?.nextReportId;
+});
+
 /**
- * 页面挂载时拉取当前走私者周报与最近历史周报候选池
+ * 页面挂载时拉取当前走私者周报
  */
 onMounted(() => {
   getSmugglersData()
-  loadRecentReports()
 })
 
 /**
@@ -83,198 +96,37 @@ const formatHourTime = (timeStr?: string | number | Date) => {
 };
 
 /**
- * 格式化周报起止简明日期区间
- *
- * @param start 起始时间
- * @param end 截止时间
- * @returns 简明月日范围展示
- */
-const formatBriefDateRange = (start?: string | number | Date, end?: string | number | Date) => {
-  if (!start) return '';
-  const s = new Date(start);
-  const sMonth = s.getMonth() + 1;
-  const sDate = s.getDate();
-  if (!end) return `${sMonth}/${sDate}`;
-  const e = new Date(end);
-  const eMonth = e.getMonth() + 1;
-  const eDate = e.getDate();
-  return `${sMonth}/${sDate} - ${eMonth}/${eDate}`;
-};
-
-/**
- * 拉取最近已发布的周报列表用于快捷切换与历史归档查询
- */
-const loadRecentReports = async () => {
-  try {
-    recentReportsLoading.value = true;
-    const res = await apis.smugglersApi().getReports({
-      page: 1,
-      pageSize: 30,
-      status: 'published',
-      sortBy: 'startTime',
-      sortOrder: 'desc',
-    });
-    if (res?.data?.data && Array.isArray(res.data.data)) {
-      recentReportsList.value = res.data.data;
-    }
-  } catch (e) {
-    // 静默降级处理，避免影响主周报内容渲染
-  } finally {
-    recentReportsLoading.value = false;
-  }
-};
-
-/**
- * 识别当前生效周报或最新发布的周报作为参照基准
- */
-const activeOrLatestReport = computed(() => {
-  if (!recentReportsList.value || recentReportsList.value.length === 0) return null;
-  const currentActive = recentReportsList.value.find(r => r.periodState === 'current' || r.isActive);
-  return currentActive || recentReportsList.value[0];
-});
-
-/**
- * 归整最多前 5 周的历史周报列表（排除未来与当前参照周报，最多取 5 篇）
- */
-const historyWeeksPool = computed(() => {
-  const base = activeOrLatestReport.value;
-  if (!base || !recentReportsList.value) return [];
-  const baseStart = new Date(base.startTime).getTime();
-  const pastList = recentReportsList.value
-    .filter(r => r.id !== base.id && new Date(r.startTime).getTime() < baseStart)
-    .sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
-  return pastList.slice(0, 5).map((r, index) => ({
-    ...r,
-    weeksAgo: index + 1,
-  }));
-});
-
-// 上周周报对象引用
-const lastWeekReport = computed(() => historyWeeksPool.value[0] || null)
-
-// 上上周周报对象引用
-const twoWeeksAgoReport = computed(() => historyWeeksPool.value[1] || null)
-
-/**
- * 计算属于本月且包含跨月规则限定的周报列表
- * 当发生跨月份时，跨月部分最多只保留最后 2 周周报，且总览严格限制在前 5 周历史以内
- */
-const thisMonthReportsList = computed(() => {
-  const base = activeOrLatestReport.value;
-  if (!base || !recentReportsList.value) return [];
-  const baseDate = new Date(base.startTime);
-  const targetYear = baseDate.getFullYear();
-  const targetMonth = baseDate.getMonth();
-
-  // 筛选当月范围内的所有周报
-  const inMonth = recentReportsList.value.filter(r => {
-    const d = new Date(r.startTime);
-    return d.getFullYear() === targetYear && d.getMonth() === targetMonth;
-  }).map(r => ({ ...r, isCrossMonth: false }));
-
-  // 跨月候选池：属于非当月的历史周报
-  const crossMonthPast = historyWeeksPool.value
-    .filter(r => {
-      const d = new Date(r.startTime);
-      return d.getFullYear() !== targetYear || d.getMonth() !== targetMonth;
-    })
-    .map(r => ({ ...r, isCrossMonth: true }));
-
-  // 跨月最多只取最后 2 周
-  const limitedCrossMonth = crossMonthPast.slice(0, 2);
-
-  const combined = [...inMonth];
-  for (const r of limitedCrossMonth) {
-    if (!combined.some(c => c.id === r.id)) {
-      combined.push(r);
-    }
-  }
-  return combined.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
-});
-
-// 是否包含跨月周报条目
-const hasCrossMonthReports = computed(() => {
-  return thisMonthReportsList.value.some(r => r.isCrossMonth);
-});
-
-/**
- * 判断指定周报是否为当前正处于查看状态的周报
- *
- * @param reportId 待判定的周报ID
- * @returns 是否选中
- */
-const isReportSelected = (reportId?: number | string) => {
-  if (!reportId || !smugglersData.value?.id) return false;
-  return String(reportId) === String(smugglersData.value.id);
-};
-
-// 当前查看的是否为本周生效周报
-const isCurrentActiveSelected = computed(() => {
-  if (smugglersData.value?.periodState === 'current') return true;
-  if (activeOrLatestReport.value && String(activeOrLatestReport.value.id) === String(smugglersData.value?.id)) return true;
-  return false;
-});
-
-// 当前查看的是否为上周周报
-const isLastWeekSelected = computed(() => {
-  return !!lastWeekReport.value && isReportSelected(lastWeekReport.value.id);
-});
-
-// 当前查看的是否为上上周周报
-const isTwoWeeksAgoSelected = computed(() => {
-  return !!twoWeeksAgoReport.value && isReportSelected(twoWeeksAgoReport.value.id);
-});
-
-/**
- * 切换查看指定编号的周报并同步更新路由状态
- *
- * @param reportId 目标周报编号
- */
-const onSelectReport = (reportId?: number | string) => {
-  if (!reportId) return;
-  getSmugglersData({ reportId });
-  router.replace({ query: { ...route.query, id: String(reportId), period: undefined } });
-};
-
-/**
- * 快捷选择上周周报
- */
-const onSelectLastWeek = () => {
-  if (lastWeekReport.value) {
-    onSelectReport(lastWeekReport.value.id);
-  }
-};
-
-/**
- * 快捷选择上上周周报
- */
-const onSelectTwoWeeksAgo = () => {
-  if (twoWeeksAgoReport.value) {
-    onSelectReport(twoWeeksAgoReport.value.id);
-  }
-};
-
-/**
- * 获取符合当前时间或指定参数的周报
+ * 获取符合当前时间或指定参数的周报（优先命中本地内存缓存）
  *
  * @param params 可选参数，包括 period / reportId / date
  */
 const getSmugglersData = async (params?: { period?: 'current' | 'previous' | 'next'; reportId?: number | string; date?: string }) => {
+  const queryParams: any = {};
+  if (params?.reportId) {
+    queryParams.reportId = params.reportId;
+  } else if (params?.period) {
+    queryParams.period = params.period;
+  } else if (route.query.id) {
+    queryParams.reportId = route.query.id as string;
+  } else if (route.query.period) {
+    queryParams.period = route.query.period as any;
+  } else {
+    queryParams.period = 'current';
+  }
+
+  const cacheKey = String(queryParams.reportId || queryParams.period || 'current');
+
+  // 若前端缓存已存在，直接赋值渲染
+  if (reportCache.has(cacheKey)) {
+    smugglersData.value = reportCache.get(cacheKey);
+    if (smugglersData.value?.id) {
+      getSmugglersComment(smugglersData.value.id);
+    }
+    return;
+  }
+
   try {
     browseLoading.value = true;
-    const queryParams: any = {};
-    if (params?.reportId) {
-      queryParams.reportId = params.reportId;
-    } else if (params?.period) {
-      queryParams.period = params.period;
-    } else if (route.query.id) {
-      queryParams.reportId = route.query.id as string;
-    } else if (route.query.period) {
-      queryParams.period = route.query.period as any;
-    } else {
-      queryParams.period = 'current';
-    }
-
     const result = await apis.smugglersApi().getRangeTimeReport(queryParams);
     const d = result?.data;
 
@@ -283,6 +135,14 @@ const getSmugglersData = async (params?: { period?: 'current' | 'previous' | 'ne
         smugglersData.value = d.data[0] || {};
       } else {
         smugglersData.value = d.data || {};
+      }
+
+      // 写入前端内存缓存
+      if (smugglersData.value?.id) {
+        reportCache.set(String(smugglersData.value.id), smugglersData.value);
+        if (queryParams.period) {
+          reportCache.set(queryParams.period, smugglersData.value);
+        }
       }
     } else {
       smugglersData.value = {};
@@ -305,7 +165,9 @@ const getSmugglersData = async (params?: { period?: 'current' | 'previous' | 'ne
  */
 const onGoPrevious = () => {
   if (smugglersData.value?.previousReportId) {
-    onSelectReport(smugglersData.value.previousReportId);
+    const prevId = smugglersData.value.previousReportId;
+    getSmugglersData({ reportId: prevId });
+    router.replace({ query: { ...route.query, id: String(prevId), period: undefined } });
   } else {
     getSmugglersData({ period: 'previous' });
   }
@@ -324,7 +186,9 @@ const onGoCurrent = () => {
  */
 const onGoNext = () => {
   if (smugglersData.value?.nextReportId) {
-    onSelectReport(smugglersData.value.nextReportId);
+    const nextId = smugglersData.value.nextReportId;
+    getSmugglersData({ reportId: nextId });
+    router.replace({ query: { ...route.query, id: String(nextId), period: undefined } });
   } else {
     getSmugglersData({ period: 'next' });
   }
@@ -460,174 +324,45 @@ const masonryColumns = computed(() => {
                 </div>
                 <!-- 周期状态徽章 E -->
 
-                <!-- 历史与快速周报导航 S -->
-                <div class="mb-4">
-                  <!-- 常用快捷切换按钮组 S -->
-                  <div class="d-flex align-center ga-1 flex-wrap mb-2">
-                    <v-btn
-                        size="x-small"
-                        variant="text"
-                        density="comfortable"
-                        color="amber"
-                        icon="mdi-chevron-left"
-                        :disabled="browseLoading || !smugglersData.hasPrevious"
-                        @click="onGoPrevious" />
+                <!-- 上周/本周/下周 快速切换器 S -->
+                <div class="d-flex align-center ga-2 mb-4 flex-wrap">
+                  <!-- 上周 -->
+                  <v-btn
+                      v-if="hasPreviousReport"
+                      size="small"
+                      variant="outlined"
+                      color="amber"
+                      prepend-icon="mdi-chevron-left"
+                      :loading="browseLoading"
+                      @click="onGoPrevious">
+                    {{ t('smugglersReport.view.goToPrevious') }}
+                  </v-btn>
 
-                    <v-btn
-                        size="x-small"
-                        :variant="isCurrentActiveSelected ? 'flat' : 'tonal'"
-                        color="amber"
-                        :disabled="browseLoading"
-                        @click="onGoCurrent">
-                      {{ t('smugglersReport.view.currentWeekBtn') }}
-                    </v-btn>
+                  <!-- 本周 -->
+                  <v-btn
+                      v-if="canGoCurrent"
+                      size="small"
+                      variant="tonal"
+                      color="amber"
+                      prepend-icon="mdi-calendar-today"
+                      :loading="browseLoading"
+                      @click="onGoCurrent">
+                    {{ t('smugglersReport.view.goToCurrent') }}
+                  </v-btn>
 
-                    <v-btn
-                        size="x-small"
-                        :variant="isLastWeekSelected ? 'flat' : 'outlined'"
-                        color="amber"
-                        :disabled="browseLoading || !lastWeekReport"
-                        @click="onSelectLastWeek">
-                      {{ t('smugglersReport.view.lastWeek') }}
-                    </v-btn>
-
-                    <v-btn
-                        size="x-small"
-                        :variant="isTwoWeeksAgoSelected ? 'flat' : 'outlined'"
-                        color="amber"
-                        :disabled="browseLoading || !twoWeeksAgoReport"
-                        @click="onSelectTwoWeeksAgo">
-                      {{ t('smugglersReport.view.twoWeeksAgo') }}
-                    </v-btn>
-
-                    <v-btn
-                        size="x-small"
-                        variant="text"
-                        density="comfortable"
-                        color="amber"
-                        icon="mdi-chevron-right"
-                        :disabled="browseLoading || !smugglersData.hasNext"
-                        @click="onGoNext" />
-                  </div>
-                  <!-- 常用快捷切换按钮组 E -->
-
-                  <!-- 本月周报与历史周报菜单选择器 S -->
-                  <div class="d-flex align-center ga-2 flex-wrap">
-                    <v-menu location="bottom start" :close-on-content-click="true">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                            v-bind="props"
-                            size="x-small"
-                            variant="outlined"
-                            color="amber"
-                            prepend-icon="mdi-calendar-month-outline"
-                            append-icon="mdi-chevron-down"
-                            :loading="recentReportsLoading">
-                          {{ t('smugglersReport.view.thisMonthReports') }} ({{ thisMonthReportsList.length }})
-                        </v-btn>
-                      </template>
-                      <v-card min-width="280" max-width="360" class="border border-amber-darken-3 bg-grey-darken-4">
-                        <v-card-title class="text-caption text-amber px-3 py-2 d-flex align-center justify-space-between">
-                          <span>{{ t('smugglersReport.view.thisMonthReports') }}</span>
-                          <span v-if="hasCrossMonthReports" class="text-caption opacity-60">
-                            {{ t('smugglersReport.view.crossMonthNotice') }}
-                          </span>
-                        </v-card-title>
-                        <v-divider opacity=".1" />
-                        <v-list density="compact" class="py-0">
-                          <template v-if="thisMonthReportsList.length > 0">
-                            <v-list-item
-                                v-for="item in thisMonthReportsList"
-                                :key="item.id"
-                                :active="isReportSelected(item.id)"
-                                active-color="amber"
-                                @click="onSelectReport(item.id)">
-                              <template v-slot:prepend>
-                                <v-icon
-                                    :icon="isReportSelected(item.id) ? 'mdi-check-circle' : 'mdi-file-document-outline'"
-                                    size="small"
-                                    class="mr-2"
-                                    :color="isReportSelected(item.id) ? 'amber' : 'grey'" />
-                              </template>
-                              <v-list-item-title class="text-body-2 font-weight-medium">
-                                {{ item.title }}
-                              </v-list-item-title>
-                              <v-list-item-subtitle class="text-caption opacity-70">
-                                {{ formatBriefDateRange(item.startTime, item.endTime) }}
-                                <span v-if="item.isCrossMonth" class="text-amber-lighten-3 ml-1">
-                                  ({{ t('smugglersReport.view.crossMonthNotice') }})
-                                </span>
-                              </v-list-item-subtitle>
-                            </v-list-item>
-                          </template>
-                          <v-list-item v-else>
-                            <v-list-item-title class="text-caption opacity-60 text-center py-2">
-                              {{ t('smugglersReport.view.noReportInPeriod') }}
-                            </v-list-item-title>
-                          </v-list-item>
-                        </v-list>
-                      </v-card>
-                    </v-menu>
-
-                    <v-menu location="bottom start" :close-on-content-click="true">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                            v-bind="props"
-                            size="x-small"
-                            variant="outlined"
-                            color="grey-lighten-1"
-                            prepend-icon="mdi-history"
-                            append-icon="mdi-chevron-down"
-                            :loading="recentReportsLoading">
-                          {{ t('smugglersReport.view.historyMenu') }} ({{ historyWeeksPool.length }})
-                        </v-btn>
-                      </template>
-                      <v-card min-width="280" max-width="360" class="border border-grey-darken-2 bg-grey-darken-4">
-                        <v-card-title class="text-caption text-amber px-3 py-2 d-flex align-center justify-space-between">
-                          <span>{{ t('smugglersReport.view.historyMenu') }}</span>
-                          <span class="text-caption opacity-60">
-                            {{ t('smugglersReport.view.historyLimitTip') }}
-                          </span>
-                        </v-card-title>
-                        <v-divider opacity=".1" />
-                        <v-list density="compact" class="py-0">
-                          <template v-if="historyWeeksPool.length > 0">
-                            <v-list-item
-                                v-for="item in historyWeeksPool"
-                                :key="item.id"
-                                :active="isReportSelected(item.id)"
-                                active-color="amber"
-                                @click="onSelectReport(item.id)">
-                              <template v-slot:prepend>
-                                <v-icon
-                                    :icon="isReportSelected(item.id) ? 'mdi-check-circle' : 'mdi-history'"
-                                    size="small"
-                                    class="mr-2"
-                                    :color="isReportSelected(item.id) ? 'amber' : 'grey'" />
-                              </template>
-                              <v-list-item-title class="text-body-2 font-weight-medium d-flex align-center justify-space-between">
-                                <span>{{ item.title }}</span>
-                                <v-chip size="x-small" variant="tonal" color="amber" class="ml-2">
-                                  {{ item.weeksAgo === 1 ? t('smugglersReport.view.lastWeek') : (item.weeksAgo === 2 ? t('smugglersReport.view.twoWeeksAgo') : t('smugglersReport.view.weeksAgoLabel', { count: item.weeksAgo })) }}
-                                </v-chip>
-                              </v-list-item-title>
-                              <v-list-item-subtitle class="text-caption opacity-70">
-                                {{ formatBriefDateRange(item.startTime, item.endTime) }}
-                              </v-list-item-subtitle>
-                            </v-list-item>
-                          </template>
-                          <v-list-item v-else>
-                            <v-list-item-title class="text-caption opacity-60 text-center py-2">
-                              {{ t('smugglersReport.view.noHistoryReports') }}
-                            </v-list-item-title>
-                          </v-list-item>
-                        </v-list>
-                      </v-card>
-                    </v-menu>
-                  </div>
-                  <!-- 本月周报与历史周报菜单选择器 E -->
+                  <!-- 下周 -->
+                  <v-btn
+                      v-if="hasNextReport"
+                      size="small"
+                      variant="outlined"
+                      color="amber"
+                      append-icon="mdi-chevron-right"
+                      :loading="browseLoading"
+                      @click="onGoNext">
+                    {{ t('smugglersReport.view.goToNext') }}
+                  </v-btn>
                 </div>
-                <!-- 历史与快速周报导航 E -->
+                <!-- 上周/本周/下周 快速切换器 E -->
 
                 <div class="opacity-80 text-body-2">
                   <p><b class="d-block mb-2 text-h6">{{ smugglersData.title ?? 'N/A' }}</b></p>
