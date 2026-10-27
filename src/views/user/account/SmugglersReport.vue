@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from "vue";
-import {apis, storage, formatHourInUserTimezone, getUserTimezone} from "@/assets/sripts/index";
+import {apis, formatHourInUserTimezone, storage} from "@/assets/sripts/index";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {notifyReviewResult} from "@/assets/sripts/review";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -12,7 +12,6 @@ import SmugglersReportShowItemWidget from "@/components/SmugglersReportShowItemW
 import SmugglersReportEditor from "@/components/SmugglersReportEditor.vue";
 import Textarea from "@/components/textarea/index.vue";
 import TimeFrame from "@/components/TimeFrame.vue";
-import TimeView from "@/components/TimeView.vue";
 import Loading from "@/components/Loading.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
@@ -90,7 +89,7 @@ const reportStartHour = ref(14)
 const reportEndHour = ref(14)
 
 // 24小时可选列表，突出标注 14:00 游戏刷新节点
-const hourSelectItems = Array.from({ length: 24 }, (_, i) => ({
+const hourSelectItems = Array.from({length: 24}, (_, i) => ({
   value: i,
   title: i === 14 ? '14:00' : `${String(i).padStart(2, '0')}:00`
 }))
@@ -123,10 +122,10 @@ const getGameWeeklyCycle = (offsetWeeks = 0) => {
   }
 
   const cycleStart = new Date(Date.UTC(
-    now.getUTCFullYear(),
-    now.getUTCMonth(),
-    now.getUTCDate() - diffDays + offsetWeeks * 7,
-    6, 0, 0, 0
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() - diffDays + offsetWeeks * 7,
+      6, 0, 0, 0
   ));
 
   const cycleEnd = new Date(cycleStart.getTime() + 7 * 24 * 3600 * 1000);
@@ -143,7 +142,7 @@ const getGameWeeklyCycle = (offsetWeeks = 0) => {
  * @param offsetWeeks 偏移周数（0 为本周，1 为下周）
  */
 const applyWeeklyPreset = (offsetWeeks: number) => {
-  const { start, end } = getGameWeeklyCycle(offsetWeeks);
+  const {start, end} = getGameWeeklyCycle(offsetWeeks);
   const s = new Date(start);
   const e = new Date(end);
   reportStartHour.value = s.getHours();
@@ -1508,23 +1507,25 @@ defineOptions({
                     </v-btn>
                   </div>
 
-                   <!-- 生效时间预览 S -->
-                    <template v-if="createSmugglersReportData.startAndEnd">
-                      <div class="text-caption text-amber d-flex align-center ga-1 font-monospace">
-                        <v-icon size="14">mdi-clock-outline</v-icon>
-                        <span>
-                          {{ t('smugglersReport.account.periodPreview', {
+                  <!-- 生效时间预览 S -->
+                  <template v-if="createSmugglersReportData.startAndEnd">
+                    <div class="text-caption text-amber d-flex align-center ga-1 font-monospace">
+                      <v-icon size="14">mdi-clock-outline</v-icon>
+                      <span>
+                          {{
+                          t('smugglersReport.account.periodPreview', {
                             start: formatHourDisplay(createSmugglersReportData.startAndEnd.split(',')[0]),
                             end: formatHourDisplay(createSmugglersReportData.startAndEnd.split(',')[1])
-                          }) }}
+                          })
+                        }}
                         </span>
-                      </div>
-                    </template>
-                    <!-- 生效时间预览 E -->
+                    </div>
+                  </template>
+                  <!-- 生效时间预览 E -->
                 </v-col>
                 <!-- 一键快捷设置本周/下周周期 E -->
 
-               
+
                 <v-col cols="12" md="6">
                   <TimeFrame
                       density="comfortable"
@@ -1606,15 +1607,14 @@ defineOptions({
         <!-- 固定底部 -->
         <v-card-actions class="pa-4 border-t flex-shrink-0">
           <template v-if="smugglersReportModelIsEdit">
- <v-btn
-              
-              color="error"
-              variant="tonal"
-              @click="onDeleteSmugglersReport(createSmugglersReportData)">
-            {{ t('smugglersReport.account.deleteReport') }}
-          </v-btn>
+            <v-btn
+                color="error"
+                variant="tonal"
+                @click="onDeleteSmugglersReport(createSmugglersReportData)">
+              {{ t('smugglersReport.account.deleteReport') }}
+            </v-btn>
 
-          <v-divider vertical inset class="mx-4"></v-divider>
+            <v-divider vertical inset class="mx-4"></v-divider>
           </template>
 
           <!-- 从已有周报克隆下拉菜单 S -->

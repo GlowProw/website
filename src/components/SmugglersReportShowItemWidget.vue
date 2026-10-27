@@ -544,6 +544,11 @@ defineOptions({
             <ItemName v-else :id="i.data.id"></ItemName>
           </div>
         </div>
+        <div class="d-flex ga-2 align-center justify-center text-caption">
+          <ItemSlotBase size="18px" class="rounded-lg mx-n1">
+            <MaterialIconWidget :id="i.currency"></MaterialIconWidget>
+          </ItemSlotBase> <u class="u">{{ i.worth || 0 }}</u>
+        </div>
       </v-col>
     </v-row>
   </div>

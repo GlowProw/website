@@ -4,13 +4,12 @@ import Silk from "@/components/Silk.vue";
 import {useI18n} from "vue-i18n";
 import {computed, onMounted, ref, type Ref} from "vue";
 import {useDisplay} from "vuetify";
-import {apis, getAppUrl, formatHourInUserTimezone, getUserTimezone} from "@/assets/sripts/index";
+import {apis, formatHourInUserTimezone, getAppUrl, getUserTimezone} from "@/assets/sripts/index";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 
 import SmugglersReportShowItemWidget from "@/components/SmugglersReportShowItemWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
-import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import TimeView from "@/components/TimeView.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
@@ -167,10 +166,10 @@ const getSmugglersData = async (params?: { period?: 'current' | 'previous' | 'ne
 const onGoPrevious = () => {
   if (smugglersData.value?.previousReportId) {
     const prevId = smugglersData.value.previousReportId;
-    getSmugglersData({ reportId: prevId });
-    router.replace({ query: { ...route.query, id: String(prevId), period: undefined } });
+    getSmugglersData({reportId: prevId});
+    router.replace({query: {...route.query, id: String(prevId), period: undefined}});
   } else {
-    getSmugglersData({ period: 'previous' });
+    getSmugglersData({period: 'previous'});
   }
 };
 
@@ -178,8 +177,8 @@ const onGoPrevious = () => {
  * 回到当前本周周报
  */
 const onGoCurrent = () => {
-  getSmugglersData({ period: 'current' });
-  router.replace({ query: { ...route.query, id: undefined, period: 'current' } });
+  getSmugglersData({period: 'current'});
+  router.replace({query: {...route.query, id: undefined, period: 'current'}});
 };
 
 /**
@@ -188,10 +187,10 @@ const onGoCurrent = () => {
 const onGoNext = () => {
   if (smugglersData.value?.nextReportId) {
     const nextId = smugglersData.value.nextReportId;
-    getSmugglersData({ reportId: nextId });
-    router.replace({ query: { ...route.query, id: String(nextId), period: undefined } });
+    getSmugglersData({reportId: nextId});
+    router.replace({query: {...route.query, id: String(nextId), period: undefined}});
   } else {
-    getSmugglersData({ period: 'next' });
+    getSmugglersData({period: 'next'});
   }
 };
 
@@ -389,7 +388,13 @@ const masonryColumns = computed(() => {
               <v-alert type="info" variant="tonal" density="compact" class="mt-4">
                 {{ t('smugglersReport.view.noReportInPeriod') }}
               </v-alert>
-              <v-btn size="small" color="amber" variant="tonal" class="mt-3" @click="onGoCurrent">
+              <v-btn
+                  v-if="route.query.id"
+                  size="small"
+                  color="amber"
+                  variant="tonal"
+                  class="mt-3"
+                  @click="onGoCurrent">
                 {{ t('smugglersReport.view.goToCurrent') }}
               </v-btn>
             </v-col>
@@ -403,15 +408,18 @@ const masonryColumns = computed(() => {
             <div v-if="browseLoading" class="d-flex justify-center align-center" style="min-height: 450px;">
               <Loading size="50"></Loading>
             </div>
-            <SmugglersReportShowItemWidget v-else :data="smugglersData.content"></SmugglersReportShowItemWidget>
+            <SmugglersReportShowItemWidget v-else-if="smugglersData && smugglersData.id" :data="smugglersData.content"></SmugglersReportShowItemWidget>
+            <div v-else class="d-flex justify-center align-center" style="min-height: 450px;">
+              <EmptyView></EmptyView>
+            </div>
           </v-card>
           <template v-slot:title>{{ t('smugglersReport.view.smuggledItems') }}</template>
         </AffixBoxHasTitleView>
       </v-col>
     </v-row>
   </v-container>
-  <v-divider></v-divider>
-  <v-container>
+
+  <v-container class="py-10">
     <v-row>
       <v-col>
         <p class="text-h5 text-amber">{{ t('smugglersReport.view.connoisseurs') }}</p>
@@ -423,7 +431,6 @@ const masonryColumns = computed(() => {
         </v-btn>
       </v-col>
     </v-row>
-
 
     <!-- 鉴赏家评论瀑布流 S -->
     <div v-if="browseLoading" class="d-flex justify-center align-center py-10">
