@@ -8,7 +8,7 @@ import {useDisplay} from "vuetify/framework";
 import Captcha from "@/components/captcha/index.vue";
 import PasswordStrength from "@/components/PasswordStrength.vue";
 import {useRules} from "@/assets/sripts/rules_user"
-import {apis} from "@/assets/sripts";
+import {apis, getUserTimezone} from "@/assets/sripts";
 import {SignupParams} from "@/assets/types/User.Signup";
 import {CaptchaParams} from "@/assets/types/Captcha";
 import {handleApiError} from "@/assets/sripts/error_handler";
@@ -78,6 +78,7 @@ const onRegister = async () => {
           email: signupFrom.value.email,
           captcha: signupFrom.value.captcha,
           language: locale.value,
+          timezone: getUserTimezone(),
         }),
         d = result.data;
 
@@ -131,7 +132,7 @@ const onCaptchaData = (data: CaptchaParams) => {
               class="bg-black">
           </Silk>
         </v-col>
-        <v-col cols="12" lg="6" class="bg-black overflow-y-auto">
+        <v-col cols="12" lg="6" class="bg-black overflow-y-auto h-100">
           <v-card density="compact" variant="text" class="signup mt-16 mb-6 px-8">
             <v-breadcrumbs class="ml-n3">
               <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>

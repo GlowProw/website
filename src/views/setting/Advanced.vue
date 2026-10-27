@@ -1,7 +1,7 @@
 <template>
   <v-row>
       <!-- 桌面通知与活动提醒权限控制 -->
-      <v-col cols="12" md="8" lg="6">
+      <v-col cols="12" md="6" lg="8">
         <AffixBoxHasTitleView>
           <p class="text-caption opacity-60 mb-5">
             {{ t('setting.advanced.notification.description') }}
@@ -60,7 +60,7 @@
       </v-col>
 
       <!-- 人机验证系统设置 -->
-      <v-col cols="12" md="8" lg="6">
+      <v-col cols="12" md="6" lg="4">
         <AffixBoxHasTitleView>
           <p class="text-caption opacity-60 mb-5">
             {{ t('setting.advanced.captcha.description') }}
@@ -99,8 +99,51 @@
         </AffixBoxHasTitleView>
       </v-col>
 
+      <!-- 时区设置 S -->
+      <v-col cols="12" md="6" lg="4">
+        <AffixBoxHasTitleView>
+          <p class="text-caption opacity-60 mb-5">
+            {{ t('setting.advanced.timezone.description') }}
+          </p>
+
+          <v-autocomplete
+              v-model="currentTimezone"
+              :items="timezoneOptions"
+              item-title="title"
+              item-value="value"
+              variant="outlined"
+              density="compact"
+              color="amber"
+              hide-details
+              @update:model-value="onTimezoneChange">
+            <template v-slot:item="{ props, item }">
+              <v-list-item v-bind="props">
+                <template v-slot:title>
+                  <div class="d-flex align-center ga-2">
+                    <span>{{ ((item as any).raw ?? item).title }}</span>
+                    <v-chip v-if="((item as any).raw ?? item).isSystem" size="x-small" color="info" variant="tonal">
+                      {{ t('setting.advanced.timezone.system') }}
+                    </v-chip>
+                  </div>
+                </template>
+              </v-list-item>
+            </template>
+          </v-autocomplete>
+
+          <!-- 实时时间预览 -->
+          <div class="mt-3 text-caption opacity-70 d-flex align-center ga-1">
+            <span>{{ t('setting.advanced.timezone.preview', { time: currentTimePreview }) }}</span>
+          </div>
+
+          <template v-slot:title>
+            {{ t('setting.advanced.timezone.title') }}
+          </template>
+        </AffixBoxHasTitleView>
+      </v-col>
+      <!-- 时区设置 E -->
+
       <!-- PWA 应用设置 -->
-      <v-col cols="12" md="8" lg="6">
+      <v-col cols="12" md="6" lg="4">
         <AffixBoxHasTitleView>
           <p class="text-caption">{{ t('pwa.status.description') }}</p>
 
@@ -181,7 +224,7 @@
       </v-col>
 
       <!-- 开发者调试 -->
-      <v-col cols="12" md="8" lg="6">
+      <v-col cols="12" md="6" lg="4">
         <AffixBoxHasTitleView>
           <p class="text-caption opacity-60">
             {{ t('setting.advanced.hint') }}
@@ -214,14 +257,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter, useRoute } from 'vue-router'
 import AffixBoxHasTitleView from '@/components/AffixBoxHasTitleView.vue'
 import { useAppStore } from '~/stores/appStore'
 import { useReminderStore } from '~/stores/reminderStore'
 import { useNoticeStore } from '~/stores/noticeStore'
+import { useAuthStore } from '~/stores/userAccountStore'
 import { use_pwa } from '@/assets/sripts/use_pwa'
+import { apis, getUserTimezone, setUserTimezone, getTimezoneOptions, formatDateInUserTimezone } from '@/assets/sripts'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -229,6 +274,54 @@ const route = useRoute()
 const appStore = useAppStore()
 const reminderStore = useReminderStore()
 const notice = useNoticeStore()
+const authStore = useAuthStore()
+
+// 当前时区
+const currentTimezone = ref(getUserTimezone())
+
+// 时区选项列表
+const timezoneOptions = computed(() => getTimezoneOptions())
+
+// 当前时区本地时间预览
+const currentTimePreview = ref('')
+
+// 时区预览更新计时器
+let timezoneTimer: any = null
+
+/**
+ * 刷新当前时区时间预览
+ */
+const updateTimezonePreview = () => {
+  currentTimePreview.value = formatDateInUserTimezone(new Date(), {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }, currentTimezone.value)
+}
+
+/**
+ * 用户切换时区处理
+ * @param val 选择的 IANA 时区标识
+ */
+const onTimezoneChange = async (val: string) => {
+  if (!val) return
+  currentTimezone.value = val
+  setUserTimezone(val)
+  updateTimezonePreview()
+
+  if (authStore.isLogin) {
+    try {
+      await apis.userApi().updateMeAttr({ timezone: val })
+    } catch {
+      // 保持本地有效，忽略云端同步网络异常
+    }
+  }
+  notice.success(t('setting.advanced.timezone.changeSuccess'), { mode: 'minimal' })
+}
 
 // 开发者调试开关
 const debugSwitch = ref(appStore.isDebug)
@@ -345,6 +438,14 @@ const onInstall = () => {
 
 onMounted(() => {
   reminderStore.init()
+  updateTimezonePreview()
+  timezoneTimer = setInterval(updateTimezonePreview, 1000)
+})
+
+onUnmounted(() => {
+  if (timezoneTimer) {
+    clearInterval(timezoneTimer)
+  }
 })
 </script>
 

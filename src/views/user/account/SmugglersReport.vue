@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from "vue";
-import {apis, storage} from "@/assets/sripts/index";
+import {apis, storage, formatHourInUserTimezone, getUserTimezone} from "@/assets/sripts/index";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {notifyReviewResult} from "@/assets/sripts/review";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -84,6 +84,109 @@ const jsonSyntaxError = ref('')
 
 // 标记当前是否正从 JSON 文本同步至周报数据，避免循环更新
 let isUpdatingFromJson = false
+
+// 周报生效起始小时与结束小时 (0~23)，默认 14:00 (游戏下午2点更新)
+const reportStartHour = ref(14)
+const reportEndHour = ref(14)
+
+// 24小时可选列表，突出标注 14:00 游戏刷新节点
+const hourSelectItems = Array.from({ length: 24 }, (_, i) => ({
+  value: i,
+  title: i === 14 ? '14:00' : `${String(i).padStart(2, '0')}:00`
+}))
+
+/**
+ * 格式化时间为友好带小时字符串（按生效时区）
+ *
+ * @param timeStr 时间字符串
+ * @returns 友好时间字符串
+ */
+const formatHourDisplay = (timeStr?: string | number | Date) => {
+  if (!timeStr) return '';
+  return formatHourInUserTimezone(timeStr);
+};
+
+/**
+ * 计算以北京时间每周二下午 14:00 (UTC 06:00) 为分界的周期起止时间
+ *
+ * @param offsetWeeks 偏移周数（0 为本周周期，1 为下周周期）
+ * @returns 周期起止时间 ISO 对象
+ */
+const getGameWeeklyCycle = (offsetWeeks = 0) => {
+  const now = new Date();
+  const utcDay = now.getUTCDay();
+  const utcHour = now.getUTCHours();
+
+  let diffDays = (utcDay - 2 + 7) % 7;
+  if (utcDay === 2 && utcHour < 6) {
+    diffDays = 7;
+  }
+
+  const cycleStart = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() - diffDays + offsetWeeks * 7,
+    6, 0, 0, 0
+  ));
+
+  const cycleEnd = new Date(cycleStart.getTime() + 7 * 24 * 3600 * 1000);
+
+  return {
+    start: cycleStart.toISOString(),
+    end: cycleEnd.toISOString(),
+  };
+};
+
+/**
+ * 一键应用游戏周报标准周期（北京时间周二 14:00）
+ *
+ * @param offsetWeeks 偏移周数（0 为本周，1 为下周）
+ */
+const applyWeeklyPreset = (offsetWeeks: number) => {
+  const { start, end } = getGameWeeklyCycle(offsetWeeks);
+  const s = new Date(start);
+  const e = new Date(end);
+  reportStartHour.value = s.getHours();
+  reportEndHour.value = e.getHours();
+  createSmugglersReportData.value.startAndEnd = `${start},${end}`;
+};
+
+/**
+ * 确保 startAndEnd 中的时间精确注入所选的小时
+ */
+const syncHoursToStartAndEnd = () => {
+  if (!createSmugglersReportData.value.startAndEnd) return;
+  const parts = createSmugglersReportData.value.startAndEnd.split(',');
+  if (parts.length < 2 || !parts[0] || !parts[1]) return;
+
+  const s = new Date(parts[0]);
+  const e = new Date(parts[1]);
+  if (isNaN(s.getTime()) || isNaN(e.getTime())) return;
+
+  s.setHours(reportStartHour.value, 0, 0, 0);
+  e.setHours(reportEndHour.value, 0, 0, 0);
+
+  createSmugglersReportData.value.startAndEnd = `${s.toISOString()},${e.toISOString()}`;
+};
+
+/**
+ * 监听用户在 TimeFrame 中选择日期变动，自动把当前选定的小时注入
+ */
+watch(() => createSmugglersReportData.value.startAndEnd, (newVal) => {
+  if (!newVal) return;
+  const parts = newVal.split(',');
+  if (parts.length >= 2 && parts[0] && parts[1]) {
+    const s = new Date(parts[0]);
+    const e = new Date(parts[1]);
+    if (!isNaN(s.getTime()) && !isNaN(e.getTime())) {
+      if (s.getHours() !== reportStartHour.value || e.getHours() !== reportEndHour.value) {
+        s.setHours(reportStartHour.value, 0, 0, 0);
+        e.setHours(reportEndHour.value, 0, 0, 0);
+        createSmugglersReportData.value.startAndEnd = `${s.toISOString()},${e.toISOString()}`;
+      }
+    }
+  }
+});
 
 /**
  * 从周报内容中解析出已启用分类列表
@@ -317,14 +420,37 @@ const canDeleteComment = computed(() => {
 
 /**
  * 判断指定周报是否为当前时间段内生效的周报
+ *
  * @param report 周报数据项
+ * @returns 是否处于生效中
  */
 const isReportActive = (report: any) => {
   if (!report || report.status !== 'published') return false
+  if (typeof report.isActive === 'boolean') {
+    return report.isActive
+  }
   const now = Date.now()
   const start = new Date(report.startTime).getTime()
   const end = new Date(report.endTime).getTime()
   return !isNaN(start) && !isNaN(end) && now >= start && now <= end
+}
+
+/**
+ * 获取周报的时间周期状态（当前生效/上周历史/下周预告）
+ *
+ * @param report 周报数据项
+ * @returns 周期状态枚举或空串
+ */
+const getReportPeriodState = (report: any): 'current' | 'previous' | 'next' | '' => {
+  if (!report) return ''
+  if (report.periodState) return report.periodState
+  const now = Date.now()
+  const start = new Date(report.startTime).getTime()
+  const end = new Date(report.endTime).getTime()
+  if (isNaN(start) || isNaN(end)) return ''
+  if (now < start) return 'next'
+  if (now > end) return 'previous'
+  return isReportActive(report) ? 'current' : 'previous'
 }
 
 onMounted(async () => {
@@ -601,6 +727,17 @@ const openSmugglersReportModel = (reportData: any = null) => {
     editorCategories.value = resolveCategoriesFromContent(parsedContent)
     editorActiveTab.value = editorCategories.value[0] || 'weekly'
 
+    if (reportData.startTime) {
+      reportStartHour.value = new Date(reportData.startTime).getHours();
+    } else {
+      reportStartHour.value = 14;
+    }
+    if (reportData.endTime) {
+      reportEndHour.value = new Date(reportData.endTime).getHours();
+    } else {
+      reportEndHour.value = 14;
+    }
+
     createSmugglersReportData.value = {
       ...JSON.parse(JSON.stringify(reportData)),
       content: parsedContent,
@@ -614,10 +751,15 @@ const openSmugglersReportModel = (reportData: any = null) => {
     }
     smugglersReportModelIsEdit.value = false
     editorCategories.value = ['weekly']
+    const defaultCycle = getGameWeeklyCycle(0);
+    const s = new Date(defaultCycle.start);
+    const e = new Date(defaultCycle.end);
+    reportStartHour.value = s.getHours();
+    reportEndHour.value = e.getHours();
     createSmugglersReportData.value = {
       title: '',
       status: 'published',
-      startAndEnd: '',
+      startAndEnd: `${defaultCycle.start},${defaultCycle.end}`,
       content: {weekly: []}
     }
   }
@@ -1075,6 +1217,22 @@ defineOptions({
                             class="font-weight-bold">
                           {{ t('smugglersReport.status.currentActive') }}
                         </v-chip>
+                        <v-chip
+                            v-else-if="i.status === 'published' && getReportPeriodState(i) === 'next'"
+                            size="x-small"
+                            color="info"
+                            variant="tonal"
+                            prepend-icon="mdi-clock-outline">
+                          {{ t('smugglersReport.view.nextWeek') }}
+                        </v-chip>
+                        <v-chip
+                            v-else-if="i.status === 'published' && getReportPeriodState(i) === 'previous'"
+                            size="x-small"
+                            color="medium-emphasis"
+                            variant="outlined"
+                            prepend-icon="mdi-history">
+                          {{ t('smugglersReport.view.previousWeek') }}
+                        </v-chip>
                       </div>
                     </template>
 
@@ -1082,9 +1240,9 @@ defineOptions({
                       <div class="d-flex align-center flex-wrap ga-2 mt-2">
                         <p class="d-flex align-center ga-2">
                           <v-icon size="14">mdi-calendar-range</v-icon>
-                          <TimeView :time="i.startTime"></TimeView>
-                          <v-icon size="14">mdi-calendar-range</v-icon>
-                          <TimeView :time="i.endTime"></TimeView>
+                          <span class="font-monospace text-caption">{{ formatHourDisplay(i.startTime) }}</span>
+                          <span class="opacity-60">~</span>
+                          <span class="font-monospace text-caption">{{ formatHourDisplay(i.endTime) }}</span>
                         </p>
                       </div>
 
@@ -1304,7 +1462,7 @@ defineOptions({
             <v-col cols="12" lg="6" class="min-width-0">
               <!-- 周报信息 -->
               <v-row class="mt-2 mb-4">
-                <v-col cols="12">
+                <v-col cols="12" lg="9">
                   <v-text-field
                       v-model="createSmugglersReportData.title"
                       :label="t('smugglersReport.account.reportTitle')"
@@ -1315,16 +1473,7 @@ defineOptions({
                       :rules="reportTitleRules">
                   </v-text-field>
                 </v-col>
-                <v-col cols="12" md="6">
-                  <TimeFrame
-                      density="comfortable"
-                      variant="outlined"
-                      v-model="createSmugglersReportData.startAndEnd"
-                      :placeholder="createSmugglersReportData.startAndEnd"
-                      :rules="reportTimeRules">
-                  </TimeFrame>
-                </v-col>
-                <v-col cols="12" md="6">
+                <v-col cols="12" lg="3">
                   <v-select
                       v-model="createSmugglersReportData.status"
                       :items="[
@@ -1334,6 +1483,77 @@ defineOptions({
                       :label="t('smugglersReport.status.label')"
                       density="comfortable"
                       variant="outlined">
+                  </v-select>
+                </v-col>
+
+                <!-- 一键快捷设置本周/下周周期 S -->
+                <v-col cols="12" class="py-0">
+                  <div class="d-flex align-center ga-2 mb-2 flex-wrap">
+                    <span class="text-caption opacity-70">{{ t('smugglersReport.account.gameHourTip') }}:</span>
+                    <v-btn
+                        size="x-small"
+                        color="amber"
+                        variant="tonal"
+                        prepend-icon="mdi-clock-fast"
+                        @click="applyWeeklyPreset(0)">
+                      {{ t('smugglersReport.account.presetThisWeek') }}
+                    </v-btn>
+                    <v-btn
+                        size="x-small"
+                        color="amber"
+                        variant="outlined"
+                        prepend-icon="mdi-fast-forward"
+                        @click="applyWeeklyPreset(1)">
+                      {{ t('smugglersReport.account.presetNextWeek') }}
+                    </v-btn>
+                  </div>
+
+                   <!-- 生效时间预览 S -->
+                    <template v-if="createSmugglersReportData.startAndEnd">
+                      <div class="text-caption text-amber d-flex align-center ga-1 font-monospace">
+                        <v-icon size="14">mdi-clock-outline</v-icon>
+                        <span>
+                          {{ t('smugglersReport.account.periodPreview', {
+                            start: formatHourDisplay(createSmugglersReportData.startAndEnd.split(',')[0]),
+                            end: formatHourDisplay(createSmugglersReportData.startAndEnd.split(',')[1])
+                          }) }}
+                        </span>
+                      </div>
+                    </template>
+                    <!-- 生效时间预览 E -->
+                </v-col>
+                <!-- 一键快捷设置本周/下周周期 E -->
+
+               
+                <v-col cols="12" md="6">
+                  <TimeFrame
+                      density="comfortable"
+                      variant="outlined"
+                      v-model="createSmugglersReportData.startAndEnd"
+                      :placeholder="createSmugglersReportData.startAndEnd"
+                      :rules="reportTimeRules">
+                  </TimeFrame>
+                </v-col>
+
+                <v-col cols="6" md="3">
+                  <v-select
+                      v-model="reportStartHour"
+                      :items="hourSelectItems"
+                      :label="t('smugglersReport.account.startHour')"
+                      density="comfortable"
+                      variant="outlined"
+                      @update:model-value="syncHoursToStartAndEnd">
+                  </v-select>
+                </v-col>
+
+                <v-col cols="6" md="3">
+                  <v-select
+                      v-model="reportEndHour"
+                      :items="hourSelectItems"
+                      :label="t('smugglersReport.account.endHour')"
+                      density="comfortable"
+                      variant="outlined"
+                      @update:model-value="syncHoursToStartAndEnd">
                   </v-select>
                 </v-col>
               </v-row>
@@ -1385,8 +1605,9 @@ defineOptions({
 
         <!-- 固定底部 -->
         <v-card-actions class="pa-4 border-t flex-shrink-0">
-          <v-btn
-              v-if="smugglersReportModelIsEdit"
+          <template v-if="smugglersReportModelIsEdit">
+ <v-btn
+              
               color="error"
               variant="tonal"
               @click="onDeleteSmugglersReport(createSmugglersReportData)">
@@ -1394,6 +1615,7 @@ defineOptions({
           </v-btn>
 
           <v-divider vertical inset class="mx-4"></v-divider>
+          </template>
 
           <!-- 从已有周报克隆下拉菜单 S -->
           <v-menu location="bottom end" v-if="smugglersReportListData.length > 0">

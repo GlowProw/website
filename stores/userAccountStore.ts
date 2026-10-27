@@ -164,6 +164,10 @@ export const useAuthStore = defineStore('account', () => {
                 if (result?.data) {
                     updateAccountAttr(result.data)
                 }
+                if (profile?.attr?.timezone) {
+                    const { setUserTimezone } = await import('@/assets/sripts/date')
+                    setUserTimezone(profile.attr.timezone)
+                }
                 return profile
             } catch (error) {
                 console.error('Failed to fetch account profile:', error)

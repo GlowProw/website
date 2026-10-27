@@ -3,6 +3,7 @@ import {onMounted, ref, useSlots, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
 import Time from "@/components/Time.vue";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
+import {activeTimezone, getUserTimezone, formatDateInUserTimezone} from "@/assets/sripts";
 import type {TimeMap} from "@/assets/types/Codex";
 
 const props = withDefaults(defineProps<{
@@ -36,17 +37,23 @@ const onTime = (time: string | number | Date) => {
 };
 
 const toLocaleString = (unixTimestamp: number) => {
-  const date = new Date(unixTimestamp);
-  return date.toLocaleString();
+  return formatDateInUserTimezone(unixTimestamp, {
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    second: 'numeric',
+    hour12: false
+  });
 };
 
 const getTimeFormatName = () => {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  return getUserTimezone();
 };
 
 const toLocaleDateString = (time: string | number | Date) => {
-  const date = new Date(time);
-  return date.toLocaleDateString(undefined, options);
+  return formatDateInUserTimezone(time, options);
 };
 
 const toDateString = (time: string | number | Date) => {
@@ -73,14 +80,18 @@ const loadData = () => {
   timeMap.value = {
     primitive: cleanedTime,
     primitiveDateString: date.toDateString(),
-    conversionDate: date.toLocaleDateString(),
-    conversionLocalDate: date.toLocaleString(),
+    conversionDate: formatDateInUserTimezone(date, {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric'
+    }),
+    conversionLocalDate: toLocaleString(date.getTime()),
     timeFormatName: getTimeFormatName(),
-    localeDateString: date.toLocaleDateString(undefined, options)
+    localeDateString: toLocaleDateString(date)
   };
 };
 
-watch(() => props.time, () => {
+watch([() => props.time, activeTimezone], () => {
   loadData();
 }, {immediate: true});
 

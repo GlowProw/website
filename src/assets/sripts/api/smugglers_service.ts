@@ -76,14 +76,26 @@ export function useSmugglersApi() {
     };
 
     /**
-     * 获取符合当前时间周报
+     * 获取符合当前时间或指定周期的走私周报
+     * @param arg 可选基准时间或包含 period/reportId/date 的参数对象
      */
-    const getRangeTimeReport = async (date?: Date | string) => {
+    const getRangeTimeReport = async (arg?: Date | string | { date?: Date | string; period?: 'current' | 'previous' | 'next' | 'last'; reportId?: number | string; timezone?: string }) => {
         try {
+            const params: any = {};
+            if (typeof arg === 'string' || arg instanceof Date) {
+                params.date = arg;
+            } else if (arg && typeof arg === 'object') {
+                if (arg.date) params.date = arg.date;
+                if (arg.period) params.period = arg.period;
+                if (arg.reportId) params.reportId = arg.reportId;
+                if (arg.timezone) params.timezone = arg.timezone;
+            }
+            if (!params.timezone) {
+                const { getUserTimezone } = await import('@/assets/sripts/date');
+                params.timezone = getUserTimezone();
+            }
             const result = await http.get('smugglers/reports/byTime', {
-                params: {
-                    date: date ?? new Date()
-                }
+                params
             });
             return handleResponse(result);
         } catch (error) {

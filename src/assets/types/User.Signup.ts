@@ -10,5 +10,6 @@ export interface SignupParams {
     email: string
     captcha: CaptchaParams
     language?: string
+    timezone?: string
 }
 

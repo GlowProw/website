@@ -4220,9 +4220,32 @@
       "smuggledItems": "獎賞櫥櫃",
       "connoisseurs": "鑑賞家們",
       "connoisseursDesc": "來看下鑑賞家們如何評價",
-      "becomeConnoisseur": "成為鑑賞家"
+      "becomeConnoisseur": "成為鑑賞家",
+      "currentWeek": "本週週報 (生效中)",
+      "previousWeek": "上週週報 (歷史)",
+      "nextWeek": "下週週報 (預告)",
+      "goToPrevious": "上一週",
+      "goToCurrent": "回到本週",
+      "goToNext": "下一週",
+      "currentWeekBtn": "本週週報",
+      "lastWeek": "上週週報",
+      "twoWeeksAgo": "上上週週報",
+      "thisMonthReports": "本月所有週報",
+      "historyMenu": "歷史週報",
+      "historyLimitTip": "最多支援回溯前 5 週歷史",
+      "crossMonthNotice": "跨月限制：僅顯示最後 2 週",
+      "weeksAgoLabel": "{count} 週前",
+      "noHistoryReports": "暫無歷史週報",
+      "gameUpdateTimeTip": "* 遊戲每週北京時間下午 2 點 (14:00) 刷新走私犯網路",
+      "noReportInPeriod": "該週期暫無走私犯週報"
     },
     "account": {
+      "startHour": "開始時辰",
+      "endHour": "結束時辰",
+      "presetThisWeek": "設為本週 (週二14:00)",
+      "presetNextWeek": "設為下週 (下週二14:00)",
+      "gameHourTip": "遊戲通常在北京時間每週二下午 2 點 (14:00) 刷新",
+      "periodPreview": "生效時段: {start} 至 {end}",
       "connoisseurTitle": "走私犯線人每週鑑賞家",
       "connoisseurDesc": "走私販鑑賞家，專精每週市場動態，為每件稀有物品撰寫深度評測與選購指南，讓每位船長都能精準鎖定價值巔峰的珍寶，不再錯失任何一次財富機遇。在這裡，您不僅是資訊的傳遞者，更是社群中備受信賴的潮流引領者——成為眾人矚目的焦點，贏得萬千玩家的追隨與讚譽。",
       "connoisseurBenefit": "成為走私犯鑑賞家，你的帳號獲得'走私犯鑑賞家'身份，並且允許在走私犯線人下評論推薦物品",
@@ -5028,6 +5051,14 @@
         "turnstileDesc": "智慧人機驗證，無需繁瑣字元輸入，快速流暢（推薦）。",
         "svg": "圖形驗證碼",
         "svgDesc": "傳統字元圖形驗證碼，需要手動識別並輸入圖片中的字母與數字。"
+      },
+      "timezone": {
+        "title": "時區設定",
+        "description": "自訂程式計算與顯示所有業務時間（行事曆、週報、活動提醒、組隊等）的時區，未選擇則以系統為準。",
+        "label": "選擇時區",
+        "system": "系統",
+        "preview": "目前時區時間：{time}",
+        "changeSuccess": "時區設定已更新"
       }
     }
   },

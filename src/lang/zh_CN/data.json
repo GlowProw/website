@@ -4215,9 +4215,32 @@
       "smuggledItems": "奖赏橱柜",
       "connoisseurs": "鉴赏家们",
       "connoisseursDesc": "来看下鉴赏家们如何评价",
-      "becomeConnoisseur": "成为鉴赏家"
+      "becomeConnoisseur": "成为鉴赏家",
+      "currentWeek": "本周周报 (生效中)",
+      "previousWeek": "上周周报 (历史)",
+      "nextWeek": "下周周报 (预告)",
+      "goToPrevious": "上一周",
+      "goToCurrent": "回到本周",
+      "goToNext": "下一周",
+      "currentWeekBtn": "本周周报",
+      "lastWeek": "上周周报",
+      "twoWeeksAgo": "上上周周报",
+      "thisMonthReports": "本月所有周报",
+      "historyMenu": "历史周报",
+      "historyLimitTip": "最多支持回溯前 5 周历史",
+      "crossMonthNotice": "跨月限制：仅显示最后 2 周",
+      "weeksAgoLabel": "{count} 周前",
+      "noHistoryReports": "暂无历史周报",
+      "gameUpdateTimeTip": "* 游戏每周北京时间下午 2 点 (14:00) 刷新走私犯网络",
+      "noReportInPeriod": "该周期暂无走私犯周报"
     },
     "account": {
+      "startHour": "开始时辰",
+      "endHour": "结束时辰",
+      "presetThisWeek": "设为本周 (周二14:00)",
+      "presetNextWeek": "设为下周 (下周二14:00)",
+      "gameHourTip": "游戏通常在北京时间每周二下午 2 点 (14:00) 刷新",
+      "periodPreview": "生效时段: {start} 至 {end}",
       "connoisseurTitle": "走私犯线人每周鉴赏家",
       "connoisseurDesc": "走私贩鉴赏家，专精每周市场动态，为每件稀有物品撰写深度评测与选购指南，让每位船长都能精准锁定价值巅峰的珍宝，不再错失任何一次财富机遇。在这里，您不仅是信息的传递者，更是社群中备受信赖的潮流引领者——成为众人瞩目的焦点，赢得万千玩家的追随与赞誉。",
       "connoisseurBenefit": "成为走私犯鉴赏家，你的账号获得'走私犯鉴赏家'身份，并且允许在走私犯线人下评论推荐物品",
@@ -5056,6 +5079,14 @@
         "turnstileDesc": "智能人机验证，无需繁琐字符输入，快速流畅（推荐）。",
         "svg": "图形验证码",
         "svgDesc": "传统字符图形验证码，需要手动识别并输入图片中的字母与数字。"
+      },
+      "timezone": {
+        "title": "时区设置",
+        "description": "自定义程序计算与显示所有业务时间（日历、周报、活动提醒、组队等）的时区，未选择则以系统为准。",
+        "label": "选择时区",
+        "system": "系统",
+        "preview": "当前时区时间：{time}",
+        "changeSuccess": "时区设置已更新"
       },
       "cdnLang": {
         "title": "远程翻译文本源",

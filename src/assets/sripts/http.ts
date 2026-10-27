@@ -91,6 +91,18 @@ export default class Http extends Api_config {
                             config.headers['x-lang'] = currentLang;
                         }
                     }
+
+                    // 自动携带客户端时区给后端 (x-timezone)
+                    if (!config.headers['x-timezone']) {
+                        try {
+                            const tz = typeof window !== 'undefined' ? (window.localStorage.getItem('app_user_timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone) : 'Asia/Shanghai';
+                            if (tz) {
+                                config.headers['x-timezone'] = tz;
+                            }
+                        } catch {
+                            // ignore
+                        }
+                    }
                 }
             } catch (e) {
                 console.error('Failed to attach headers:', e);

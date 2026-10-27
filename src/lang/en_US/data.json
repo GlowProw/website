@@ -4218,9 +4218,32 @@
       "smuggledItems": "Reward Cabinet",
       "connoisseurs": "Connoisseurs",
       "connoisseursDesc": "See recommendations from connoisseurs",
-      "becomeConnoisseur": "Become a Connoisseur"
+      "becomeConnoisseur": "Become a Connoisseur",
+      "currentWeek": "This Week (Active)",
+      "previousWeek": "Last Week (History)",
+      "nextWeek": "Next Week (Preview)",
+      "goToPrevious": "Previous Week",
+      "goToCurrent": "Current Week",
+      "goToNext": "Next Week",
+      "currentWeekBtn": "This Week",
+      "lastWeek": "Last Week",
+      "twoWeeksAgo": "2 Weeks Ago",
+      "thisMonthReports": "This Month's Reports",
+      "historyMenu": "History Reports",
+      "historyLimitTip": "Supports up to 5 weeks of history",
+      "crossMonthNotice": "Cross-month: showing last 2 weeks only",
+      "weeksAgoLabel": "{count} weeks ago",
+      "noHistoryReports": "No history reports",
+      "gameUpdateTimeTip": "* In-game Smugglers Network refreshes every Tuesday at 14:00 (UTC+8)",
+      "noReportInPeriod": "No report available for this cycle"
     },
     "account": {
+      "startHour": "Start Hour",
+      "endHour": "End Hour",
+      "presetThisWeek": "Set to This Week (Tue 14:00)",
+      "presetNextWeek": "Set to Next Week (Next Tue 14:00)",
+      "gameHourTip": "In-game network refreshes every Tuesday at 14:00 (UTC+8)",
+      "periodPreview": "Valid Cycle: {start} to {end}",
       "connoisseurTitle": "Smuggler Connoisseur Weekly",
       "connoisseurDesc": "Smuggler Connoisseurs specialize in weekly market dynamics, writing in-depth reviews and buying guides for rare items so every captain can target peak-value treasures. Here you are a trusted trendsetter in the community.",
       "connoisseurBenefit": "Becoming a Smuggler Connoisseur grants your account the 'Smuggler Connoisseur' status and allows commenting recommendations under the smuggler reports.",
@@ -5051,6 +5074,14 @@
         "turnstileDesc": "Smart privacy verification without tedious character inputs (Recommended).",
         "svg": "SVG Captcha",
         "svgDesc": "Traditional character image captcha requiring manual input."
+      },
+      "timezone": {
+        "title": "Timezone Settings",
+        "description": "Customize the timezone used to calculate and display all schedule-related features (calendar, weekly reports, event reminders, teamups, drops). Defaults to system timezone if not configured.",
+        "label": "Select Timezone",
+        "system": "System",
+        "preview": "Current Local Time: {time}",
+        "changeSuccess": "Timezone settings updated"
       },
       "cdnLang": {
         "title": "Remote Translation Source",

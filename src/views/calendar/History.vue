@@ -3,7 +3,7 @@ import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {Seasons} from "glow-prow-data";
-import {apis, getCurrentSeason as _getCurrentSeason, http, storage, time} from "@/assets/sripts";
+import {apis, getCurrentSeason as _getCurrentSeason, http, storage, time, getUserTimezone} from "@/assets/sripts";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
@@ -500,7 +500,8 @@ const openICSFile = (url: string, season: string, eventId?: string) => {
   const params = new URLSearchParams({
     language: 'zh_CN',
     season: season,
-    eventId: eventId || ''
+    eventId: eventId || '',
+    timezone: getUserTimezone()
   })
 
   window.open(`${http.location}calendar/${url}?${params.toString()}`)
