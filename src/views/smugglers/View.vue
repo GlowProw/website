@@ -64,6 +64,7 @@ const userTz = computed(() => getUserTimezone())
 
 // 是否允许回到本周（当查看非本周周报时显示）
 const canGoCurrent = computed(() => {
+  if (smugglersData.value?.isActive) return false;
   return smugglersData.value?.periodState !== 'current';
 });
 
