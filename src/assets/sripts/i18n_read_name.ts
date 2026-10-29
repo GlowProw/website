@@ -48,6 +48,16 @@ function resolveCachedName(cacheKey: string, resolver: () => string): string {
 }
 
 /**
+ * 数据包条目缺少翻译时，把 camelCase 的 id 拆成可读名称兜底
+ */
+function humanizeEntityId(id: string | number): string {
+    return String(id || '')
+        .replace(/[-_]+/g, ' ')
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .replace(/^./, char => char.toUpperCase())
+}
+
+/**
  * i18n 名称与描述数据读取 Hook
  */
 export function useI18nReadName() {
@@ -55,6 +65,24 @@ export function useI18nReadName() {
 
     const getValue = (obj: any, path: string) => {
         return path.split('.').reduce((acc, key) => acc?.[key], obj)
+    }
+
+    /**
+     * NPC 的地点可能是单个 id、id 数组，也可能已经由调用方翻译成展示文案
+     */
+    const formatNpcLocation = (location: any, lang?: string): string => {
+        if (!location) return ''
+        if (typeof location === 'string') return location
+
+        const ids = (Array.isArray(location) ? location : [location])
+            .map((item: any) => typeof item === 'string' ? item : item?.id)
+            .filter((item: any) => typeof item === 'string' && (mapLocations as any)[item])
+
+        const names = ids
+            .map((item: string) => t(`snb.mapLocations.${item}.name`, null, lang))
+            .filter((name: string) => name && !name.startsWith('snb.'))
+
+        return names.length > 0 ? `(${names.join(' ')})` : ''
     }
 
     const item = (id: string | number) => {
@@ -74,17 +102,19 @@ export function useI18nReadName() {
             keysDescription,
             name: (lang?: string): string => {
                 const targetLang = lang || locale?.value || '';
-                return resolveCachedName(`item:${targetLang}:${id}`, () => {
-                    if (items[id]) {
-                        const translatedName = asString(keysName, {
-                            backRawKey: true,
-                            lang
-                        })
-                        const tier = number.intToRoman(idTier || items[id].tier) || '';
-                        return `${translatedName} ${tier}`.trim()
-                    }
-                    return String(id);
+                const translatedName = resolveCachedName(`item:${targetLang}:${id}`, () => {
+                    if (!items[id]) return ''
+                    const name = asString(keysName, {
+                        backRawKey: false,
+                        lang
+                    })
+                    // 未翻译时返回空值，避免把 snb 原始 key 写入缓存
+                    if (!name) return ''
+                    const tier = number.intToRoman(idTier || items[id].tier) || '';
+                    return `${name} ${tier}`.trim()
                 });
+                if (translatedName) return translatedName
+                return items[id] ? humanizeEntityId(id) : String(id)
             },
             description: (lang?: string): string => {
                 if (items[id]) {
@@ -336,36 +366,44 @@ export function useI18nReadName() {
     }
 
     const npc = (id: string) => {
+        // 同一个 NPC 可能按地点拆成多个数据条目（如 smugglersNetwork-sainteAnne），
+        // 翻译 key 仍以基础 id 为准，所以按 key 或 id 都要能找到实体
+        const npcData: any = (npcs as any)[id]
+            || Object.values(npcs).find((npc: any) => npc.id === id)
+        // 带地点后缀的数据条目（如 smugglersNetwork-sainteAnne）使用基础 id 作为翻译 key
+        const translationId = npcData?.id || id
+
         const keysName = [
-            `snb.npcs.${id}.name`,
+            `snb.npcs.${translationId}.name`,
         ],
             keysDescription = [
-                `snb.npcs.${id}.description`,
+                `snb.npcs.${translationId}.description`,
             ];
 
         return {
             keysName,
             keysDescription,
-            name: (location: any, lang?: string): string => {
-                if (npcs[id])
-                    return asString(keysName, {
-                        backRawKey: true,
-                        variable: {
-                            location
-                        },
-                        lang
-                    })
-                return String(id)
+            name: (location?: any, lang?: string): string => {
+                if (!npcData) return humanizeEntityId(id)
+
+                const translatedName = asString(keysName, {
+                    backRawKey: false,
+                    variable: {
+                        location: formatNpcLocation(location, lang)
+                    },
+                    lang
+                })
+                // 数据包里存在但语言包还没补翻译时，避免把 snb 原始 key 展示给用户
+                return translatedName || humanizeEntityId(id)
             },
             description: (lang?: string): string => {
-                if (npcs[id]) {
-                    const translatedDesc = asString(keysDescription, {
-                        backRawKey: false,
-                        lang
-                    })
-                    return `${translatedDesc}`.trim()
-                }
-                return String(id);
+                if (!npcData) return ''
+
+                const translatedDesc = asString(keysDescription, {
+                    backRawKey: false,
+                    lang
+                })
+                return `${translatedDesc}`.trim()
             }
         }
     }

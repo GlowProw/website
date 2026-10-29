@@ -273,7 +273,7 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
 
-                <!-- 世界等级：船队按航线分别列出 -->
+                <!-- 世界等级 -->
                 <template v-if="worldTierEntries.length">
                   <v-text-field v-for="entry in worldTierEntries" :key="entry.key"
                                 readonly
@@ -300,7 +300,7 @@ const onCodexHistory = () => {
                                  is-always-show-quantity></LootEntriesWidget>
             </template>
 
-            <!-- 掉落：根部优先，否则按航线分别列出 -->
+            <!-- 掉落 -->
             <template v-for="section in lootSections" :key="section.key">
               <v-divider>
                 {{ t('map.possibleLoot') }}{{ section.routeLabel ? ` · ${section.routeLabel}` : '' }}

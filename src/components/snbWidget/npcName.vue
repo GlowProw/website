@@ -14,19 +14,34 @@ const props = defineProps<{ id?: string, data?: Npc, isShowTooltip?: boolean }>(
 
 
 let nameLocations = computed(() => {
+      const rawLocations: any[] = props.data?.location || []
       let d: any[] = []
-      if ((props.data.location as any).includes('anyoneOutpost'))
+      if (rawLocations.includes('anyoneOutpost'))
         d = d.concat(Object.values(mapLocations).filter((i: MapLocation) => i.category == 'outpost'))
-      if ((props.data.location as any).includes('anyoneDen'))
+      if (rawLocations.includes('anyoneDen'))
         d = d.concat(Object.values(mapLocations).filter((i: MapLocation) => i.category == 'den'))
-      return d.concat(props.data.location || [])
+
+      // 具体地点 id 需要先转成地图地点实体，才能取到翻译名称
+      rawLocations.forEach((location: any) => {
+        if (typeof location !== 'string') {
+          if (location) d.push(location)
+          return
+        }
+        const mapLocation = (mapLocations as any)[location]
+        if (mapLocation) d.push(mapLocation)
+      })
+
+      // 同一地点只保留一次
+      return [...new Map(d.map((i: any) => [i.id, i])).values()]
     }),
     nameLocationAsLang = computed(
         () => nameLocations.value.filter(i => i.id != undefined).map(i => t(`snb.mapLocations.${i.id}.name`))
     )
 
 let getTitle = computed(() => {
-  return `${npc(props.id || props.data?.id).name(nameLocationAsLang.value.length > 0 ? `(${nameLocationAsLang.value.join(' ')})` : '') || '-'}`
+  const id = props.id || props.data?.id || ''
+  if (!id) return '-'
+  return `${npc(id).name(nameLocationAsLang.value.length > 0 ? `(${nameLocationAsLang.value.join(' ')})` : '') || '-'}`
 })
 
 defineOptions({
