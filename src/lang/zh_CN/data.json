@@ -3671,7 +3671,8 @@
       "inputUuidHint": "填入对应数据记录的雪花 ID 或 UUID",
       "loginRequired": "请先登录以获取您账号下的数据",
       "noMyData": "暂无相关数据记录",
-      "uuidRequired": "请输入有效的 UUID"
+      "uuidRequired": "请输入有效的 UUID",
+      "tierLabelHint": "阶梯标题最多 10 个字，支持 emoji，可留空"
     },
     "updated": "天梯更新成功",
     "published": "天梯发布成功",
@@ -3756,7 +3757,8 @@
       "tierMaxExceeded": "阶梯层数不能超过 20 层",
       "itemsAllEmpty": "天梯内尚未放入任何物品，请至少添加 1 个物品后再发布",
       "tierItemMaxExceeded": "单层阶梯物品数量不能超过 100 个",
-      "tierLabelEmpty": "请为所有阶梯行填写有效的标题标签"
+      "tierLabelEmpty": "请为所有阶梯行填写有效的标题标签",
+      "tierLabelTooLong": "阶梯标题最多 10 个字"
     }
   },
   "teamUp": {

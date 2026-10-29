@@ -8,6 +8,7 @@ import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 import Banner from "@/components/Banner.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
+import EnemiesDescriptions from "@/components/snbWidget/enemiesDescriptions.vue";
 
 const props = withDefaults(defineProps<{
   id?: string,
@@ -35,11 +36,12 @@ const i: Ref<Enemy | null> = ref(null)
 const enemyId = computed(() => i.value?.id || '')
 
 /**
- * 敌人描述沿用语言包，变种描述按世界等级在上层切换展示
+ * 有航线时航线的状态描述由 EnemiesDescriptions 统一列出，因此只看根描述兜底
  */
-const enemyDescription = computed(() => {
-  if (!enemyId.value) return ''
-  return enemy(enemyId.value).description()
+const hasDescription = computed(() => {
+  if (!i.value) return false
+  if (((i.value as any).routes || []).length) return true
+  return !!enemy(i.value.id).description()
 })
 
 const enemyDifficultyDescription = computed(() => {
@@ -113,8 +115,8 @@ defineOptions({
       </div>
     </Banner>
 
-    <v-card-text class="demo-reel-content px-10 py-5" v-if="enemyDescription">
-      {{ enemyDescription }}
+    <v-card-text class="demo-reel-content px-10 py-5" v-if="hasDescription">
+      <EnemiesDescriptions :id="i.id"></EnemiesDescriptions>
     </v-card-text>
 
     <v-card-text class="demo-reel-content px-10 pb-5 pt-0 text-caption opacity-70" v-if="enemyDifficultyDescription">

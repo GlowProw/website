@@ -9,6 +9,7 @@ import GlobalSearchCoreView from "@/components/GlobalSearchCoreView.vue";
 import SwipeDrawer from "@/components/SwipeDrawer.vue";
 import {useAppStore} from "~/stores/appStore";
 import {storeToRefs} from "pinia";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -85,9 +86,9 @@ defineOptions({
       </div>
 
       <!-- 搜索内容主体 -->
-      <div class="global-search-drawer__body flex-grow-1 overflow-y-auto pa-4 pa-lg-8">
-        <GlobalSearchCoreView embedded :active="model" @close="model = false" />
-      </div>
+      <VerticalScrollList :show-controls="false" class="global-search-drawer__body flex-grow-1 px-4 px-lg-8">
+        <GlobalSearchCoreView embedded :active="model" @close="model = false"/>
+      </VerticalScrollList>
     </v-card>
   </SwipeDrawer>
 </template>

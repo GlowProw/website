@@ -63,6 +63,15 @@ export default class RankingDesignedItemsDataProcessing {
                     {
                         condition: () => {
                             if (!Array.isArray(tiers)) return false;
+                            // emoji 按一个字符计算，所以用 Array.from 而不是 length
+                            return tiers.some((t: any) => Array.from(String(t?.label ?? '')).length > 10);
+                        },
+                        required: true,
+                        message: "rankingDesignedItems.verify.tierLabelTooLong"
+                    },
+                    {
+                        condition: () => {
+                            if (!Array.isArray(tiers)) return false;
                             return tiers.some((t: any) => !t?.label || !String(t.label).trim());
                         },
                         required: false,

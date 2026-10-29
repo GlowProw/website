@@ -98,7 +98,7 @@
       <v-divider class="my-2 mx-4"></v-divider>
 
       <div class="mx-5 mb-3 pb-2">
-        <EnemiesDescription v-if="isEnemyLocation" :id="selectedLocation.enemyId"></EnemiesDescription>
+        <EnemiesDescriptions v-if="isEnemyLocation" :id="selectedLocation.enemyId"></EnemiesDescriptions>
         <template v-else>{{ getLocationDescription }}</template>
       </div>
     </template>
@@ -305,10 +305,11 @@
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify/framework';
+import { Enemies } from 'glow-prow-data';
 import ShieldWidget from "@/components/snbWidget/shieldWidget.vue";
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
 import EnemiesName from "@/components/snbWidget/enemiesName.vue";
-import EnemiesDescription from "@/components/snbWidget/enemiesDescription.vue";
+import EnemiesDescriptions from "@/components/snbWidget/enemiesDescriptions.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
@@ -352,13 +353,16 @@ const isCodexLocation = computed(() => {
 });
 
 /**
- * 敌人坐标：名称与描述统一走 enemiesName / enemiesDescription 组件的数据来源
+ * 敌人坐标：名称与描述统一走 enemiesName / enemiesDescriptions 组件的数据来源
  */
 const isEnemyLocation = computed(() => !!props.selectedLocation?.enemyId);
 
-const hasEnemyDescription = computed(() =>
-    isEnemyLocation.value && !!enemy(props.selectedLocation.enemyId).description()
-);
+const hasEnemyDescription = computed(() => {
+  if (!isEnemyLocation.value) return false
+  const enemyId = props.selectedLocation.enemyId
+  if (((Enemies as any)[enemyId]?.routes || []).length) return true
+  return !!enemy(enemyId).description()
+});
 
 /**
  * 世界等级：key 为世界编号，value 为该世界下的敌人等级

@@ -393,17 +393,41 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         triggerTransitionAnimation();
     });
 
+    /**
+     * 分类名称、分组名称与原始 key 都可以作为搜索词
+     * 例如输入「敌人 / 敌对目标」会把所有敌对目标点位都列出来
+     */
+    const getCategorySearchText = (category: string): string => {
+        const parts = [category, t(`map.types.${category}.name`)];
+        const groupKey = Object.keys(CATEGORY_GROUPS).find(key => CATEGORY_GROUPS[key].includes(category));
+        if (groupKey) {
+            parts.push(groupKey, t(`map.groups.${groupKey}`));
+            // 敌人分组额外补充常见同义词，简繁中文与英文都能搜到
+            if (groupKey === 'enemies') parts.push('敌人', '敵人', '敌对', '敵對', 'enemy', 'enemies', 'hostile');
+        }
+        return parts.filter(Boolean).join(' ').toLowerCase();
+    };
+
+    /**
+     * 判断点位是否匹配搜索词：名称、id、分类名称与分组名称都参与匹配
+     */
+    const isLocationMatched = (location: any, searchTerm: string): boolean => {
+        const displayName = getLocationDisplayName(location).toLowerCase();
+        const locationId = String(location.id || '').toLowerCase();
+        return displayName.includes(searchTerm)
+            || locationId.includes(searchTerm)
+            || getCategorySearchText(location.category).includes(searchTerm);
+    };
+
     watch(searchInput, (value) => {
         if (!value || !value.trim()) {
             searchSuggestions.value = [];
             return;
         }
-        const filtered = locations.value.filter(location => {
-            const displayName = getLocationDisplayName(location).toLowerCase();
-            const locationId = location.id.toLowerCase();
-            const searchTerm = value.toLowerCase().trim();
-            return displayName.includes(searchTerm) || locationId.includes(searchTerm);
-        }).slice(0, 10);
+        const searchTerm = value.toLowerCase().trim();
+        const filtered = locations.value
+            .filter(location => isLocationMatched(location, searchTerm))
+            .slice(0, 10);
         searchSuggestions.value = filtered.map(location => ({ title: getLocationDisplayName(location), value: location.id, ...location }));
     });
 
@@ -916,6 +940,12 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     return;
                 }
 
+                // 内嵌小地图等场景可以接管点击，例如直接跳转到完整地图页面
+                if (options.onLocationClick) {
+                    const handled = options.onLocationClick(originalData);
+                    if (handled !== false) return;
+                }
+
                 if (originalData?.category === 'shareLocation') {
                     selectedPoint.value = originalData;
                     selectedLocationData.value = { ...originalData, id: originalData.id, name: originalData.title, category: 'shareLocation' };
@@ -972,10 +1002,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             hoveedCoordinate.value = { longitude: lonLat[0], latitude: lonLat[1] };
         });
 
-        await onLoadUserCollections();
+        // 内嵌小地图只展示公共点，不加载登录用户的地图集与个人标记
+        if (options.loadUserMarkers !== false) {
+            await onLoadUserCollections();
 
-        // watcher 非 immediate，无本地缓存集合（未分组）时不会触发加载，这里无条件首载一次
-        await runCollectionLoad(selectedCollectionUuid.value || null);
+            // watcher 非 immediate，无本地缓存集合（未分组）时不会触发加载，这里无条件首载一次
+            await runCollectionLoad(selectedCollectionUuid.value || null);
+        }
 
         // /account/maps 管理页跳转联动（draw/focus/edit）
         await handleMapActionQuery();
@@ -3237,6 +3270,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      */
     const handleMapActionQuery = async (): Promise<void> => {
         if (!authStore.isLogin) return;
+        if (options.loadUserMarkers === false) return;
         const { draw, focus, edit, collectionUuid, shareCollection } = route.query;
 
         // 分享链接优先：先让用户选择导入或只读，不干扰当前集合状态
@@ -3460,16 +3494,19 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     const handleSearch = () => {
         if (!searchInput.value.trim()) return;
-        const foundLocation = locations.value.find(location => {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const exactLocation = locations.value.find(location => {
             const displayName = getLocationDisplayName(location).toLowerCase();
-            const locationId = location.id.toLowerCase();
-            const searchTerm = searchInput.value.toLowerCase().trim();
+            const locationId = String(location.id || '').toLowerCase();
             return displayName === searchTerm || locationId === searchTerm;
         });
-        if (foundLocation) {
-            onSelectLocation(foundLocation);
-        } else if (searchSuggestions.value.length > 0) {
-            onSelectLocation(searchSuggestions.value[0]);
+        if (exactLocation) {
+            onSelectLocation(exactLocation);
+            return;
+        }
+        const matchedLocation = locations.value.find(location => isLocationMatched(location, searchTerm));
+        if (matchedLocation) {
+            onSelectLocation(matchedLocation);
         }
     };
 

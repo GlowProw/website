@@ -2,6 +2,7 @@
   <v-card border class="d-flex map-search-bar"
           :width="mobile ? 'calc(100% - 60px)' : 550"
           :style="{'top': mobile ? '80px' : '80px'}">
+    <!-- 建议列表已由地图控制器按名称/分类/分组过滤，no-filter 关闭组件内部二次过滤 -->
     <v-combobox
         v-model="model"
         v-model:search="search"
@@ -11,6 +12,7 @@
         hide-details
         variant="solo"
         clearable
+        no-filter
         class="bg-transparent"
         density="comfortable"
         :menu-props="{ maxHeight: '450px' }"

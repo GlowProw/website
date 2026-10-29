@@ -258,8 +258,7 @@ const onCodexHistory = () => {
                       :draggable="false"
                       :zoomable="false"
                       :target-key="mapLocationDetailData.id"
-                      :target-x="mapLocationDetailData.longitude"
-                      :target-y="mapLocationDetailData.latitude">
+                      open-in-map-view>
                     {{ t('codex.item.byMap') }}
                   </ByMapWidget>
                 </template>

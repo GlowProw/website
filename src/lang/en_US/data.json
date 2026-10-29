@@ -3674,7 +3674,8 @@
       "inputUuidHint": "Enter Snowflake ID or UUID of the resource",
       "loginRequired": "Please sign in to retrieve your data",
       "noMyData": "No relevant data found",
-      "uuidRequired": "Please enter a valid UUID"
+      "uuidRequired": "Please enter a valid UUID",
+      "tierLabelHint": "Tier title: up to 10 characters, emoji supported, can be empty"
     },
     "updated": "Tier list updated successfully",
     "published": "Tier list published successfully",
@@ -3759,7 +3760,8 @@
       "tierMaxExceeded": "Maximum 20 tiers allowed",
       "itemsAllEmpty": "No items added yet. Please add at least 1 item before publishing",
       "tierItemMaxExceeded": "Maximum 100 items allowed per tier",
-      "tierLabelEmpty": "Please specify a valid label for each tier"
+      "tierLabelEmpty": "Please specify a valid label for each tier",
+      "tierLabelTooLong": "Tier title must be at most 10 characters"
     }
   },
   "teamUp": {

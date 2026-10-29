@@ -321,6 +321,7 @@ defineOptions({
       <v-card
           class="sd-panel"
           :style="panelStyle"
+          tile
           role="dialog"
           aria-modal="true">
         <!-- 边缘拖拽热区：鼠标按住或触摸后向关闭方向滑动即可收起 -->

@@ -1,27 +1,31 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, onMounted} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRoute, useRouter} from "vue-router";
 import {useHead} from "@unhead/vue";
 import {Enemies, Enemy, MapLocations} from "glow-prow-data";
 
 import Banner from "@/components/Banner.vue";
+import CommentWidget from "@/components/CommentWidget.vue";
+import LikeWidget from "@/components/LikeWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import EnemiesIconWidget from "@/components/snbWidget/enemiesIconWidget.vue";
 import EnemiesName from "@/components/snbWidget/enemiesName.vue";
-import EnemiesDescription from "@/components/snbWidget/enemiesDescription.vue";
+import EnemiesDescriptions from "@/components/snbWidget/enemiesDescriptions.vue";
 import LootEntriesWidget from "@/components/snbWidget/lootEntriesWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import ByMapWidget from "@/components/ByMapWidget.vue";
 import TimeView from "@/components/TimeView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
+import {useAuthStore} from "~/stores/userAccountStore";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {getAppUrl, storage} from "@/assets/sripts/index";
 
 const {t} = useI18n(),
     router = useRouter(),
     route = useRoute(),
+    authStore = useAuthStore(),
     {enemy, season: readSeason} = useI18nReadName(),
     enemies: Record<string, Enemy> = Enemies;
 
@@ -45,41 +49,52 @@ const getWorldTierEntries = (tiers: Record<string, number> | undefined) =>
     Object.entries(tiers || {}).sort((a, b) => Number(a[0]) - Number(b[0]));
 
 /**
- * 航线（船队专有），每条航线固定两个航行状态，等级与掉落挂在航线上
+ * 世界等级：根部有数据就优先使用，否则按航线分别列出
+ * 每条记录带上航线编号，方便在右侧列表里区分属于哪条航线
  */
-const routes = computed(() => (enemyDetailData.value?.routes || []).filter(Boolean));
+const worldTierEntries = computed(() => {
+  const rootEntries = getWorldTierEntries(enemyDetailData.value?.worldTiers).reverse();
 
-const activeRouteIndex = ref(0);
-const activeVariantId = ref('');
+  if (rootEntries.length) {
+    return rootEntries.map(entry => ({
+      key: `root-${entry[0]}`,
+      routeLabel: '',
+      world: entry[0],
+      level: entry[1]
+    }));
+  }
 
-const activeRoute = computed(() => routes.value[activeRouteIndex.value] || null);
-const activeRouteVariants = computed(() => (activeRoute.value?.variants || []).filter(Boolean));
+  return (enemyDetailData.value?.routes || []).flatMap((routeItem, index) => {
+    const routeLabel = t('codex.enemy.route', {num: index + 1});
+    return getWorldTierEntries(routeItem.worldTiers)
+        .reverse()
+        .map(entry => ({
+          key: `${routeItem.id || index}-${entry[0]}`,
+          routeLabel,
+          world: entry[0],
+          level: entry[1]
+        }));
+  });
+});
 
 /**
- * 当前航线的世界等级，没有则回退到敌人的根等级
+ * 掉落：根部有数据就优先使用，否则按航线分别列出各自的掉落
  */
-const activeRouteWorldTierEntries = computed(() =>
-    getWorldTierEntries(activeRoute.value?.worldTiers || enemyDetailData.value?.worldTiers)
-);
-const activeRouteWorldTierEntriesDesc = computed(() => [...activeRouteWorldTierEntries.value].reverse());
+const lootSections = computed(() => {
+  const rootLoot = enemyDetailData.value?.possibleLoot || {};
 
-/**
- * 当前航线的掉落，没有则回退到敌人的根掉落
- */
-const activeRouteLoot = computed(() => activeRoute.value?.possibleLoot || enemyDetailData.value?.possibleLoot);
+  if (Object.keys(rootLoot).length) {
+    return [{key: 'root', routeLabel: '', entries: rootLoot}];
+  }
 
-/**
- * 切换航线时，默认展示该航线的第一个航行状态
- */
-const selectRoute = (index: number) => {
-  activeRouteIndex.value = index;
-  activeVariantId.value = (routes.value[index]?.variants || [])[0]?.id || '';
-};
-
-watch(() => id.value, () => {
-  activeRouteIndex.value = 0;
-  activeVariantId.value = (routes.value[0]?.variants || [])[0]?.id || '';
-}, {immediate: true});
+  return (enemyDetailData.value?.routes || [])
+      .map((routeItem, index) => ({
+        key: routeItem.id || `route-${index + 1}`,
+        routeLabel: t('codex.enemy.route', {num: index + 1}),
+        entries: routeItem.possibleLoot || {}
+      }))
+      .filter(section => Object.keys(section.entries).length);
+});
 
 /**
  * 出现坐标，坐标 key 对应地图点位详情
@@ -183,6 +198,23 @@ const onCodexHistory = () => {
               </v-chip>
             </div>
           </v-col>
+          <v-spacer></v-spacer>
+          <v-col cols="auto">
+            <div class="d-flex ga-2">
+              <v-btn v-if="authStore.isLogin" border>
+                <LikeWidget :isShowCount="true"
+                            :targetId="enemyDetailData.id"
+                            targetType="enemy">
+                  <template v-slot:activate>
+                    <v-icon icon="mdi-thumb-up"></v-icon>
+                  </template>
+                  <template v-slot:unActivate>
+                    <v-icon icon="mdi-thumb-up-outline"></v-icon>
+                  </template>
+                </LikeWidget>
+              </v-btn>
+            </div>
+          </v-col>
         </v-row>
       </v-container>
     </Banner>
@@ -197,23 +229,8 @@ const onCodexHistory = () => {
                 </ItemSlotBase>
               </div>
               <v-col>
-                <EnemiesDescription :id="enemyDetailData.id" :variant-id="activeVariantId"></EnemiesDescription>
-
-                <!-- 航线与航行状态：切换后上方的描述会跟着变 -->
-                <div class="d-flex flex-wrap ga-2 mt-4" v-if="routes.length">
-                  <v-chip v-for="(routeItem, index) in routes" :key="routeItem.id"
-                          size="small" color="amber"
-                          :variant="index === activeRouteIndex ? 'flat' : 'tonal'"
-                          @click="selectRoute(index)">
-                    {{ t('codex.enemy.route', {num: index + 1}) }}
-                  </v-chip>
-                  <v-chip v-for="variant in activeRouteVariants" :key="variant.id"
-                          size="small" color="amber"
-                          :variant="variant.id === activeVariantId ? 'flat' : 'tonal'"
-                          @click="activeVariantId = variant.id">
-                    {{ enemy(enemyDetailData.id).variantName(variant.id) }}
-                  </v-chip>
-                </div>
+                <!-- 敌人描述 -->
+                <EnemiesDescriptions :id="enemyDetailData.id"></EnemiesDescriptions>
               </v-col>
             </v-row>
             <v-divider class="mt-10 mb-6"></v-divider>
@@ -256,21 +273,22 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
 
-                <!-- 世界等级（船队取当前航线的等级） -->
-                <template v-if="activeRouteWorldTierEntriesDesc.length">
-                  <template v-for="entry in activeRouteWorldTierEntriesDesc" :key="entry[0]">
-                    <v-text-field readonly
-                                  hide-details
-                                  variant="underlined" density="compact">
-                      <template v-slot:default>
-                        {{ t('map.worldTierValue', {num: entry[0]}) }}
-                        <span class="ml-2 font-weight-bold">{{ entry[1] }}</span>
-                      </template>
-                      <template v-slot:append-inner>
-                        <p class="text-no-wrap">{{ t('codex.enemy.worldTiers') }}</p>
-                      </template>
-                    </v-text-field>
-                  </template>
+                <!-- 世界等级：船队按航线分别列出 -->
+                <template v-if="worldTierEntries.length">
+                  <v-text-field v-for="entry in worldTierEntries" :key="entry.key"
+                                readonly
+                                hide-details
+                                variant="underlined" density="compact">
+                    <template v-slot:default>
+                      {{ t('map.worldTierValue', {num: entry.world}) }}
+                      <span class="ml-2 font-weight-bold">{{ entry.level }}</span>
+                    </template>
+                    <template v-slot:append-inner>
+                      <p class="text-no-wrap">
+                        {{ entry.routeLabel ? `${entry.routeLabel} · ` : '' }}{{ t('codex.enemy.worldTiers') }}
+                      </p>
+                    </template>
+                  </v-text-field>
                 </template>
               </v-col>
             </v-row>
@@ -282,10 +300,17 @@ const onCodexHistory = () => {
                                  is-always-show-quantity></LootEntriesWidget>
             </template>
 
-            <!-- 掉落（船队取当前航线的掉落） -->
-            <template v-if="activeRouteLoot">
-              <v-divider class="mt-6">{{ t('map.possibleLoot') }}</v-divider>
-              <LootEntriesWidget :entries="activeRouteLoot"></LootEntriesWidget>
+            <!-- 掉落：根部优先，否则按航线分别列出 -->
+            <template v-for="section in lootSections" :key="section.key">
+              <v-divider>
+                {{ t('map.possibleLoot') }}{{ section.routeLabel ? ` · ${section.routeLabel}` : '' }}
+              </v-divider>
+              <LootEntriesWidget :entries="section.entries"></LootEntriesWidget>
+            </template>
+
+            <template v-if="enemyDetailData.id">
+              <v-divider>{{ t('comment.title') }}</v-divider>
+              <CommentWidget :id="enemyDetailData.id" placeholder="" type="enemy"></CommentWidget>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
@@ -336,10 +361,9 @@ const onCodexHistory = () => {
                   <ByMapWidget
                       :draggable="false"
                       :zoomable="false"
-                      :initial-zoom="1"
+                      :initial-zoom="8"
                       :target-key="location.id"
-                      :target-x="location.longitude"
-                      :target-y="location.latitude">
+                      open-in-map-view>
                     {{ t('codex.enemy.locations') }}
                   </ByMapWidget>
                 </template>

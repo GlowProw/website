@@ -394,17 +394,34 @@ export function useI18nReadName() {
             keysDifficultyDescription,
             name: (lang?: string): string => {
                 const targetLang = lang || locale?.value || '';
-                return resolveCachedName(`enemy:${targetLang}:${id}`, () => {
-                    if ((enemies as any)[id]) {
-                        // 语言包缺失时回退到 id，避免页面直接暴露 snb.* 原始 key
-                        return asString(keysName, {backRawKey: false, lang}) || String(id);
-                    }
-                    return String(id);
-                });
+                if (!(enemies as any)[id]) return String(id);
+
+                const cacheKey = `enemy:${targetLang}:${id}`;
+                const cachedName = staticNameCache.get(cacheKey);
+                if (cachedName !== undefined) return cachedName;
+
+                // 翻译尚未加载时只回退 id、不写入缓存，语言包到位后 computed 才能重新解析出正式名称
+                const translatedName = asString(keysName, {backRawKey: false, lang}).trim();
+                if (translatedName) {
+                    staticNameCache.set(cacheKey, translatedName);
+                    return translatedName;
+                }
+                return String(id);
             },
             description: (lang?: string): string => {
                 if (!(enemies as any)[id]) return '';
-                return asString(keysDescription, {backRawKey: false, lang}).trim();
+
+                const rootDescription = asString(keysDescription, {backRawKey: false, lang}).trim();
+                if (rootDescription) return rootDescription;
+
+                // 船队根部不再放描述，SEO 与列表文案回退到各航线状态的描述
+                const routeVariants = ((enemies as any)[id]?.routes || [])
+                    .flatMap((route: any) => route?.variants || [])
+                    .filter(Boolean);
+                return routeVariants
+                    .map((variant: any) => asString([`snb.enemies.${id}.variants.${variant.id}.description`], {backRawKey: false, lang}).trim())
+                    .filter(Boolean)
+                    .join(' ');
             },
             difficultyDescription: (lang?: string): string => {
                 return asString(keysDifficultyDescription, {backRawKey: false, lang}).trim();

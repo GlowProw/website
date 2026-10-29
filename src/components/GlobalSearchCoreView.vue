@@ -799,7 +799,7 @@ defineOptions({
         <!-- 按类型循环显示 S -->
         <template v-for="(items, type) in searchResult" :key="type">
           <template v-if="selectedType === 'all' || selectedType === String(type)">
-            <AffixBoxHasTitleView class="mb-6">
+            <AffixBoxHasTitleView class="mb-6" :offset-top="0">
               <v-list class="elevation-1">
                 <v-list-item
                     v-for="(i, index) in items"

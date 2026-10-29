@@ -474,6 +474,34 @@ const moveRow = (index: number, direction: number) => {
 };
 
 /**
+ * 阶梯标题最大字数，emoji 也按一个字符计算
+ */
+const TIER_LABEL_MAX_LENGTH = 10;
+
+/**
+ * 编辑阶梯标题
+ * 超过最大字数时截断并提示，空标题允许保留
+ *
+ * @param event 输入事件
+ * @param index 阶梯行下标
+ */
+const onTierLabelInput = (event: Event, index: number) => {
+  if (props.readonly) return;
+  const input = event.target as HTMLInputElement;
+  const rawValue = input.value;
+  const chars = Array.from(rawValue);
+  if (chars.length > TIER_LABEL_MAX_LENGTH) {
+    const truncated = chars.slice(0, TIER_LABEL_MAX_LENGTH).join('');
+    input.value = truncated;
+    // 输入过程中的截断提示用 minimal，避免全屏弹窗打断继续输入
+    noticeStore.warning(t("rankingDesignedItems.verify.tierLabelTooLong") || `阶梯标题最多 ${TIER_LABEL_MAX_LENGTH} 个字`, {mode: 'minimal'});
+    rankingData.value[index].label = truncated;
+    return;
+  }
+  rankingData.value[index].label = rawValue;
+};
+
+/**
  * 清空指定阶梯行的所有物品
  *
  * @param index 阶梯行下标
@@ -499,7 +527,7 @@ const deleteRow = (index: number) => {
 const addRow = () => {
   if (props.readonly) return;
   if (rankingData.value.length >= 20) {
-    noticeStore.warning(t("rankingDesignedItems.verify.tierMaxExceeded") || "阶梯层数不能超过 20 层");
+    noticeStore.warning(t("rankingDesignedItems.verify.tierMaxExceeded") || "阶梯层数不能超过 20 层", {mode: 'minimal'});
     return;
   }
 
@@ -546,7 +574,8 @@ const onLoad = (data: any) => {
 
   if (Array.isArray(rawList)) {
     rankingData.value = rawList.map((row: any) => ({
-      label: row.label || "Tier",
+      // 空标题是允许的，只有字段缺失时才回退到默认文案
+      label: row.label === undefined || row.label === null ? "Tier" : String(row.label),
       attr: {
         color: row.attr?.color || "#f5a623",
       },
@@ -617,11 +646,11 @@ defineExpose({
               </div>
 
               <input
-                  v-model="i.label"
+                  :value="i.label"
                   class="tier-label-input bg-transparent text-h5 font-weight-black text-center"
-                  maxlength="16"
                   :placeholder="`T${index + 1}`"
-                  title="点击编辑阶梯标题"
+                  :title="t('rankingDesignedItems.workshop.tierLabelHint')"
+                  @input="onTierLabelInput($event, index)"
               />
             </div>
           </template>

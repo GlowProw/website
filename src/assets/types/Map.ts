@@ -375,6 +375,14 @@ export interface CategoryZoomRule {
 export interface UseMapControllerOptions {
     highlightTargetKey?: Ref<string | undefined> | ComputedRef<string | undefined> | string;
     highlightCoords?: Ref<{ lon: number; lat: number } | undefined> | ComputedRef<{ lon: number; lat: number } | undefined>;
+    /**
+     * 是否加载当前登录用户的地图集与个人标记，内嵌小地图场景应关闭
+     */
+    loadUserMarkers?: boolean;
+    /**
+     * 点击地图点位时的自定义处理，返回 true 表示已接管，不再执行默认的选中/跳转逻辑
+     */
+    onLocationClick?: (location: any) => boolean | void;
 }
 
 export type DrawShapeMode = MapShapeType;
@@ -429,4 +437,8 @@ export interface ByMapWidgetProps {
   zoomable?: boolean;
   initialZoom?: number;
   animated?: boolean;
+  /**
+   * 点击地图上的点位时是否跳转到 /map/view 对应位置
+   */
+  openInMapView?: boolean;
 }
