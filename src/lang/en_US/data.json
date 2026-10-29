@@ -330,10 +330,23 @@
         }
       },
       "user": {
-        "sessionExpired": "Your session has expired or you have logged in from another device on the same platform. Please sign in again.",
-        "tokenExpired": "Your token has expired. Please sign in again.",
-        "tokenRequired": "Authentication required. Please sign in first.",
-        "invalid": "Invalid user account. Please sign in again."
+        "invalid": "Invalid user",
+        "tokenExpired": "User identity expired, please log in again",
+        "tokenRequired": "Please sign in first",
+        "permissionDenied": "Permission denied",
+        "assembls": {
+          "ok": "Saved",
+          "bad": "Invalid parameters",
+          "error": "Failed to save"
+        },
+        "2fa": {
+          "bad": "Invalid parameters",
+          "wrongPassword": "Current password is incorrect",
+          "alreadyEnabled": "Two-step verification is already enabled",
+          "notEnabled": "Two-step verification is not enabled",
+          "invalid": "Verification failed, please try again",
+          "error": "Operation failed, please try again later"
+        }
       },
       "error": "Application Error: {content}",
       "avatar": {
@@ -689,25 +702,6 @@
         "ok": "Like processed successfully",
         "error": "Like error: {context}",
         "bad": "Like error: {context}"
-      },
-      "user": {
-        "invalid": "Invalid user",
-        "tokenExpired": "User identity expired, please log in again",
-        "tokenRequired": "Please sign in first",
-        "permissionDenied": "Permission denied",
-        "assembls": {
-          "ok": "Saved",
-          "bad": "Invalid parameters",
-          "error": "Failed to save"
-        },
-        "2fa": {
-          "bad": "Invalid parameters",
-          "wrongPassword": "Current password is incorrect",
-          "alreadyEnabled": "Two-step verification is already enabled",
-          "notEnabled": "Two-step verification is not enabled",
-          "invalid": "Verification failed, please try again",
-          "error": "Operation failed, please try again later"
-        }
       },
       "request": {
         "rateLimited": "Request too fast, please slow down"
@@ -2937,6 +2931,24 @@
     "npcs": {
       "title": "NPC List"
     },
+    "enemy": {
+      "title": "Enemy",
+      "lookDetail": "View enemy details (hold)",
+      "worldTiers": "World Tiers",
+      "variants": "Route States",
+      "route": "Route {num}",
+      "summonItem": "Summon Cost",
+      "locations": "Locations",
+      "participants": "Max Participants",
+      "categorys": {
+        "PermanentEvent": "Permanent Event",
+        "LimitedEvent": "Limited Event"
+      },
+      "variantState": "State {num}"
+    },
+    "enemies": {
+      "title": "Enemies"
+    },
     "empireSkill": {
       "title": "Empire Skill Detail",
       "lookDetail": "View Empire Skill Details (Hold)",
@@ -3271,6 +3283,8 @@
     "treasureMapAvailable": "Available Treasure Maps",
     "npcAvailable": "NPC's",
     "possibleLoot": "Possible Loot",
+    "worldTier": "World Tier",
+    "worldTierValue": "World {num}",
     "locations": "Locations",
     "layerControl": "Layer Control",
     "hideAll": "Hide All",
@@ -3525,6 +3539,42 @@
       "treasureMap": {
         "name": "Treasure Map",
         "description": "Treasure map clue locations pointing to buried pirate riches."
+      },
+      "eliteWarship": {
+        "name": "Elite Warship",
+        "description": "Elite flagship of a faction. Sink it for its signature loot chest."
+      },
+      "domains": {
+        "name": "Domain Boss",
+        "description": "A boss guarding a specific stretch of water, summoned with a special item."
+      },
+      "warfleet": {
+        "name": "Warfleet",
+        "description": "A hostile fleet sailing in formation. Heavy firepower, best tackled in a group."
+      },
+      "seaMonster": {
+        "name": "Sea Monster",
+        "description": "A giant creature of the deep that roams a fixed area and drops rare materials."
+      },
+      "convoy": {
+        "name": "Convoy",
+        "description": "A trade convoy sailing between faction waters. Raid it for bulk cargo."
+      },
+      "tower": {
+        "name": "Tower",
+        "description": "A defensive structure guarding a waterway. Destroy it to open the area."
+      },
+      "warEvent": {
+        "name": "War Event",
+        "description": "A faction conflict objective that usually needs several players."
+      },
+      "requiemOfTheLost": {
+        "name": "Requiem of the Lost",
+        "description": "Ghost ship boss from a limited-time event, summoned with the event flare."
+      },
+      "helmActivity": {
+        "name": "Helm Activity",
+        "description": "A limited-time objective issued by The Helm."
       }
     },
     "managePoints": "Manage Markers",

@@ -1,6 +1,6 @@
 import { useI18nUtils } from "@/assets/sripts/i18n_util";
 
-import { Cosmetics, EmpireSkills, Item, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps, Quests } from "glow-prow-data";
+import { Cosmetics, EmpireSkills, Enemies, Item, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Sets, Ship, Ships, TreasureMaps, Quests } from "glow-prow-data";
 import { Ultimates } from "glow-prow-data/src/entity/Ultimates";
 import { number } from "@/assets/sripts/index";
 import { Commodities } from "glow-prow-data/src/entity/Commodities";
@@ -13,6 +13,7 @@ const items = Items,
     npcs = Npcs,
     modifications = Modifications,
     mapLocations = MapLocations,
+    enemies = Enemies,
     treasureMaps = TreasureMaps,
     ultimates = Ultimates,
     sets = Sets,
@@ -369,13 +370,68 @@ export function useI18nReadName() {
         }
     }
 
-    const mapLocation = (id: string, category?: string) => {
+    const enemy = (id: string) => {
         const keysName = [
+            `snb.enemies.${id}.name`,
+        ],
+            keysDescription = [
+                `snb.enemies.${id}.description`,
+            ],
+            keysDifficultyDescription = [
+                `snb.enemies.${id}.difficulty.description`,
+            ];
+
+        /**
+         * 变种（同一航线 / 刷新点的不同状态）的文案 key
+         */
+        const variantKeys = (variantId: string) => [
+            `snb.enemies.${id}.variants.${variantId}.name`,
+        ];
+
+        return {
+            keysName,
+            keysDescription,
+            keysDifficultyDescription,
+            name: (lang?: string): string => {
+                const targetLang = lang || locale?.value || '';
+                return resolveCachedName(`enemy:${targetLang}:${id}`, () => {
+                    if ((enemies as any)[id]) {
+                        // 语言包缺失时回退到 id，避免页面直接暴露 snb.* 原始 key
+                        return asString(keysName, {backRawKey: false, lang}) || String(id);
+                    }
+                    return String(id);
+                });
+            },
+            description: (lang?: string): string => {
+                if (!(enemies as any)[id]) return '';
+                return asString(keysDescription, {backRawKey: false, lang}).trim();
+            },
+            difficultyDescription: (lang?: string): string => {
+                return asString(keysDifficultyDescription, {backRawKey: false, lang}).trim();
+            },
+            variantName: (variantId: string, lang?: string): string => {
+                if (!variantId) return '';
+                return asString(variantKeys(variantId), {backRawKey: false, lang}).trim();
+            },
+            variantDescription: (variantId: string, lang?: string): string => {
+                if (!variantId) return '';
+                return asString([`snb.enemies.${id}.variants.${variantId}.description`], {backRawKey: false, lang}).trim();
+            }
+        };
+    }
+
+    const mapLocation = (id: string, category?: string) => {
+        // 敌人坐标的 id 是坐标 key，名称与描述要走敌人翻译
+        const enemyId: string | undefined = (mapLocations as any)[id]?.enemyId
+            || ((enemies as any)[id] ? id : undefined);
+        const keysName = [
+            ...(enemyId ? [`snb.enemies.${enemyId}.name`] : []),
             `snb.mapLocations.${id}.name`,
             `map.types.${id}.name`,
             `snb.locations.${id}`,
         ],
             keysDescription = [
+                ...(enemyId ? [`snb.enemies.${enemyId}.description`] : []),
                 `snb.mapLocations.${id}.description`,
                 `map.types.${category}.description`,
                 `map.types.${id}.description`,
@@ -834,6 +890,7 @@ export function useI18nReadName() {
     return {
         ship,
         npc,
+        enemy,
         set,
         material,
         item,

@@ -87,6 +87,34 @@ const snbI18nPlugin = {
     },
 };
 
+/**
+ * 开发环境语言包兜底
+ * 线上翻译走 CDN，本地离线或语言包还没发布时前端会回退请求 /snb-lang-data/<locale>/<category>.json，
+ * 这里直接把请求映射到 glow-prow-data-languages 仓库里的 JSON，改完语言包刷新页面即可生效
+ */
+const snbLocalLangDevPlugin = {
+    name: 'snb-local-lang-dev',
+    apply: 'serve' as const,
+    configureServer(server: any) {
+        server.middlewares.use((req: any, res: any, next: any) => {
+            const match = /^\/snb-lang-data\/([^/]+)\/([^/?]+\.json)(?:$|\?)/.exec(req.url || '');
+            if (!match) return next();
+
+            const filePath = path.resolve(
+                __dirname,
+                'node_modules/glow-prow-data-languages/src/data',
+                match[1],
+                match[2]
+            );
+            if (!fs.existsSync(filePath)) return next();
+
+            res.setHeader('Content-Type', 'application/json; charset=utf-8');
+            res.setHeader('Cache-Control', 'no-store');
+            res.end(fs.readFileSync(filePath, 'utf8'));
+        });
+    },
+};
+
 // 标记当前是否为 SSR 构建（vite-ssg 的服务端构建）
 // SSR 下不做 vendor 强制合包：否则核心入口只因用到 Seasons 就会静态加载整个 glow-prow-data chunk
 let isSsrBuild = false;
@@ -214,6 +242,7 @@ const getRoutes = () => {
         'codex/npcs',
         'codex/empireSkills',
         'codex/masterys',
+        'codex/enemy',
         'codex/ultimates',
         'map',
         'map/view',
@@ -246,7 +275,7 @@ const getRoutes = () => {
         'setting/service-status',
         'space',
         'apps',
-        'apps/view',
+        'apps/ai-connector',
         'apps/qq-bot',
         'team',
         'search',
@@ -309,6 +338,49 @@ const selectShardRoutes = (list: string[]): string[] => {
     return shard;
 };
 
+/**
+ * 扫描 src 下模板里的 <v-xxx> 标签，提前登记成 optimizeDeps.include
+ *
+ * vite-plugin-vuetify 是在 transform 阶段才往模板里注入 `vuetify/components/VXxx` 的，
+ * Vite 的依赖扫描器看不到这些深路径，只能在浏览器里逐个发现；
+ * 每发现一个新依赖就会重跑一次预构建并删掉旧的依赖块，正在加载的页面会拿到
+ * 504 Outdated Optimize Dep，最终表现为 Failed to fetch dynamically imported module。
+ * 这里按 vuetify 自己的 importMap 一次扫全，运行时就不会再触发预构建。
+ */
+function collectVuetifyComponentDeps(): string[] {
+    const srcDir = path.resolve(__dirname, 'src');
+    // 插件就是用这张表把标签映射成 import 路径的，这里复用同一张表避免对不上
+    const importMap = JSON.parse(
+        fs.readFileSync(path.resolve(__dirname, 'node_modules/vuetify/dist/json/importMap.json'), 'utf8')
+    ) as { components: Record<string, { from: string }> };
+    const deps = new Set<string>();
+
+    const walk = (dir: string) => {
+        for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
+            const fullPath = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+                walk(fullPath);
+                continue;
+            }
+            if (!/\.(vue|ts)$/.test(entry.name)) continue;
+            const content = fs.readFileSync(fullPath, 'utf8');
+            for (const match of content.matchAll(/<v-([a-z0-9-]+)/g)) {
+                const componentName = 'V' + match[1]
+                    .split('-')
+                    .filter(Boolean)
+                    .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+                    .join('');
+                const from = importMap.components[componentName]?.from;
+                // 模板里可能混着自定义的 v-xxx 标签，只有 vuetify 认识的才会被插件注入 import
+                if (!from) continue;
+                deps.add(`vuetify/${from.endsWith('.mjs') ? 'lib/' : ''}${from}`);
+            }
+        }
+    };
+    walk(srcDir);
+    return [...deps].sort();
+}
+
 export default defineConfig(({mode}) => {
     const env = loadEnv(mode, process.cwd(), '');
     const appHost = env.APP_HOST || '';
@@ -317,8 +389,14 @@ export default defineConfig(({mode}) => {
     return {
         envPrefix: ['VITE_', 'APP_'],
         base: '/',
+        // 依赖预构建目录默认是 node_modules/.vite
+        // 同时跑第二个 vite（比如临时验证服务器）时会重写这个目录，
+        // 让原先那个开发服务器报 504 Outdated Optimize Dep → Failed to fetch dynamically imported module
+        // 需要并行启动时用 VITE_CACHE_DIR 指定独立目录
+        cacheDir: process.env.VITE_CACHE_DIR || 'node_modules/.vite',
         plugins: [
             snbI18nPlugin,
+            snbLocalLangDevPlugin,
             ssrBuildFlagPlugin,
             appVersionPlugin,
             Vue({
@@ -398,6 +476,10 @@ export default defineConfig(({mode}) => {
         optimizeDeps: {
             include: [
                 "vuetify",
+                "vuetify/directives",
+                // 搜索页 worker 才会用到，不预登记会在打开搜索页时触发一次全量重优化
+                "flexsearch",
+                ...collectVuetifyComponentDeps(),
             ],
             exclude: [
                 "glow-prow-assets",

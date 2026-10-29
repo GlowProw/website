@@ -29,7 +29,7 @@ export interface Position {
 
 // CodexViewData.vue
 
-export type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc' | 'empireSkill' | 'mastery' | 'quest'
+export type LoadDataType = 'ship' | 'item' | 'commoditie' | 'material' | 'ultimate' | 'cosmetic' | 'modification' | 'set' | 'treasureMap' | 'mapLocation' | 'npc' | 'enemy' | 'empireSkill' | 'mastery' | 'quest'
 export type SortField = 'dateAdded' | 'lastUpdated'
 export type SortOrder = 'asc' | 'desc'
 

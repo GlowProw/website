@@ -28,7 +28,8 @@ let isDetailPage = computed(() => [
   'NpcDetail',
   'EmpireSkillDetail',
   'MasteryDetail',
-  'QuestDetail'
+  'QuestDetail',
+  'EnemyDetail'
 ].includes(route.name as string))
 </script>
 

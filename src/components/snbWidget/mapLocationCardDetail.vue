@@ -59,7 +59,9 @@ const onReady = async () => {
 
   i.value = loc;
 
-  if (i.value?.category && mapIcons.value[i.value.category]) {
+  if (i.value?.icon && mapIcons.value[i.value.icon]) {
+    mapLocationsCardData.value.icon = mapIcons.value[i.value.icon];
+  } else if (i.value?.category && mapIcons.value[i.value.category]) {
     mapLocationsCardData.value.icon = mapIcons.value[i.value.category];
   } else if (props.id && mapIcons.value[props.id]) {
     mapLocationsCardData.value.icon = mapIcons.value[props.id];

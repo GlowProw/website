@@ -70,6 +70,16 @@
         "keywords": "NPC列表,非玩家,任务,{keywords}"
       }
     },
+    "enemy": {
+      "meta": {
+        "keywords": "敌人,敌对目标,精英战舰,船队,首领,{keywords}"
+      }
+    },
+    "enemies": {
+      "meta": {
+        "keywords": "敌人列表,敌对目标,精英战舰,船队,首领,{keywords}"
+      }
+    },
     "set": {
       "meta": {
         "keywords": "集合,装扮,装饰,船,玩家,身体,皮肤,{keywords}"

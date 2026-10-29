@@ -275,18 +275,22 @@ const readonlyPanels = computed(() => {
     orderedKeys = ['weekly'];
   }
 
-  return orderedKeys
-      .map(key => {
-        const rawList = props.data?.[key];
-        const list = Array.isArray(rawList) ? rawList : [];
-        return {
-          key,
-          title: categoryMeta.value[key] || key,
-          items: formatItemList(list)
-        };
-      })
-      // 过滤掉完全没有任何有效物品的空面板
-      .filter(panel => panel.items.some((i: any) => i && i.data));
+  const panels = orderedKeys.map(key => {
+    const rawList = props.data?.[key];
+    const list = Array.isArray(rawList) ? rawList : [];
+    return {
+      key,
+      title: categoryMeta.value[key] || key,
+      items: formatItemList(list)
+    };
+  });
+
+  const activePanels = panels.filter(panel => panel.items.some((i: any) => i && i.data));
+  return activePanels.length > 0 ? activePanels : [panels[0] || {
+    key: 'weekly',
+    title: categoryMeta.value.weekly,
+    items: formatItemList([])
+  }];
 });
 
 defineOptions({
@@ -544,7 +548,7 @@ defineOptions({
             <ItemName v-else :id="i.data.id"></ItemName>
           </div>
         </div>
-        <div class="d-flex ga-2 align-center justify-center text-caption">
+        <div v-if="i && i.currency" class="d-flex ga-2 align-center justify-center text-caption mt-1">
           <ItemSlotBase size="18px" class="rounded-lg mx-n1">
             <MaterialIconWidget :id="i.currency"></MaterialIconWidget>
           </ItemSlotBase> <u class="u">{{ i.worth || 0 }}</u>

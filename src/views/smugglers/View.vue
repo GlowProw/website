@@ -408,10 +408,7 @@ const masonryColumns = computed(() => {
             <div v-if="browseLoading" class="d-flex justify-center align-center" style="min-height: 450px;">
               <Loading size="50"></Loading>
             </div>
-            <SmugglersReportShowItemWidget v-else-if="smugglersData && smugglersData.id" :data="smugglersData.content"></SmugglersReportShowItemWidget>
-            <div v-else class="d-flex justify-center align-center" style="min-height: 450px;">
-              <EmptyView></EmptyView>
-            </div>
+            <SmugglersReportShowItemWidget v-else :data="smugglersData?.content || {}"></SmugglersReportShowItemWidget>
           </v-card>
           <template v-slot:title>{{ t('smugglersReport.view.smuggledItems') }}</template>
         </AffixBoxHasTitleView>

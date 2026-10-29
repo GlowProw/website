@@ -9,7 +9,8 @@ import { useAppStore } from '~/stores/appStore';
 import Storage from '@/assets/sripts/storage';
 import { useMapApi } from '@/assets/sripts/api/map_service';
 import { useI18nUtils } from "@/assets/sripts/i18n_util.js";
-import { MapLocations } from "glow-prow-data";
+import { useI18nReadName } from "@/assets/sripts/i18n_read_name";
+import { EnemyTypes, MapLocations } from "glow-prow-data";
 import { isCategoryVisibleAtZoom, getCategoryScale } from "@/assets/sripts/map_zoom_config";
 import type { DrawShapeMode, MapCollection, MapPoint, MapShape, MapShapeType, PointFormData, SharedCollectionInfo, ShapeFormData, ShapeGeometry, ShapeStyle, UseMapControllerOptions } from '@/assets/types/Map';
 import { parseShapeGeometry, parseShapeStyle, parseShapeTags } from '@/assets/types/Map';
@@ -44,6 +45,11 @@ import type { Feature as OLFeature } from 'ol';
 import type { Geometry, SimpleGeometry } from 'ol/geom';
 
 /**
+ * 敌人目标的分类集合，这些分类的标记不绘制放大透明阴影
+ */
+const ENEMY_CATEGORY_SET = new Set<string>(EnemyTypes);
+
+/**
  * 地图控制器
  */
 export function use_map_controller(options: UseMapControllerOptions = {}) {
@@ -56,13 +62,14 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         if (!options.highlightCoords) return undefined;
         return typeof options.highlightCoords === 'object' && 'value' in options.highlightCoords ? (options.highlightCoords as any).value : options.highlightCoords;
     });
-    const { t } = useI18n();
+    const { t, te } = useI18n();
     const route = useRoute();
     const router = useRouter();
     const authStore = useAuthStore();
     const notice = useNoticeStore();
     const api = useMapApi();
     const { asString } = useI18nUtils();
+    const { enemy } = useI18nReadName();
     const { mobile } = useDisplay();
     const assetsStore = useAssetsStore();
     const storageObj = new Storage();
@@ -81,6 +88,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         'fortifications': ['megafort', 'militaryBase', 'guardTower'],  // 军事要塞
         'shipwrecks': ['shipwreck'],                   // 失事船只
         'collectibles': ['archive', 'treasureMap'],    // 调查档案
+        'enemies': ['eliteWarship', 'domains', 'warfleet', 'seaMonster', 'convoy', 'tower', 'warEvent', 'requiemOfTheLost', 'helmActivity'], // 敌对目标
         'resources': ['abaka', 'coconut', 'durian', 'hemp', 'jute', 'linen', 'ndizi', 'ramie', 'roselle', 'screwpine', 'sisal'], // 原料资源
         'wood': ['acacia', 'greenheart', 'iroko', 'ironwood', 'juniper', 'mopane', 'teak'], // 木材资源
         'ore': ['bogIron', 'cobalt', 'copper', 'magnetite', 'nickel', 'pureIron', 'zinc'], // 矿石资源
@@ -295,10 +303,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     const availableCategories = computed(() => {
         const uniqueCategories = [...new Set(locations.value.map(loc => loc.category))];
-        return uniqueCategories.map(category => ({
-            value: category,
-            text: t(`map.types.${category}.name`),
-        }));
+        return uniqueCategories.map(category => {
+            const key = `map.types.${category}.name`;
+            return {
+                value: category,
+                text: te(key) ? t(key) : category,
+            };
+        });
     });
 
     const groupedCategories = computed(() => {
@@ -363,6 +374,14 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const categoryTargetStyleCache: Record<string, Style[] | null> = {};
     const categoryDimmedStyleCache: Record<string, Style[] | null> = {};
     let animFrameId: number | null = null;
+
+    /**
+     * 标记样式缓存 key：有独立图标的点位按图标区分，其余按分类
+     */
+    const getMarkerStyleKey = (data: any): string => data?.icon || data?.category || 'default';
+
+    // 样式 key 与分类的对应关系，用于读取缩放与图层可见性
+    const styleKeyCategory: Record<string, string> = {};
 
     watch([highlightTargetKey, highlightCoords], () => {
         if (vectorLayerRef.value) {
@@ -445,19 +464,21 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     };
 
     /**
-     * 构建/更新指定分类在当前透明度与 Zoom 下的 OpenLayers Style 样式
+     * 构建/更新指定样式 key 在当前透明度与 Zoom 下的 OpenLayers Style 样式
      * - 标准样式
      * - 目标放大高亮样式 (targetKey 对应标记，放大 1.6 倍)
      * - 其他非目标半透明样式 (半透明 0.28)
      */
-    const updateCategoryStyle = (category: string, opacity: number, zoom: number) => {
+    const updateCategoryStyle = (styleKey: string, opacity: number, zoom: number) => {
         if (opacity <= 0.01) {
-            categoryStyleCache[category] = null;
-            categoryTargetStyleCache[category] = null;
-            categoryDimmedStyleCache[category] = null;
+            categoryStyleCache[styleKey] = null;
+            categoryTargetStyleCache[styleKey] = null;
+            categoryDimmedStyleCache[styleKey] = null;
             return;
         }
 
+        // 缩放与图层可见性仍按分类计算
+        const category = styleKeyCategory[styleKey] || styleKey;
         const baseScale = getCategoryScale(category, zoom);
         // 缩放弹性过渡动画：淡入时尺寸从 70% 放大到 100%，淡出时缩小到 70%
         const scale = baseScale * (0.7 + 0.3 * opacity);
@@ -472,19 +493,26 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         const dimmedScale = scale * 0.95;
         const dimmedBorderScale = dimmedScale * 1.15;
 
-        const isShare = category === 'shareLocation';
+        const isShare = styleKey === 'shareLocation';
         const anchor: [number, number] = isShare ? [0.5, 1] : [0.5, 0.6];
-        const iconSrc = isShare ? getPersonalMarkerIcon() : getCategoryIcon(category);
+        const iconSrc = isShare
+            ? getPersonalMarkerIcon()
+            : (icons.value[styleKey] || getCategoryIcon(category));
 
         if (!iconSrc) {
-            categoryStyleCache[category] = null;
-            categoryTargetStyleCache[category] = null;
-            categoryDimmedStyleCache[category] = null;
+            categoryStyleCache[styleKey] = null;
+            categoryTargetStyleCache[styleKey] = null;
+            categoryDimmedStyleCache[styleKey] = null;
             return;
         }
 
+        // 敌人目标不做描边阴影，只保留图标本身
+        const isEnemyCategory = ENEMY_CATEGORY_SET.has(category);
+        const buildStyles = (shadowStyle: Style, iconStyle: Style) =>
+            isEnemyCategory ? [iconStyle] : [shadowStyle, iconStyle];
+
         // 标准样式
-        categoryStyleCache[category] = [
+        categoryStyleCache[styleKey] = buildStyles(
             new Style({
                 image: new Icon({
                     src: iconSrc,
@@ -508,10 +536,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 }),
                 zIndex: 2,
             })
-        ];
+        );
 
         // 高亮样式
-        categoryTargetStyleCache[category] = [
+        categoryTargetStyleCache[styleKey] = buildStyles(
             new Style({
                 image: new Icon({
                     src: iconSrc,
@@ -535,10 +563,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 }),
                 zIndex: 500,
             })
-        ];
+        );
 
         // 其他透明样式
-        categoryDimmedStyleCache[category] = [
+        categoryDimmedStyleCache[styleKey] = buildStyles(
             new Style({
                 image: new Icon({
                     src: iconSrc,
@@ -562,23 +590,29 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 }),
                 zIndex: 2,
             })
-        ];
+        );
     };
 
     /**
-     * 更新所有分类的目标透明度
+     * 更新所有样式 key 的目标透明度
      * targetOpacity (0.0 或 1.0)
      */
     const updateAllTargetOpacities = () => {
         const currentZoom = getCurrentZoom();
-        const allCategories = new Set<string>();
+        const allStyleKeys = new Set<string>();
         locations.value.forEach(loc => {
-            if (loc.category) allCategories.add(loc.category);
+            if (!loc.category) return;
+            const styleKey = getMarkerStyleKey(loc);
+            styleKeyCategory[styleKey] = loc.category;
+            allStyleKeys.add(styleKey);
         });
 
-        allCategories.add('shareLocation');
-        allCategories.add('default');
-        allCategories.forEach(category => {
+        allStyleKeys.add('shareLocation');
+        allStyleKeys.add('default');
+        styleKeyCategory['shareLocation'] = 'shareLocation';
+        styleKeyCategory['default'] = 'default';
+        allStyleKeys.forEach(styleKey => {
+            const category = styleKeyCategory[styleKey] || styleKey;
             const isVisibleByLayer = category === 'shareLocation'
                 ? (layerVisibility.value.shareLocation ?? true)
                 : (layerVisibility.value[category] ?? true);
@@ -586,10 +620,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             const isVisibleByZoom = isDebug.value || isCategoryVisibleAtZoom(category, currentZoom, isDebug.value);
             const target = (isVisibleByLayer && isVisibleByZoom) ? 1.0 : 0.0;
 
-            let state = categoryAnimState[category];
+            let state = categoryAnimState[styleKey];
             if (!state) {
                 state = { currentOpacity: target, targetOpacity: target };
-                categoryAnimState[category] = state;
+                categoryAnimState[styleKey] = state;
             } else {
                 state.targetOpacity = target;
             }
@@ -657,6 +691,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         const targetKey = highlightTargetKey.value;
         if (targetKey) {
             if (originalData?.id === targetKey) return true;
+            if (originalData?.enemyId === targetKey) return true;
             if (originalData?.key === targetKey) return true;
             if (originalData?.category === targetKey) return true;
         }
@@ -678,18 +713,18 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      */
     const createMarkerStyleFn = () => (feature: any) => {
         const originalData = feature.get('originalData');
-        const featureCategory = originalData?.category || 'default';
+        const styleKey = getMarkerStyleKey(originalData);
 
         const hasTargetHighlight = Boolean(highlightTargetKey.value || highlightCoords.value);
         if (hasTargetHighlight) {
             if (isTargetFeatureData(originalData)) {
-                return categoryTargetStyleCache[featureCategory] ?? categoryStyleCache[featureCategory] ?? null;
+                return categoryTargetStyleCache[styleKey] ?? categoryStyleCache[styleKey] ?? null;
             } else {
-                return categoryDimmedStyleCache[featureCategory] ?? categoryStyleCache[featureCategory] ?? null;
+                return categoryDimmedStyleCache[styleKey] ?? categoryStyleCache[styleKey] ?? null;
             }
         }
 
-        return categoryStyleCache[featureCategory] ?? null;
+        return categoryStyleCache[styleKey] ?? null;
     };
 
     const onConfigChanged = () => {
@@ -826,8 +861,8 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         hoverInteraction.on('select', (event) => {
             const selected = event.selected.filter(f => {
-                const cat = f.get('originalData')?.category || 'default';
-                const anim = categoryAnimState[cat];
+                const styleKey = getMarkerStyleKey(f.get('originalData'));
+                const anim = categoryAnimState[styleKey];
                 return anim ? anim.currentOpacity > 0.05 : true;
             });
             const mapElement = map.getTargetElement();
@@ -875,8 +910,8 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 const originalData = feature.get('originalData');
                 if (!originalData) return;
 
-                const cat = originalData.category || 'default';
-                const anim = categoryAnimState[cat];
+                const styleKey = getMarkerStyleKey(originalData);
+                const anim = categoryAnimState[styleKey];
                 if (anim && anim.currentOpacity <= 0.05) {
                     return;
                 }
@@ -913,8 +948,8 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 { layerFilter: (l) => l.get('isMainVectorLayer') === true, hitTolerance: 15 }
             ) ?? null;
             if (feature) {
-                const cat = feature.get('originalData')?.category || 'default';
-                const anim = categoryAnimState[cat];
+                const styleKey = getMarkerStyleKey(feature.get('originalData'));
+                const anim = categoryAnimState[styleKey];
                 if (anim && anim.currentOpacity <= 0.05) {
                     feature = null;
                 }
@@ -1023,8 +1058,8 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     { layerFilter: (l) => l.get('isMainVectorLayer') === true, hitTolerance: 15 }
                 ) ?? null;
                 if (feature) {
-                    const cat = feature.get('originalData')?.category || 'default';
-                    const anim = categoryAnimState[cat];
+                    const styleKey = getMarkerStyleKey(feature.get('originalData'));
+                    const anim = categoryAnimState[styleKey];
                     if (anim && anim.currentOpacity <= 0.05) {
                         feature = null;
                     }
@@ -1857,7 +1892,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             targetZoom.value = hasZoom ? parsedZoom : undefined;
         }
 
-        const existingLocation = key ? locations.value.find(loc => loc.id === key) : undefined;
+        const existingLocation = key ? locations.value.find(loc => loc.id === key || loc.enemyId === key) : undefined;
 
         if (existingLocation) {
             targetLocationId.value = existingLocation.id;
@@ -3554,6 +3589,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         if (!location.id) return '';
 
+        // 敌人坐标优先显示敌人名称
+        if (location.enemyId) {
+            return enemy(location.enemyId).name() || location.id;
+        }
         return asString([location.id, `snb.mapLocations.${location.id}.name`], { backRawKey: false }) || location.id;
     };
 

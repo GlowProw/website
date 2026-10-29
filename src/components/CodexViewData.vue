@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Cosmetics, EmpireSkills, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps, Masterys, Quests} from "glow-prow-data";
+import {Cosmetics, EmpireSkills, Enemies, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps, Masterys, Quests} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {computed, onBeforeUnmount, onMounted, ref, useSlots, watch} from "vue";
@@ -40,6 +40,8 @@ import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import SetName from "@/components/snbWidget/setName.vue";
 import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import NpcName from "@/components/snbWidget/npcName.vue";
+import EnemiesIconWidget from "@/components/snbWidget/enemiesIconWidget.vue";
+import EnemiesName from "@/components/snbWidget/enemiesName.vue";
 import EmpireSkillIconWidget from "@/components/snbWidget/empireSkillIconWidget.vue";
 import EmpireSkillName from "@/components/snbWidget/empireSkillName.vue";
 import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
@@ -69,6 +71,7 @@ const
     treasureMaps = TreasureMaps,
     mapLocation = MapLocations,
     npcs = Npcs,
+    enemies = Enemies,
 
     // 稀有度
     rarityColorConfig = rarity.color,
@@ -133,6 +136,8 @@ let data: any = ref([]),
         value: tag,
         text: asString([
           `codex.types.${tag}`,
+          // 敌人类型复用地图分类文案
+          `map.types.${tag}.name`,
 
           // empireSkills type是阵营
           `snb.factions.${tag}.name`
@@ -280,6 +285,8 @@ const onProcessedData = computed(() => {
           `snb.mapLocations.${sanitizeString(i.id).cleaned}.name`,
           `snb.npcs.${i.id}.name`,
           `snb.npcs.${sanitizeString(i.id).cleaned}.name`,
+          `snb.enemies.${i.id}.name`,
+          `snb.enemies.${sanitizeString(i.id).cleaned}.name`,
           `snb.empireSkills.${i.id}.name`,
           `snb.empireSkills.${sanitizeString(i.id).cleaned}.name`,
           `snb.masterys.${i.id}.name`,
@@ -429,6 +436,9 @@ const onProcessedData = computed(() => {
             break;
           case "npc":
             d = d.concat(Object.values(npcs))
+            break;
+          case "enemy":
+            d = d.concat(Object.values(enemies))
             break;
           case "empireSkill":
             // 同一技能在不同阵营会以「技能id-阵营」作为唯一键，列表需要保留该键才能定位到技能本体
@@ -1334,6 +1344,7 @@ defineOptions({
               <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
+              <EnemiesIconWidget :data="i" v-if="i._typeStringName == 'Enemy'"></EnemiesIconWidget>
               <EmpireSkillIconWidget :id="i.id" :skill-key="i._skillKey" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
               <MasteryIconWidget :id="i.id" :name="i.skill" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
               <QuestIconWidget :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestIconWidget>
@@ -1362,6 +1373,7 @@ defineOptions({
             <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
             <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
+            <EnemiesName :id="i.id" v-if="i._typeStringName == 'Enemy'"></EnemiesName>
             <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
             <MasteryName :id="i.id" v-if="i._typeStringName == 'Mastery'"></MasteryName>
             <QuestName :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestName>
@@ -1388,6 +1400,7 @@ defineOptions({
               <TreasureMapIconWidget :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapIconWidget>
               <MapLocationIconWidget :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationIconWidget>
               <NpcIconWidget :data="i" v-if="i._typeStringName == 'Npc'"></NpcIconWidget>
+              <EnemiesIconWidget :data="i" v-if="i._typeStringName == 'Enemy'"></EnemiesIconWidget>
               <EmpireSkillIconWidget :id="i.id" :skill-key="i._skillKey" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
               <MasteryIconWidget :id="i.id" :name="i.id" :category="i.category" :with-background="true" v-if="i._typeStringName == 'Mastery'"></MasteryIconWidget>
               <QuestIconWidget :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestIconWidget>
@@ -1416,6 +1429,7 @@ defineOptions({
             <TreasureMapName :data="i" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
             <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
             <NpcName :data="i" v-if="i._typeStringName == 'Npc'"></NpcName>
+            <EnemiesName :id="i.id" v-if="i._typeStringName == 'Enemy'"></EnemiesName>
             <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
             <MasteryName :id="i.id" v-if="i._typeStringName == 'Mastery'"></MasteryName>
             <QuestName :id="i.id" v-if="i._typeStringName == 'Questlog'"></QuestName>

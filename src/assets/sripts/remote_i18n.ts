@@ -28,6 +28,11 @@ export function getCDNSource(key?: string | null): CDNLangSource {
     return found || CDN_LANG_SOURCES.find(s => s.key === DEFAULT_CDN_SOURCE)!;
 }
 
+/**
+ * 会话缓存版本号：分类列表有增减时递增，避免旧会话缓存挡住新分类的翻译
+ */
+const LANG_CACHE_VERSION = 2;
+
 const CATEGORIES: CategoryFetch[] = [
     { file: 'ships',            bundleKey: 'ships' },
     { file: 'items',            bundleKey: 'items' },
@@ -51,13 +56,14 @@ const CATEGORIES: CategoryFetch[] = [
     { file: 'regions',          bundleKey: 'regions' },
     { file: 'territories',      bundleKey: 'territories' },
     { file: 'npcs',             bundleKey: 'npcs' },
+    { file: 'enemies',          bundleKey: 'enemies' },
     { file: 'treasureMaps',     bundleKey: 'treasureMaps' },
     { file: 'zones',            bundleKey: 'zones' },
     { file: 'masterys',         bundleKey: 'masterys' },
     { file: 'quest',            bundleKey: 'quests' },
 ];
 
-const cacheKey = (sourceKey: string, lang: string) => `i18n_cache_${sourceKey}_${lang}`;
+const cacheKey = (sourceKey: string, lang: string) => `i18n_cache_${sourceKey}_${lang}_v${LANG_CACHE_VERSION}`;
 
 /**
  * 读取会话缓存（sessionStorage：同一标签页会话内刷新页面依然保留）
@@ -104,6 +110,21 @@ async function fetchCategory(url: string, timeoutMs: number): Promise<Record<str
     }
 }
 
+/**
+ * 开发环境兜底目录，由 vite 中间件直接读取本地语言包
+ */
+const DEV_LANG_FALLBACK_BASE = import.meta.env.DEV ? '/snb-lang-data' : '';
+
+/**
+ * 优先取 CDN，开发环境在文件未发布时回退到本地语言包
+ */
+async function fetchCategoryWithDevFallback(url: string, devUrl: string, timeoutMs: number) {
+    const remote = await fetchCategory(url, timeoutMs);
+    if (remote) return remote;
+    if (!DEV_LANG_FALLBACK_BASE) return null;
+    return fetchCategory(devUrl, timeoutMs);
+}
+
 export async function loadRemoteLangMessages(
     sourceKey: string,
     lang: string,
@@ -132,8 +153,11 @@ export async function loadRemoteLangMessages(
     }
 
     // 缓存缺失（首次访问/新开会话）或强制刷新：并行 fetch 所有 category
-    const urls = CATEGORIES.map(c => `${base}/${cdnLang}/${c.file}.json`);
-    const results = await Promise.allSettled(urls.map(u => fetchCategory(u, perCatTimeout)));
+    const results = await Promise.allSettled(CATEGORIES.map(c => {
+        const remoteUrl = `${base}/${cdnLang}/${c.file}.json`;
+        const devUrl = `${DEV_LANG_FALLBACK_BASE}/${cdnLang}/${c.file}.json`;
+        return fetchCategoryWithDevFallback(remoteUrl, devUrl, perCatTimeout);
+    }));
 
     const bundle: Record<string, any> = {};
     let fetchedCount = 0;

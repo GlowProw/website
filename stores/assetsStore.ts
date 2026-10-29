@@ -1,4 +1,6 @@
 import {defineStore} from "pinia";
+import {Enemies, EnemyTypes, MapLocations} from "glow-prow-data";
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 let cachedNpcsMap: any = null;
 let cachedRaritysMap: any = null;
@@ -35,6 +37,43 @@ function getRaritysMap() {
 }
 
 /**
+ * 敌人图标不再打包进产物，统一从 CDN 按敌人 id / 类型取图
+ * 只保留数据里真实存在的图标 key，避免请求不存在的资源
+ */
+function getEnemyImagesMap(): Record<string, string> {
+    const imageMap: Record<string, string> = {};
+    let cdnStore;
+    try {
+        cdnStore = useCDNAssetsServiceStore();
+    } catch (e) {
+        // 无激活的 pinia 实例时（例如纯工具脚本）直接跳过
+        return imageMap;
+    }
+
+    const iconKeys = new Set<string>();
+    for (const enemy of Object.values(Enemies)) {
+        if (enemy.icon) iconKeys.add(enemy.icon);
+    }
+    // 地图坐标回退到类型图标时，也把它们纳入映射
+    // 注意：图层面板按 category（如 eliteWarship）取图，这里必须同时登记分类名，
+    // 否则 icons[category] 为空会回退到 default.png（叶子占位图）
+    const enemyTypes = EnemyTypes as readonly string[];
+    for (const location of Object.values(MapLocations)) {
+        if (location.icon && enemyTypes.includes(location.icon)) iconKeys.add(location.icon);
+        if (location.category && enemyTypes.includes(location.category)) iconKeys.add(location.category);
+    }
+
+    for (const key of iconKeys) {
+        imageMap[key] = cdnStore.currentService.image.url({
+            'glow-prow': {id: key, category: 'enemies'},
+            'glow-prow-zh-cn': {id: key, category: 'enemies'},
+            'local-test': {id: key, category: 'enemies'},
+        });
+    }
+    return imageMap;
+}
+
+/**
  * 获取地图图标映射字典
  * 集中加载与全局单例缓存，避免各个组件模块重复执行 glob 扫描
  */
@@ -44,7 +83,7 @@ function getMapImagesMap(): Record<string, string> {
         const mapImages = import.meta.glob('/src/assets/images/map/*.*', { eager: true });
         cachedMapImagesMap = serializationMap(mapImages);
     }
-    return cachedMapImagesMap;
+    return {...cachedMapImagesMap, ...getEnemyImagesMap()};
 }
 
 /**

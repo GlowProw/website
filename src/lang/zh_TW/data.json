@@ -484,10 +484,23 @@
         }
       },
       "user": {
-        "sessionExpired": "登入階段已過期或已在同平台其他裝置登入，請重新登入",
-        "tokenExpired": "登入權杖已過期，請重新登入",
-        "tokenRequired": "請先登入後再進行此操作",
-        "invalid": "無效的登入身分，請重新登入"
+        "invalid": "错误用户",
+        "tokenExpired": "用户身份过期,请重新登陆",
+        "tokenRequired": "請先登入",
+        "permissionDenied": "權限不足",
+        "assembls": {
+          "ok": "儲存成功",
+          "bad": "參數無效",
+          "error": "儲存失敗"
+        },
+        "2fa": {
+          "bad": "參數錯誤",
+          "wrongPassword": "當前密碼錯誤",
+          "alreadyEnabled": "已啟用兩步驗證",
+          "notEnabled": "尚未啟用兩步驗證",
+          "invalid": "驗證失敗，請重試",
+          "error": "操作失敗，請稍後重試"
+        }
       },
       "error": "应用程序错误: {content}",
       "avatar": {
@@ -648,25 +661,6 @@
         "ok": "赞处理成功",
         "error": "点赞错误: {context}",
         "bad": "点赞错误: {context}"
-      },
-      "user": {
-        "invalid": "错误用户",
-        "tokenExpired": "用户身份过期,请重新登陆",
-        "tokenRequired": "請先登入",
-        "permissionDenied": "權限不足",
-        "assembls": {
-          "ok": "儲存成功",
-          "bad": "參數無效",
-          "error": "儲存失敗"
-        },
-        "2fa": {
-          "bad": "參數錯誤",
-          "wrongPassword": "當前密碼錯誤",
-          "alreadyEnabled": "已啟用兩步驗證",
-          "notEnabled": "尚未啟用兩步驗證",
-          "invalid": "驗證失敗，請重試",
-          "error": "操作失敗，請稍後重試"
-        }
       },
       "emailChange": {
         "alreadyUsed": "該郵箱已被佔用",
@@ -2872,6 +2866,24 @@
     "npcs": {
       "title": "NPC列表"
     },
+    "enemy": {
+      "title": "敵人",
+      "lookDetail": "查看敵人詳情(按住)",
+      "worldTiers": "世界等級",
+      "variants": "航線狀態",
+      "route": "航線 {num}",
+      "summonItem": "召喚消耗",
+      "locations": "出現位置",
+      "participants": "最大參與人數",
+      "categorys": {
+        "PermanentEvent": "常駐事件",
+        "LimitedEvent": "限時事件"
+      },
+      "variantState": "狀態 {num}"
+    },
+    "enemies": {
+      "title": "敵人列表"
+    },
     "empireSkill": {
       "title": "帝國技能详细",
       "lookDetail": "查看帝國技能詳情(按住)",
@@ -3206,6 +3218,8 @@
     "treasureMapAvailable": "可用藏宝图",
     "npcAvailable": "NPC's",
     "possibleLoot": "可能的赃物",
+    "worldTier": "世界等級",
+    "worldTierValue": "世界 {num}",
     "locations": "地点",
     "layerControl": "图层控制",
     "hideAll": "隐藏所有",
@@ -3460,6 +3474,42 @@
       "treasureMap": {
         "name": "藏寶圖",
         "description": "記錄著隱藏寶藏位置的藏寶圖線索點。"
+      },
+      "eliteWarship": {
+        "name": "精銳戰艦",
+        "description": "各陣營的精銳頭目戰艦，擊沉後可獲得專屬戰利品箱。"
+      },
+      "domains": {
+        "name": "領域首領",
+        "description": "盤踞在特定海域的領域首領，需要對應召喚道具才能挑戰。"
+      },
+      "warfleet": {
+        "name": "戰艦隊",
+        "description": "成編隊出沒的敵方戰艦隊，火力兇猛，建議多人協作。"
+      },
+      "seaMonster": {
+        "name": "海怪",
+        "description": "深海中的巨型海怪，出沒於特定海域並掉落稀有材料。"
+      },
+      "convoy": {
+        "name": "船隊",
+        "description": "往來各陣營海域的運輸船隊，截擊後可獲得大量貨物。"
+      },
+      "tower": {
+        "name": "守衛塔",
+        "description": "守衛航道的防禦工事，擊毀後可打開附近海域。"
+      },
+      "warEvent": {
+        "name": "戰爭事件",
+        "description": "陣營衝突引發的戰爭事件目標，通常需要多人參與。"
+      },
+      "requiemOfTheLost": {
+        "name": "失落安魂曲",
+        "description": "限時活動中的幽靈船首領，使用活動信號彈召喚。"
+      },
+      "helmActivity": {
+        "name": "海舵社活動",
+        "description": "海舵社發佈的限時活動目標。"
       }
     },
     "managePoints": "管理標記",

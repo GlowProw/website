@@ -2,6 +2,16 @@ import { storage_account } from '@/assets/sripts/index';
 import type { CategoryZoomRule } from '@/assets/types/Map';
 
 /**
+ * 敌人标记的通用 Zoom 规则，从世界视图开始就显示
+ */
+const ENEMY_CATEGORY_ZOOM_RULE: CategoryZoomRule = {
+  minZoom: 11,
+  maxZoom: 15,
+  scales: { 11: 0.14, 12: 0.16, 13: 0.18, 14: 0.2, 15: 0.24 },
+  baseScale: 0.18,
+};
+
+/**
  * 各标记分类在地图上的默认 Zoom 显示范围与不同 ZOOM 下的图标尺寸
  */
 export const DEFAULT_CATEGORY_ZOOM_CONFIG: Record<string, CategoryZoomRule> = {
@@ -108,6 +118,17 @@ export const DEFAULT_CATEGORY_ZOOM_CONFIG: Record<string, CategoryZoomRule> = {
     scales: { 14: 0.11, 15: 0.13 },
     baseScale: 0.12,
   },
+
+  // 敌人：精英战舰、领域首领、战舰队、海怪、船队等活动目标
+  eliteWarship: ENEMY_CATEGORY_ZOOM_RULE,
+  domains: ENEMY_CATEGORY_ZOOM_RULE,
+  warfleet: ENEMY_CATEGORY_ZOOM_RULE,
+  seaMonster: ENEMY_CATEGORY_ZOOM_RULE,
+  convoy: ENEMY_CATEGORY_ZOOM_RULE,
+  tower: ENEMY_CATEGORY_ZOOM_RULE,
+  warEvent: ENEMY_CATEGORY_ZOOM_RULE,
+  requiemOfTheLost: ENEMY_CATEGORY_ZOOM_RULE,
+  helmActivity: ENEMY_CATEGORY_ZOOM_RULE,
 
   // 用户分享点位
   shareLocation: {

@@ -13,6 +13,7 @@ import NpcIconWidget from "@/components/snbWidget/npcIconWidget.vue";
 import EmpireSkillIconWidget from "@/components/snbWidget/empireSkillIconWidget.vue";
 import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
 import QuestIconWidget from "@/components/snbWidget/questIconWidget.vue";
+import EnemiesIconWidget from "@/components/snbWidget/enemiesIconWidget.vue";
 import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import {onMounted, ref} from "vue";
 import {storage} from "@/assets/sripts/index";
@@ -100,6 +101,7 @@ const detailPath = (item: any) => getCodexDetailPath(item.category, item.id)
             <EmpireSkillIconWidget :id="i.id" v-if="i.category == 'empireSkill'"></EmpireSkillIconWidget>
             <MasteryIconWidget :id="i.id" v-if="i.category == 'mastery'"></MasteryIconWidget>
             <QuestIconWidget :id="i.id" v-if="i.category == 'quest'"></QuestIconWidget>
+            <EnemiesIconWidget :id="i.id" v-if="i.category == 'enemy'"></EnemiesIconWidget>
           </ItemSlotBase>
         </router-link>
       </v-col>

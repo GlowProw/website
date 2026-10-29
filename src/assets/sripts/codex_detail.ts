@@ -14,6 +14,7 @@ const categoryPaths: Record<string, string> = {
   treasureMap: '/codex/treasureMap',
   mapLocation: '/codex/mapLocation',
   npc: '/codex/npc',
+  enemy: '/codex/enemy',
   empireSkill: '/codex/empireSkill',
   mastery: '/codex/mastery',
   quest: '/quest'

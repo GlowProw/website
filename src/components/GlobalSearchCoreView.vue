@@ -28,6 +28,8 @@ import SetIconWidget from "@/components/snbWidget/setIconWidget.vue";
 import SetName from "@/components/snbWidget/setName.vue";
 import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
 import MasteryName from "@/components/snbWidget/masteryName.vue";
+import EnemiesIconWidget from "@/components/snbWidget/enemiesIconWidget.vue";
+import EnemiesName from "@/components/snbWidget/enemiesName.vue";
 import {useRoute, useRouter} from "vue-router";
 
 import {advanced_search} from '@/assets/sripts/advanced_search';
@@ -64,7 +66,7 @@ const props = withDefaults(defineProps<{
 
     // 结果类型标签页
     selectedType = ref('all'),
-    allTypes = ['item', 'ship', 'commoditie', 'material', 'modification', 'cosmetic', 'ultimate', 'mapLocation', 'set', 'mastery'],
+    allTypes = ['item', 'ship', 'commoditie', 'material', 'modification', 'cosmetic', 'ultimate', 'mapLocation', 'set', 'mastery', 'enemy'],
 
     // 搜索配置项
     searchConfig = ref({
@@ -271,6 +273,7 @@ const typeToListPath: Record<string, string> = {
   mastery: '/codex/masterys',
   masterys: '/codex/masterys',
   npc: '/codex/npcs',
+  enemy: '/codex/enemies',
 }
 
 /**
@@ -292,6 +295,7 @@ const typeToI18nKey: Record<string, string> = {
   mastery: 'codex.masterys.title',
   masterys: 'codex.masterys.title',
   npc: 'codex.npcs.title',
+  enemy: 'codex.enemies.title',
 }
 
 /**
@@ -324,6 +328,8 @@ const toPage = (data: Item | Commodity | Material | Modification | Cosmetic | Ul
     case "mastery":
     case "masterys":
       return `/codex/mastery/${data.id}`
+    case "enemy":
+      return `/codex/enemy/${data.id}`
     default:
       return ''
   }
@@ -833,6 +839,9 @@ defineOptions({
                       <template v-else-if="String(type)=='mastery' || String(type)=='masterys'">
                         <MasteryIconWidget :id="i.id"></MasteryIconWidget>
                       </template>
+                      <template v-else-if="String(type)=='enemy'">
+                        <EnemiesIconWidget :id="i.id"></EnemiesIconWidget>
+                      </template>
                     </ItemSlotBase>
                   </template>
                   <v-list-item-title class="font-weight-medium d-flex align-center">
@@ -865,6 +874,9 @@ defineOptions({
                     </template>
                     <template v-else-if="String(type)=='mastery' || String(type)=='masterys'">
                       <MasteryName :id="i.id"></MasteryName>
+                    </template>
+                    <template v-else-if="String(type)=='enemy'">
+                      <EnemiesName :id="i.id"></EnemiesName>
                     </template>
                   </v-list-item-title>
                   <v-list-item-subtitle>

@@ -246,6 +246,12 @@ export default class AppCodexNav {
             badge: 'BETA'
         },
         {
+            title: 'codex.enemies.title',
+            to: `/${this.lang}/codex/enemies`,
+            prependIcon: 'mdi-skull-crossbones',
+            badge: 'BETA'
+        },
+        {
             title: 'search.title',
             to: `/${this.lang}/search`,
             prependIcon: 'mdi-magnify',

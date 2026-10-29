@@ -3,14 +3,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, onMounted, onUnmounted, watch, computed } from 'vue';
+import {computed, onMounted, onUnmounted, ref, shallowRef, watch} from 'vue';
 import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
-import { fromLonLat, transformExtent } from 'ol/proj';
-import { defaults as defaultControls } from 'ol/control';
-import { defaults as defaultInteractions } from 'ol/interaction';
+import {fromLonLat, transformExtent} from 'ol/proj';
+import {defaults as defaultControls} from 'ol/control';
+import {defaults as defaultInteractions} from 'ol/interaction';
 import DragPan from 'ol/interaction/DragPan';
 import MouseWheelZoom from 'ol/interaction/MouseWheelZoom';
 import PinchZoom from 'ol/interaction/PinchZoom';
@@ -142,7 +142,7 @@ const panTo = (lon: number, lat: number, zoom?: number) => {
     mapInstance.value.getView().animate({
       center: fromLonLat([lon, lat]),
       // 链接指定了缩放级别时与平移一起还原，未指定则只移动中心
-      ...(zoom !== undefined ? { zoom } : {}),
+      ...(zoom !== undefined ? {zoom} : {}),
       duration: props.animated ? 500 : 0,
     });
   }
@@ -192,7 +192,9 @@ defineExpose({
   map: mapInstance,
 });
 
-defineOptions({ name: 'MapView' });
+defineOptions({
+  name: 'MapView'
+});
 </script>
 
 <style scoped>

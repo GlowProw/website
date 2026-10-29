@@ -49,9 +49,14 @@ const lootEntries = computed(() => Object.entries(props.possibleLoot) as any[])
         </ItemNameRarity>
       </template>
     </v-col>
-    <v-col class="text-right" :class="{'text-green': i[1].meta.lv == 3}">
-      <v-icon>mdi-dice-5-outline</v-icon>
-      <v-icon>mdi-{{ ['chevron-up', 'chevron-double-up', 'chevron-triple-up'][ Number.parseInt(i[1].meta.lv) - 1 ] || 'chevron-up' }}</v-icon>
+    <v-col class="text-right" :class="{'text-green': i[1].meta?.lv == 3}">
+      <template v-if="i[1].meta?.quantity > 1">
+        <span class="font-weight-bold">x{{ i[1].meta.quantity }}</span>
+      </template>
+      <template v-else-if="i[1].meta?.lv">
+        <v-icon>mdi-dice-5-outline</v-icon>
+        <v-icon>mdi-{{ ['chevron-up', 'chevron-double-up', 'chevron-triple-up'][ Number.parseInt(i[1].meta.lv) - 1 ] || 'chevron-up' }}</v-icon>
+      </template>
     </v-col>
   </v-row>
 </template>

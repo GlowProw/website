@@ -11,10 +11,10 @@
     <template v-slot:title>
       <div class="my-2 mr-2">
         <div class="d-flex align-center">
-          <div class="mr-2" v-if="selectedLocation.baseRank">
+          <div class="mr-2" v-if="activeRank">
             <ShieldWidget :size="30"
                           :class="{'opacity-30': selectedLocation.category == 'den' || selectedLocation.category == 'outpost'}">
-              {{ selectedLocation.baseRank }}
+              {{ activeRank }}
             </ShieldWidget>
           </div>
           <div>
@@ -26,11 +26,12 @@
               </div>
             </template>
             <template v-else-if="selectedLocation.id || selectedLocation.category">
-              <router-link :to="`/codex/mapLocation/${selectedLocation.id || selectedLocation.category}`">
+              <router-link :to="isEnemyLocation ? `/codex/enemy/${selectedLocation.enemyId}` : `/codex/mapLocation/${selectedLocation.id || selectedLocation.category}`">
                 <div
                     class="d-flex align-center text-amber singe-line"
                     :title="getLocationTitle">
-                  <MapLocationName :id="selectedLocation.id || selectedLocation.category"></MapLocationName>
+                  <EnemiesName v-if="isEnemyLocation" :id="selectedLocation.enemyId"></EnemiesName>
+                  <MapLocationName v-else :id="selectedLocation.id || selectedLocation.category"></MapLocationName>
                 </div>
               </router-link>
             </template>
@@ -56,8 +57,8 @@
         <v-col cols="auto" class="d-flex align-center mr-2">
           <ItemSlotBase :size="'25px'" :padding="0" class="pa-1 rounded-lg">
             <v-img
-                :src="getCategoryIcon(selectedLocation.category)"
-                v-if="getCategoryIcon(selectedLocation.category)"
+                :src="getCategoryIcon(selectedLocation.icon || selectedLocation.category)"
+                v-if="getCategoryIcon(selectedLocation.icon || selectedLocation.category)"
                 width="25"
                 height="25"
                 cover/>
@@ -79,7 +80,7 @@
       </v-row>
     </div>
 
-    <v-row class="mx-2 mt-8" v-if="selectedLocation.difficulty" align="center">
+    <v-row class="mx-5 mt-8" v-if="selectedLocation.difficulty" align="center">
       <v-col>
         {{ t('map.difficulty') }}
       </v-col>
@@ -93,11 +94,32 @@
       </v-col>
     </v-row>
 
-    <template v-if="getLocationDescription">
+    <template v-if="hasEnemyDescription || getLocationDescription">
       <v-divider class="my-2 mx-4"></v-divider>
 
       <div class="mx-5 mb-3 pb-2">
-        {{ getLocationDescription }}
+        <EnemiesDescription v-if="isEnemyLocation" :id="selectedLocation.enemyId"></EnemiesDescription>
+        <template v-else>{{ getLocationDescription }}</template>
+      </div>
+    </template>
+
+    <!-- 世界等级 -->
+    <template v-if="worldTierKeys.length">
+      <v-row class="map-title px-10 mx-n6 py-2 text-amber-lighten-4" no-gutters>
+        {{ t('map.worldTier') }}
+      </v-row>
+      <div class="mx-5 mb-5 pt-3">
+        <v-row v-for="tier in worldTierKeys" :key="tier" align="center" no-gutters class="mb-1">
+          <v-col cols="auto">
+            <div>{{ t('map.worldTierValue', {num: tier}) }}</div>
+          </v-col>
+          <v-col>
+            <v-divider class="mx-2"></v-divider>
+          </v-col>
+          <v-col cols="auto">
+            <span class="u">{{ worldTiers[tier] }}</span>
+          </v-col>
+        </v-row>
       </div>
     </template>
 
@@ -239,7 +261,7 @@
                 color="amber"
                 prepend-icon="mdi-pencil"
                 @click="emit('edit-marker', selectedLocation)">
-              {{ t('map.contextMenu.editMarker') || '编辑标记' }}
+              {{ t('map.contextMenu.editMarker') }}
             </v-btn>
           </v-col>
           <v-col cols="6">
@@ -250,7 +272,7 @@
                 color="info"
                 prepend-icon="mdi-content-copy"
                 @click="emit('clone-marker', selectedLocation)">
-              {{ t('map.contextMenu.cloneMarker') || '克隆标记' }}
+              {{ t('map.contextMenu.cloneMarker') }}
             </v-btn>
           </v-col>
           <v-col cols="6">
@@ -285,6 +307,8 @@ import { useI18n } from 'vue-i18n';
 import { useDisplay } from 'vuetify/framework';
 import ShieldWidget from "@/components/snbWidget/shieldWidget.vue";
 import MapLocationName from "@/components/snbWidget/mapLocationName.vue";
+import EnemiesName from "@/components/snbWidget/enemiesName.vue";
+import EnemiesDescription from "@/components/snbWidget/enemiesDescription.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
@@ -295,6 +319,7 @@ import MapLocationAvailableNpcWidget from "@/components/snbWidget/mapLocationAva
 import MapPossibleLoot from "@/components/snbWidget/mapPossibleLoot.vue";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue";
+import { useI18nReadName } from "@/assets/sripts/i18n_read_name";
 
 const props = withDefaults(defineProps<{
   modelValue: boolean;
@@ -317,6 +342,7 @@ const emit = defineEmits<{
 
 const { t, te } = useI18n();
 const { mobile } = useDisplay();
+const { enemy } = useI18nReadName();
 
 const codexCategories = ['den', 'outpost', 'capitalSettlement', 'settlement', 'foundry', 'lumberyard', 'weaver', 'militaryBase', 'megafort'];
 
@@ -325,9 +351,36 @@ const isCodexLocation = computed(() => {
   return codexCategories.includes(props.selectedLocation.category);
 });
 
+/**
+ * 敌人坐标：名称与描述统一走 enemiesName / enemiesDescription 组件的数据来源
+ */
+const isEnemyLocation = computed(() => !!props.selectedLocation?.enemyId);
+
+const hasEnemyDescription = computed(() =>
+    isEnemyLocation.value && !!enemy(props.selectedLocation.enemyId).description()
+);
+
+/**
+ * 世界等级：key 为世界编号，value 为该世界下的敌人等级
+ */
+const worldTiers = computed<Record<string, number>>(() => props.selectedLocation?.worldTiers || {});
+const worldTierKeys = computed(() => Object.keys(worldTiers.value).sort((a, b) => Number(a) - Number(b)));
+
+/**
+ * 卡片头部盾牌显示最高世界下的等级，没有世界等级时回退到基础等级
+ */
+const activeRank = computed(() => {
+  const topTier = worldTierKeys.value[worldTierKeys.value.length - 1];
+  const tierRank = topTier ? worldTiers.value[topTier] : undefined;
+  return tierRank || props.selectedLocation?.baseRank;
+});
+
 const getLocationTitle = computed(() => {
   const loc = props.selectedLocation;
   if (!loc) return '';
+  if (loc.enemyId) {
+    return enemy(loc.enemyId).name();
+  }
   if (loc.id && te(`snb.locations.${loc.id}`)) {
     return t(`snb.locations.${loc.id}`);
   }

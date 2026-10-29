@@ -71,6 +71,16 @@
         "keywords": "NPC list,non-player,quest,{keywords}"
       }
     },
+    "enemy": {
+      "meta": {
+        "keywords": "enemy,hostile,elite warship,convoy,boss,{keywords}"
+      }
+    },
+    "enemies": {
+      "meta": {
+        "keywords": "enemies,hostile,elite warship,convoy,boss,{keywords}"
+      }
+    },
     "set": {
       "meta": {
         "keywords": "set,outfit,cosmetic,ship,player,body,skin,{keywords}"

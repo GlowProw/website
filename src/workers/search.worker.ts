@@ -1,6 +1,7 @@
 import FlexSearch from "flexsearch";
 import {
     Commodities,
+    Enemies,
     Sets,
     Cosmetics,
     Items,
@@ -169,6 +170,7 @@ self.onmessage = async (e: MessageEvent) => {
                 Object.keys(Cosmetics).length +
                 Object.keys(Ultimates).length +
                 Object.keys(MapLocations).length +
+                Object.keys(Enemies).length +
                 Object.keys(Sets).length +
                 Object.keys(Quests).length +
                 masteryList.length;
@@ -325,6 +327,37 @@ self.onmessage = async (e: MessageEvent) => {
                     name,
                     sourceType: toCamelCase(i._typeStringName) || "mapLocation",
                     searchableFields: { name, id, description, category, type },
+                };
+
+                itemMap.set(`${itemData.sourceType}:${itemData.id}`, itemData);
+                allItems.push(itemData);
+                addToIndex(itemData);
+                reportProgress();
+            });
+
+            // 处理敌人 (Enemies)
+            Object.values(Enemies).forEach((i: any) => {
+                const {id, type = "", category = ""} = i;
+                const name = asString([
+                    `snb.enemies.${id}.name`,
+                ]) || id;
+
+                // 主描述 + 各航线状态的描述，便于按状态文案检索
+                const routeVariants = (Array.isArray(i.routes) ? i.routes : [])
+                    .flatMap((route: any) => Array.isArray(route?.variants) ? route.variants : []);
+                const variantDescriptions = routeVariants
+                    .map((variant: any) => asString([`snb.enemies.${id}.variants.${variant.id}.description`]))
+                    .filter(Boolean);
+                const description = [
+                    asString([`snb.enemies.${id}.description`]),
+                    ...variantDescriptions,
+                ].filter(Boolean).join(" ");
+
+                const itemData = {
+                    ...i,
+                    name,
+                    sourceType: toCamelCase(i._typeStringName) || "enemy",
+                    searchableFields: {name, id, description, category, type},
                 };
 
                 itemMap.set(`${itemData.sourceType}:${itemData.id}`, itemData);

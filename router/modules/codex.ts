@@ -24,6 +24,8 @@ const MapLocationPage = () => import('@/views/codex/mapLocations/Index.vue');
 const MapLocationsDetailPage = () => import('@/views/codex/mapLocations/Detail.vue');
 const NpcsPage = () => import('@/views/codex/npcs/Index.vue');
 const NpcDetailPage = () => import('@/views/codex/npcs/Detail.vue');
+const EnemiesPage = () => import('@/views/codex/enemies/Index.vue');
+const EnemyDetailPage = () => import('@/views/codex/enemies/Detail.vue');
 const EmpireSkillsPage = () => import('@/views/codex/empireSkills/Index.vue');
 const EmpireSkillDetailPage = () => import('@/views/codex/empireSkills/Detail.vue');
 const CodexMasterysPage = () => import('@/views/codex/masterys/Index.vue');
@@ -254,6 +256,24 @@ export const codexRoutes: RouteRecordRaw[] = [
                     keywords: 'codex.npc.meta.keywords'
                 },
                 component: NpcDetailPage,
+            },
+            {
+                path: 'enemies',
+                name: 'Enemies',
+                meta: {
+                    title: 'codex.enemies.title',
+                    keywords: 'codex.enemies.meta.keywords'
+                },
+                component: EnemiesPage,
+            },
+            {
+                path: 'enemy/:id',
+                name: 'EnemyDetail',
+                meta: {
+                    title: 'codex.enemy.title',
+                    keywords: 'codex.enemy.meta.keywords'
+                },
+                component: EnemyDetailPage,
             },
             {
                 path: 'empireSkills',
