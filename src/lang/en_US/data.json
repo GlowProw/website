@@ -286,6 +286,9 @@
   },
   "basic": {
     "untitled": "Untitled",
+    "selectedCount": "{count} selected",
+    "selectedCountLimit": "{count} / {max} selected",
+    "selectedLimitReached": "You can select up to {max} items",
     "visitor": {
       "recentVisitors": "Recent Visitors",
       "noVisitors": "No browse records yet",
@@ -711,7 +714,8 @@
           "rateLimit": "Posting too fast, please try again in {remainingTime} minutes"
         },
         "anonymous": {
-          "rateLimit": "Anonymous posting too fast, please try again in {remainingTime} hours"
+          "rateLimit": "Anonymous posting too fast, please try again in {remainingTime} hours",
+          "expiresTooLong": "Anonymous posts can wait up to 30 minutes. Please log in to choose a longer duration"
         },
         "duplicateContent": "Content is identical to your last post and cannot be duplicated",
         "pushSuccess": "Published successfully",
@@ -3810,7 +3814,8 @@
       "pushSync": "Sync to bots",
       "crossPlatform": "Cross-platform",
       "crossPlatformYes": "Yes",
-      "crossPlatformNo": "No"
+      "crossPlatformNo": "No",
+      "anonymousTimeLimit": "Anonymous posts can wait up to {minutes} minutes. Log in to choose a longer duration"
     },
     "time": {
       "minutes": "{count} minutes",
@@ -3837,7 +3842,8 @@
         "pending": "Pending",
         "sending": "Sending",
         "sent": "Sent",
-        "failed": "Failed"
+        "failed": "Failed",
+        "cancelled": "Cancelled"
       }
     },
     "refresh": {

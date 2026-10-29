@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {Commodities, Cosmetics, Items, MapLocations, Materials, Modifications, Sets, Ships, TreasureMaps, Ultimates} from "glow-prow-data";
-import {computed, onMounted, ref, useSlots, watch} from "vue";
+import {computed, onMounted, provide, ref, useSlots, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {AssemblyClassificationShowListProps, AvailableDataStructure, GroupedData} from "@/assets/types";
@@ -46,6 +46,8 @@ const props = withDefaults(
       filterFun: (i: any) => true,
       modelValue: "",
       autoExpandFirst: true,
+      multiple: false,
+      multipleMax: 5,
     })
 
 
@@ -54,7 +56,21 @@ const {t} = useI18n()
 const collectionStore = useCollectionStore()
 const resultData = ref<GroupedData[]>([])
 const slots = useSlots()
-const emit = defineEmits(['update:modelValue', 'clickSelectItem'])
+const emit = defineEmits(['update:modelValue', 'clickSelectItem', 'selectionLimit'])
+
+// 多选上限，未开启多选时固定只能选 1 个
+const maxSelectable = computed(() => props.multiple ? Math.max(1, Number(props.multipleMax) || 5) : 1)
+
+// 本地选中集合，连续点击时不必等待父组件回传 props，避免第二次点击基于旧数据被覆盖
+const localSelected = ref<any[]>([])
+
+watch(() => props.modelValue, (val) => {
+  if (!props.multiple) return
+  localSelected.value = Array.isArray(val) ? [...val] : (val ? [val] : [])
+}, {immediate: true})
+
+// 选择器属于批量列表，关闭条目内的悬浮卡片，避免一次性挂载大量 tooltip 与详情组件
+provide('itemCardTooltipActive', true)
 
 // 搜索相关状态
 const searchQuery = ref('')
@@ -150,19 +166,28 @@ const processedData = computed(() => {
   }
 
   // 转换格式并添加name字段
+  // 地图坐标的集合 key 与实体 id 并不相同（如 shark-0.55... 的 id 是 shark），
+  // 不能再用 id 反查原始数据，否则会丢失 id/type 导致选择与多选失效
   const mapped = filtered.map((i: any) => ({
-    ...rawData.value[i.id],
-    name: handleIDataName(i.id),
+    ...i,
+    id: i.id || i.category,
+    name: handleIDataName(i.id || i.category),
     rarity: i.rarity || 0,
   }))
 
+  // 地图资源点存在大量相同 id 的坐标（1638 条仅对应 31 个图标），
+  // 选择器只按 id 选取，这里按 id 去重，避免重复渲染与选中互相干扰
+  const unique = props.loadDataType === 'mapLocation'
+      ? Array.from(new Map(mapped.map((d: any) => [d.id, d])).values())
+      : mapped
+
   // 搜索过滤
   const searched = searchQuery.value
-      ? mapped.filter(d =>
-          d.id.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-          d.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      ? unique.filter(d =>
+          d.id?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+          d.name?.toLowerCase().includes(searchQuery.value.toLowerCase())
       )
-      : mapped;
+      : unique;
 
   // 排序
   return sortItems(searched, sortBy.value)
@@ -292,9 +317,43 @@ const capitalizeFLetter = (str: string) => {
 };
 
 /**
+ * 当前条目是否已选中
+ * 多选时 modelValue 为数组，单选时仍为单个对象
+ * @param id 条目 ID
+ */
+const isSelected = (id: string) => {
+  if (props.multiple) {
+    return localSelected.value.some((i: any) => i?.id === id)
+  }
+  return Boolean(props.modelValue && props.modelValue.id === id)
+}
+
+/**
  * 单击事件
+ * 多选模式下切换选中状态，单选模式下直接选中并替换
  */
 const onClickEvent = (data: AvailableDataStructure) => {
+  if (props.multiple) {
+    const selected = [...localSelected.value]
+    const index = selected.findIndex((i: any) => i?.id === data.id)
+
+    if (index >= 0) {
+      selected.splice(index, 1)
+    } else {
+      // 达到上限后不再追加，由上层给出提示
+      if (selected.length >= maxSelectable.value) {
+        emit('selectionLimit', maxSelectable.value)
+        return
+      }
+      selected.push(data)
+    }
+
+    localSelected.value = selected
+    emit('update:modelValue', selected)
+    emit('clickSelectItem', data)
+    return
+  }
+
   if (props.modelValue && props.modelValue.id === data.id) return;
 
   emit('update:modelValue', data)
@@ -409,7 +468,8 @@ defineOptions({
         <v-row class="pl-8 pr-8">
           <v-col v-for="(j, jIndex) in processedStarData" :key="`star-${j.id}`" cols="auto">
             <div class="item text-center" @click="onClickEvent(castToAny(j))">
-              <ItemSlotBase size="99px" :padding="0" :margin="0">
+              <ItemSlotBase size="99px" :padding="0" :margin="0"
+                                      :class="[isSelected(j.id) ? 'bg-amber' : '']">
                 <template v-if="castToAny(j).type == 'ship'">
                   <ShipIconWidget :id="j.id" :padding="0" :margin="0"
                                   :is-open-new-window="false"
@@ -478,7 +538,7 @@ defineOptions({
                   <!-- 根据类型渲染不同的组件 -->
                   <template v-if="loadDataType === 'ship'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <ShipIconWidget
                           :id="item.id"
@@ -489,7 +549,7 @@ defineOptions({
                       ></ShipIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -500,7 +560,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'item'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <ItemIconWidget
                           :id="item.id"
@@ -509,7 +569,7 @@ defineOptions({
                       ></ItemIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -520,7 +580,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'modification'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <ModIconWidget
                           :id="item.id"
@@ -529,7 +589,7 @@ defineOptions({
                       ></ModIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -540,7 +600,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'ultimate'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <UltimateIconWidget
                           :id="item.id"
@@ -549,7 +609,7 @@ defineOptions({
                       ></UltimateIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -560,7 +620,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'cosmetic'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <CosmeticIconWidget
                           :id="item.id"
@@ -569,7 +629,7 @@ defineOptions({
                       ></CosmeticIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -580,7 +640,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'set'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <SetIconWidget
                           :id="item.id"
@@ -589,7 +649,7 @@ defineOptions({
                       ></SetIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -600,7 +660,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'commoditie'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <CommoditieIconWidget
                           :id="item.id"
@@ -609,7 +669,7 @@ defineOptions({
                       ></CommoditieIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -620,7 +680,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'treasureMap'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <TreasureMapIconWidget
                           :id="item.id"
@@ -629,7 +689,7 @@ defineOptions({
                       ></TreasureMapIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -640,7 +700,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'mapLocation'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <MapLocationIconWidget
                           :id="item.id"
@@ -649,18 +709,18 @@ defineOptions({
                       ></MapLocationIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
-                        <MapLocationName :id="item.id"></MapLocationName>
+                        <MapLocationName :id="item.id" :is-show-tooltip="false"></MapLocationName>
                       </div>
                     </div>
                   </template>
 
                   <template v-else-if="loadDataType === 'material'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <MaterialIconWidget
                           :id="item.id"
@@ -669,7 +729,7 @@ defineOptions({
                       ></MaterialIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -680,7 +740,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'ultimate'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <UltimateIconWidget
                           :id="item.id"
@@ -689,7 +749,7 @@ defineOptions({
                       ></UltimateIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -700,7 +760,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'modification'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <ModIconWidget
                           :id="item.id"
@@ -709,7 +769,7 @@ defineOptions({
                       ></ModIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -720,7 +780,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'cosmetic'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <CosmeticIconWidget
                           :id="item.id"
@@ -729,7 +789,7 @@ defineOptions({
                       ></CosmeticIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">
@@ -740,7 +800,7 @@ defineOptions({
 
                   <template v-else-if="loadDataType === 'set'">
                     <ItemSlotBase
-                        :class="[modelValue && modelValue.id === item.id ? 'bg-amber' : '']"
+                        :class="[isSelected(item.id) ? 'bg-amber' : '']"
                         size="99px">
                       <SetIconWidget
                           :id="item.id"
@@ -749,7 +809,7 @@ defineOptions({
                       ></SetIconWidget>
                     </ItemSlotBase>
                     <div
-                        :class="[modelValue && modelValue.id === item.id ? 'text-amber' : '']"
+                        :class="[isSelected(item.id) ? 'text-amber' : '']"
                         class="text-center d-flex justify-center"
                         style="width: 99px">
                       <div class="singe-line">

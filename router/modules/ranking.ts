@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from 'vue-router';
-import { initItemAssets } from '../guards';
+import {initItemAssets, isLoginBeforeEnter} from '../guards';
 
 const RankingDesignedItemsPage = () => import('@/views/rankingDesignedItems/Index.vue');
 const RankingDesignedItemsBrowsePage = () => import('@/views/rankingDesignedItems/Browse.vue');
@@ -33,6 +33,7 @@ export const rankingRoutes: RouteRecordRaw[] = [
                 path: 'workshop',
                 name: 'RankingDesignedItemsWorkshop',
                 component: RankingDesignedItemsWorkshopPage,
+                beforeEnter: isLoginBeforeEnter
             },
             {
                 path: 'workshop/:uid/edit',

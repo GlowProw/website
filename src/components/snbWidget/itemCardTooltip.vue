@@ -216,9 +216,12 @@ defineOptions({
 </script>
 
 <template>
+  <!-- 禁用时不再创建 tooltip 与详情卡片，只渲染激活元素，避免选择器等批量列表产生额外开销 -->
+  <slot v-if="isDisabled" name="activator" :props="{}"></slot>
+
   <v-tooltip
+      v-else
       v-model="open"
-      :disabled="isDisabled"
       :eager="false"
       :offset="props.offset"
       scroll-strategy="close"

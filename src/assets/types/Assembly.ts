@@ -178,6 +178,14 @@ export interface AssemblyClassificationShowListProps {
     filterFun?: (item: any) => boolean;
     modelValue: any;
     autoExpandFirst?: boolean;
+    /**
+     * 是否允许多选，默认单选
+     */
+    multiple?: boolean;
+    /**
+     * 多选时的最大选择数量，默认 5；未开启多选时固定为 1
+     */
+    multipleMax?: number;
 }
 
 export interface AssemblyWorkshopData {

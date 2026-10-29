@@ -117,6 +117,7 @@ const onChangePassword = async () => {
     changePasswordLoading.value = true;
     const result = await apis.userApi().changePassword(passwordFromData.value.data)
 
+    // 改密后服务端已让所有令牌失效，这里清本地登录态
     authStore.logout()
     await router.push({name: 'AccountInformation'})
     notice.success(t(`basic.tips.${result.code}`))

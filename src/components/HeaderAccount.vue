@@ -8,7 +8,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {useMessagesDrawerStore} from "~/stores/messagesDrawerStore";
 import {useAppStore} from "~/stores/appStore";
-import {storage} from "@/assets/sripts";
+import {apis, storage} from "@/assets/sripts";
 import languagesConfig, {DEFAULT_LANG, SUPPORTED_LANGS} from "@/config/languages";
 import type {HeaderAccountType} from "@/assets/types/User";
 import UserAvatar from "@/components/UserAvatar.vue";
@@ -64,8 +64,10 @@ const onChangeLang = (targetLang: string): void => {
 
 /**
  * 退出登录并返回首页
+ * 先通知服务端吊销会话，令牌即使被复制也会立刻失效；失败也照常清本地状态
  */
-const onLogout = (): void => {
+const onLogout = async (): Promise<void> => {
+  await apis.userApi().signout();
   authStore.logout();
   router.push('/').catch(() => {
   });

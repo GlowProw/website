@@ -287,6 +287,9 @@
     }
   },
   "basic": {
+    "selectedCount": "已選擇 {count} 項",
+    "selectedCountLimit": "已選擇 {count} / {max} 項",
+    "selectedLimitReached": "最多只能選擇 {max} 項",
     "visitor": {
       "recentVisitors": "近期訪客",
       "noVisitors": "暫無瀏覽記錄",
@@ -681,7 +684,8 @@
           "rateLimit": "发布过快，请{remainingTime}分钟后再试"
         },
         "anonymous": {
-          "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试"
+          "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试",
+          "expiresTooLong": "匿名發佈最多只能等待 30 分鐘，請登入後再選擇更長的時間"
         },
         "duplicateContent": "內容與上一條重複，無法重複發佈",
         "pushSuccess": "發佈成功",
@@ -3745,7 +3749,8 @@
       "pushSync": "同步推送到機器人",
       "crossPlatform": "是否跨平台",
       "crossPlatformYes": "是",
-      "crossPlatformNo": "否"
+      "crossPlatformNo": "否",
+      "anonymousTimeLimit": "匿名發佈最多等待 {minutes} 分鐘，登入後可選擇更長時間"
     },
     "time": {
       "minutes": "{count}分鐘",
@@ -3772,7 +3777,8 @@
         "pending": "等待推送",
         "sending": "推送中",
         "sent": "推送成功",
-        "failed": "推送失敗"
+        "failed": "推送失敗",
+        "cancelled": "已取消推送"
       }
     },
     "refresh": {

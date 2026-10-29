@@ -343,16 +343,64 @@ const openInsertDataPanel = (tags: any[] = [], index: number, category: string) 
 };
 
 /**
+ * 批量写入目标阶梯
+ * 多选时先整体校验数量上限，避免只插入一部分
+ *
+ * @param items 待插入的物品信息
+ */
+const pushLadderItems = (items: Array<{ id: string; category?: string; name?: string; assemblyUuid?: string }>) => {
+  const targetRow = rankingData.value[itemInsertIndex.value];
+  if (!targetRow) return;
+
+  // 单层阶梯最大 100 个物品
+  if (targetRow.content.length + items.length > 100) {
+    noticeStore.warning(t("rankingDesignedItems.verify.tierItemMaxExceeded") || "单层阶梯物品数量不能超过 100 个");
+    return;
+  }
+
+  for (const item of items) {
+    if (!item.id) continue;
+
+    const category = item.category || itemCategory.value || "item";
+    const rawCat = String(category).toLowerCase();
+    targetRow.content.push({
+      category,
+      _typeStringName: categoryTypeMap[rawCat] || "Item",
+      id: item.id,
+      name: item.name,
+      assemblyUuid: item.assemblyUuid,
+    });
+  }
+};
+
+/**
  * 回调插入数据
  *
- * @param idOrPayload 数据标识或包含完整信息的载荷
+ * @param idOrPayload 数据标识、完整载荷，或多选返回的 ID 数组
  * @param options 可选配置（类别、自定义名称、关联配装UUID等）
  */
 const onInsertData = (
-  idOrPayload: string | { id: string; category?: string; name?: string; assemblyUuid?: string },
+  idOrPayload: string | { id: string; category?: string; name?: string; assemblyUuid?: string } | Array<string | { id: string; category?: string; name?: string; assemblyUuid?: string }>,
   options?: { category?: string; name?: string; assemblyUuid?: string }
 ) => {
   isOpenItem.value = false;
+
+  // 物品选择器多选时返回 ID 数组，统一插入到当前阶梯
+  if (Array.isArray(idOrPayload)) {
+    pushLadderItems(idOrPayload.map((item) => {
+      if (typeof item === "object" && item !== null) {
+        return {
+          id: item.id,
+          category: item.category,
+          name: item.name,
+          assemblyUuid: item.assemblyUuid,
+        };
+      }
+      return {id: String(item)};
+    }));
+    return;
+  }
+
   let id = "";
   let category = itemCategory.value || "item";
   let name: string | undefined = undefined;
@@ -374,25 +422,7 @@ const onInsertData = (
 
   if (!id) return;
 
-  const targetRow = rankingData.value[itemInsertIndex.value];
-  if (!targetRow) return;
-
-  // 单层阶梯最大 100 个物品
-  if (targetRow.content.length >= 100) {
-    noticeStore.warning(t("rankingDesignedItems.verify.tierItemMaxExceeded") || "单层阶梯物品数量不能超过 100 个");
-    return;
-  }
-
-  const rawCat = String(category).toLowerCase();
-  const typeString = categoryTypeMap[rawCat] || "Item";
-
-  targetRow.content.push({
-    category,
-    _typeStringName: typeString,
-    id,
-    name,
-    assemblyUuid,
-  });
+  pushLadderItems([{id, category, name, assemblyUuid}]);
 };
 
 /**
@@ -1012,6 +1042,8 @@ defineExpose({
 
   <ItemView
       ref="itemWidget"
+      :multiple="!readonly"
+      :multiple-max="5"
       @finish="(id) => onInsertData(id)"
       @close="() => (isOpenItem = false)"
   />

@@ -6,6 +6,12 @@ let cachedNpcsMap: any = null;
 let cachedRaritysMap: any = null;
 // 地图图标静态资源缓存
 let cachedMapImagesMap: Record<string, string> | null = null;
+// 敌人图标依赖当前 CDN 服务，按服务名缓存
+let cachedEnemyImagesMap: Record<string, string> | null = null;
+let cachedEnemyImagesService: string | null = null;
+// 合并后的地图图标字典缓存，避免每个地图组件挂载时重复展开
+let cachedMergedMapImagesMap: Record<string, string> | null = null;
+let cachedMergedMapImagesService: string | null = null;
 
 function serializationMap(assetsRaw: any) {
     const imageMap: any = {};
@@ -50,6 +56,12 @@ function getEnemyImagesMap(): Record<string, string> {
         return imageMap;
     }
 
+    // 切换 CDN 服务后需要重新生成 URL，因此按服务名缓存
+    const service = String(cdnStore.selectedService || '');
+    if (cachedEnemyImagesMap && cachedEnemyImagesService === service) {
+        return cachedEnemyImagesMap;
+    }
+
     const iconKeys = new Set<string>();
     for (const enemy of Object.values(Enemies)) {
         if (enemy.icon) iconKeys.add(enemy.icon);
@@ -70,6 +82,9 @@ function getEnemyImagesMap(): Record<string, string> {
             'local-test': {id: key, category: 'enemies'},
         });
     }
+
+    cachedEnemyImagesService = service;
+    cachedEnemyImagesMap = imageMap;
     return imageMap;
 }
 
@@ -83,7 +98,21 @@ function getMapImagesMap(): Record<string, string> {
         const mapImages = import.meta.glob('/src/assets/images/map/*.*', { eager: true });
         cachedMapImagesMap = serializationMap(mapImages);
     }
-    return {...cachedMapImagesMap, ...getEnemyImagesMap()};
+
+    let service = '';
+    try {
+        service = String(useCDNAssetsServiceStore().selectedService || '');
+    } catch (e) {
+        // 无激活的 pinia 实例时使用静态图标缓存
+    }
+
+    if (cachedMergedMapImagesMap && cachedMergedMapImagesService === service) {
+        return cachedMergedMapImagesMap;
+    }
+
+    cachedMergedMapImagesMap = {...cachedMapImagesMap, ...getEnemyImagesMap()};
+    cachedMergedMapImagesService = service;
+    return cachedMergedMapImagesMap;
 }
 
 /**

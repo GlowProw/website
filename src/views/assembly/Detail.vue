@@ -237,15 +237,15 @@ const onPenPassword = () => {
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 position-relative">
-        <v-breadcrumbs>
+      <v-breadcrumbs density="compact" class="ma-0 pa-0">
+        <v-container>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item>{{ t('assembly.detail.title') }}</v-breadcrumbs-item>
-        </v-breadcrumbs>
-      </v-container>
+        </v-container>
+      </v-breadcrumbs>
 
       <v-container class="pt-5">
         <v-overlay

@@ -25,7 +25,7 @@ import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-import { cancelAndBack } from "@/assets/sripts/navigation";
+import {cancelAndBack} from "@/assets/sripts/navigation";
 
 const {t, locale} = useI18n(),
     route = useRoute(),
@@ -886,15 +886,15 @@ usePageHotkeys({
       </Silk>
     </template>
     <template v-slot:default>
-      <v-container class="pa-2 position-relative">
-        <v-breadcrumbs density="compact">
+      <v-breadcrumbs density="compact" class="ma-0 pa-0">
+        <v-container>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
           <v-breadcrumbs-item>{{ t('assembly.workshop.title') }}</v-breadcrumbs-item>
-        </v-breadcrumbs>
-      </v-container>
+        </v-container>
+      </v-breadcrumbs>
 
       <v-container class="pa-5">
         <v-row no-gutters align="start">
@@ -958,9 +958,9 @@ usePageHotkeys({
 
                       {{ isEditModel ? (t('basic.button.save') || t('basic.button.commit')) : t('basic.button.commit') }}
 
-                      <p class="ml-2 text-red"  v-if="verificationWorkshop.required > 0">
+                      <p class="ml-2 text-red" v-if="verificationWorkshop.required > 0">
                         <v-icon icon="mdi-alert-circle" size="22"></v-icon>
-                        {{ t('assembly.workshop.requiredIncomplete', { count: verificationWorkshop.required }) }}
+                        {{ t('assembly.workshop.requiredIncomplete', {count: verificationWorkshop.required}) }}
                       </p>
                     </v-btn>
                   </div>

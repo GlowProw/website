@@ -286,6 +286,9 @@
   },
   "basic": {
     "untitled": "未命名",
+    "selectedCount": "已选择 {count} 项",
+    "selectedCountLimit": "已选择 {count} / {max} 项",
+    "selectedLimitReached": "最多只能选择 {max} 项",
     "visitor": {
       "recentVisitors": "近期访客",
       "noVisitors": "暂无浏览记录",
@@ -711,7 +714,8 @@
           "rateLimit": "发布过快，请{remainingTime}分钟后再试"
         },
         "anonymous": {
-          "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试"
+          "rateLimit": "匿名发布过快，请{remainingTime}小时稍后再试",
+          "expiresTooLong": "匿名发布最多只能等待 30 分钟，请登录后再选择更长的时间"
         },
         "duplicateContent": "内容与上一条重复，无法重复发布",
         "pushSuccess": "发布成功",
@@ -3808,7 +3812,8 @@
       "pushSync": "同步推送到机器人",
       "crossPlatform": "是否跨平台",
       "crossPlatformYes": "是",
-      "crossPlatformNo": "否"
+      "crossPlatformNo": "否",
+      "anonymousTimeLimit": "匿名发布最多等待 {minutes} 分钟，登录后可选择更长时间"
     },
     "time": {
       "minutes": "{count}分钟",
@@ -3835,7 +3840,8 @@
         "pending": "等待推送",
         "sending": "推送中",
         "sent": "推送成功",
-        "failed": "推送失败"
+        "failed": "推送失败",
+        "cancelled": "已取消推送"
       }
     },
     "refresh": {

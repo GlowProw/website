@@ -713,6 +713,19 @@ export function useUserApi() {
     }
 
     /**
+     * 登出：通知服务端吊销当前会话
+     * 本地登录态由调用方清理，这里失败也不抛出，避免卡住退出流程
+     */
+    const signout = async () => {
+        try {
+            const result = await http.post('user/logout')
+            return handleResponse(result)
+        } catch (error) {
+            return {success: 0, code: 'user.signout.failed'}
+        }
+    }
+
+    /**
      * 2FA：登录场景完成验证（不需要 token）
      */
     const loginVerify2fa = async (loginToken: string, code: string, client?: string, trustDevice?: boolean) => {
@@ -727,6 +740,7 @@ export function useUserApi() {
 
     return {
         signin,
+        signout,
         signup,
         getMe,
         updateMeAttr,

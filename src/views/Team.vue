@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import {useAuthStore} from "~/stores/userAccountStore";
-import {computed, onMounted, onUnmounted, type Ref, ref, triggerRef, type UnwrapRef} from "vue";
-import EmptyView from "@/components/EmptyView.vue";
+import {computed, onMounted, onUnmounted, type Ref, ref, triggerRef, type UnwrapRef, watch} from "vue";
 import {apis, getBrowserFingerprint, storage} from "@/assets/sripts";
-import TimeView from "@/components/TimeView.vue";
+
 import {useI18n} from "vue-i18n";
 import type {VForm} from "vuetify/components";
+import {useNoticeStore} from "~/stores/noticeStore";
+
+import {handleApiError} from "@/assets/sripts/error_handler";
+import {getTeamsType} from "@/assets/types/views";
+import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
+
+import EmptyView from "@/components/EmptyView.vue";
+import TimeView from "@/components/TimeView.vue";
 import Loading from "@/components/Loading.vue";
 import Textarea from "@/components/textarea/index.vue";
-import {useNoticeStore} from "~/stores/noticeStore";
 import AdsWidget from "@/components/ads/google/index.vue";
-import {handleApiError} from "@/assets/sripts/error_handler";
+import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Silk from "@/components/Silk.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
-import {getTeamsType} from "@/assets/types/views";
-import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 
 const authStore = useAuthStore(),
     notice = useNoticeStore(),
@@ -91,6 +94,27 @@ let teams: Ref<any[]> = ref([]),
       sortBy: 'recent',
       keyword: ''
     })
+
+// 匿名发布最多只能等待 60 分钟，登录后再开放更长的等待时间
+const ANONYMOUS_MAX_WAIT_MINUTES = 60
+
+/**
+ * 当前可选的等待时间：匿名时隐藏超过 30 分钟的选项
+ */
+const pushTimeOptions = computed(() => authStore.isLogin
+    ? pushConfig.time
+    : pushConfig.time.filter(item => item.value <= ANONYMOUS_MAX_WAIT_MINUTES))
+
+/**
+ * 登录状态变化时把匿名的超长等待时间收敛到允许范围
+ */
+const normalizeExpiresMinutesAt = () => {
+  if (!authStore.isLogin && expiresMinutesAt.value > ANONYMOUS_MAX_WAIT_MINUTES) {
+    expiresMinutesAt.value = ANONYMOUS_MAX_WAIT_MINUTES
+  }
+}
+
+watch(() => authStore.isLogin, normalizeExpiresMinutesAt, {immediate: true})
 
 /**
  * 转换 Unix 时间戳为毫秒
@@ -390,6 +414,7 @@ const readStoragePushTargets = () => {
 const getPushColor = (status: string) => {
   if (status === 'sent') return 'green';
   if (status === 'failed') return 'red';
+  if (status === 'cancelled') return 'grey';
   return 'orange';
 }
 
@@ -431,6 +456,12 @@ const pushTeamInfo = async () => {
     const descriptionText = descriptionEditor.value?.getText?.(true) || description.value;
     if (!descriptionText || descriptionText.trim().length < 3) {
       notice.warning(t('teamUp.rules.descriptionLength'))
+      return
+    }
+
+    // 匿名发布时再次校验等待时间，避免旧配置或手动输入绕过前端选项
+    if (!authStore.isLogin && expiresMinutesAt.value > ANONYMOUS_MAX_WAIT_MINUTES) {
+      notice.error(t('basic.tips.teamUp.anonymous.expiresTooLong'))
       return
     }
 
@@ -480,6 +511,10 @@ const pushTeamInfo = async () => {
       notice.error(t('basic.tips.teamUp.anonymous.rateLimit', {
         remainingTime: Math.max(1, Math.ceil(remainingMs / 3600000))
       }));
+      return;
+    }
+    if (e?.code === 'teamUp.anonymous.expiresTooLong') {
+      notice.error(t('basic.tips.teamUp.anonymous.expiresTooLong'));
       return;
     }
     handleApiError(e, notice, t, {component: 'Team'});
@@ -548,6 +583,7 @@ const readStoragePlayer = () => {
     tags.value = pushForm.data.value.tags || [];
     description.value = pushForm.data.value.description || '';
     crossPlatform.value = pushForm.data.value.crossPlatform !== false;
+    normalizeExpiresMinutesAt();
   }
 }
 
@@ -632,7 +668,6 @@ usePageHotkeys({
           <v-row>
             <v-col cols="12" sm="12" md="6" lg xl>
               <v-btn @click="onOpenPush" class="h-100 mr-1" variant="elevated">
-                <v-icon icon="mdi-plus"></v-icon>
                 {{ t('teamUp.pushBtn') }}
               </v-btn>
 
@@ -925,8 +960,11 @@ usePageHotkeys({
                                   :label="t('teamUp.form.time')"
                                   item-title="label"
                                   item-value="value"
-                                  :items="pushConfig.time">
+                                  :items="pushTimeOptions">
                         </v-select>
+                        <p class="text-caption opacity-60 mt-1" v-if="!authStore.isLogin">
+                          {{ t('teamUp.form.anonymousTimeLimit', {minutes: ANONYMOUS_MAX_WAIT_MINUTES}) }}
+                        </p>
                       </v-col>
                       <v-col cols="12" lg="2">
                         <v-select density="comfortable"
