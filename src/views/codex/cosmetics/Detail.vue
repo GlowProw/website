@@ -144,7 +144,7 @@ const onCodexHistory = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <CosmeticName :id="cosmeticDetailData.id" :isRarity="false"></CosmeticName>
+              <CosmeticName :id="cosmeticDetailData.id"></CosmeticName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>

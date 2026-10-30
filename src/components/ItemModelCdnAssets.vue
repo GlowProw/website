@@ -3,10 +3,10 @@ import {useI18n} from "vue-i18n";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const {t} = useI18n();
-const {modeServices, setSelectedModeService, selectedModeService} = useCDNAssetsServiceStore();
+const cdnStore = useCDNAssetsServiceStore();
 
 const onUpdateAssetsModeServices = (value: any) => {
-  setSelectedModeService(value.name || value);
+  cdnStore.setSelectedModeService(typeof value === 'string' ? value : value?.name);
 };
 </script>
 
@@ -21,7 +21,10 @@ const onUpdateAssetsModeServices = (value: any) => {
           </div>
         </v-col>
         <v-col cols="12">
-          <v-select :value="selectedModeService" :items="modeServices" @update:modelValue="onUpdateAssetsModeServices">
+          <!-- 服务名同时作为取值，下拉框才能按字符串回显当前选中的服务 -->
+          <v-select :model-value="cdnStore.selectedModeService" :items="cdnStore.modeServices"
+                    item-title="name" item-value="name"
+                    @update:modelValue="onUpdateAssetsModeServices">
             <template v-slot:item="{props, item}">
               <v-list-item v-bind="props" :title="((item as any).raw ?? item).name"></v-list-item>
             </template>

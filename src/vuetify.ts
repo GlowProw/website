@@ -32,6 +32,7 @@ export const createAppVuetify = (initialLocale = DEFAULT_LANG) => {
         },
         theme: {
             defaultTheme: 'dark',
+            utilities: true,
         },
     });
 };

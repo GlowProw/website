@@ -143,7 +143,7 @@ defineOptions({
       </div>
 
       <div class="flex-grow-1 overflow-y-auto pa-4">
-        <!-- 展开时才挂载，读取会话中的浏览记录 -->
+        <!-- 浏览记录 -->
         <CodexHistory
             v-if="open"
             :key="historyKey"

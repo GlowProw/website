@@ -36,7 +36,8 @@ const onUpdateLangCdn = (value: any) => {
           </div>
         </v-col>
         <v-col cols="12">
-          <v-select :value="appStore.cdnLangSource" :items="cdnLangOptions" @update:modelValue="onUpdateLangCdn">
+          <v-select :model-value="appStore.cdnLangSource" :items="cdnLangOptions" item-title="name" item-value="value"
+                    @update:modelValue="onUpdateLangCdn">
             <template v-slot:item="{props, item}">
               <v-list-item v-bind="props" :title="((item as any).raw ?? item).name"></v-list-item>
             </template>

@@ -161,7 +161,7 @@ const onAddCalculator = () => {
         <v-row class="mt-5">
           <v-col cols="8">
             <h1 class="text-amber text-h2 singe-line">
-              <MaterialName :id="materialDetailData.id" :isRarity="false"></MaterialName>
+              <MaterialName :id="materialDetailData.id"></MaterialName>
             </h1>
             <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier"/>

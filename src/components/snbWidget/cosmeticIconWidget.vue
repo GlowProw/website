@@ -43,12 +43,35 @@ const {raritys} = useAssetsStore(),
 
 let cosmeticCardData = ref({
       icon: '',
+      fallbackIcon: '',
     }),
+    // 是否已切换到远端回退地址
+    isIconFallback = ref(false),
+    // 回退地址也失败时只显示占位图标
+    isIconError = ref(false),
     i: Ref<UnwrapRef<Cosmetic> | Cosmetic> = ref(Cosmetic.fromRawData({})),
     isOpenNewWindow = computed({
       get: () => appStore.itemOpenNewWindow || props.isOpenNewWindow,
       set: (value) => appStore.toggleItemOpenNewWindow(value)
     })
+
+// 当前实际使用的图片地址，首选当前服务，失败后改用远端
+const displayIcon = computed(() => isIconFallback.value
+    ? cosmeticCardData.value.fallbackIcon
+    : cosmeticCardData.value.icon)
+
+/**
+ * 当前服务加载失败时回退到远端资源
+ * 本地资源代理未启动、或本地尚未收录新装扮时，图标仍能正常显示
+ */
+const onIconError = () => {
+  const {icon, fallbackIcon} = cosmeticCardData.value
+  if (!isIconFallback.value && fallbackIcon && fallbackIcon !== icon) {
+    isIconFallback.value = true
+    return
+  }
+  isIconError.value = true
+}
 
 watch(() => props.id, () => {
   onReady()
@@ -61,10 +84,14 @@ onMounted(() => {
 const onReady = async () => {
   i.value = cosmetics[props.id] || null
 
-  cosmeticCardData.value.icon = currentImageService.url({
+  // 同一个 id 切换时重置回退状态，避免沿用上一个条目的失败结果
+  isIconFallback.value = false
+  isIconError.value = false
+
+  const params = {
     'skull-and-bones-tools': {
       id: props.id,
-      type: i.value.type,
+      type: i.value?.type,
       category: 'cosmetic'
     },
     'glow-prow': {
@@ -79,7 +106,11 @@ const onReady = async () => {
       id: props.id,
       category: 'vanities'
     },
-  });
+  }
+
+  cosmeticCardData.value.icon = currentImageService.url(params)
+  // 远端资源作为兜底，DEV 下当前服务是本地代理，代理未启动时也能拿到图片
+  cosmeticCardData.value.fallbackIcon = currentImageService.url(params, 'glow-prow')
 }
 
 const {targetElement, isVisible} = useIntersectionObserver({
@@ -118,20 +149,20 @@ defineOptions({
 
         <div class="d-flex align-center justify-center h-100">
           <v-img
+              v-if="displayIcon && !isIconError"
               referrerpolicy="no-referrer"
               class="prohibit-drag"
-              :src="cosmeticCardData.icon">
-            <template v-slot:error>
-              <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
-                <v-icon icon="mdi-help" class="opacity-30"></v-icon>
-              </div>
-            </template>
+              :src="displayIcon"
+              @error="onIconError">
             <template v-slot:placeholder>
               <div class="d-flex justify-center align-center h-100">
                 <Loading size="40"/>
               </div>
             </template>
           </v-img>
+          <div v-else class="fill-height repeating-gradient d-flex justify-center align-center h-100">
+            <v-icon icon="mdi-help" class="opacity-30"></v-icon>
+          </div>
         </div>
       </v-card>
     </template>

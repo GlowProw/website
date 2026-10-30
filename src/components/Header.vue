@@ -66,7 +66,7 @@ defineOptions({
       </div>
     </v-app-bar>
 
-    <!-- 左侧导航抽屉：与全局搜索、私信等保持一致，使用统一滑入式抽屉 -->
+    <!-- 左侧导航抽屉 -->
     <SwipeDrawer v-model="drawer" side="left" width="100%" max-width="100vw">
       <div class="header-drawer h-100 d-flex flex-column">
         <div class="d-flex align-center px-4 py-1">

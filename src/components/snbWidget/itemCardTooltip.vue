@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, inject, onBeforeUnmount, provide, ref} from "vue";
+import {computed, inject, onBeforeUnmount, provide, ref, useAttrs} from "vue";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 
 /**
@@ -33,6 +33,10 @@ const ESCAPE_DISTANCE = 100;
 const LONG_PRESS_DELAY = 500;
 
 const {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
+
+// 根节点是 v-if/v-else 片段，Vue 无法自动继承属性；
+// 这里关闭自动继承，改由激活元素承接，避免外层透传属性时出现 Extraneous non-props attributes 警告
+const attrs = useAttrs();
 
 // 卡片内容内嵌的元素不再触发新的悬浮卡片，避免无限嵌套
 const nestedInCard = inject<boolean>("itemCardTooltipActive", false);
@@ -211,13 +215,14 @@ const onBuildActivatorProps = (base: Record<string, any>): Record<string, any> =
 onBeforeUnmount(onClose);
 
 defineOptions({
-  name: "ItemCardTooltip"
+  name: "ItemCardTooltip",
+  inheritAttrs: false
 });
 </script>
 
 <template>
   <!-- 禁用时不再创建 tooltip 与详情卡片，只渲染激活元素，避免选择器等批量列表产生额外开销 -->
-  <slot v-if="isDisabled" name="activator" :props="{}"></slot>
+  <slot v-if="isDisabled" name="activator" :props="attrs"></slot>
 
   <v-tooltip
       v-else
@@ -234,7 +239,7 @@ defineOptions({
       :content-class="props.contentClass"
       :target="[tooltipPos.x, tooltipPos.y]">
     <template v-slot:activator="{ props: activatorProps }">
-      <slot name="activator" :props="onBuildActivatorProps(activatorProps)"></slot>
+      <slot name="activator" :props="onBuildActivatorProps({...attrs, ...activatorProps})"></slot>
     </template>
     <div ref="contentRef" @pointerleave="onContentLeave" @pointerenter="onContentEnter">
       <slot></slot>

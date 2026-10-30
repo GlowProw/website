@@ -379,12 +379,6 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
                 }
             }
 
-            // 开发环境有本地资源代理（edgeone pages dev），远端可能尚未部署新分类（如 enemies），
-            // 未显式选择非远端服务时统一切到本地代理，避免出现「分类未配置」导致图标空白
-            if (import.meta.env.DEV && ['glow-prow', 'glow-prow-zh-cn'].includes(selectedService.value)) {
-                selectedService.value = 'local-test';
-            }
-
             const savedMode = storage.local.get(STORAGE_KEYS.SELECTED_MODE_SERVICE);
             if (savedMode?.code === 0) {
                 const modeName = savedMode?.data?.value?.name;

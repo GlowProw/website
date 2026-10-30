@@ -86,7 +86,7 @@ const detailPath = (item: any) => getCodexDetailPath(item.category, item.id)
     <v-row>
       <v-col cols="auto" v-for="(i, index) in codexHistorys" :key="index">
         <router-link :to="detailPath(i)" class=" ">
-          <ItemSlotBase size="120px" class="codex-history-link" :class="{'codex-history-link--selected': props.selectedId === i.id}">
+          <ItemSlotBase size="99px" class="codex-history-link" :class="{'codex-history-link--selected': props.selectedId === i.id}">
             <ShipIconWidget :id="i.id" v-if="i.category == 'ship'"></ShipIconWidget>
             <ItemIconWidget :id="i.id" v-if="i.category == 'item'"></ItemIconWidget>
             <CommoditieIconWidget :id="i.id" v-if="i.category == 'commoditie'"></CommoditieIconWidget>
