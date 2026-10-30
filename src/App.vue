@@ -4,7 +4,7 @@ import GlobalSupportPrompt from '@/components/GlobalSupportPrompt.vue'
 import GlobalPreloadOverlay from '@/components/GlobalPreloadOverlay.vue'
 import {computed, onMounted, onUnmounted, ref, watch} from "vue";
 import {useI18n} from 'vue-i18n';
-import {useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import {useHead} from "@unhead/vue";
 import {getAppOrigin, getAppUrl, storage} from "@/assets/sripts";
 import {DEFAULT_LANG, isSupportedLang, setCurrentLang, SUPPORTED_LANGS} from "@/config/languages";
@@ -26,6 +26,33 @@ const preloadStore = usePreloadStore();
 const authStore = useAuthStore();
 
 const route = useRoute();
+const router = useRouter();
+
+// 路由跳转过渡进度条激活状态
+const isPageNavigating = ref(false);
+
+/**
+ * 监听路由开始跳转，激活顶部全局加载进度条
+ */
+router.beforeEach((to, from) => {
+  if (to.path !== from.path) {
+    isPageNavigating.value = true;
+  }
+});
+
+/**
+ * 监听路由跳转完成，隐藏顶部全局加载进度条
+ */
+router.afterEach(() => {
+  isPageNavigating.value = false;
+});
+
+/**
+ * 监听路由跳转异常，隐藏顶部全局加载进度条
+ */
+router.onError(() => {
+  isPageNavigating.value = false;
+});
 
 const head = computed(() => {
   const siteName = t('name');
@@ -226,6 +253,16 @@ const handleVisibilityChange = () => {
 </script>
 
 <template>
+  <!-- 页面加载进度条 S -->
+  <v-progress-linear
+      :active="isPageNavigating"
+      indeterminate
+      color="amber"
+      height="3"
+      class="position-fixed top-0 left-0"
+      style="z-index: 99999;" />
+  <!-- 页面加载进度条 E -->
+
   <GlobalPreloadOverlay/>
   <GlobalSupportPrompt/>
 

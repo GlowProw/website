@@ -1155,7 +1155,10 @@
         "removed": "已取消收藏",
         "empty": "没有符合条件的收藏记录",
         "sourceLocal": "本地标记",
-        "sourceAccount": "账户收藏"
+        "sourceAccount": "账户收藏",
+        "batchRemove": "复选取消",
+        "batchRemoveConfirm": "确定要取消选中的 {count} 项收藏吗？",
+        "batchRemoved": "已取消选中的收藏"
       },
       "kinds": {
         "item": "物品",
@@ -1176,6 +1179,10 @@
         "title": "赛季统计",
         "items": "{count} 件",
         "unknown": "未知赛季"
+      },
+      "tabs": {
+        "overview": "总览",
+        "manage": "管理"
       }
     },
     "achievements": {
@@ -1208,7 +1215,8 @@
         "codex": "图鉴",
         "personalization": "个性化",
         "security": "安全",
-        "bot": "机器人"
+        "bot": "机器人",
+        "connoisseur": "奖赏家"
       },
       "status": {
         "locked": "未达成",
@@ -1528,6 +1536,38 @@
         "bot_bound": {
           "name": "社区舰队",
           "desc": "首次将任意平台的机器人成功绑定到社区群组。"
+        },
+        "connoisseur_comment_1": {
+          "name": "初试啼声",
+          "desc": "发布过一次周报评论"
+        },
+        "connoisseur_comment_10": {
+          "name": "洞察秋毫",
+          "desc": "发布过 10 次周报评论"
+        },
+        "connoisseur_comment_50": {
+          "name": "资深鉴赏",
+          "desc": "发布过 50 次周报评论"
+        },
+        "connoisseur_recent_10_commented": {
+          "name": "连篇累牍",
+          "desc": "近 10 次周报都有参与周报评论"
+        },
+        "connoisseur_report_create_1": {
+          "name": "掌舵起草",
+          "desc": "创建一份周报"
+        },
+        "connoisseur_report_edit_1": {
+          "name": "见微知著",
+          "desc": "参与一份周报编辑"
+        },
+        "connoisseur_month_all_commented": {
+          "name": "月度全勤",
+          "desc": "本月所有周报都参与评论"
+        },
+        "connoisseur_month_all_edited_or_created": {
+          "name": "金牌编撰",
+          "desc": "本月所有周报都参与编辑或创建"
         }
       }
     },
@@ -3192,8 +3232,12 @@
     "presetDefault": "推荐默认",
     "presetAlwaysVisible": "全层级可见 (12-15)",
     "zoomLevelHint": "12(远景) - 13(中景) - 14(近景) - 15(特写)",
+    "markerLocked": "标记已锁定，放大并在所有层级可见",
+    "markerUnlocked": "已取消标记锁定",
     "contextMenu": {
       "openDetail": "打开详情",
+      "lockMarker": "锁定标记",
+      "unlockMarker": "取消锁定标记",
       "addMarker": "在此添加标记",
       "copyCoordinates": "复制坐标",
       "copyLocationLink": "复制当前位置链接",
@@ -4302,8 +4346,13 @@
       "connoisseurTitle": "走私犯线人每周鉴赏家",
       "connoisseurDesc": "走私贩鉴赏家，专精每周市场动态，为每件稀有物品撰写深度评测与选购指南，让每位船长都能精准锁定价值巅峰的珍宝，不再错失任何一次财富机遇。在这里，您不仅是信息的传递者，更是社群中备受信赖的潮流引领者——成为众人瞩目的焦点，赢得万千玩家的追随与赞誉。",
       "connoisseurBenefit": "成为走私犯鉴赏家，你的账号获得'走私犯鉴赏家'身份，并且允许在走私犯线人下评论推荐物品",
-      "applyCondition": "申请条件：在不同媒体平台拥有不少订阅者 或 大众玩家推举成员",
-      "applyMethod": "申请方式：点击下方申请按钮",
+      "applyCondition": "申请条件：此账号创建累积满 1 个月；本月至少通过配装厂发布过一次配装，浏览量大于 50 且点赞大于 3",
+      "applyMethod": "规则：每次申请获取 3 个月，过期需要账户重新申请",
+      "applySuccess": "申请成功，已获得走私犯鉴赏家身份！",
+      "validUntil": "有效期至：{time}",
+      "renew": "重新申请",
+      "conditionAccountAge": "账号创建满 1 个月",
+      "conditionAssembly": "本月发布配装 (浏览>50, 点赞>3)",
       "viewCurrentReport": "查看当前周报",
       "apply": "申请",
       "createWeeklyData": "创建每周物品数据",
@@ -4356,7 +4405,13 @@
       "jsonSyntaxError": "JSON 语法错误，请输入合法的 JSON 格式",
       "creator": "创建者",
       "editors": "参与编辑",
-      "commenters": "参与评论"
+      "commenters": "参与评论",
+      "qualified": "已达标",
+      "notQualified": "未达标",
+      "daysProgress": "{current}/30 天",
+      "bestAssemblyStat": "最高: {name} · 浏览 {views}/50 · 点赞 {likes}/3",
+      "copySuffix": "副本",
+      "cloneParseFailed": "克隆周报数据解析失败"
     },
     "rules": {
       "title": "规则说明",
@@ -4789,7 +4844,16 @@
       "usageDesc": "闪耀船首使用本地缓存存储数据，包含用户配置/操作记录等",
       "dataTitle": "数据",
       "persistentStorage": "持久储存数据",
-      "sessionStorage": "会话储存数据"
+      "sessionStorage": "会话储存数据",
+      "backupAndRestore": "备份与恢复",
+      "backupDesc": "导出本地存储的所有配置、缓存与历史数据为压缩包，或从备份压缩包中还原数据。",
+      "downloadBackup": "下载备份",
+      "restoreFromBackup": "从备份中恢复",
+      "backupSuccess": "备份压缩包已生成并开始下载",
+      "restoreSuccess": "数据恢复成功，建议刷新页面以应用最新配置",
+      "restoreFailed": "恢复失败，无效的备份压缩包文件",
+      "restoreConfirm": "从备份中恢复将覆盖当前本地存储数据，是否继续？",
+      "reloadNow": "立即刷新"
     },
     "serviceStatus": {
       "title": "服务状态",
@@ -5175,81 +5239,81 @@
     "functions": {
       "team": {
         "title": "寻求组队",
-        "description": "发布或寻找与你计划相同船长出航，面对真正敌人"
+        "description": "召集志同道合的船长扬帆起航，结成舰队共御狂风怒涛与深海强敌"
       },
       "calendar": {
         "title": "日历",
-        "description": "查看赛季活动，订阅日历"
+        "description": "审视赛季航程与限时事件日程，时刻把握出航与掠夺的最佳时机"
       },
       "drop": {
         "title": "Twitch掉宝",
-        "description": "查看当前生效掉宝活动与历史档案"
+        "description": "掌握Twitch海域掉宝动态，打捞限时补给与历史战利品档案"
       },
       "maps": {
         "title": "地图",
-        "description": "地图物品清单，列出不同地点以及地点内藏宝图和设施"
+        "description": "展开全海域详尽航海图，探明各方据点、藏宝秘境与关键走私设施"
       },
       "codex": {
         "title": "手稿",
-        "description": "陈列物品信息, 检查它们如何获得"
+        "description": "翻阅海域万物手稿，洞悉火炮军备与奇珍战利品的来历与获取途径"
       },
       "quest": {
         "title": "剧情",
-        "description": "浏览游戏剧情故事线与任务档案"
+        "description": "查阅各方势力的海事委托与传奇剧情，追寻深藏在海风中的恩怨旧闻"
       },
       "smugglers-report": {
         "title": "鉴赏家",
-        "description": "社区共同推荐每周购买指南"
+        "description": "走私巨头倾囊相授的每周进货指南，指引船长在黑市交易中锁定高价值珍宝"
       },
       "stateOfWar": {
         "title": "战争状态",
-        "description": "查看赛季各区域阵营战事资源分布与对抗状态"
+        "description": "洞察各大洋阵营的交锋战局，实时掌握核心海域资源划分与前线冲突态势"
       },
       "statistics": {
         "title": "事态",
-        "description": "查看全站图鉴、签到与赛季数据的公开统计"
+        "description": "俯瞰浩瀚海域的宏观态势，纵览全洋船长的征战印记与赛季数据"
       },
       "assembly": {
         "title": "船只配装厂",
-        "description": "设计你船，让它到达性能极限，分享给好友"
+        "description": "定制与改良你的战舰装配，榨干火炮与船甲的极限性能，向四海炫耀你的海上霸主"
       },
       "captain-signature": {
         "title": "海盗签名(开发中)",
-        "description": "生成海盗签名图片，分享到社区网站上"
+        "description": "烙下专属海盗印章与传奇徽记，让你的赫赫威名威震各大海港"
       },
       "ranking-of-designed-items": {
         "title": "物品排名",
-        "description": "生成物品玩家心中排名以及评价"
+        "description": "公海船长们以实战评选出的装备榜单，衡量每件珍宝在怒海中的真正价值"
       },
       "impression-of-monsters": {
         "title": "精英怪印象(开发中)",
-        "description": "分享你对游戏内不同怪物第一印象"
+        "description": "记录与深海巨兽和恐怖海怪交锋的生死印象，为后来者留下宝贵的航海戒训"
       },
       "fashion-show": {
         "title": "时装秀(开发中)",
-        "description": "分享你的穿搭，成为时尚达人"
+        "description": "展示彰显领袖威仪的船长盛装与豪放行头，成为港口酒馆中最夺目的海上霸主"
       },
       "empire-skill-simulation": {
         "title": "帝国升级模拟 (BETA 1)",
-        "description": "海陀社升级模拟",
+        "description": "推演海陀社走私帝国的晋阶路线，精打细算掌控地下贸易与走私网络的命脉",
         "keywords": "empire skill simulation"
       },
       "mastery": {
         "title": "精通模拟",
-        "description": "赛季专精技能树加点与效果聚合统计",
+        "description": "预演赛季专精技能树的分支造诣，统揽各项威能对战舰战力的全面质变",
         "keywords": "mastery loadout simulation"
       },
       "calculator": {
         "title": "量化计算",
-        "description": "协助批量计算所需材料"
+        "description": "精打细算战舰建造与火炮锻造的物料消耗，运筹帷幄备齐每一次出航辎重"
       },
       "apps": {
         "title": "应用程序",
-        "description": "使用扩展套件提升体验"
+        "description": "装配专属辅助密器与战术扩展套件，助你在险恶航路中占尽先机"
       },
       "reminder": {
         "title": "活动提醒",
-        "description": "定时提醒游戏内活动与刷新事件，桌面推送通知"
+        "description": "瞭望塔哨声时刻哨戒海域刷新与限时事件，绝不错过任何出击良机"
       }
     }
   },

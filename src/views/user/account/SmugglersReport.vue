@@ -453,9 +453,74 @@ const getReportPeriodState = (report: any): 'current' | 'previous' | 'next' | ''
 }
 
 onMounted(async () => {
-  await getCheckUserPermission()
+  await Promise.all([
+    getCheckUserPermission(),
+    loadConnoisseurStatus()
+  ])
   await getSmugglersReportList()
 })
+
+// 鉴赏家身份申请与状态
+const connoisseurStatusLoading = ref(false)
+const applyingConnoisseur = ref(false)
+const connoisseurInfo = ref<{
+  isConnoisseur: boolean
+  expiryTime: string | null
+  conditions: {
+    accountAge: {
+      days: number
+      requiredDays: number
+      qualified: boolean
+    }
+    assembly: {
+      publishedThisMonth: number
+      qualified: boolean
+      bestAssembly: {
+        name: string
+        views: number
+        likes: number
+        createdTime: string
+      } | null
+    }
+  }
+  canApply: boolean
+} | null>(null)
+
+/**
+ * 加载走私犯鉴赏家资格与申请状态
+ */
+const loadConnoisseurStatus = async () => {
+  connoisseurStatusLoading.value = true
+  try {
+    const res = await apis.smugglersApi().getConnoisseurStatus()
+    connoisseurInfo.value = res.data?.data || null
+  } catch (e) {
+    // 忽略加载异常
+  } finally {
+    connoisseurStatusLoading.value = false
+  }
+}
+
+/**
+ * 申请成为走私犯鉴赏家
+ */
+const onApplyConnoisseur = async () => {
+  if (applyingConnoisseur.value) return
+  applyingConnoisseur.value = true
+  try {
+    await apis.smugglersApi().applyConnoisseur()
+    notice.success(t('smugglersReport.account.applySuccess'), { mode: 'minimal' })
+    await getCheckUserPermission()
+    await loadConnoisseurStatus()
+    if (isHasSmugglersReportPrivilege.value) {
+      await getSmugglersReportList()
+    }
+  } catch (e) {
+    handleApiError(e, notice, t, { component: 'MySmugglersReport' })
+  } finally {
+    applyingConnoisseur.value = false
+  }
+}
 
 /**
  * 校验当前用户是否具有走私犯周报相关权限
@@ -787,7 +852,7 @@ const onCloneReport = (report: any) => {
   editorActiveTab.value = editorCategories.value[0] || 'weekly'
 
   createSmugglersReportData.value = {
-    title: `${report.title || ''} (副本)`.trim(),
+    title: `${report.title || ''} (${t('smugglersReport.account.copySuffix')})`.trim(),
     status: 'published',
     startAndEnd: report.startTime && report.endTime ? `${report.startTime},${report.endTime}` : '',
     content: parsedContent
@@ -815,7 +880,7 @@ const applyCloneFromReport = (targetReport: any) => {
     editorActiveTab.value = editorCategories.value[0] || 'weekly'
     notice.success(t('smugglersReport.account.cloneSuccess'))
   } catch (err: any) {
-    notice.error('克隆周报数据解析失败: ' + (err?.message || err))
+    notice.error(t('smugglersReport.account.cloneParseFailed') + ': ' + (err?.message || err))
   }
 }
 
@@ -827,7 +892,7 @@ const copyReportContentToClipboard = async (content: any) => {
   try {
     const parsed = typeof content === 'string' ? JSON.parse(content) : content
     const dataStr = JSON.stringify(parsed || {weekly: []}, null, 2)
-    sessionStorage.setItem('glow_prow_clipboard_report', dataStr)
+    storage.session.set('glow_prow_clipboard_report', dataStr)
     if (navigator.clipboard && navigator.clipboard.writeText) {
       await navigator.clipboard.writeText(dataStr)
     }
@@ -862,14 +927,17 @@ const pasteReportContent = async () => {
       try {
         text = await navigator.clipboard.readText()
       } catch (err) {
-        text = sessionStorage.getItem('glow_prow_clipboard_report') || ''
+        const cached = storage.session.get('glow_prow_clipboard_report')
+        text = cached.code === 0 ? cached.data?.value || '' : ''
       }
     } else {
-      text = sessionStorage.getItem('glow_prow_clipboard_report') || ''
+      const cached = storage.session.get('glow_prow_clipboard_report')
+      text = cached.code === 0 ? cached.data?.value || '' : ''
     }
 
     if (!text || !text.trim()) {
-      text = sessionStorage.getItem('glow_prow_clipboard_report') || ''
+      const cached = storage.session.get('glow_prow_clipboard_report')
+      text = cached.code === 0 ? cached.data?.value || '' : ''
     }
 
     if (!text || !text.trim()) {
@@ -1098,14 +1166,52 @@ defineOptions({
 
             <div class="position-relative" style="z-index: 1;">
               <h3 class="text-h5 text-amber font-weight-bold mb-3 d-flex align-center">
+                {{ t('smugglersReport.account.connoisseurTitle') }}
               </h3>
-              <p class="opacity-80 mb-2 max-w-700">
+              <p class="opacity-80 mb-3 max-w-700">
                 {{ t('smugglersReport.account.connoisseurBenefit') }}
               </p>
-              <p class="text-caption opacity-60 mb-1">
-                {{ t('smugglersReport.account.applyCondition') }}
-              </p>
-              <p class="text-caption opacity-60 mb-6">
+
+              <!-- 申请条件列表 S -->
+              <v-list density="compact" class="bg-transparent pa-0 mb-4">
+                <v-list-item class="pa-0 mb-1">
+                  <template v-slot:prepend>
+                    <v-icon
+                        :color="connoisseurInfo?.conditions?.accountAge?.qualified ? 'success' : 'grey'"
+                        size="18">
+                      {{ connoisseurInfo?.conditions?.accountAge?.qualified ? 'mdi-check-circle' : 'mdi-clock-outline' }}
+                    </v-icon>
+                  </template>
+                  <v-list-item-title>
+                    {{ t('smugglersReport.account.conditionAccountAge') }}
+                    <span class="opacity-60">
+                      ({{ connoisseurInfo?.conditions?.accountAge?.qualified ? t('smugglersReport.account.qualified') : t('smugglersReport.account.daysProgress', { current: connoisseurInfo?.conditions?.accountAge?.days ?? 0 }) }})
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+
+                <v-list-item class="pa-0 mb-1">
+                  <template v-slot:prepend>
+                    <v-icon
+                        :color="connoisseurInfo?.conditions?.assembly?.qualified ? 'success' : 'grey'"
+                        size="18">
+                      {{ connoisseurInfo?.conditions?.assembly?.qualified ? 'mdi-check-circle' : 'mdi-alert-circle-outline' }}
+                    </v-icon>
+                  </template>
+                  <v-list-item-title>
+                    {{ t('smugglersReport.account.conditionAssembly') }}
+                    <span class="opacity-60 ml-2" v-if="connoisseurInfo?.conditions?.assembly?.bestAssembly">
+                      ({{ t('smugglersReport.account.bestAssemblyStat', { name: connoisseurInfo.conditions.assembly.bestAssembly.name, views: connoisseurInfo.conditions.assembly.bestAssembly.views, likes: connoisseurInfo.conditions.assembly.bestAssembly.likes }) }})
+                    </span>
+                    <span class="opacity-60 ml-2" v-else>
+                      ({{ t('smugglersReport.account.notQualified') }})
+                    </span>
+                  </v-list-item-title>
+                </v-list-item>
+              </v-list>
+              <!-- 申请条件列表 E -->
+
+              <p class="text-caption opacity-60 mb-4">
                 {{ t('smugglersReport.account.applyMethod') }}
               </p>
 
@@ -1113,7 +1219,13 @@ defineOptions({
                 <v-btn color="amber" variant="tonal" size="small" prepend-icon="mdi-open-in-new" to="/smugglers-report/view">
                   {{ t('smugglersReport.account.viewCurrentReport') }}
                 </v-btn>
-                <v-btn variant="outlined" size="small">
+                <v-btn
+                    color="amber"
+                    variant="elevated"
+                    size="small"
+                    :loading="applyingConnoisseur"
+                    :disabled="!connoisseurInfo?.canApply"
+                    @click="onApplyConnoisseur">
                   {{ t('smugglersReport.account.apply') }}
                 </v-btn>
               </div>
@@ -1123,6 +1235,34 @@ defineOptions({
 
           <!-- 周报管理列表 S -->
           <div v-if="isHasSmugglersReportPrivilege">
+            <!-- 鉴赏家身份状态横幅 S -->
+            <v-alert
+                v-if="connoisseurInfo?.isConnoisseur"
+                density="compact"
+                variant="tonal"
+                color="amber"
+                icon="mdi-trophy-award"
+                class="mb-4"
+                border="start">
+              <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+                <div>
+                  <span class="font-weight-bold">{{ t('smugglersReport.account.connoisseurTitle') }}</span>
+                  <span class="text-caption ml-2 opacity-80" v-if="connoisseurInfo?.expiryTime">
+                    ({{ t('smugglersReport.account.validUntil', { time: formatHourInUserTimezone(connoisseurInfo.expiryTime) }) }})
+                  </span>
+                </div>
+                <v-btn
+                    v-if="connoisseurInfo?.canApply"
+                    size="x-small"
+                    variant="outlined"
+                    color="amber"
+                    :loading="applyingConnoisseur"
+                    @click="onApplyConnoisseur">
+                  {{ t('smugglersReport.account.renew') }}
+                </v-btn>
+              </div>
+            </v-alert>
+            <!-- 鉴赏家身份状态横幅 E -->
             <!-- 操作头 S -->
             <AffixContainerView>
               <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">

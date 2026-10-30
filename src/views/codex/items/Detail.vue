@@ -12,7 +12,6 @@ import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
-import Time from "@/components/Time.vue"
 import ItemDamageTypeWidget from "@/components/snbWidget/itemDamageTypeWidget.vue";
 import {number, rarity, storage, getAppUrl} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";

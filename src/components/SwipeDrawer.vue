@@ -3,16 +3,16 @@ import {computed, onBeforeUnmount, ref, watch} from "vue";
 import type {SwipeDrawerProps} from "@/assets/types/Ui";
 
 const props = withDefaults(defineProps<SwipeDrawerProps>(), {
-    side: 'right',
-    width: '90vw',
-    maxWidth: '1024px',
-    closeOnOverlay: true,
-    lockScroll: true,
-    edgeWidth: 24,
+  side: 'right',
+  width: '90vw',
+  maxWidth: '1024px',
+  closeOnOverlay: true,
+  lockScroll: true,
+  edgeWidth: 24,
 });
 
 const emit = defineEmits<{
-    (e: 'update:modelValue', value: boolean): void
+  (e: 'update:modelValue', value: boolean): void
 }>();
 
 // 进入/离开动画时长，需要与样式 transition 保持一致
@@ -58,85 +58,85 @@ let lastVelocity = 0;
 let rafId: number | null = null;
 
 const panelStyle = computed<Record<string, string>>(() => ({
-    width: props.width,
-    maxWidth: props.maxWidth,
+  width: props.width,
+  maxWidth: props.maxWidth,
 }));
 
 const edgeStyle = computed(() => ({
-    width: `${props.edgeWidth}px`,
+  width: `${props.edgeWidth}px`,
 }));
 
 /**
  * 收起抽屉
  */
 const requestClose = (): void => {
-    if (props.modelValue) emit('update:modelValue', false);
+  if (props.modelValue) emit('update:modelValue', false);
 };
 
 /**
  * 锁定/恢复背景滚动
  */
 const lockBody = (lock: boolean): void => {
-    if (typeof document === 'undefined') return;
-    if (lock && props.lockScroll && !locked) {
-        document.body.style.overflow = 'hidden';
-        locked = true;
-    } else if (!lock && locked) {
-        document.body.style.overflow = '';
-        locked = false;
-    }
+  if (typeof document === 'undefined') return;
+  if (lock && props.lockScroll && !locked) {
+    document.body.style.overflow = 'hidden';
+    locked = true;
+  } else if (!lock && locked) {
+    document.body.style.overflow = '';
+    locked = false;
+  }
 };
 
 const onKeydown = (e: KeyboardEvent): void => {
-    if (e.key === 'Escape') requestClose();
+  if (e.key === 'Escape') requestClose();
 };
 
 watch(() => props.lockScroll, (shouldLock) => {
-    if (props.modelValue) {
-        lockBody(shouldLock);
-    }
+  if (props.modelValue) {
+    lockBody(shouldLock);
+  }
 });
 
 watch(() => props.modelValue, (open) => {
-    if (leaveTimer) {
-        clearTimeout(leaveTimer);
-        leaveTimer = null;
+  if (leaveTimer) {
+    clearTimeout(leaveTimer);
+    leaveTimer = null;
+  }
+  if (open) {
+    rendered.value = true;
+    lockBody(true);
+    if (typeof window !== 'undefined') {
+      window.addEventListener('keydown', onKeydown);
+      // 下一帧切换展开态以触发进场动画
+      let revealed = false;
+      const reveal = () => {
+        if (revealed || !rendered.value) return;
+        revealed = true;
+        shown.value = true;
+      };
+      requestAnimationFrame(reveal);
+      setTimeout(reveal, 32);
     }
-    if (open) {
-        rendered.value = true;
-        lockBody(true);
-        if (typeof window !== 'undefined') {
-            window.addEventListener('keydown', onKeydown);
-            // 下一帧切换展开态以触发进场动画
-            let revealed = false;
-            const reveal = () => {
-                if (revealed || !rendered.value) return;
-                revealed = true;
-                shown.value = true;
-            };
-            requestAnimationFrame(reveal);
-            setTimeout(reveal, 32);
-        }
-    } else {
-        shown.value = false;
-        lockBody(false);
-        if (typeof window !== 'undefined') {
-            window.removeEventListener('keydown', onKeydown);
-        }
-        leaveTimer = setTimeout(() => {
-            rendered.value = false;
-        }, ANIMATION_MS);
+  } else {
+    shown.value = false;
+    lockBody(false);
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('keydown', onKeydown);
     }
+    leaveTimer = setTimeout(() => {
+      rendered.value = false;
+    }, ANIMATION_MS);
+  }
 }, {immediate: true});
 
 onBeforeUnmount(() => {
-    if (leaveTimer) clearTimeout(leaveTimer);
-    if (rafId !== null && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(rafId);
-    teardownWindowListeners();
-    lockBody(false);
-    if (typeof window !== 'undefined') {
-        window.removeEventListener('keydown', onKeydown);
-    }
+  if (leaveTimer) clearTimeout(leaveTimer);
+  if (rafId !== null && typeof cancelAnimationFrame !== 'undefined') cancelAnimationFrame(rafId);
+  teardownWindowListeners();
+  lockBody(false);
+  if (typeof window !== 'undefined') {
+    window.removeEventListener('keydown', onKeydown);
+  }
 });
 
 /**
@@ -144,19 +144,19 @@ onBeforeUnmount(() => {
  * 拖动期间绕开 Vue 响应式，避免异步 patch 造成的跟手延迟
  */
 const applyVisual = (): void => {
-    rafId = null;
-    const sign = props.side === 'right' ? 1 : -1;
-    if (panelDom) {
-        panelDom.style.transform = `translateX(${sign * currentDelta}px)`;
-    }
-    if (overlayDom) {
-        overlayDom.style.opacity = String(Math.max(0, 1 - currentDelta / Math.max(1, panelWidth)));
-    }
+  rafId = null;
+  const sign = props.side === 'right' ? 1 : -1;
+  if (panelDom) {
+    panelDom.style.transform = `translateX(${sign * currentDelta}px)`;
+  }
+  if (overlayDom) {
+    overlayDom.style.opacity = String(Math.max(0, 1 - currentDelta / Math.max(1, panelWidth)));
+  }
 };
 
 const scheduleVisual = (): void => {
-    if (rafId !== null) return;
-    rafId = requestAnimationFrame(applyVisual);
+  if (rafId !== null) return;
+  rafId = requestAnimationFrame(applyVisual);
 };
 
 /**
@@ -165,143 +165,143 @@ const scheduleVisual = (): void => {
  * 由 sd-show class 决定滑回原位还是继续滑出
  */
 const settle = (willClose: boolean): void => {
-    if (willClose) shown.value = false;
-    dragging.value = false;
+  if (willClose) shown.value = false;
+  dragging.value = false;
+  requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            if (panelDom) panelDom.style.transform = '';
-            if (overlayDom) overlayDom.style.opacity = '';
-            panelDom = null;
-            overlayDom = null;
-        });
+      if (panelDom) panelDom.style.transform = '';
+      if (overlayDom) overlayDom.style.opacity = '';
+      panelDom = null;
+      overlayDom = null;
     });
+  });
 };
 
 const onWindowPointerMove = (e: PointerEvent): void => {
-    if (e.pointerId !== pointerId) return;
-    const dx = e.clientX - startX;
-    const dy = e.clientY - startY;
+  if (e.pointerId !== pointerId) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
 
-    if (!gestureConfirmed) {
-        if (Math.abs(dx) < GESTURE_SLOP && Math.abs(dy) < GESTURE_SLOP) return;
-        // 纵向明显占优时让给内部内容滚动，本次按下不再触发抽屉手势
-        if (Math.abs(dy) > GESTURE_SLOP && Math.abs(dy) > Math.abs(dx) * VERTICAL_DOMINANCE) {
-            teardownWindowListeners();
-            pointerId = null;
-            return;
-        }
-        gestureConfirmed = true;
-        dragging.value = true;
+  if (!gestureConfirmed) {
+    if (Math.abs(dx) < GESTURE_SLOP && Math.abs(dy) < GESTURE_SLOP) return;
+    // 纵向明显占优时让给内部内容滚动，本次按下不再触发抽屉手势
+    if (Math.abs(dy) > GESTURE_SLOP && Math.abs(dy) > Math.abs(dx) * VERTICAL_DOMINANCE) {
+      teardownWindowListeners();
+      pointerId = null;
+      return;
     }
+    gestureConfirmed = true;
+    dragging.value = true;
+  }
 
-    e.preventDefault();
+  e.preventDefault();
 
-    const directed = props.side === 'right' ? dx : -dx;
-    // 钳制在 [0, panelWidth]：拖到头后面板停住但手势不中断，往回拉仍然跟手
-    currentDelta = Math.min(panelWidth, Math.max(0, directed));
+  const directed = props.side === 'right' ? dx : -dx;
+  // 钳制在 [0, panelWidth]：拖到头后面板停住但手势不中断，往回拉仍然跟手
+  currentDelta = Math.min(panelWidth, Math.max(0, directed));
 
-    // 末段瞬时速度用于甩动判定
-    const now = Date.now();
-    const dt = now - lastSampleTime;
-    if (dt >= 8) {
-        lastVelocity = (currentDelta - lastSampleDelta) / dt;
-        lastSampleTime = now;
-        lastSampleDelta = currentDelta;
-    }
+  // 末段瞬时速度用于甩动判定
+  const now = Date.now();
+  const dt = now - lastSampleTime;
+  if (dt >= 8) {
+    lastVelocity = (currentDelta - lastSampleDelta) / dt;
+    lastSampleTime = now;
+    lastSampleDelta = currentDelta;
+  }
 
-    scheduleVisual();
+  scheduleVisual();
 };
 
 const finishGesture = (): void => {
-    const wasConfirmed = gestureConfirmed;
-    const delta = currentDelta;
-    const velocity = lastVelocity;
-    teardownWindowListeners();
-    pointerId = null;
+  const wasConfirmed = gestureConfirmed;
+  const delta = currentDelta;
+  const velocity = lastVelocity;
+  teardownWindowListeners();
+  pointerId = null;
 
-    if (!wasConfirmed) {
-        panelDom = null;
-        overlayDom = null;
-        return;
-    }
-    const shouldClose = delta / Math.max(1, panelWidth) > CLOSE_RATIO || velocity > FLING_VELOCITY;
-    if (shouldClose) {
-        requestClose();
-    }
-    // DOM 引用在 settle 的过渡帧结束后释放
-    settle(shouldClose);
+  if (!wasConfirmed) {
+    panelDom = null;
+    overlayDom = null;
+    return;
+  }
+  const shouldClose = delta / Math.max(1, panelWidth) > CLOSE_RATIO || velocity > FLING_VELOCITY;
+  if (shouldClose) {
+    requestClose();
+  }
+  // DOM 引用在 settle 的过渡帧结束后释放
+  settle(shouldClose);
 };
 
 const onWindowPointerUp = (e: PointerEvent): void => {
-    if (e.pointerId !== pointerId) return;
-    finishGesture();
+  if (e.pointerId !== pointerId) return;
+  finishGesture();
 };
 
 const onWindowPointerCancel = (e: PointerEvent): void => {
-    if (e.pointerId !== pointerId) return;
-    teardownWindowListeners();
-    pointerId = null;
-    if (gestureConfirmed) {
-        // DOM 引用在 settle 的过渡帧结束后释放
-        settle(false);
-    } else {
-        panelDom = null;
-        overlayDom = null;
-    }
-    gestureConfirmed = false;
-    currentDelta = 0;
+  if (e.pointerId !== pointerId) return;
+  teardownWindowListeners();
+  pointerId = null;
+  if (gestureConfirmed) {
+    // DOM 引用在 settle 的过渡帧结束后释放
+    settle(false);
+  } else {
+    panelDom = null;
+    overlayDom = null;
+  }
+  gestureConfirmed = false;
+  currentDelta = 0;
 };
 
 /**
  * 拖动全程在 window 上监听手势，指针离开边缘热区、滑过内部内容都不会中断
  */
 const setupWindowListeners = (): void => {
-    if (typeof window === 'undefined') return;
-    window.addEventListener('pointermove', onWindowPointerMove, {passive: false});
-    window.addEventListener('pointerup', onWindowPointerUp);
-    window.addEventListener('pointercancel', onWindowPointerCancel);
+  if (typeof window === 'undefined') return;
+  window.addEventListener('pointermove', onWindowPointerMove, {passive: false});
+  window.addEventListener('pointerup', onWindowPointerUp);
+  window.addEventListener('pointercancel', onWindowPointerCancel);
 };
 
 /**
  * 移除全局指针手势监听
  */
 const teardownWindowListeners = (): void => {
-    if (typeof window === 'undefined') return;
-    window.removeEventListener('pointermove', onWindowPointerMove);
-    window.removeEventListener('pointerup', onWindowPointerUp);
-    window.removeEventListener('pointercancel', onWindowPointerCancel);
+  if (typeof window === 'undefined') return;
+  window.removeEventListener('pointermove', onWindowPointerMove);
+  window.removeEventListener('pointerup', onWindowPointerUp);
+  window.removeEventListener('pointercancel', onWindowPointerCancel);
 };
 
 /**
  * 在边缘热区按下：只负责记录手势起点，后续交给 window 监听
  */
 const onPointerDown = (e: PointerEvent): void => {
-    if (!props.modelValue) return;
-    // 鼠标只响应主键
-    if (e.pointerType === 'mouse' && e.button !== 0) return;
-    e.preventDefault();
+  if (!props.modelValue) return;
+  // 鼠标只响应主键
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  e.preventDefault();
 
-    // 面板可能渲染成 v-card，组件 ref 拿不到 DOM，沿热区向上找根节点再查询
-    const root = edgeEl.value?.closest('.sd-root');
-    panelDom = root?.querySelector<HTMLElement>('.sd-panel') ?? null;
-    overlayDom = root?.querySelector<HTMLElement>('.sd-overlay') ?? null;
-    if (!panelDom) return;
+  // 面板可能渲染成 v-card，组件 ref 拿不到 DOM，沿热区向上找根节点再查询
+  const root = edgeEl.value?.closest('.sd-root');
+  panelDom = root?.querySelector<HTMLElement>('.sd-panel') ?? null;
+  overlayDom = root?.querySelector<HTMLElement>('.sd-overlay') ?? null;
+  if (!panelDom) return;
 
-    pointerId = e.pointerId;
-    startX = e.clientX;
-    startY = e.clientY;
-    lastSampleTime = Date.now();
-    lastSampleDelta = 0;
-    lastVelocity = 0;
-    currentDelta = 0;
-    gestureConfirmed = false;
-    panelWidth = panelDom.getBoundingClientRect().width || 0;
+  pointerId = e.pointerId;
+  startX = e.clientX;
+  startY = e.clientY;
+  lastSampleTime = Date.now();
+  lastSampleDelta = 0;
+  lastVelocity = 0;
+  currentDelta = 0;
+  gestureConfirmed = false;
+  panelWidth = panelDom.getBoundingClientRect().width || 0;
 
-    setupWindowListeners();
+  setupWindowListeners();
 };
 
 const onOverlayClick = (): void => {
-    if (props.closeOnOverlay) requestClose();
+  if (props.closeOnOverlay) requestClose();
 };
 
 defineOptions({
@@ -330,7 +330,9 @@ defineOptions({
             class="sd-edge"
             :style="edgeStyle"
             @pointerdown="onPointerDown">
-          <span class="sd-edge-pill"></span>
+          <span class="sd-edge-pill">
+            <v-icon class="opacity-60">mdi-drag-vertical</v-icon>
+          </span>
         </div>
 
         <div class="sd-content">
@@ -341,7 +343,7 @@ defineOptions({
   </Teleport>
 </template>
 
-<style scoped>
+<style scoped lang="less">
 .sd-root {
   position: fixed;
   inset: 0;
@@ -425,9 +427,21 @@ defineOptions({
 .sd-edge-pill {
   width: 4px;
   height: 56px;
+  display: flex;
+  justify-content: center;
+  align-content: center;
   border-radius: 2px;
   background: rgb(var(--v-theme-on-surface) / 25%);
   pointer-events: none;
+}
+
+.sd-panel .sd-edge {
+  opacity: 0;
+  transition: all .25s;
+}
+
+.sd-panel:hover .sd-edge {
+  opacity: 1;
 }
 
 /* 移动设备占满宽度 */

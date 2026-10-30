@@ -339,6 +339,36 @@ export function useSmugglersApi() {
         }
     };
 
+    /**
+     * 获取走私犯鉴赏家申请资格与状态
+     */
+    const getConnoisseurStatus = async () => {
+        try {
+            const result = await http.get('smugglers/connoisseur/status');
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error);
+        }
+    };
+
+    /**
+     * 申请成为走私犯鉴赏家
+     */
+    const applyConnoisseur = async () => {
+        try {
+            const result = await http.post('smugglers/connoisseur/apply');
+            return handleResponse(result);
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error);
+        }
+    };
+
     return {
         // 权限相关
         checkPrivilege,
@@ -359,6 +389,10 @@ export function useSmugglersApi() {
         addReportComment,
         editReportComment,
         delReportComment,
-        hardDeleteReportComment
+        hardDeleteReportComment,
+
+        // 鉴赏家身份申请
+        getConnoisseurStatus,
+        applyConnoisseur
     };
 }

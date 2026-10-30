@@ -20,7 +20,7 @@ const loading = ref(true),
 // 成就分类的固定展示顺序与图标
 const categoryOrder: AchievementCategory[] = [
   'assembly', 'mastery', 'signin', 'teamup', 'subscription',
-  'comment', 'codex', 'personalization', 'security', 'bot'
+  'comment', 'codex', 'personalization', 'security', 'bot', 'connoisseur'
 ]
 const categoryIcons: Record<AchievementCategory, string> = {
   assembly: 'mdi-package-variant-closed',
@@ -32,7 +32,8 @@ const categoryIcons: Record<AchievementCategory, string> = {
   codex: 'mdi-book-open-variant',
   personalization: 'mdi-account-edit-outline',
   security: 'mdi-shield-lock-outline',
-  bot: 'mdi-robot-outline'
+  bot: 'mdi-robot-outline',
+  connoisseur: 'mdi-trophy-award'
 }
 
 // 按分类分组后的成就列表
@@ -113,6 +114,10 @@ const requirementText = (item: AchievementItem): string => {
   }
   if (['personalization', 'security', 'bot'].includes(item.category)) {
     return t('account.achievements.requirement.once')
+  }
+  if (item.category === 'connoisseur') {
+    const key = `account.achievements.requirement.${item.key}`
+    return te(key) ? t(key) : t(`account.achievements.items.${item.key}.desc`)
   }
 
   const tier = item.key.split('_').pop() || ''

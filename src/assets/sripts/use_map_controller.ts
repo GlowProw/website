@@ -373,7 +373,142 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const categoryStyleCache: Record<string, Style[] | null> = {};
     const categoryTargetStyleCache: Record<string, Style[] | null> = {};
     const categoryDimmedStyleCache: Record<string, Style[] | null> = {};
+    // 锁定标记的独立样式缓存
+    const lockedMarkerStyleCache: Record<string, Style[] | null> = {};
     let animFrameId: number | null = null;
+
+    /**
+     * 读取本地持久化的锁定标记 ID 集合
+     */
+    const loadLockedMarkers = (): Set<string> => {
+        try {
+            const resp = storageObj.local.get('map.lockedMarkers');
+            if (resp.code === 0 && resp.data?.value && Array.isArray(resp.data.value)) {
+                return new Set(resp.data.value.map(String));
+            }
+        } catch {}
+        return new Set();
+    };
+
+    // 锁定标记 ID 集合
+    const lockedMarkerIds = ref<Set<string>>(loadLockedMarkers());
+
+    /**
+     * 保存锁定标记 ID 集合至本地存储
+     * @param set 锁定标记集合
+     */
+    const saveLockedMarkers = (set: Set<string>): void => {
+        try {
+            storageObj.local.set('map.lockedMarkers', Array.from(set));
+        } catch {}
+    };
+
+    /**
+     * 获取标记的唯一标识
+     * @param originalData 原始点位数据
+     */
+    const getMarkerId = (originalData: any): string => {
+        if (!originalData) return '';
+        return String(originalData.id ?? originalData.uuid ?? originalData.key ?? `${originalData.longitude}_${originalData.latitude}`);
+    };
+
+    /**
+     * 判断标记是否已被锁定
+     * @param originalData 原始点位数据
+     */
+    const isMarkerLocked = (originalData: any): boolean => {
+        if (!originalData) return false;
+        return lockedMarkerIds.value.has(getMarkerId(originalData));
+    };
+
+    /**
+     * 切换标记锁定状态
+     * @param feature 目标要素或要素数据
+     */
+    const toggleLockMarker = (feature: any): void => {
+        const originalData = feature?.get ? feature.get('originalData') : (feature?.originalData || feature);
+        if (!originalData) return;
+        const id = getMarkerId(originalData);
+        if (!id) return;
+        const next = new Set(lockedMarkerIds.value);
+        const willLock = !next.has(id);
+        if (willLock) {
+            next.add(id);
+            notice.success(t('map.markerLocked') || '标记已锁定，放大并在所有层级可见', { mode: 'minimal' });
+        } else {
+            next.delete(id);
+            notice.info(t('map.markerUnlocked') || '已取消标记锁定', { mode: 'minimal' });
+        }
+        lockedMarkerIds.value = next;
+        saveLockedMarkers(next);
+        vectorLayerRef.value?.changed();
+        closeContextMenu();
+    };
+
+    /**
+     * 获取锁定标记的高亮放大样式（在所有缩放层级下保持可见）
+     * @param originalData 原始点位数据
+     */
+    const getLockedMarkerStyle = (originalData: any): Style[] | null => {
+        const styleKey = getMarkerStyleKey(originalData);
+        const category = styleKeyCategory[styleKey] || styleKey;
+        const currentZoom = getCurrentZoom();
+        const cacheKey = `${styleKey}_${Math.round(currentZoom * 2)}`;
+
+        if (lockedMarkerStyleCache[cacheKey]) {
+            return lockedMarkerStyleCache[cacheKey];
+        }
+
+        const baseScale = getCategoryScale(category, currentZoom);
+        // 锁定的标记放大 1.8 倍，最低尺寸保证在低 zoom 下依然清晰可见
+        const lockedScale = Math.max(0.24, baseScale * 1.8);
+        const lockedBorderScale = lockedScale * 1.25;
+
+        const isShare = styleKey === 'shareLocation' || category === 'shareLocation';
+        const anchor: [number, number] = isShare ? [0.5, 1] : [0.5, 0.6];
+        const iconSrc = isShare
+            ? getPersonalMarkerIcon()
+            : (icons.value[styleKey] || getCategoryIcon(category));
+
+        if (!iconSrc) return null;
+
+        const isEnemyCategory = ENEMY_CATEGORY_SET.has(category);
+        const styles: Style[] = [];
+
+        if (!isEnemyCategory) {
+            styles.push(
+                new Style({
+                    image: new Icon({
+                        src: iconSrc,
+                        color: '#000000',
+                        scale: lockedBorderScale,
+                        opacity: 0.5,
+                        anchor,
+                        anchorXUnits: 'fraction',
+                        anchorYUnits: 'fraction',
+                    }),
+                    zIndex: 600,
+                })
+            );
+        }
+
+        styles.push(
+            new Style({
+                image: new Icon({
+                    src: iconSrc,
+                    scale: lockedScale,
+                    opacity: 1.0,
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 601,
+            })
+        );
+
+        lockedMarkerStyleCache[cacheKey] = styles;
+        return styles;
+    };
 
     /**
      * 标记样式缓存 key：有独立图标的点位按图标区分，其余按分类
@@ -737,6 +872,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      */
     const createMarkerStyleFn = () => (feature: any) => {
         const originalData = feature.get('originalData');
+        if (isMarkerLocked(originalData)) {
+            return getLockedMarkerStyle(originalData);
+        }
+
         const styleKey = getMarkerStyleKey(originalData);
 
         const hasTargetHighlight = Boolean(highlightTargetKey.value || highlightCoords.value);
@@ -934,10 +1073,12 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 const originalData = feature.get('originalData');
                 if (!originalData) return;
 
-                const styleKey = getMarkerStyleKey(originalData);
-                const anim = categoryAnimState[styleKey];
-                if (anim && anim.currentOpacity <= 0.05) {
-                    return;
+                if (!isMarkerLocked(originalData)) {
+                    const styleKey = getMarkerStyleKey(originalData);
+                    const anim = categoryAnimState[styleKey];
+                    if (anim && anim.currentOpacity <= 0.05) {
+                        return;
+                    }
                 }
 
                 // 内嵌小地图等场景可以接管点击，例如直接跳转到完整地图页面
@@ -978,10 +1119,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 { layerFilter: (l) => l.get('isMainVectorLayer') === true, hitTolerance: 15 }
             ) ?? null;
             if (feature) {
-                const styleKey = getMarkerStyleKey(feature.get('originalData'));
-                const anim = categoryAnimState[styleKey];
-                if (anim && anim.currentOpacity <= 0.05) {
-                    feature = null;
+                const originalData = feature.get('originalData');
+                if (!isMarkerLocked(originalData)) {
+                    const styleKey = getMarkerStyleKey(originalData);
+                    const anim = categoryAnimState[styleKey];
+                    if (anim && anim.currentOpacity <= 0.05) {
+                        feature = null;
+                    }
                 }
             }
             let hitShapeUuid: string | null = null;
@@ -1091,10 +1235,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     { layerFilter: (l) => l.get('isMainVectorLayer') === true, hitTolerance: 15 }
                 ) ?? null;
                 if (feature) {
-                    const styleKey = getMarkerStyleKey(feature.get('originalData'));
-                    const anim = categoryAnimState[styleKey];
-                    if (anim && anim.currentOpacity <= 0.05) {
-                        feature = null;
+                    const originalData = feature.get('originalData');
+                    if (!isMarkerLocked(originalData)) {
+                        const styleKey = getMarkerStyleKey(originalData);
+                        const anim = categoryAnimState[styleKey];
+                        if (anim && anim.currentOpacity <= 0.05) {
+                            feature = null;
+                        }
                     }
                 }
                 let hitShapeUuid: string | null = null;
@@ -1193,6 +1340,17 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         if (feature) {
             const originalData = feature.get('originalData');
+            const locked = isMarkerLocked(originalData);
+
+            // 锁定 / 解锁标记
+            items.push({
+                icon: locked ? 'mdi-pin-off-outline' : 'mdi-pin-outline',
+                color: locked ? 'amber' : undefined,
+                label: locked
+                    ? (t('map.contextMenu.unlockMarker') || '取消锁定标记')
+                    : (t('map.contextMenu.lockMarker') || '锁定标记'),
+                action: () => toggleLockMarker(feature),
+            });
 
             if (originalData?.category === 'shareLocation') {
                 // 个人标记：属主右键置顶「编辑」直接弹出编辑窗口，另有查看卡片/删除
@@ -3846,6 +4004,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         closeContextMenu,
         openLocationDetail,
         onConfigChanged,
+
+        lockedMarkerIds,
+        isMarkerLocked,
+        toggleLockMarker,
 
         onOpenPointEdit,
         onPointEditFormChange,

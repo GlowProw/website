@@ -17,6 +17,13 @@ export default class AppNavs {
         },
     ]
 
+    public col2 = [
+        {
+            title: 'footer.col2.patreon',
+            href: 'https://www.patreon.com/glowprow',
+        }
+    ]
+
     public services = [
         {
             title: 'about.title',
@@ -41,7 +48,7 @@ export default class AppNavs {
         {
             title: 'footer.col3.terms',
             href: 'https://blog.glow-prow.top/terms',
-        },
+        }
     ]
 }
 

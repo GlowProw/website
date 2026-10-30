@@ -21,7 +21,8 @@ export type AchievementCategory =
     | 'codex'
     | 'personalization'
     | 'security'
-    | 'bot';
+    | 'bot'
+    | 'connoisseur';
 
 export type AchievementMode = 'active' | 'passive';
 

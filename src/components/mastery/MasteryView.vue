@@ -847,10 +847,10 @@ function resizeCanvas() {
   canvas.style.width = `${width}px`;
   canvas.style.height = `${height}px`;
 
-  // 首次获得有效尺寸（含从隐藏切换为可见）时重置视图居中
+  // 首次获得有效尺寸时重置视图居中
   if (!hasInitiallySized) {
     hasInitiallySized = true;
-    resetView();
+    resetView(0);
     return;
   }
 
@@ -899,7 +899,11 @@ function zoomStep(delta: number) {
   setScale(targetK, 250);
 }
 
-function resetView() {
+/**
+ * 重置视图至居中状态
+ * @param duration 过渡动画时长（毫秒），缺省时按只读属性平滑过渡
+ */
+function resetView(duration?: number) {
   const container = containerRef.value;
   if (!container) return;
   const width = container.clientWidth || container.offsetWidth;
@@ -909,7 +913,8 @@ function resetView() {
   const targetK = props.initialScale ?? 1.5;
   const targetX = props.initialTx ?? cx;
   const targetY = props.initialTy ?? cy;
-  setTransform(targetK, targetX, targetY, props.readonly ? 0 : 500);
+  const actualDuration = duration !== undefined ? duration : (props.readonly ? 0 : 500);
+  setTransform(targetK, targetX, targetY, actualDuration);
 }
 
 function locateNode(node: Mastery) {
@@ -978,6 +983,7 @@ onMounted(() => {
         });
 
     d3.select(canvas).call(zoomBehavior as any);
+    d3.select(canvas).call(zoomBehavior.transform as any, currentTransform.value);
   } else {
     const targetK = props.initialScale ?? 1.0;
     const targetX = props.initialTx ?? 0;
@@ -985,8 +991,8 @@ onMounted(() => {
     currentTransform.value = d3.zoomIdentity.translate(targetX, targetY).scale(targetK);
   }
 
-  // 初始居中
-  resetView();
+  // 初始居中（初始加载无动画直接就位）
+  resetView(0);
 
   window.addEventListener('resize', resizeCanvas);
 

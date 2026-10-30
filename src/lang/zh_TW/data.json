@@ -1137,7 +1137,10 @@
         "removed": "已取消收藏",
         "empty": "沒有符合條件的收藏記錄",
         "sourceLocal": "本機標記",
-        "sourceAccount": "帳戶收藏"
+        "sourceAccount": "帳戶收藏",
+        "batchRemove": "複選取消",
+        "batchRemoveConfirm": "確定要取消選取的 {count} 項收藏嗎？",
+        "batchRemoved": "已取消選取的收藏"
       },
       "kinds": {
         "item": "物品",
@@ -1158,6 +1161,10 @@
         "title": "賽季統計",
         "items": "{count} 件",
         "unknown": "未知賽季"
+      },
+      "tabs": {
+        "overview": "總覽",
+        "manage": "管理"
       }
     },
     "achievements": {
@@ -1190,7 +1197,8 @@
         "codex": "圖鑑",
         "personalization": "個性化",
         "security": "安全",
-        "bot": "機器人"
+        "bot": "機器人",
+        "connoisseur": "獎賞家"
       },
       "status": {
         "locked": "未達成",
@@ -1510,6 +1518,38 @@
         "bot_bound": {
           "name": "社群艦隊",
           "desc": "首次將任意平台的機器人成功綁定到社群群組。"
+        },
+        "connoisseur_comment_1": {
+          "name": "初試啼聲",
+          "desc": "發布過一次週報評論"
+        },
+        "connoisseur_comment_10": {
+          "name": "洞察秋毫",
+          "desc": "發布過 10 次週報評論"
+        },
+        "connoisseur_comment_50": {
+          "name": "資深鑑賞",
+          "desc": "發布過 50 次週報評論"
+        },
+        "connoisseur_recent_10_commented": {
+          "name": "連篇累牘",
+          "desc": "近 10 次週報都有參與週報評論"
+        },
+        "connoisseur_report_create_1": {
+          "name": "掌舵起草",
+          "desc": "創建一份週報"
+        },
+        "connoisseur_report_edit_1": {
+          "name": "見微知著",
+          "desc": "參與一份週報編輯"
+        },
+        "connoisseur_month_all_commented": {
+          "name": "月度全勤",
+          "desc": "本月所有週報都參與評論"
+        },
+        "connoisseur_month_all_edited_or_created": {
+          "name": "金牌編撰",
+          "desc": "本月所有週報都參與編輯或創建"
         }
       }
     },
@@ -3130,8 +3170,12 @@
     "presetDefault": "推薦預設",
     "presetAlwaysVisible": "全層級可見 (12-15)",
     "zoomLevelHint": "12(遠景) - 13(中景) - 14(近景) - 15(特寫)",
+    "markerLocked": "標記已鎖定，放大並在所有層級可見",
+    "markerUnlocked": "已取消標記鎖定",
     "contextMenu": {
       "openDetail": "打開詳情",
+      "lockMarker": "鎖定標記",
+      "unlockMarker": "取消鎖定標記",
       "addMarker": "在此新增標記",
       "copyCoordinates": "複製座標",
       "copyLocationLink": "複製當前位置連結",
@@ -4307,8 +4351,13 @@
       "connoisseurTitle": "走私犯線人每週鑑賞家",
       "connoisseurDesc": "走私販鑑賞家，專精每週市場動態，為每件稀有物品撰寫深度評測與選購指南，讓每位船長都能精準鎖定價值巔峰的珍寶，不再錯失任何一次財富機遇。在這裡，您不僅是資訊的傳遞者，更是社群中備受信賴的潮流引領者——成為眾人矚目的焦點，贏得萬千玩家的追隨與讚譽。",
       "connoisseurBenefit": "成為走私犯鑑賞家，你的帳號獲得'走私犯鑑賞家'身份，並且允許在走私犯線人下評論推薦物品",
-      "applyCondition": "申請條件：在不同媒體平台擁有不少訂閱者 或 大眾玩家推舉成員",
-      "applyMethod": "申請方式：點擊下方申請按鈕",
+      "applyCondition": "申請條件：此帳號創建累積滿 1 個月；本月至少通過配裝廠發布過一次配裝，瀏覽量大於 50 且點讚大於 3",
+      "applyMethod": "規則：每次申請獲取 3 個月，過期需要帳戶重新申請",
+      "applySuccess": "申請成功，已獲得走私犯鑑賞家身份！",
+      "validUntil": "有效期至：{time}",
+      "renew": "重新申請",
+      "conditionAccountAge": "帳號創建滿 1 個月",
+      "conditionAssembly": "本月發布配裝 (瀏覽>50, 點讚>3)",
       "viewCurrentReport": "查看當前週報",
       "apply": "申請",
       "createWeeklyData": "建立每週物品資料",
@@ -4336,7 +4385,38 @@
       "reportTitle": "週報標題",
       "creator": "建立者",
       "editors": "參與編輯",
-      "commenters": "參與評論"
+      "commenters": "參與評論",
+      "saveDraft": "保存草稿",
+      "restoreDraft": "恢復草稿",
+      "draftSaved": "草稿已保存",
+      "draftRestored": "草稿已恢復",
+      "copyReport": "複製週報資料",
+      "copySuccess": "週報資料已複製到剪貼簿",
+      "pasteReport": "貼上匯入資料",
+      "pasteSuccess": "週報資料貼上匯入成功",
+      "pasteInvalid": "剪貼簿中的週報資料格式無效",
+      "cloneReport": "複製此週報",
+      "cloneSuccess": "週報資料複製成功",
+      "cloneFromSelect": "從現有週報複製資料",
+      "cloneSelectPlaceholder": "選擇要複製的歷史週報...",
+      "cloneConfirm": "確定要從選中的週報複製資料嗎？目前編輯中的物品資料將被覆蓋。",
+      "jsonPanelTitle": "JSON 面板 (Debug)",
+      "jsonPanelDesc": "雙向同步週報資料，支援直接編輯與格式化",
+      "formatJson": "格式化 JSON",
+      "jsonSyntaxError": "JSON 語法錯誤，請輸入合法的 JSON 格式",
+      "titleMinLength": "標題最少 1 個字元",
+      "titleMaxLength": "週報標題最多允許 255 個字元",
+      "timeRequired": "請選擇完整起止時間",
+      "titleRequired": "請輸入週報標題",
+      "editReviewTitle": "編輯鑑賞評論",
+      "weeklyReport": "走私販週報",
+      "reportComment": "週報評論",
+      "qualified": "已達標",
+      "notQualified": "未達標",
+      "daysProgress": "{current}/30 天",
+      "bestAssemblyStat": "最高: {name} · 瀏覽 {views}/50 · 點讚 {likes}/3",
+      "copySuffix": "副本",
+      "cloneParseFailed": "複製週報資料解析失敗"
     },
     "rules": {
       "title": "規則說明",
@@ -4761,7 +4841,16 @@
       "usageDesc": "閃耀船首使用本地緩存存儲數據，包含用戶配置/操作記錄等",
       "dataTitle": "數據",
       "persistentStorage": "持久儲存數據",
-      "sessionStorage": "會話儲存數據"
+      "sessionStorage": "會話儲存數據",
+      "backupAndRestore": "備份與恢復",
+      "backupDesc": "匯出本機儲存的所有設定、快取與歷史資料為壓縮包，或從備份壓縮包中還原資料。",
+      "downloadBackup": "下載備份",
+      "restoreFromBackup": "從備份中恢復",
+      "backupSuccess": "備份壓縮包已產生並開始下載",
+      "restoreSuccess": "資料恢復成功，建議重新整理頁面以套用最新設定",
+      "restoreFailed": "恢復失敗，無效的備份壓縮包檔案",
+      "restoreConfirm": "從備份中恢復將覆蓋目前本機儲存資料，是否繼續？",
+      "reloadNow": "立即重新整理"
     },
     "serviceStatus": {
       "title": "服務狀態",
@@ -5140,78 +5229,82 @@
     },
     "functions": {
       "team": {
-        "title": "组队寻求",
-        "description": "发布或寻找与你计划相同船长出航，面对真正敌人"
+        "title": "尋求組隊",
+        "description": "召集志同道合的船長揚帆起航，結成艦隊共御狂風怒濤與深海強敵"
       },
       "calendar": {
-        "title": "日历",
-        "description": "查看本赛季活动信息"
+        "title": "日曆",
+        "description": "審視賽季航程與限時事件日程，時刻把握出航與掠奪的最佳時機"
       },
       "drop": {
-        "title": "Twitch掉宝",
-        "description": "查看当前生效掉宝活动与历史档案"
+        "title": "Twitch掉寶",
+        "description": "掌握Twitch海域掉寶動態，打撈限時補給與歷史戰利品檔案"
       },
       "maps": {
-        "title": "地图",
-        "description": "地图物品清单"
+        "title": "地圖",
+        "description": "展開全海域詳盡航海圖，探明各方據點、藏寶秘境與關鍵走私設施"
       },
       "codex": {
         "title": "手稿",
-        "description": "陈列物品信息, 检查它们如何获得"
+        "description": "翻閱海域萬物手稿，洞悉火炮軍備與奇珍戰利品的來歷與獲取途徑"
       },
       "quest": {
         "title": "劇情",
-        "description": "瀏覽遊戲劇情故事線與任務檔案"
+        "description": "查閱各方勢力的海事委託與傳奇劇情，追尋深藏在海風中的恩怨舊聞"
       },
       "smugglers-report": {
         "title": "鑑賞家",
-        "description": "社區共同推薦每週購買指南"
+        "description": "走私巨頭傾囊相授的每週進貨指南，指引船長在黑市交易中鎖定高價值珍寶"
+      },
+      "stateOfWar": {
+        "title": "戰爭狀態",
+        "description": "洞察各大洋陣營的交鋒戰局，實時掌握核心海域資源劃分與前線衝突態勢"
       },
       "statistics": {
         "title": "事態",
-        "description": "查看全站圖鑑、簽到與賽季數據的公開統計"
+        "description": "俯瞰浩瀚海域的宏觀態勢，縱覽全洋船長的征戰印記與賽季數據"
       },
       "assembly": {
-        "title": "船只配装厂",
-        "description": "设计你船，让它到达性能极限，分享给好友"
+        "title": "船隻配裝廠",
+        "description": "定制與改良你的戰艦裝配，榨乾火炮與船甲的極限性能，向四海炫耀你的海上霸主"
       },
       "captain-signature": {
-        "title": "海盗签名(开发中)",
-        "description": "生成海盗签名图片，分享到社区网站上"
+        "title": "海盜簽名(開發中)",
+        "description": "烙下專屬海盜印章與傳奇徽記，讓你的赫赫威名威震各大海港"
       },
       "ranking-of-designed-items": {
         "title": "物品排名",
-        "description": "生成物品玩家心中排名以及评价"
+        "description": "公海船長們以實戰評選出的裝備榜單，衡量每件珍寶在怒海中的真正價值"
       },
       "impression-of-monsters": {
-        "title": "精英怪印象(开发中)",
-        "description": "分享你对游戏内不同怪物第一印象"
+        "title": "精英怪印象(開發中)",
+        "description": "記錄與深海巨獸和恐怖海怪交鋒的生死印象，為後來者留下寶貴的航海戒訓"
       },
       "fashion-show": {
-        "title": "时装秀(开发中)",
-        "description": "分享你的穿搭，成为时尚达人"
+        "title": "時裝秀(開發中)",
+        "description": "展示彰顯領袖威儀的船長盛裝與豪放行頭，成為港口酒館中最奪目的海上霸主"
       },
       "empire-skill-simulation": {
         "title": "帝國升級模擬 (BETA 1)",
-        "description": "海陀社升級模擬",
+        "description": "推演海陀社走私帝國的晉階路線，精打細算掌控地下貿易與走私網絡的命脈",
         "keywords": "empire skill simulation"
       },
       "mastery": {
         "title": "專精模擬",
-        "description": "賽季專精技能樹模擬與效果聚合統計",
+        "description": "預演賽季專精技能樹的分支造詣，統攬各項威能對戰艦戰力的全面質變",
         "keywords": "mastery loadout simulation"
       },
       "calculator": {
         "title": "量化計算",
-        "description": "協助批量計算所需材料"
+        "description": "精打細算戰艦建造與火炮鍛造的物料消耗，運籌帷幄備齊每一次出航輜重"
       },
       "apps": {
-        "title": "應用程序",
-        "description": "使用擴展套件提升體驗"
+        "title": "應用程式",
+        "description": "裝配專屬輔助密器與戰術擴展套件，助你在險惡航路中佔盡先機"
       },
       "reminder": {
         "title": "活動提醒",
-        "description": "定時提醒遊戲內活動與刷新事件，桌面推送通知"
+        "description": "瞭望塔哨聲時刻哨戒海域刷新與限時事件，絕不錯過任何出擊良機"
       }
     },
     "menu": "選單"

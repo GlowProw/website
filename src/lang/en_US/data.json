@@ -1155,7 +1155,10 @@
         "removed": "Removed from collection",
         "empty": "No collection records match the filters",
         "sourceLocal": "Local mark",
-        "sourceAccount": "Account"
+        "sourceAccount": "Account",
+        "batchRemove": "Cancel Selected",
+        "batchRemoveConfirm": "Are you sure you want to remove {count} selected item(s) from collection?",
+        "batchRemoved": "Selected items removed from collection"
       },
       "kinds": {
         "item": "Items",
@@ -1176,6 +1179,10 @@
         "title": "By Season",
         "items": "{count} items",
         "unknown": "Unknown season"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "manage": "Management"
       }
     },
     "achievements": {
@@ -1208,7 +1215,8 @@
         "codex": "Codex",
         "personalization": "Personalization",
         "security": "Security",
-        "bot": "Bots"
+        "bot": "Bots",
+        "connoisseur": "Connoisseur"
       },
       "status": {
         "locked": "Locked",
@@ -1528,6 +1536,38 @@
         "bot_bound": {
           "name": "Community Fleet",
           "desc": "Bind a bot from any platform to a community group for the first time."
+        },
+        "connoisseur_comment_1": {
+          "name": "First Impression",
+          "desc": "Publish 1 weekly report comment"
+        },
+        "connoisseur_comment_10": {
+          "name": "Keen Eye",
+          "desc": "Publish 10 weekly report comments"
+        },
+        "connoisseur_comment_50": {
+          "name": "Senior Connoisseur",
+          "desc": "Publish 50 weekly report comments"
+        },
+        "connoisseur_recent_10_commented": {
+          "name": "Steady Critic",
+          "desc": "Comment on all of the latest 10 weekly reports"
+        },
+        "connoisseur_report_create_1": {
+          "name": "First Draft",
+          "desc": "Create 1 weekly report"
+        },
+        "connoisseur_report_edit_1": {
+          "name": "Polished Touch",
+          "desc": "Participate in editing 1 weekly report"
+        },
+        "connoisseur_month_all_commented": {
+          "name": "Monthly Presence",
+          "desc": "Comment on all weekly reports this month"
+        },
+        "connoisseur_month_all_edited_or_created": {
+          "name": "Master Editor",
+          "desc": "Edit or create all weekly reports this month"
         }
       }
     },
@@ -3195,8 +3235,12 @@
     "presetDefault": "Recommended Default",
     "presetAlwaysVisible": "Always Visible (12-15)",
     "zoomLevelHint": "12(Distant) - 13(Medium) - 14(Close) - 15(Detail)",
+    "markerLocked": "Marker locked: enlarged and visible across all map zoom levels",
+    "markerUnlocked": "Marker unlocked",
     "contextMenu": {
       "openDetail": "View Details",
+      "lockMarker": "Lock Marker",
+      "unlockMarker": "Unlock Marker",
       "addMarker": "Add Marker Here",
       "copyCoordinates": "Copy Coordinates",
       "copyLocationLink": "Copy Location Link",
@@ -4305,8 +4349,13 @@
       "connoisseurTitle": "Smuggler Connoisseur Weekly",
       "connoisseurDesc": "Smuggler Connoisseurs specialize in weekly market dynamics, writing in-depth reviews and buying guides for rare items so every captain can target peak-value treasures. Here you are a trusted trendsetter in the community.",
       "connoisseurBenefit": "Becoming a Smuggler Connoisseur grants your account the 'Smuggler Connoisseur' status and allows commenting recommendations under the smuggler reports.",
-      "applyCondition": "Requirements: Significant subscriber base on media platforms or elected by community players",
-      "applyMethod": "Application Method: Click the apply button below",
+      "applyCondition": "Requirements: Account created for at least 1 month; Published at least 1 loadout via Loadout Factory this month with views > 50 and likes > 3",
+      "applyMethod": "Rule: Granted for 3 months per application. Reapplication required upon expiration.",
+      "applySuccess": "Application successful! You are now a Smuggler Connoisseur.",
+      "validUntil": "Valid until: {time}",
+      "renew": "Reapply",
+      "conditionAccountAge": "Account age >= 1 month",
+      "conditionAssembly": "Loadout this month (views>50, likes>3)",
       "viewCurrentReport": "View Current Report",
       "apply": "Apply",
       "createWeeklyData": "Create Weekly Item Data",
@@ -4359,7 +4408,13 @@
       "jsonSyntaxError": "JSON syntax error, please enter valid JSON format",
       "creator": "Creator",
       "editors": "Edited by",
-      "commenters": "Commented by"
+      "commenters": "Commented by",
+      "qualified": "Qualified",
+      "notQualified": "Not Qualified",
+      "daysProgress": "{current}/30 days",
+      "bestAssemblyStat": "Best: {name} · Views {views}/50 · Likes {likes}/3",
+      "copySuffix": "Copy",
+      "cloneParseFailed": "Failed to parse cloned report data"
     },
     "rules": {
       "title": "Rules & Guidelines",
@@ -4784,7 +4839,16 @@
       "usageDesc": "Shining Prow uses local cache to store data, including user configurations/action records, etc.",
       "dataTitle": "Data",
       "persistentStorage": "Persistent Storage",
-      "sessionStorage": "Session Storage"
+      "sessionStorage": "Session Storage",
+      "backupAndRestore": "Backup & Restore",
+      "backupDesc": "Export all local storage settings, caches, and history into a zip archive, or restore data from a backup zip.",
+      "downloadBackup": "Download Backup",
+      "restoreFromBackup": "Restore from Backup",
+      "backupSuccess": "Backup archive generated and downloading",
+      "restoreSuccess": "Data restored successfully. Reloading the page is recommended to apply changes.",
+      "restoreFailed": "Restore failed: invalid backup zip file",
+      "restoreConfirm": "Restoring from backup will overwrite current local storage data. Continue?",
+      "reloadNow": "Reload Now"
     },
     "serviceStatus": {
       "title": "Service Status",
@@ -5169,81 +5233,81 @@
     "functions": {
       "team": {
         "title": "Team Up Search",
-        "description": "Post or find captains with the same plan to set sail and face real enemies"
+        "description": "Rally trusty captains and assemble a fleet to brave raging seas and deadly foes"
       },
       "calendar": {
         "title": "Calendar",
-        "description": "View this season's event information (Hold)"
+        "description": "Chart the shifting tides of seasonal campaigns and time-limited events to strike at the right hour"
       },
       "drop": {
         "title": "Twitch Drops",
-        "description": "View active Twitch Drops and history archive"
+        "description": "Seize active Twitch bounty drops and unearth historical plunder archives"
       },
       "maps": {
         "title": "Map",
-        "description": "Map item inventory"
+        "description": "Unfurl full-sea nautical charts to scout enemy outposts, hidden caches, and smuggling havens"
       },
       "codex": {
         "title": "Codex",
-        "description": "Display item information, check how to obtain them"
+        "description": "Consult the grand codex to inspect coveted armaments, ship fittings, and where to plunder them"
       },
       "quest": {
         "title": "Story & Quests",
-        "description": "Explore storylines, character lore, and quest logs"
+        "description": "Unravel legendary voyages, naval contracts, and treacherous faction intrigue across the open waters"
       },
       "smugglers-report": {
         "title": "Connoisseur",
-        "description": "Community jointly recommends the weekly shopping guide"
+        "description": "Weekly black market appraisals from veteran smugglers to ensure every piece of eight counts"
       },
       "stateOfWar": {
         "title": "State of War",
-        "description": "Track faction asset score and regional war dominance in Season"
+        "description": "Survey contested seas and shifting faction battlefronts across war-torn waters"
       },
       "statistics": {
         "title": "Statistics",
-        "description": "Browse public site-wide statistics for codex, sign-ins and seasons"
+        "description": "Survey the grand tides of the high seas: captain exploits, codex archives, and seasonal tallies"
       },
       "assembly": {
         "title": "Ship Assembly Workshop",
-        "description": "Design your ship, push it to its performance limit, and share it with friends"
+        "description": "Forge and fine-tune your warship to lethal limits, and display your fearsome build to the four seas"
       },
       "captain-signature": {
         "title": "Pirate Signature (Under Development)",
-        "description": "Generate pirate signature images to share on community websites"
+        "description": "Carve your pirate seal and captain's crest to strike awe and command respect across every port"
       },
       "ranking-of-designed-items": {
         "title": "Item Ranking",
-        "description": "Generate player rankings and evaluations for items"
+        "description": "Battle-tested armaments ranked and weighed by high-seas captains through blood and powder"
       },
       "impression-of-monsters": {
         "title": "Elite Monster Impression (Under Development)",
-        "description": "Share your first impression of different in-game monsters"
+        "description": "Log harrowing encounters with abyssal leviathans and phantom horrors as warnings for future voyages"
       },
       "fashion-show": {
         "title": "Fashion Show (Under Development)",
-        "description": "Share your outfit and become a fashionista"
+        "description": "Flaunt commanding captain regalia and swashbuckling swagger to turn heads in every tavern"
       },
       "empire-skill-simulation": {
         "title": "Empire Skill Simulation (BETA 1)",
-        "description": "The Helm Upgrade Simulation",
+        "description": "Plot The Helm's upgrade course and master the empire's underground smuggling dominion",
         "keywords": "empire skill simulation"
       },
       "mastery": {
         "title": "Mastery Simulation",
-        "description": "Seasonal mastery skill tree simulation and effect aggregation",
+        "description": "Chart seasonal mastery branches and unlock devastating enhancements aboard your vessel",
         "keywords": "mastery loadout simulation"
       },
       "calculator": {
         "title": "Quantitative Calculator",
-        "description": "Assist in the batch calculation of the required materials"
+        "description": "Reckon timber, iron, and shipwright supplies so you never weigh anchor unprepared"
       },
       "apps": {
         "title": "Apps",
-        "description": "Enhance the experience with extension packages"
+        "description": "Equip specialized sea instruments and tactical extensions to hold the wind in your favor"
       },
       "reminder": {
         "title": "Activity Reminder",
-        "description": "Schedule in-game events and activity reminders with desktop alerts"
+        "description": "Sound the crow’s nest bell for ocean events and merchant spawns before the tide turns"
       }
     },
     "menu": "Menu"

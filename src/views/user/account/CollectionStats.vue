@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
+import {useRoute} from "vue-router";
 import {
   Items,
   Ships,
@@ -36,6 +37,7 @@ import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useCollectionStore} from "~/stores/collectionStore";
 import {useNoticeStore} from "~/stores/noticeStore";
+import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const {t, te} = useI18n(),
     authStore = useAuthStore(),
@@ -66,6 +68,26 @@ const {t, te} = useI18n(),
     managePageSize = 10,
     removingKey = ref<string | null>(null),
     syncing = computed(() => collectionStore.syncing)
+
+const route = useRoute();
+
+// 顶部切换标签（overview: 总览, manage: 管理）
+const activeTab = ref<'overview' | 'manage'>(route.query.tab === 'manage' ? 'manage' : 'overview');
+
+// 总览数据是否已完成首次加载
+const overviewLoaded = ref(false);
+
+// 收藏管理数据是否已完成首次加载
+const manageLoaded = ref(false);
+
+// 收藏管理数据加载状态
+const manageLoading = ref(false);
+
+// 选中的收藏记录列表
+const selectedRecords = ref<CollectionRecord[]>([]);
+
+// 批量取消收藏加载状态
+const batchRemoving = ref(false);
 
 const seasonData = Seasons;
 
@@ -110,18 +132,42 @@ const kindEntries = new Map(collectionKinds.map(kind => [kind.key, kind.entries]
 const pad = (value: number): string => String(value).padStart(2, '0')
 
 /**
- * 加载收藏数据，登录态读取账户记录，未登录仅展示本地标记
+ * 加载收藏总览数据，登录态读取账户记录，未登录仅展示本地标记
  */
 const onLoad = async () => {
   loading.value = true
   try {
     if (authStore.isLogin) await collectionStore.onLoadAccount(true)
+    overviewLoaded.value = true
   } finally {
     loading.value = false
   }
 
   if (authStore.isLogin && collectionStore.pendingLocalCount > 0) syncDialog.value = true
 }
+
+/**
+ * 加载收藏管理数据，仅在切换至管理标签页时按需加载
+ */
+const loadManageData = async () => {
+  manageLoading.value = true
+  try {
+    if (authStore.isLogin) await collectionStore.onLoadAccount(true)
+    manageLoaded.value = true
+    selectedRecords.value = []
+  } finally {
+    manageLoading.value = false
+  }
+}
+
+// 监听标签页切换，切换至对应标签页时按需触发数据加载
+watch(activeTab, (tab) => {
+  if (tab === 'manage' && !manageLoaded.value) {
+    loadManageData()
+  } else if (tab === 'overview' && !overviewLoaded.value) {
+    onLoad()
+  }
+})
 
 /**
  * 图鉴种类名称，缺失翻译时回退原始标识
@@ -286,18 +332,86 @@ watch(manageTotalPages, total => {
 })
 
 /**
- * 筛选条件变化时回到第一页
+ * 判断当前页是否已全选
  */
-const onManageFilterChange = () => {
-  managePage.value = 1
+const isAllSelected = computed(() => {
+  return pagedManageRecords.value.length > 0 && selectedRecords.value.length === pagedManageRecords.value.length
+})
+
+/**
+ * 切换当前页全选状态
+ */
+const toggleSelectAll = () => {
+  if (isAllSelected.value) {
+    selectedRecords.value = []
+  } else {
+    selectedRecords.value = [...pagedManageRecords.value]
+  }
 }
 
 /**
- * 管理列表分页切换
+ * 切换单项选中状态
+ * @param record 收藏记录
+ */
+const toggleRecord = (record: CollectionRecord) => {
+  const index = selectedRecords.value.findIndex(
+      r => r.targetType === record.targetType && r.targetId === record.targetId
+  )
+  if (index >= 0) {
+    selectedRecords.value.splice(index, 1)
+  } else {
+    selectedRecords.value.push(record)
+  }
+}
+
+/**
+ * 判断指定收藏记录是否已选中
+ * @param record 收藏记录
+ */
+const isRecordSelected = (record: CollectionRecord) => {
+  return selectedRecords.value.some(
+      r => r.targetType === record.targetType && r.targetId === record.targetId
+  )
+}
+
+/**
+ * 批量取消选中的收藏记录
+ */
+const onBatchRemoveCollection = async () => {
+  if (selectedRecords.value.length === 0 || batchRemoving.value) return
+
+  const count = selectedRecords.value.length
+  if (!confirm(t('account.collectionStats.manage.batchRemoveConfirm', { count }))) return
+
+  batchRemoving.value = true
+  try {
+    for (const record of selectedRecords.value) {
+      await collectionStore.onToggle(record.targetType, record.targetId)
+    }
+    selectedRecords.value = []
+    noticeStore.success(t('account.collectionStats.manage.batchRemoved'))
+  } catch {
+    noticeStore.error(t('basic.networkError'))
+  } finally {
+    batchRemoving.value = false
+  }
+}
+
+/**
+ * 筛选条件变化时回到第一页并重置选中状态
+ */
+const onManageFilterChange = () => {
+  managePage.value = 1
+  selectedRecords.value = []
+}
+
+/**
+ * 管理列表分页切换并重置选中状态
  * @param page 目标页码
  */
 const onManagePageChange = (page: number) => {
   managePage.value = page
+  selectedRecords.value = []
 }
 
 /**
@@ -321,6 +435,8 @@ const onRemoveCollection = async (record: CollectionRecord) => {
   removingKey.value = key
   try {
     await collectionStore.onToggle(record.targetType, record.targetId)
+    const idx = selectedRecords.value.findIndex(r => r.targetType === record.targetType && r.targetId === record.targetId)
+    if (idx >= 0) selectedRecords.value.splice(idx, 1)
     noticeStore.success(t('account.collectionStats.manage.removed'))
   } catch {
     noticeStore.error(t('basic.networkError'))
@@ -621,7 +737,13 @@ const onSync = async () => {
   }
 }
 
-onMounted(onLoad)
+onMounted(() => {
+  if (activeTab.value === 'manage') {
+    loadManageData()
+  } else {
+    onLoad()
+  }
+})
 
 const getSeasonData = (bySeasonName: string) => seasonData[bySeasonName]
 
@@ -632,21 +754,32 @@ defineOptions({
 
 <template>
   <div>
-    <div v-if="loading" class="text-center opacity-60 py-12">
-      <Loading size="50"></Loading>
-    </div>
+    <!-- 顶部 Tab 切换 S -->
+    <v-tabs v-model="activeTab" color="amber" :align-tabs="'center'" :center-active="true" active-class="amber--text text--darken-3">
+      <v-tab value="overview">{{ t('account.collectionStats.tabs.overview') }}</v-tab>
+      <v-tab value="manage">{{ t('account.collectionStats.tabs.manage') }}</v-tab>
+    </v-tabs>
+    <v-divider class="mb-4"></v-divider>
+    <!-- 顶部 Tab 切换 E -->
 
-    <template v-else>
-      <AffixBoxHasTitleView v-if="!mergedRecords.length" class="mb-8">
-        <div class="text-center opacity-60 py-12">
-          {{ t('account.collectionStats.empty.title') }}
-        </div>
-        <template v-slot:title>
-          {{ t('account.collectionStats.overview.title') }}
-        </template>
-      </AffixBoxHasTitleView>
+    <!-- 总览 Tab 视图 S -->
+    <div v-if="activeTab === 'overview'">
+      <div v-if="loading" class="text-center opacity-60 py-12">
+        <Loading size="50"></Loading>
+      </div>
 
-      <template v-else>
+      <div v-else-if="!mergedRecords.length">
+        <AffixBoxHasTitleView class="mb-8">
+          <div class="text-center opacity-60 py-12">
+            {{ t('account.collectionStats.empty.title') }}
+          </div>
+          <template v-slot:title>
+            {{ t('account.collectionStats.overview.title') }}
+          </template>
+        </AffixBoxHasTitleView>
+      </div>
+
+      <div v-else>
         <!-- 概览卡片区 S -->
         <v-card variant="text">
           <v-row class="mb-3">
@@ -856,51 +989,104 @@ defineOptions({
             {{ t('account.collectionStats.seasons.title') }}
           </template>
         </AffixBoxHasTitleView>
+      </div>
+    </div>
+    <!-- 总览 Tab 视图 E -->
 
+    <!-- 收藏管理 Tab 视图 S -->
+    <div v-else-if="activeTab === 'manage'">
+      <div v-if="manageLoading && !manageLoaded" class="text-center opacity-60 py-12">
+        <Loading size="50"></Loading>
+      </div>
+
+      <div v-else>
         <AffixBoxHasTitleView>
-          <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">
-            <div class="d-flex align-center flex-wrap ga-2">
-              <v-text-field
-                  v-model="manageSearch"
-                  prepend-inner-icon="mdi-magnify"
-                  :placeholder="t('account.collectionStats.manage.searchPlaceholder')"
-                  density="compact"
-                  variant="outlined"
-                  hide-details
-                  clearable
-                  style="width: 220px;"
-                  class="flex-shrink-0"
-                  @keydown.enter="onManageFilterChange"
-                  @click:clear="onManageFilterChange">
-              </v-text-field>
+          <!-- 收藏管理操作栏 S -->
+          <AffixContainerView>
+            <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2 mb-4">
+              <div class="d-flex align-center flex-wrap ga-2">
+                <v-checkbox-btn
+                    v-if="pagedManageRecords.length > 0"
+                    :model-value="isAllSelected"
+                    :indeterminate="selectedRecords.length > 0 && !isAllSelected"
+                    @click.stop="toggleSelectAll"
+                    class="mx-2 flex-shrink-0">
+                  <template v-slot:label>
+                    <p
+                        class="text-body-2 font-weight-medium cursor-pointer user-select-none singe-line"
+                        @click="toggleSelectAll">
+                      {{ t('account.selectAll') }}
+                    </p>
+                  </template>
+                </v-checkbox-btn>
 
-              <v-select
-                  v-model="manageKind"
-                  :items="manageKindOptions"
-                  density="compact"
-                  variant="outlined"
-                  hide-details
-                  style="width: 150px;"
-                  class="flex-shrink-0"
-                  @update:model-value="onManageFilterChange">
-              </v-select>
-            </div>
+                <p v-if="selectedRecords.length > 0" class="text-body-2">
+                  {{ t('account.itemsSelected', { count: selectedRecords.length }) }}
+                </p>
 
-            <v-spacer></v-spacer>
+                <v-btn
+                    v-if="selectedRecords.length > 0"
+                    variant="tonal"
+                    color="error"
+                    prepend-icon="mdi-bookmark-remove-outline"
+                    :loading="batchRemoving"
+                    @click="onBatchRemoveCollection">
+                  {{ t('account.collectionStats.manage.batchRemove') }}
+                </v-btn>
 
-            <v-btn variant="flat" :loading="loading" @click="onLoad">
-              <v-icon>mdi-refresh</v-icon>
-            </v-btn>
-          </v-card>
+                <v-text-field
+                    v-if="selectedRecords.length <= 0"
+                    v-model="manageSearch"
+                    prepend-inner-icon="mdi-magnify"
+                    :placeholder="t('account.collectionStats.manage.searchPlaceholder')"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    clearable
+                    style="width: 220px;"
+                    class="flex-shrink-0"
+                    @keydown.enter="onManageFilterChange"
+                    @click:clear="onManageFilterChange">
+                </v-text-field>
 
+                <v-select
+                    v-if="selectedRecords.length <= 0"
+                    v-model="manageKind"
+                    :items="manageKindOptions"
+                    density="compact"
+                    variant="outlined"
+                    hide-details
+                    style="width: 150px;"
+                    class="flex-shrink-0"
+                    @update:model-value="onManageFilterChange">
+                </v-select>
+              </div>
+
+              <v-spacer></v-spacer>
+
+              <v-btn variant="flat" :loading="manageLoading" @click="loadManageData">
+                <v-icon>mdi-refresh</v-icon>
+              </v-btn>
+            </v-card>
+          </AffixContainerView>
+          <!-- 收藏管理操作栏 E -->
+
+          <!-- 收藏记录列表 S -->
           <div v-if="pagedManageRecords.length">
             <v-list lines="three" variant="text" class="bg-transparent">
               <template v-for="(record, index) in pagedManageRecords" :key="`${record.targetType}:${record.targetId}`">
                 <v-list-item>
                   <template v-slot:prepend>
-                    <v-avatar size="50" rounded="lg" class="mr-3 flex-shrink-0">
-                      <v-icon size="26" color="white">{{ kindIcons[record.targetType] || 'mdi-bookmark-outline' }}</v-icon>
-                    </v-avatar>
+                    <div class="d-flex align-center">
+                      <v-checkbox-btn
+                          :model-value="isRecordSelected(record)"
+                          @click.stop="toggleRecord(record)"
+                          class="mr-2 flex-shrink-0">
+                      </v-checkbox-btn>
+                      <v-avatar size="50" rounded="lg" class="mr-3 flex-shrink-0">
+                        <v-icon size="26" color="white">{{ kindIcons[record.targetType] || 'mdi-bookmark-outline' }}</v-icon>
+                      </v-avatar>
+                    </div>
                   </template>
 
                   <template v-slot:title>
@@ -975,6 +1161,7 @@ defineOptions({
               </v-pagination>
             </div>
           </div>
+          <!-- 收藏记录列表 E -->
 
           <div v-else class="text-center py-12">
             <EmptyView>
@@ -988,8 +1175,9 @@ defineOptions({
             {{ t('account.collectionStats.manage.title') }}
           </template>
         </AffixBoxHasTitleView>
-      </template>
-    </template>
+      </div>
+    </div>
+    <!-- 收藏管理 Tab 视图 E -->
 
     <!-- 匿名标记同步提醒 S -->
     <v-dialog v-model="syncDialog" max-width="500">

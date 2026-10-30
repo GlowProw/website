@@ -1,16 +1,16 @@
 <template>
   <div class="map-footer">
-    <v-row class="w-100 mb-1" align="end">
-      <v-col class="text-caption opacity-50 ml-8">
+    <v-row class="w-100 mb-4 px-8" align="end">
+      <v-col class="text-caption">
         <v-icon size="12" class="mr-2">mdi-information-outline</v-icon>
         map tiles by
         <HtmlLink :is-icon="false" :is-iframe-show="false" href="https://mapgenie.io">mapgenie</HtmlLink>
       </v-col>
       <v-col cols="auto" class="d-flex align-center">
-        <div class="text-caption opacity-50">
-          <span>{{ hoveedCoordinate.longitude?.toFixed(6) }}</span>
+        <div class="text-caption">
+          <span class="u">{{ hoveedCoordinate.longitude?.toFixed(6) }}</span>
           <v-divider vertical class="mx-1"></v-divider>
-          <span>{{ hoveedCoordinate.latitude?.toFixed(6) }}</span>
+          <span class="u">{{ hoveedCoordinate.latitude?.toFixed(6) }}</span>
         </div>
         <template v-if="isDebug">
           <v-divider vertical inset class="mx-5"></v-divider>
@@ -35,7 +35,6 @@
 
 <script setup lang="ts">
 import HtmlLink from "@/components/HtmlLink.vue";
-import AdsWidget from "@/components/ads/google/index.vue";
 
 defineProps<{
   hoveedCoordinate: { longitude: number; latitude: number };
@@ -43,7 +42,7 @@ defineProps<{
   isDebug: boolean;
 }>();
 
-defineOptions({ name: 'MapFooter' });
+defineOptions({name: 'MapFooter'});
 </script>
 
 <style scoped>
