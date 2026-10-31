@@ -129,8 +129,16 @@ const currentSeasonData = computed(() => {
   return getOrComputeSeasonData(seasonId)
 })
 
+const props = withDefaults(defineProps<{
+  limit?: number;
+}>(), {
+  limit: 30,
+})
+
 // 选中的分类：默认 null（全选/展示全部）
 const selectedCategory = ref<string | null>(null)
+// 是否展开展示全部项
+const isShowAll = ref(false)
 
 const getIconSize = computed({
   get: () => appStore.iconSize,
@@ -158,13 +166,18 @@ const codexCategories = computed(() => {
   return withItems.length > 0 ? withItems : list
 })
 
-// 单击分类：若再次点击同一个则取消（重置为全选状态），若点击另一个则切换
+/**
+ * 单击分类：若再次点击同一个则取消（重置为全选状态），若点击另一个则切换
+ * 切换分类时重置为初始数量限制状态
+ * @param name 选中的分类标识
+ */
 const onSelectCategory = (name: string) => {
   if (selectedCategory.value === name) {
     selectedCategory.value = null
   } else {
     selectedCategory.value = name
   }
+  isShowAll.value = false
 }
 
 // 判定 Chip 是否处于高亮/激活样式（默认全选时所有 chip 均高亮，选中单个时仅高亮当前）
@@ -178,11 +191,25 @@ const onNavigate = (to: string) => {
   }
 }
 
+// 当前分类下的全量条目
 const displayItems = computed(() => {
   if (!selectedCategory.value) {
     return currentSeasonData.value.all
   }
   return currentSeasonData.value.categories[selectedCategory.value] || []
+})
+
+// 根据展开状态限制默认加载数量，避免首屏 DOM 过重
+const visibleItems = computed(() => {
+  if (isShowAll.value || displayItems.value.length <= props.limit) {
+    return displayItems.value
+  }
+  return displayItems.value.slice(0, props.limit)
+})
+
+// 是否超出默认限制数量
+const hasMoreItems = computed(() => {
+  return !isShowAll.value && displayItems.value.length > props.limit
 })
 </script>
 
@@ -205,14 +232,13 @@ const displayItems = computed(() => {
             size="14"
             class="ml-1 opacity-60 codex-to-icon"
             :title="t(cat.title)"
-            @click.stop="onNavigate(cat.to)"
-        ></v-icon>
+            @click.stop="onNavigate(cat.to)"></v-icon>
       </v-chip>
     </div>
   </HorizontalScrollList>
 
   <v-row no-gutters>
-    <v-col cols="auto" v-for="(i,index) in displayItems" :key="index" class="d-flex align-center">
+    <v-col cols="auto" v-for="(i,index) in visibleItems" :key="index" class="d-flex align-center">
       <ItemSlotBase :size="`${Math.min(Math.max(getIconSize.size, 50), 60)}px`" :padding="0" :margin="0" class="bg-transparent">
         <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
         <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
@@ -241,6 +267,28 @@ const displayItems = computed(() => {
       <SetName :id="i.id" v-if="i._typeStringName == 'Set'"></SetName>
       <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
     </v-col>
+
+    <!-- 尾部加载全部与收起按钮 S -->
+    <v-col cols="12" v-if="displayItems.length > props.limit" class="py-3 text-center">
+      <v-btn
+          v-if="!isShowAll"
+          variant="text"
+          border
+          class="text-none font-weight-medium px-6"
+          @click="isShowAll = true">
+        {{ t('portal.loadAll') }}
+      </v-btn>
+      <v-btn
+          v-else
+          variant="text"
+          border
+          class="text-none font-weight-medium px-6"
+          @click="isShowAll = false">
+        {{ t('portal.collapse') }}
+      </v-btn>
+    </v-col>
+    <!-- 尾部加载全部与收起按钮 E -->
+
     <v-col cols="12" v-if="displayItems.length === 0" class="py-8 text-center text-medium-emphasis text-caption">
       {{ t('basic.empty') }}
     </v-col>

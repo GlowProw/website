@@ -123,11 +123,11 @@ onUnmounted(() => {
 
     <div class="portal-body bg-black mt-10 pl-3 pr-3 pt-10 pb-10">
       <v-container>
-        <v-row align="center">
-          <v-col cols="12" md="4" lg="4">
+        <v-row align="stretch">
+          <v-col cols="12" md="4" lg="3">
             <QQBotBannerWidget :is-show-detail="true" layout="vertical"/>
           </v-col>
-          <v-col cols="12" md="8" lg="8">
+          <v-col cols="12" md="8" lg="8" offset="0" offset-lg="1">
             <QQBotShowcaseWidget/>
           </v-col>
         </v-row>

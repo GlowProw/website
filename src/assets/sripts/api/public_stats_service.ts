@@ -22,7 +22,7 @@ export function usePublicStatsApi() {
         try {
             const res = await http.get('public/stats/season');
             const body = (res as any).data;
-            if (body?.code === 0) return (body.data as PublicSeasonStats) || null;
+            if (body?.success === 1 || body?.code === 0) return (body.data as PublicSeasonStats) || null;
             return null;
         } catch {
             return null;
@@ -37,7 +37,7 @@ export function usePublicStatsApi() {
         try {
             const res = await http.get(`public/stats/codex?range=${range}`);
             const body = (res as any).data;
-            if (body?.code === 0) return (body.data as PublicCodexStats) || null;
+            if (body?.success === 1 || body?.code === 0) return (body.data as PublicCodexStats) || null;
             return null;
         } catch {
             return null;
@@ -52,7 +52,7 @@ export function usePublicStatsApi() {
         try {
             const res = await http.get(`public/stats/signin?range=${range}`);
             const body = (res as any).data;
-            if (body?.code === 0) return (body.data as PublicSigninStats) || null;
+            if (body?.success === 1 || body?.code === 0) return (body.data as PublicSigninStats) || null;
             return null;
         } catch {
             return null;
@@ -68,7 +68,7 @@ export function usePublicStatsApi() {
         try {
             const res = await http.get(`public/stats/codex/item?targetType=${encodeURIComponent(targetType)}&targetId=${encodeURIComponent(targetId)}`);
             const body = (res as any).data;
-            if (body?.code === 0) return (body.data as PublicCodexItemStats) || null;
+            if (body?.success === 1 || body?.code === 0) return (body.data as PublicCodexItemStats) || null;
             return null;
         } catch {
             return null;
@@ -83,7 +83,7 @@ export function usePublicStatsApi() {
         try {
             const res = await http.get(`public/stats/season/${encodeURIComponent(season)}/items`);
             const body = (res as any).data;
-            if (body?.code === 0) return (body.data as PublicSeasonItems) || null;
+            if (body?.success === 1 || body?.code === 0) return (body.data as PublicSeasonItems) || null;
             return null;
         } catch {
             return null;

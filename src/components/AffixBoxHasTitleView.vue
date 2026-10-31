@@ -40,7 +40,7 @@ defineOptions({
 <style scoped>
 .affix-title {
   writing-mode: vertical-rl;
-  display: inline-block;
+  display: inline-flex;
   margin: 0 auto;
   text-align: center;
   letter-spacing: 2px;

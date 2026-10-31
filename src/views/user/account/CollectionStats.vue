@@ -894,11 +894,11 @@ defineOptions({
                         vector-effect="non-scaling-stroke"/>
                 </svg>
                 <div class="d-flex mt-1">
-              <span v-for="(day, index) in daily" :key="day.date"
-                    class="text-caption opacity-40 flex-grow-1 text-center"
-                    :style="{visibility: index % labelStep === 0 || index === daily.length - 1 ? 'visible' : 'hidden'}">
-                {{ day.label }}
-              </span>
+                  <span v-for="(day, index) in daily" :key="day.date"
+                        class="text-caption opacity-40 flex-grow-1 text-center"
+                        :style="{visibility: index % labelStep === 0 || index === daily.length - 1 ? 'visible' : 'hidden'}">
+                    {{ day.label }}
+                  </span>
                 </div>
                 <div class="text-caption opacity-40 mt-1">
                   {{ t('account.collectionStats.trend.addedMax') }}: {{ addedMax }}
@@ -940,36 +940,14 @@ defineOptions({
 
         <AffixBoxHasTitleView class="mb-8">
           <v-row density="compact">
-            <v-col cols="12" sm="6" md="4" v-for="item in kindStats" :key="item.type">
-              <v-card rounded="lg" variant="flat" class="pa-4 h-100">
-                <div class="d-flex align-center justify-space-between mb-2">
-                  <span class="font-weight-bold">{{ kindName(item.type) }}</span>
-                  <v-chip size="x-small" variant="tonal" color="amber">
-                    {{ item.collected }} / {{ item.available }}
-                  </v-chip>
-                </div>
-                <v-progress-linear :model-value="item.percent" color="amber" height="6" rounded>
-                </v-progress-linear>
-                <div class="text-caption opacity-40 mt-2">{{ item.percent }}%</div>
-              </v-card>
-            </v-col>
-          </v-row>
-
-          <template v-slot:title>
-            {{ t('account.collectionStats.types.title') }}
-          </template>
-        </AffixBoxHasTitleView>
-
-        <AffixBoxHasTitleView class="mb-8">
-          <v-row density="compact">
-            <v-col cols="12" sm="6" md="4" v-for="season in seasonStats" :key="season.season">
-              <v-card border rounded="lg" variant="text" class="h-100">
+            <v-col cols="12" sm="6" md="3" v-for="season in seasonStats" :key="season.season">
+              <v-card rounded="lg" variant="text" class="h-100">
                 <SeasonViewWidget :data="getSeasonData(season.season)"></SeasonViewWidget>
 
                 <v-card-text class="pa-4">
                   <div class="d-flex align-center justify-space-between mb-3">
                     <p class="font-weight-bold"><SeasonName :id="season.season" /></p>
-                    <v-chip size="small" variant="tonal" color="blue">
+                    <v-chip size="small" variant="tonal" color="var(--main-color)">
                       {{ t('account.collectionStats.seasons.items', {count: season.collected}) }}
                     </v-chip>
                   </div>
@@ -987,6 +965,28 @@ defineOptions({
 
           <template v-slot:title>
             {{ t('account.collectionStats.seasons.title') }}
+          </template>
+        </AffixBoxHasTitleView>
+
+        <AffixBoxHasTitleView class="mb-8">
+          <v-row density="compact">
+            <v-col cols="12" sm="6" md="3" v-for="item in kindStats" :key="item.type">
+              <v-card border rounded="lg" variant="text" class="pa-4 h-100">
+                <div class="d-flex align-center justify-space-between mb-2">
+                  <span class="font-weight-bold">{{ kindName(item.type) }}</span>
+                  <v-chip size="x-small" variant="tonal" color="amber">
+                    {{ item.collected }} / {{ item.available }}
+                  </v-chip>
+                </div>
+                <v-progress-linear :model-value="item.percent" color="amber" height="6" rounded>
+                </v-progress-linear>
+                <div class="text-caption opacity-40 mt-2">{{ item.percent }}%</div>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <template v-slot:title>
+            {{ t('account.collectionStats.types.title') }}
           </template>
         </AffixBoxHasTitleView>
       </div>
@@ -1183,7 +1183,6 @@ defineOptions({
     <v-dialog v-model="syncDialog" max-width="500">
       <v-card border rounded="lg">
         <v-card-title class="d-flex align-center ga-2">
-          <v-icon color="amber" icon="mdi-star-circle-outline"></v-icon>
           {{ t('account.collectionStats.syncDialog.title') }}
         </v-card-title>
         <v-card-text>

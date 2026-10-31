@@ -71,7 +71,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="pt-5 pb-5">
+  <div class="pt-5 pb-5 px-5">
     <v-container>
       <v-row align="start">
         <v-col cols="12" md="3">

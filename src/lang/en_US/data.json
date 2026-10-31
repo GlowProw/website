@@ -1050,6 +1050,8 @@
   },
   "portal": {
     "title": "Portal",
+    "loadAll": "Load All",
+    "collapse": "Collapse",
     "seasonTimer": "Season {seasonName} remaining {day} days",
     "appVersionLog": "Updates",
     "appVersionContext": "You can report issues directly through the <u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook Community</a></u> link reserved in the website footer to help fix problems",
