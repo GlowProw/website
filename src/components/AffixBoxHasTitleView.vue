@@ -40,8 +40,10 @@ defineOptions({
 <style scoped>
 .affix-title {
   writing-mode: vertical-rl;
-  display: flex;
-  flex-flow: row wrap;
+  display: inline-block;
   margin: 0 auto;
+  text-align: center;
+  letter-spacing: 2px;
+  line-height: 1.3;
 }
 </style>
