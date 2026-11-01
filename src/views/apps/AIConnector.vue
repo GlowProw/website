@@ -143,12 +143,22 @@
 
             <v-row>
               <v-col cols="12" lg="6" v-for="(example, key) in askExamples" :key="key">
-                <div class="h-100 ask-card">
-                  <div class="d-flex ga-4">
+                <div class="h-100 ask-card rounded-xl">
+                  <div class="d-flex ga-2">
                     <v-avatar color="amber" variant="tonal" size="55" rounded="lg">
                       <v-icon :icon="askIcons[key]" size="25"></v-icon>
                     </v-avatar>
-                    <span class="text-body-1">“{{ example }}”</span>
+                    <div class="d-flex flex-column ga-2 justify-center flex-grow-1">
+                      <template v-if="Array.isArray(example)">
+                        <div v-for="(item, idx) in example" :key="idx" class="d-flex flex-column ga-1">
+                          <v-divider v-if="idx > 0" class="my-1 opacity-20"></v-divider>
+                          <span class="text-body-1">“{{ item }}”</span>
+                        </div>
+                      </template>
+                      <template v-else>
+                        <span class="text-body-1">“{{ example }}”</span>
+                      </template>
+                    </div>
                   </div>
                 </div>
               </v-col>
@@ -313,12 +323,12 @@ const {t, tm, locale} = useI18n();
 const id = ref('aiConnector');
 
 /**
- * MCP 连接器地址：按当前环境的 API 配置动态生成
- * 中文优化版指向 /api/mcp/zh，通用版指向 /api/mcp
+ * MCP 连接器地址：按当前环境的 MCP 配置动态生成
+ * 中文优化版指向 /mcp/zh-CN，通用版指向 /mcp
  */
-const apiBase = String(http.globalUrl?.location || '').replace(/\/+$/, '');
-const connectorUrlZh = `${apiBase}/mcp/zh`;
-const connectorUrlEn = `${apiBase}/mcp`;
+const mcpBase = String(http.globalUrl?.mcpLocation || 'https://mcp.glow-prow.top').replace(/\/+$/, '');
+const connectorUrlZh = `${mcpBase}/mcp/zh-CN`;
+const connectorUrlEn = `${mcpBase}/mcp`;
 
 /** 其他应用的示例配置（默认展示中文推荐端点） */
 const configExample = computed(() => `{
@@ -345,18 +355,22 @@ const connectorFeatures = computed(() => [
   t('apps.aiConnector.features.login'),
 ]);
 
-/** 示例问题 */
-const askExamples = computed(() => ({
+// 示例问题列表
+const askExamples = computed<Record<string, string | string[]>>(() => ({
   assembly: t('apps.aiConnector.ask.assembly'),
   codex: t('apps.aiConnector.ask.codex'),
   team: t('apps.aiConnector.ask.team'),
   war: t('apps.aiConnector.ask.war'),
   drops: t('apps.aiConnector.ask.drops'),
-  calendar: t('apps.aiConnector.ask.calendar'),
+  calendar: [
+    t('apps.aiConnector.ask.calendar'),
+    t('apps.aiConnector.ask.calendarSync'),
+  ],
   site: t('apps.aiConnector.ask.site'),
   account: t('apps.aiConnector.ask.account'),
 }));
 
+// 示例问题图标映射
 const askIcons: Record<string, string> = {
   assembly: 'mdi-sail-boat',
   codex: 'mdi-book-open-variant',
@@ -364,6 +378,7 @@ const askIcons: Record<string, string> = {
   war: 'mdi-shield-sword-outline',
   drops: 'mdi-gift-outline',
   calendar: 'mdi-calendar-month-outline',
+  calendarSync: 'mdi-calendar-sync-outline',
   site: 'mdi-compass-outline',
   account: 'mdi-account-circle-outline',
 };

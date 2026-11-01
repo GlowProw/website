@@ -125,7 +125,11 @@ onUnmounted(() => {
       <v-container>
         <v-row align="stretch">
           <v-col cols="12" md="4" lg="3">
-            <QQBotBannerWidget :is-show-detail="true" layout="vertical"/>
+            <QQBotBannerWidget :is-show-detail="true" layout="vertical">
+              <template v-slot:description>
+                {{  t('apps.qqBot.description')  }}
+              </template>
+            </QQBotBannerWidget>
           </v-col>
           <v-col cols="12" md="8" lg="8" offset="0" offset-lg="1">
             <QQBotShowcaseWidget/>

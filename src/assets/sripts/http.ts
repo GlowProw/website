@@ -171,6 +171,7 @@ export default class Http extends Api_config {
                 wsPathname: this.GetUrl.wsPathname,
                 port: this.GetUrl.port,
                 wsPort: this.GetUrl.wsPort,
+                mcpLocation: this.GetUrl.mcpLocation || 'https://mcp.glow-prow.top',
             };
         } catch (e) {
             return {

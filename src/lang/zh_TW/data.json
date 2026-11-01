@@ -110,6 +110,7 @@
         "war": "當前賽季哪個陣營在戰爭狀態中領先？戰況如何？",
         "drops": "現在有哪些進行中的 Twitch 掉寶活動？",
         "calendar": "本賽季日曆接下來有哪些世界事件？",
+        "calendarSync": "將當賽季日曆新增到本地日曆程式中？",
         "site": "閃耀船首網站上在哪裡可以查看互動式海圖或天梯榜單？",
         "account": "查一下我當前登入的個人帳戶資訊和在站內的配裝獲讚統計？"
       },
@@ -121,7 +122,7 @@
         "chatgpt": "ChatGPT",
         "grok": "Grok",
         "other": "其他應用",
-        "command": "claude mcp add --transport http glow-prow https://api.glow-prow.top/api/mcp",
+        "command": "claude mcp add --transport http glow-prow https://mcp.glow-prow.top/mcp",
         "codeBlockTitle": "或在用戶端設定中加入遠端 MCP 伺服器：",
         "steps": {
           "claude": [

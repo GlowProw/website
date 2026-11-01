@@ -301,8 +301,7 @@ defineOptions({
 
             <v-card-actions class="d-flex justify-end pt-2">
               <v-btn
-                  variant="tonal"
-                  prepend-icon="mdi-book-open-variant"
+                  variant="text"
                   :to="{ name: 'AIConnector' }">
                 {{ t('account.bindings.aiConnector.docs') }}
               </v-btn>

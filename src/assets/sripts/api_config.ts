@@ -17,6 +17,7 @@ export default class Api_config {
                 "wsPort": "3001",
                 "pathname": "/api/",
                 "wsPathname": "",
+                "mcpLocation": "http://localhost:3002",
             },
             "production": {
                 "protocol": "https",
@@ -26,6 +27,7 @@ export default class Api_config {
                 "wsPort": "",
                 "pathname": "/api/",
                 "wsPathname": "/ws",
+                "mcpLocation": "https://mcp.glow-prow.top",
             },
             "test": {
                 "protocol": "https",
@@ -35,6 +37,7 @@ export default class Api_config {
                 "wsPort": "3001",
                 "pathname": "/api/",
                 "wsPathname": "/ws",
+                "mcpLocation": "https://mcp.glow-prow.top",
             }
         }
     };

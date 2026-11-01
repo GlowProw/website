@@ -110,6 +110,7 @@
         "war": "Which faction is leading the State of War right now, and how is the conflict shaping up?",
         "drops": "Which Twitch drop campaigns are active?",
         "calendar": "What world events are coming up this season?",
+        "calendarSync": "Add current season calendar to local calendar app?",
         "site": "Where can I find the interactive map or tier lists on Glow Prow?",
         "account": "Show my account profile and how many likes my published loadouts have received?"
       },
@@ -122,13 +123,13 @@
         "chatgpt": "ChatGPT",
         "grok": "Grok",
         "other": "Other apps",
-        "command": "claude mcp add --transport http glow-prow https://api.glow-prow.top/api/mcp",
+        "command": "claude mcp add --transport http glow-prow https://mcp.glow-prow.top/mcp",
         "codeBlockTitle": "Or add a remote MCP server in your client config:",
         "steps": {
           "workbuddy": [
             "Open WorkBuddy, go to Connectors / MCP settings.",
             "Click Add Custom Connector, set type to HTTP / Streamable HTTP.",
-            "Paste the Chinese Optimized Endpoint URL (.../api/mcp/zh).",
+            "Paste the Chinese Optimized Endpoint URL (.../mcp/zh-CN).",
             "Click Connect / Authenticate, sign in to your Glow Prow account and allow access.",
             "In your chat, query weapons or loadouts directly; the model will automatically invoke the tools."
           ],

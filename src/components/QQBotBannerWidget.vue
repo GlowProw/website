@@ -34,6 +34,8 @@ defineOptions({name: "QQBotBannerWidget"});
           </router-link>
         </div>
 
+        <p v-if="$slots.description"><slot name="description"></slot></p>
+
         <div class="my-2">
           <div class="d-flex flex-wrap ga-2 align-center command">
             <span>@{{ t('name') }}</span>

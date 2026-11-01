@@ -110,6 +110,7 @@
         "war": "当前赛季哪个阵营在战争状态中领先？战况如何？",
         "drops": "现在有哪些进行中的 Twitch 掉宝活动？",
         "calendar": "本赛季日历接下来有哪些世界事件？",
+        "calendarSync": "将当赛季日历添加到本地日历程序中？",
         "site": "闪耀船首网站上在哪里可以查看交互式海图或天梯榜单？",
         "account": "查一下我当前登录的个人账户信息和在站内的配装获赞统计？"
       },
@@ -122,13 +123,13 @@
         "chatgpt": "ChatGPT",
         "grok": "Grok",
         "other": "其他应用",
-        "command": "claude mcp add --transport http glow-prow https://api.glow-prow.top/api/mcp",
+        "command": "claude mcp add --transport http glow-prow https://mcp.glow-prow.top/mcp",
         "codeBlockTitle": "或在客户端配置中添加远程 MCP 服务器：",
         "steps": {
           "workbuddy": [
             "打开 WorkBuddy 客户端，进入「连接器 / MCP 设置」页面。",
             "点击「添加 / 自定义连接器」，名称填写「闪耀船首」。",
-            "服务器 URL 粘贴上方的「中文模型优化版」地址（.../api/mcp/zh）。",
+            "服务器 URL 粘贴上方的「中文模型优化版」地址（.../mcp/zh-CN）。",
             "点击连接或认证，在弹出的浏览器页面中登录并点击「允许访问」。",
             "在对话中直接发送中文问题（如“帮我查一下达达尼尔炮”或“有哪些双桅配装”），模型将自动精准调用对应工具。"
           ],
