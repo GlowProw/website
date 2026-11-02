@@ -44,6 +44,7 @@ export function usePageHotkeys(
   const allowInEditable = options.allowInEditable || [];
 
   const handler = (e: KeyboardEvent) => {
+    if (!hotkeysStore.enabled) return;
     if (options.active && !options.active()) return;
 
     const pressed = normalizePressedKey(e);

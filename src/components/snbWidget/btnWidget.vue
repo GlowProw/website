@@ -1,13 +1,15 @@
 <template>
   <v-row
       class="action-button"
-      @click.stop.prevent
+      :class="{ 'hotkey-disabled': !hotkeysStore.enabled }"
+      @click="onRowClick"
       @mousedown="startAction($event, 'mouse')"
       @touchstart.passive="startAction($event, 'touch')"
       @mouseup="endAction"
       @mouseleave="endAction"
       @touchend.passive="endAction">
     <v-col
+        v-if="hotkeysStore.enabled"
         cols="auto"
         ref="actionButton"
         class="position-relative"
@@ -107,27 +109,36 @@ const activeMode = computed<'press' | 'hold'>(() => {
 })
 
 /**
+ * 点击触发按钮行为（在全局快捷键关闭时直接触发完成，原有方式激活）
+ */
+const onRowClick = () => {
+  if (!hotkeysStore.enabled && !props.disabled) {
+    emit('action-complete')
+  }
+}
+
+/**
  * 启动监听与清理键盘事件
  */
 const updateKeyboardListeners = (enabled: boolean) => {
   if (typeof window === 'undefined') return
   window.removeEventListener('keydown', handleKeyDown)
   window.removeEventListener('keyup', handleKeyUp)
-  if (enabled && activeShortcut.value && !props.disabled) {
+  if (enabled && hotkeysStore.enabled && activeShortcut.value && !props.disabled) {
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
   }
 }
 
 watch(
-  [activeShortcut, () => props.disabled],
-  ([shortcut, disabled]) => {
-    updateKeyboardListeners(!disabled && !!shortcut)
+  [activeShortcut, () => props.disabled, () => hotkeysStore.enabled],
+  ([shortcut, disabled, enabled]) => {
+    updateKeyboardListeners(!disabled && !!shortcut && enabled)
   }
 )
 
 onMounted(() => {
-  updateKeyboardListeners(!props.disabled && !!activeShortcut.value)
+  updateKeyboardListeners(!props.disabled && !!activeShortcut.value && hotkeysStore.enabled)
 })
 
 onBeforeUnmount(() => {
@@ -143,7 +154,9 @@ onBeforeUnmount(() => {
  * @param source 触发源（mouse / touch / keyboard）
  */
 const startAction = (event: any, source: string) => {
-  if (isHolding.value && props.disabled) return
+  if (props.disabled) return
+  if (!hotkeysStore.enabled) return
+  if (isHolding.value) return
 
   activationSource.value = source
   isHolding.value = true

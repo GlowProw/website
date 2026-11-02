@@ -141,7 +141,7 @@ export default class AppFuns {
     }
 
     /**
-     * 获取处理后的功能列表（根据用户配置过滤，路径已含 /{lang}/ 前缀）
+     * 获取处理后的功能列表（根据用户配置过滤并保持用户自定义排序，路径已含 /{lang}/ 前缀）
      */
     get list(): any[] {
         const userConfigAppfuns = this.storage.getConfigurationItem('appFun', 'config');
@@ -151,18 +151,30 @@ export default class AppFuns {
             return original;
         }
 
-        const configMap = new Map();
+        const originalMap = new Map();
+        original.forEach(item => {
+            originalMap.set(item.title, item);
+        });
+
+        const result: any[] = [];
+        const seen = new Set();
+
+        // 优先按用户配置中的激活状态与排列顺序组装
         userConfigAppfuns.forEach((item: { key: string, value: boolean }) => {
-            if (item && item.key) {
-                configMap.set(item.key, item.value);
+            if (item && item.value && originalMap.has(item.key)) {
+                result.push(originalMap.get(item.key));
+                seen.add(item.key);
             }
         });
 
-        return original.filter((item: any) => {
-            const configKey = item.title;
-            const isEnabled = configMap.get(configKey);
-
-            return isEnabled === undefined || isEnabled === true;
+        // 兜底补齐用户配置中尚未记录的新功能
+        original.forEach((item: any) => {
+            const hasExplicitConfig = userConfigAppfuns.some((c: any) => c?.key === item.title);
+            if (!hasExplicitConfig && !seen.has(item.title)) {
+                result.push(item);
+            }
         });
+
+        return result;
     }
 }

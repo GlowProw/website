@@ -142,11 +142,8 @@ defineOptions({
               </div>
 
               <v-row density="compact" class="mb-2">
-                <v-col cols="6" class="text-body-2">
+                <v-col cols="12" class="text-body-2">
                   {{ t('statistics.season.entriesCount') }}: <b>{{ season.entries.toLocaleString() }}</b>
-                </v-col>
-                <v-col cols="6" class="text-body-2 text-right">
-                  <u class="u">{{ t('statistics.season.collectedCount') }}: {{ season.collected.toLocaleString() }}</u>
                 </v-col>
               </v-row>
 

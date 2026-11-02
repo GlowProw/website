@@ -5,6 +5,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import Storage from '@/assets/sripts/storage';
+import { storage_account } from '@/assets/sripts/index';
 import type { HotkeyCategory, HotkeyItem, HotkeyLocation, HotkeyMode, PersistedHotkey } from '@/assets/types/Hotkeys';
 
 const storage = new Storage();
@@ -266,6 +267,18 @@ export const useHotkeysStore = defineStore('hotkeys', () => {
   // 响应式快捷键配置列表
   const hotkeyList = ref<HotkeyItem[]>([]);
 
+  // 全局快捷键激活总开关
+  const enabled = ref(storage_account.getConfigurationItem('hotkeys', 'global.switch', {defaultValue: true}) !== false);
+
+  /**
+   * 切换全局快捷键开关状态
+   * @param val 开关状态
+   */
+  const toggleEnabled = (val: boolean) => {
+    enabled.value = val;
+    storage_account.updateConfiguration('hotkeys', 'global.switch', val);
+  };
+
   /**
    * 初始化快捷键配置：合并默认值与本地持久化覆盖
    */
@@ -394,6 +407,8 @@ export const useHotkeysStore = defineStore('hotkeys', () => {
 
   return {
     hotkeyList,
+    enabled,
+    toggleEnabled,
     keyMap,
     getKey,
     getMode,

@@ -645,6 +645,7 @@ defineExpose({
 </script>
 
 <template>
+  <div class="ranking-designed-view-root">
   <v-card border class="bg-shades-black">
     <div
         v-for="(i, index) in rankingData"
@@ -1055,6 +1056,7 @@ defineExpose({
       @select="(payload) => onInsertData(payload.id, payload)">
   </RankingCustomDataDialog>
   <!-- 数据选择弹窗 E -->
+  </div>
 </template>
 
 <style scoped lang="less">

@@ -26,6 +26,7 @@ export interface GetUrlOptions {
     wsPathname: string
     port: string
     wsPort: string
+    mcpLocation?: string
 }
 
 export interface UseHttpOptions {

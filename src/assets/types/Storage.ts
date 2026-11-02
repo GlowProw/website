@@ -1,6 +1,6 @@
 import type {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
 
-export type AccountStorageType = 'app' | 'ad' | 'search' | 'poster' | 'appFun' | 'assembly' | 'map' | 'comment';
+export type AccountStorageType = 'app' | 'ad' | 'search' | 'poster' | 'appFun' | 'assembly' | 'map' | 'comment' | 'hotkeys';
 
 export interface StorageOptions {
     defaultValue?: any;

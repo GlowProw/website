@@ -78,9 +78,9 @@ const formatDate = (startDate: string | null): string => {
 }
 
 /**
- * 赛季收藏量最大值，用于进度条比例
+ * 赛季条目量最大值，用于进度条比例
  */
-const maxCollected = computed(() => Math.max(1, ...(data.value?.seasons || []).map(season => season.collected)))
+const maxEntries = computed(() => Math.max(1, ...(data.value?.seasons || []).map(season => season.entries)))
 
 /**
  * 顶部汇总卡片
@@ -187,16 +187,13 @@ defineOptions({
                     <div class="text-body-2">
                       {{ t('statistics.season.entriesCount') }}: <b>{{ season.entries.toLocaleString() }}</b>
                     </div>
-                    <div class="text-caption opacity-60">
-                      <u class="u">{{ t('statistics.season.collectedCount') }}: {{ season.collected.toLocaleString() }}</u>
-                    </div>
                   </div>
                 </template>
               </v-card-item>
 
               <v-card-text class="pa-0 ma-0">
                 <v-progress-linear
-                    :model-value="season.collected / maxCollected * 100"
+                    :model-value="season.entries / maxEntries * 100"
                     color="amber"
                     height="6"
                     rounded

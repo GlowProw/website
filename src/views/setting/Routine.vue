@@ -29,57 +29,33 @@
           <p class="text-caption text-grey">{{ t('setting.routine.featureHint') }}</p>
         </div>
 
-        <!-- 未激活列表 -->
-        <v-select
-            v-model="selectedToActivate"
-            :items="inactiveFunctions"
-            item-title="title"
-            item-value="key"
-            :label="t('setting.routine.inactiveFunctions', { count: inactiveFunctions.length })"
-            multiple
-            chips
-            variant="outlined"
-            density="compact"
-            hide-details
-            class="mb-4"
-            @update:model-value="onActivateFunctions">
-          <template v-slot:chip="{ props, item }">
-            <v-chip v-bind="props" size="small" color="info">
-              {{ t((item.raw ?? item).key) }}
-            </v-chip>
-          </template>
-          <template v-slot:item="{ props, item }">
-            <v-list-item v-bind="props">
-              <template v-slot:title>
-                {{ t((item.raw ?? item).key) }}
-              </template>
-              <template v-slot:subtitle>
-                <p class="opacity-50 text-caption">{{ t((item.raw ?? item).description) }}</p>
-              </template>
-            </v-list-item>
-          </template>
-          <template v-slot:no-data>
-            <EmptyView></EmptyView>
-          </template>
-        </v-select>
-
-        <!-- 激活列表 -->
-        <div class="mt-4">
-          <div class="d-flex flex-wrap ga-2">
-            <v-chip
-                v-for="func in activeFunctions"
-                :key="func.key"
-                size="x-small"
-                variant="tonal"
-                color="amber"
-                closable
-                @click:close="deactivateFunction(func.key)">
-              {{ t(func.key) }}
-            </v-chip>
-            <span v-if="activeFunctions.length === 0" class="text-caption opacity-50">
-              {{ t('setting.routine.noActiveFunctions') }}
-            </span>
+        <div class="d-flex align-center justify-space-between mb-4">
+          <div class="text-caption opacity-80">
+            <span>{{ t('setting.routine.activeFunctionsCount', { count: activeFunctions.length }) }}</span>
           </div>
+          <v-btn
+              color="amber"
+              variant="tonal"
+              size="small"
+              prepend-icon="mdi-cog-outline"
+              @click="isManageFunctionsOpen = true">
+            {{ t('basic.button.manage') || '管理' }}
+          </v-btn>
+        </div>
+
+        <!-- 激活列表预览 -->
+        <div class="d-flex flex-wrap ga-2">
+          <v-chip
+              v-for="func in activeFunctions"
+              :key="func.key"
+              size="x-small"
+              variant="tonal"
+              color="amber">
+            {{ t(func.key) }}
+          </v-chip>
+          <span v-if="activeFunctions.length === 0" class="text-caption opacity-50">
+            {{ t('setting.routine.noActiveFunctions') }}
+          </span>
         </div>
 
         <template v-slot:title>
@@ -302,6 +278,161 @@
       </AffixBoxHasTitleView>
     </v-col>
   </v-row>
+
+  <!-- 功能管理弹窗 S -->
+  <v-dialog v-model="isManageFunctionsOpen" max-width="720">
+    <v-card border class="bg-grey-darken-4 pa-2">
+      <v-card-title class="py-6 border rounded-lg text-center bg-black mb-4">
+        <v-icon size="48" class="mb-2 text-amber">mdi-view-dashboard-edit-outline</v-icon>
+        <p class="text-h6 font-weight-bold">{{ t('setting.routine.manageFunctions') }}</p>
+        <p class="text-caption opacity-60 mt-1">{{ t('setting.routine.featureDesc') }}</p>
+        <p class="text-caption text-grey">{{ t('setting.routine.featureHint') }}</p>
+      </v-card-title>
+
+      <v-card-text class="px-2">
+        <v-row>
+          <!-- 激活区域（支持拖拽排序与上下移动） -->
+          <v-col cols="12" md="7">
+            <div class="d-flex align-center justify-space-between mb-2">
+              <div class="font-weight-bold text-body-2 d-flex align-center ga-1">
+                <v-icon size="small" color="amber">mdi-check-circle-outline</v-icon>
+                <span>{{ t('setting.routine.activeArea') }} ({{ activeFunctions.length }})</span>
+              </div>
+              <span class="text-caption opacity-50">{{ t('setting.routine.dragHint') }}</span>
+            </div>
+
+            <div
+                class="active-drop-zone pa-2 rounded-lg border"
+                :class="{ 'drop-active': isDraggingOverActive }"
+                @dragover.prevent="onDragOverActiveZone"
+                @dragleave="onDragLeaveActiveZone"
+                @drop="onDropToActiveZone">
+              <div v-if="activeFunctions.length === 0" class="text-center py-8 opacity-40 text-caption">
+                {{ t('setting.routine.noActiveFunctions') }}
+              </div>
+
+              <div
+                  v-for="(func, index) in activeFunctions"
+                  :key="func.key"
+                  class="active-item-row d-flex align-center justify-space-between px-3 py-2 mb-2 rounded-lg border bg-black cursor-move"
+                  :class="{ 'dragging': draggedActiveIndex === index, 'drag-target': dragOverActiveIndex === index }"
+                  draggable="true"
+                  @dragstart="onActiveDragStart($event, index)"
+                  @dragover.prevent.stop="onActiveDragOverItem($event, index)"
+                  @dragleave="onActiveDragLeaveItem"
+                  @drop.stop="onActiveDropItem($event, index)"
+                  @dragend="onDragEnd">
+                <div class="d-flex align-center ga-2 text-truncate mr-2">
+                  <v-icon size="small" class="opacity-40">mdi-drag-vertical</v-icon>
+                  <span class="text-caption font-weight-bold text-truncate">{{ t(func.key) }}</span>
+                </div>
+
+                <div class="d-flex align-center ga-1">
+                  <v-btn
+                      icon="mdi-chevron-up"
+                      variant="text"
+                      size="x-small"
+                      density="compact"
+                      :disabled="index === 0"
+                      @click="moveActiveItem(index, -1)"></v-btn>
+                  <v-btn
+                      icon="mdi-chevron-down"
+                      variant="text"
+                      size="x-small"
+                      density="compact"
+                      :disabled="index === activeFunctions.length - 1"
+                      @click="moveActiveItem(index, 1)"></v-btn>
+                  <v-btn
+                      icon="mdi-close"
+                      variant="text"
+                      color="error"
+                      size="x-small"
+                      density="compact"
+                      @click="deactivateFunction(func.key)"></v-btn>
+                </div>
+              </div>
+            </div>
+          </v-col>
+
+          <!-- 未激活区域（支持拖拽激活与下拉激活） -->
+          <v-col cols="12" md="5">
+            <div class="d-flex align-center justify-space-between mb-2">
+              <div class="font-weight-bold text-body-2 d-flex align-center ga-1">
+                <v-icon size="small" class="opacity-60">mdi-minus-circle-outline</v-icon>
+                <span>{{ t('setting.routine.inactiveArea') }} ({{ inactiveFunctions.length }})</span>
+              </div>
+            </div>
+
+            <!-- 下拉快捷激活 -->
+            <v-select
+                v-model="selectedToActivate"
+                :items="inactiveFunctions"
+                item-title="title"
+                item-value="key"
+                :label="t('setting.routine.inactiveFunctions', { count: inactiveFunctions.length })"
+                multiple
+                chips
+                variant="outlined"
+                density="compact"
+                hide-details
+                class="mb-3"
+                @update:model-value="onActivateFunctions">
+              <template v-slot:chip="{ props, item }">
+                <v-chip v-bind="props" size="x-small" color="info">
+                  {{ t((item.raw ?? item).key) }}
+                </v-chip>
+              </template>
+              <template v-slot:item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template v-slot:title>
+                    {{ t((item.raw ?? item).key) }}
+                  </template>
+                </v-list-item>
+              </template>
+              <template v-slot:no-data>
+                <EmptyView></EmptyView>
+              </template>
+            </v-select>
+
+            <div
+                class="inactive-drop-zone pa-2 rounded-lg border"
+                :class="{ 'drop-active': isDraggingOverInactive }"
+                @dragover.prevent="onDragOverInactiveZone"
+                @dragleave="onDragLeaveInactiveZone"
+                @drop="onDropToInactiveZone">
+              <div v-if="inactiveFunctions.length === 0" class="text-center py-6 opacity-40 text-caption">
+                {{ t('setting.routine.allActivated') }}
+              </div>
+
+              <div class="d-flex flex-wrap ga-2">
+                <v-chip
+                    v-for="func in inactiveFunctions"
+                    :key="func.key"
+                    size="small"
+                    variant="outlined"
+                    class="cursor-move"
+                    draggable="true"
+                    append-icon="mdi-plus"
+                    @dragstart="onInactiveDragStart($event, func)"
+                    @dragend="onDragEnd"
+                    @click="activateFunction(func.key)">
+                  {{ t(func.key) }}
+                </v-chip>
+              </div>
+            </div>
+          </v-col>
+        </v-row>
+      </v-card-text>
+
+      <v-card-actions class="px-4 pb-4">
+        <v-spacer></v-spacer>
+        <v-btn variant="tonal" color="amber" @click="isManageFunctionsOpen = false">
+          {{ t('basic.button.close') || '关闭' }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <!-- 功能管理弹窗 E -->
 </template>
 
 <script setup lang="ts">
@@ -321,6 +452,24 @@ const {t} = useI18n()
 
 let estimateCapacity: Ref<any> = ref({}),
     appFunConfig = ref<any[]>([]),
+
+    // 管理功能弹窗展开状态
+    isManageFunctionsOpen = ref(false),
+
+    // 当前正在拖拽的激活项索引
+    draggedActiveIndex = ref<number | null>(null),
+
+    // 当前正在拖拽的未激活项标识
+    draggedInactiveKey = ref<string | null>(null),
+
+    // 激活区域拖拽悬浮状态
+    isDraggingOverActive = ref(false),
+
+    // 未激活区域拖拽悬浮状态
+    isDraggingOverInactive = ref(false),
+
+    // 激活列表中当前悬浮插入目标的索引
+    dragOverActiveIndex = ref<number | null>(null),
 
     // 下拉框选中的待激活功能
     selectedToActivate = ref<string[]>([]),
@@ -381,13 +530,215 @@ const onActivateFunctions = (selectedKeys: string[]) => {
   selectedToActivate.value = []
 }
 
-// 反激活功能：点击已激活标签的关闭按钮，将其设置为未激活
+/**
+ * 反激活功能：将指定功能设置为未激活
+ *
+ * @param key 功能唯一标识
+ */
 const deactivateFunction = (key: string) => {
   const target = appFunConfig.value.find(item => item.key === key)
   if (target && target.value) {
     target.value = false
     onUpdateAppFunConfig()
   }
+}
+
+/**
+ * 激活功能：将指定功能设置为激活
+ *
+ * @param key 功能唯一标识
+ */
+const activateFunction = (key: string) => {
+  const target = appFunConfig.value.find(item => item.key === key)
+  if (target && !target.value) {
+    target.value = true
+    onUpdateAppFunConfig()
+  }
+}
+
+/**
+ * 移动已激活项顺序
+ *
+ * @param index 当前激活项索引
+ * @param delta 偏移量（-1 上移，1 下移）
+ */
+const moveActiveItem = (index: number, delta: number) => {
+  const targetIndex = index + delta
+  const actives = [...activeFunctions.value]
+  if (targetIndex < 0 || targetIndex >= actives.length) return
+
+  const itemToMove = actives[index]
+  actives.splice(index, 1)
+  actives.splice(targetIndex, 0, itemToMove)
+
+  const inactives = appFunConfig.value.filter(item => !item.value)
+  appFunConfig.value = [...actives, ...inactives]
+  onUpdateAppFunConfig()
+}
+
+/**
+ * 激活项开始拖拽
+ *
+ * @param e 拖拽事件
+ * @param index 激活项索引
+ */
+const onActiveDragStart = (e: DragEvent, index: number) => {
+  draggedActiveIndex.value = index
+  draggedInactiveKey.value = null
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', String(index))
+  }
+}
+
+/**
+ * 未激活项开始拖拽
+ *
+ * @param e 拖拽事件
+ * @param func 功能对象
+ */
+const onInactiveDragStart = (e: DragEvent, func: any) => {
+  draggedInactiveKey.value = func.key
+  draggedActiveIndex.value = null
+  if (e.dataTransfer) {
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', func.key)
+  }
+}
+
+/**
+ * 拖拽悬浮于特定激活项上方
+ *
+ * @param e 拖拽事件
+ * @param index 目标激活项索引
+ */
+const onActiveDragOverItem = (e: DragEvent, index: number) => {
+  e.preventDefault()
+  dragOverActiveIndex.value = index
+}
+
+/**
+ * 拖拽离开激活项
+ */
+const onActiveDragLeaveItem = () => {
+  dragOverActiveIndex.value = null
+}
+
+/**
+ * 放置到特定激活项位置
+ *
+ * @param e 拖拽事件
+ * @param dropIndex 放置目标索引
+ */
+const onActiveDropItem = (e: DragEvent, dropIndex: number) => {
+  e.preventDefault()
+  dragOverActiveIndex.value = null
+  isDraggingOverActive.value = false
+
+  const actives = [...activeFunctions.value]
+  const inactives = appFunConfig.value.filter(item => !item.value)
+
+  if (draggedActiveIndex.value !== null) {
+    const fromIdx = draggedActiveIndex.value
+    if (fromIdx !== dropIndex) {
+      const moved = actives.splice(fromIdx, 1)[0]
+      actives.splice(dropIndex, 0, moved)
+      appFunConfig.value = [...actives, ...inactives]
+      onUpdateAppFunConfig()
+    }
+  } else if (draggedInactiveKey.value !== null) {
+    const key = draggedInactiveKey.value
+    const target = appFunConfig.value.find(item => item.key === key)
+    if (target) {
+      target.value = true
+      const remainingActives = actives.filter(item => item.key !== key)
+      remainingActives.splice(dropIndex, 0, target)
+      const remainingInactives = inactives.filter(item => item.key !== key)
+      appFunConfig.value = [...remainingActives, ...remainingInactives]
+      onUpdateAppFunConfig()
+    }
+  }
+
+  draggedActiveIndex.value = null
+  draggedInactiveKey.value = null
+}
+
+/**
+ * 拖拽悬浮于激活主区域
+ *
+ * @param e 拖拽事件
+ */
+const onDragOverActiveZone = (e: DragEvent) => {
+  e.preventDefault()
+  isDraggingOverActive.value = true
+}
+
+/**
+ * 拖拽离开激活主区域
+ */
+const onDragLeaveActiveZone = () => {
+  isDraggingOverActive.value = false
+}
+
+/**
+ * 放置到激活主区域末尾
+ *
+ * @param e 拖拽事件
+ */
+const onDropToActiveZone = (e: DragEvent) => {
+  e.preventDefault()
+  isDraggingOverActive.value = false
+  if (draggedInactiveKey.value !== null) {
+    activateFunction(draggedInactiveKey.value)
+  }
+  draggedActiveIndex.value = null
+  draggedInactiveKey.value = null
+}
+
+/**
+ * 拖拽悬浮于未激活主区域
+ *
+ * @param e 拖拽事件
+ */
+const onDragOverInactiveZone = (e: DragEvent) => {
+  e.preventDefault()
+  isDraggingOverInactive.value = true
+}
+
+/**
+ * 拖拽离开未激活主区域
+ */
+const onDragLeaveInactiveZone = () => {
+  isDraggingOverInactive.value = false
+}
+
+/**
+ * 放置到未激活区域（将激活项取消激活）
+ *
+ * @param e 拖拽事件
+ */
+const onDropToInactiveZone = (e: DragEvent) => {
+  e.preventDefault()
+  isDraggingOverInactive.value = false
+  if (draggedActiveIndex.value !== null) {
+    const item = activeFunctions.value[draggedActiveIndex.value]
+    if (item) {
+      deactivateFunction(item.key)
+    }
+  }
+  draggedActiveIndex.value = null
+  draggedInactiveKey.value = null
+}
+
+/**
+ * 拖拽操作结束重置临时状态
+ */
+const onDragEnd = () => {
+  draggedActiveIndex.value = null
+  draggedInactiveKey.value = null
+  dragOverActiveIndex.value = null
+  isDraggingOverActive.value = false
+  isDraggingOverInactive.value = false
 }
 
 onMounted(() => {
@@ -488,4 +839,42 @@ const clearStorage = () => {
 </script>
 
 <style scoped lang="less">
+.active-drop-zone,
+.inactive-drop-zone {
+  min-height: 280px;
+  max-height: 460px;
+  overflow-y: auto;
+  transition: border-color .2s ease, background-color .2s ease;
+  background-color: rgba(0, 0, 0, 0.2);
+
+  &.drop-active {
+    border-color: #ffb300 !important;
+    background-color: rgba(255, 179, 0, 0.05);
+  }
+}
+
+.active-item-row {
+  transition: all .2s ease;
+
+  &:hover {
+    border-color: rgba(255, 179, 0, 0.4) !important;
+  }
+
+  &.dragging {
+    opacity: 0.35;
+  }
+
+  &.drag-target {
+    border-color: #ffb300 !important;
+    box-shadow: 0 0 8px rgba(255, 179, 0, 0.3);
+  }
+}
+
+.cursor-move {
+  cursor: grab;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
 </style>

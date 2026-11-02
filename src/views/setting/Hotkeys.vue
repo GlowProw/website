@@ -11,6 +11,8 @@ import type {HotkeyItem, HotkeyLocation, HotkeyMode} from '@/assets/types/Hotkey
 import {useOS} from '@/assets/sripts/os'
 import {VHotkey} from 'vuetify/components/VHotkey'
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
+import AffixContainerView from "@/components/AffixContainerView.vue";
+import EmptyView from "@/components/EmptyView.vue";
 
 const {t} = useI18n()
 const hotkeysStore = useHotkeysStore()
@@ -25,6 +27,9 @@ const currentPlatform = computed<'auto' | 'mac' | 'pc'>(() => {
   if (osType === 'MacOS' || osType === 'iOS') return 'mac'
   return 'pc'
 })
+
+// 快捷键搜索关键词
+const searchQuery = ref('')
 
 // 当前正在录制按键的动作 ID
 const recordingActionId = ref<string | null>(null)
@@ -52,17 +57,64 @@ const groupList = computed(() => {
 })
 
 /**
- * 按分类聚合快捷键列表
+ * 切换全局快捷键激活状态
+ * @param value 新的启用状态
  */
-const categorizedHotkeys = computed(() => {
-  const groups: Record<string, HotkeyItem[]> = {}
-  for (const item of hotkeysStore.hotkeyList) {
-    if (!groups[item.category]) {
-      groups[item.category] = []
-    }
-    groups[item.category].push(item)
+const onToggleGlobalSwitch = (value: unknown) => {
+  const next = Boolean(value)
+  hotkeysStore.toggleEnabled(next)
+  notice.success(t('basic.tips.updateSuccess'), {mode: 'minimal'})
+}
+
+/**
+ * 根据搜索关键词过滤的快捷键分组映射
+ */
+const filteredCategorizedHotkeys = computed(() => {
+  const query = searchQuery.value.trim().toLowerCase()
+  const result: Record<string, HotkeyItem[]> = {}
+
+  for (const group of groupList.value) {
+    result[group.key] = []
   }
-  return groups
+
+  for (const item of hotkeysStore.hotkeyList) {
+    if (!query) {
+      if (!result[item.category]) result[item.category] = []
+      result[item.category].push(item)
+      continue
+    }
+
+    const name = t(item.nameKey).toLowerCase()
+    const desc = t(item.descriptionKey).toLowerCase()
+    const cat = t(item.categoryKey).toLowerCase()
+    const key = item.currentKey.toLowerCase()
+    const defaultKey = item.defaultKey.toLowerCase()
+    const locs = item.locations.map(loc => t(locationI18nKey(loc)).toLowerCase()).join(' ')
+
+    if (
+        name.includes(query) ||
+        desc.includes(query) ||
+        cat.includes(query) ||
+        key.includes(query) ||
+        defaultKey.includes(query) ||
+        locs.includes(query)
+    ) {
+      if (!result[item.category]) result[item.category] = []
+      result[item.category].push(item)
+    }
+  }
+
+  return result
+})
+
+/**
+ * 过滤后仅保留包含匹配项的分组清单
+ */
+const filteredGroupList = computed(() => {
+  return groupList.value.filter(group => {
+    const list = filteredCategorizedHotkeys.value[group.key]
+    return list && list.length > 0
+  })
 })
 
 /**
@@ -185,107 +237,154 @@ defineOptions({
 
 <template>
   <v-row class="setting-hotkeys-container">
+    <!-- 左侧全局开关与说明 S -->
     <v-col cols="12" lg="4" class="setting-hotkeys-header mb-3">
-      <v-row class="d-flex align-center justify-space-between flex-wrap ga-3">
-        <v-col cols="auto">
-          <p>
-            {{ t('setting.hotkeys.subtitle') }}
-          </p>
-        </v-col>
+      <AffixContainerView>
+        <AffixBoxHasTitleView :offset-top="0">
+          <p>{{ t('setting.hotkeys.subtitle') }}</p>
 
-        <v-btn
-            variant="tonal"
-            block
-            prepend-icon="mdi-restore"
-            @click="onResetDefaults">
-          {{ t('setting.hotkeys.resetDefaults') }}
-        </v-btn>
-      </v-row>
+          <p class="opacity-60 mt-3">{{ t('setting.hotkeys.mainSwitchDesc') }}</p>
+
+          <v-row align="center" class="mt-4" no-gutters>
+            <v-col>
+              <u class="u">{{ t('setting.hotkeys.mainSwitch') }}</u>
+            </v-col>
+            <v-col cols="auto">
+              <v-switch
+                  :model-value="hotkeysStore.enabled"
+                  hide-details
+                  inset
+                  color="primary"
+                  @update:model-value="onToggleGlobalSwitch"/>
+            </v-col>
+          </v-row>
+
+          <v-divider class="my-4"></v-divider>
+
+          <v-btn
+              variant="tonal"
+              block
+              prepend-icon="mdi-restore"
+              @click="onResetDefaults">
+            {{ t('setting.hotkeys.resetDefaults') }}
+          </v-btn>
+
+          <template v-slot:title>
+            {{ t('setting.hotkeys.title') }}
+          </template>
+        </AffixBoxHasTitleView>
+      </AffixContainerView>
     </v-col>
+    <!-- 左侧全局开关与说明 E -->
 
-    <!-- 分组快捷键列表 -->
+    <!-- 右侧快捷键列表 S -->
     <v-col cols="12" lg="8" class="setting-hotkeys-groups">
-      <AffixBoxHasTitleView v-for="group in groupList" :key="group.key">
-        <template v-slot:title>
-          {{ t(group.titleKey) }}
-        </template>
+      <!-- 搜索栏 S -->
+      <v-text-field
+          v-model="searchQuery"
+          density="comfortable"
+          variant="outlined"
+          prepend-inner-icon="mdi-magnify"
+          :placeholder="t('setting.hotkeys.searchPlaceholder')"
+          clearable
+          hide-details
+          class="mb-4"/>
+      <!-- 搜索栏 E -->
 
-        <div class="setting-hotkeys-group mb-6">
-          <v-card class="setting-hotkeys-card">
-            <v-list class="bg-transparent pa-0">
-              <template v-for="(item, idx) in categorizedHotkeys[group.key]" :key="item.id">
-                <v-list-item class="py-3 px-4">
-                  <v-list-item-title class="font-weight-medium text-white mb-1">
-                    {{ t(item.nameKey) }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption text-medium-emphasis">
-                    {{ t(item.descriptionKey) }}
-                  </v-list-item-subtitle>
+      <template v-if="filteredGroupList.length > 0">
+        <AffixBoxHasTitleView v-for="group in filteredGroupList" :key="group.key">
+          <template v-slot:title>
+            {{ t(group.titleKey) }}
+          </template>
 
-                  <div class="d-flex flex-wrap ga-2 mt-2">
-                    <v-chip v-for="location in item.locations"
-                            :key="location"
-                            size="x-small"
-                            variant="tonal"
-                            prepend-icon="mdi-map-marker-outline">
-                      {{ t(locationI18nKey(location)) }}
-                    </v-chip>
-                    <v-chip v-if="hotkeysStore.getConflicts(item.id).length > 0"
-                            size="x-small"
-                            color="warning"
-                            variant="tonal"
-                            prepend-icon="mdi-alert-outline">
-                      {{ t('setting.hotkeys.conflictBadge', {name: conflictNames(item.id)}) }}
-                    </v-chip>
-                  </div>
+          <div class="setting-hotkeys-group mb-6">
+            <v-card class="setting-hotkeys-card">
+              <v-list class="bg-transparent pa-0">
+                <template v-for="(item, idx) in filteredCategorizedHotkeys[group.key]" :key="item.id">
+                  <v-list-item class="py-3 px-4">
+                    <v-list-item-title class="font-weight-medium text-white mb-1">
+                      {{ t(item.nameKey) }}
+                    </v-list-item-title>
+                    <v-list-item-subtitle class="text-caption text-medium-emphasis">
+                      {{ t(item.descriptionKey) }}
+                    </v-list-item-subtitle>
 
-                  <template #append>
-                    <div class="d-flex align-center ga-2">
-                      <v-btn-toggle
-                          :model-value="item.mode"
-                          mandatory
-                          density="compact"
-                          variant="outlined"
-                          divided
-                          class="setting-hotkeys-mode"
-                          @update:model-value="(value) => onUpdateMode(item, value)">
-                        <v-btn value="press" size="small" class="px-2">
-                          {{ t('setting.hotkeys.modePress') }}
-                        </v-btn>
-                        <v-btn value="hold" size="small" class="px-2">
-                          {{ t('setting.hotkeys.modeHold') }}
-                        </v-btn>
-                      </v-btn-toggle>
-
-                      <v-btn
-                          v-if="recordingActionId === item.id"
-                          size="small"
-                          color="amber"
-                          variant="flat"
-                          class="setting-hotkeys-key-btn recording pulse-anim">
-                        {{ t('setting.hotkeys.pressCombination') }}
-                      </v-btn>
-                      <div
-                          v-else
-                          class="setting-hotkeys-badge-wrapper cursor-pointer"
-                          :title="t('setting.hotkeys.clickToRecord')"
-                          @click="startRecording(item)">
-                        <v-hotkey
-                            :keys="item.currentKey"
-                            display-mode="symbol"
-                            variant="elevated"
-                            :platform="currentPlatform"/>
-                      </div>
+                    <div class="d-flex flex-wrap ga-2 mt-2">
+                      <v-chip v-for="location in item.locations"
+                              :key="location"
+                              size="x-small"
+                              variant="tonal"
+                              prepend-icon="mdi-map-marker-outline">
+                        {{ t(locationI18nKey(location)) }}
+                      </v-chip>
+                      <v-chip v-if="hotkeysStore.getConflicts(item.id).length > 0"
+                              size="x-small"
+                              color="warning"
+                              variant="tonal"
+                              prepend-icon="mdi-alert-outline">
+                        {{ t('setting.hotkeys.conflictBadge', {name: conflictNames(item.id)}) }}
+                      </v-chip>
                     </div>
-                  </template>
-                </v-list-item>
-                <v-divider v-if="idx < categorizedHotkeys[group.key].length - 1"></v-divider>
-              </template>
-            </v-list>
-          </v-card>
-        </div>
-      </AffixBoxHasTitleView>
+
+                    <template #append>
+                      <div class="d-flex align-center ga-2">
+                        <v-btn-toggle
+                            :model-value="item.mode"
+                            mandatory
+                            density="compact"
+                            variant="outlined"
+                            divided
+                            class="setting-hotkeys-mode"
+                            @update:model-value="(value) => onUpdateMode(item, value)">
+                          <v-btn value="press" size="small" class="px-2">
+                            {{ t('setting.hotkeys.modePress') }}
+                          </v-btn>
+                          <v-btn value="hold" size="small" class="px-2">
+                            {{ t('setting.hotkeys.modeHold') }}
+                          </v-btn>
+                        </v-btn-toggle>
+
+                        <v-btn
+                            v-if="recordingActionId === item.id"
+                            size="small"
+                            color="amber"
+                            variant="flat"
+                            class="setting-hotkeys-key-btn recording pulse-anim">
+                          {{ t('setting.hotkeys.pressCombination') }}
+                        </v-btn>
+                        <div
+                            v-else
+                            class="setting-hotkeys-badge-wrapper cursor-pointer"
+                            :title="t('setting.hotkeys.clickToRecord')"
+                            @click="startRecording(item)">
+                          <v-hotkey
+                              :keys="item.currentKey"
+                              display-mode="symbol"
+                              variant="elevated"
+                              :platform="currentPlatform"/>
+                        </div>
+                      </div>
+                    </template>
+                  </v-list-item>
+                  <v-divider v-if="idx < filteredCategorizedHotkeys[group.key].length - 1"></v-divider>
+                </template>
+              </v-list>
+            </v-card>
+          </div>
+        </AffixBoxHasTitleView>
+      </template>
+
+      <!-- 搜索无结果缺省状态 S -->
+      <template v-else>
+        <EmptyView>
+          <template #title>
+            {{ t('setting.hotkeys.noResults') }}
+          </template>
+        </EmptyView>
+      </template>
+      <!-- 搜索无结果缺省状态 E -->
     </v-col>
+    <!-- 右侧快捷键列表 E -->
   </v-row>
 </template>
 

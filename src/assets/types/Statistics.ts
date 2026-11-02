@@ -74,7 +74,6 @@ export interface PublicSeasonSummary {
     season: string;
     name: string;
     entries: number;
-    collected: number;
     startDate: string | null;
     byType: Array<{targetType: string; count: number}>;
 }

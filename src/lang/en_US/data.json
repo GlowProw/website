@@ -4135,6 +4135,7 @@
       "quickArchiving": "Quick Save Draft",
       "quickArchive": "Quick Save Draft",
       "quickConfirm": "Quick Confirm",
+      "untitledDraft": "Untitled draft",
       "useDraft": "Use"
     },
     "calc": {
@@ -4780,6 +4781,12 @@
       "inactiveFunctions": "Inactive Features ({count})",
       "noActiveFunctions": "No active features, please select from the dropdown above.",
       "featuresTitle": "Features",
+      "manageFunctions": "Feature Management",
+      "activeArea": "Active Area",
+      "inactiveArea": "Inactive Area",
+      "dragHint": "Drag to reorder",
+      "activeFunctionsCount": "Active Features ({count})",
+      "allActivated": "All features activated",
       "itemConfigTitle": "Item Configuration",
       "storageReportDesc": "Shining Prow uses local cache to store data, including user configurations/action records, etc.",
       "clearStorage": "Clear Cache",
@@ -4928,6 +4935,10 @@
     "hotkeys": {
       "title": "Hotkeys",
       "subtitle": "Customize keybindings across modules, automatically saved locally",
+      "mainSwitch": "Global Hotkeys Switch",
+      "mainSwitchDesc": "When disabled, all hotkeys across the site will be inactive, shortcut indicators on buttons will be hidden, and buttons will only be triggered by clicking.",
+      "searchPlaceholder": "Search hotkeys by action, key, or scope...",
+      "noResults": "No matching hotkeys found",
       "resetDefaults": "Reset Defaults",
       "groupWorkshop": "Workshop & Loadouts",
       "groupCodex": "Codex",

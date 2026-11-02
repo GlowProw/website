@@ -66,6 +66,7 @@ export function setupGlobalHotkeys(): () => void {
 
   globalKeydownHandler = (e: KeyboardEvent) => {
     const hotkeysStore = useHotkeysStore();
+    if (!hotkeysStore.enabled) return;
     const appStore = useAppStore();
     const messagesDrawerStore = useMessagesDrawerStore();
     const codexHistoryDrawerStore = useCodexHistoryDrawerStore();

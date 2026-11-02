@@ -26,6 +26,7 @@ export const vHotkeys: Directive<HotkeyElement, HotkeyBindingValue | ((e: Keyboa
       }
 
       const hotkeysStore = useHotkeysStore();
+      if (!hotkeysStore.enabled) return;
       const pressed = normalizeKeyboardEvent(e);
 
       // 情况 1：使用了指令参数指定动作名，例如 v-hotkeys:quickArchive="callback"
