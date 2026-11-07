@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {useLikeStore} from '~/stores/likeStore.js';
-import {onMounted, ref, useSlots, watch} from 'vue';
+import {computed, onMounted, ref, useSlots, watch} from 'vue';
 import Loading from "./Loading.vue";
 import {useI18n} from "vue-i18n";
 import {AxiosError} from "axios";
@@ -33,20 +33,35 @@ let isLiked = ref(false),
     likeLoading = ref(false)
 
 /**
+ * 校验目标类型与目标ID是否有效，拦截 null/undefined 伪造字符串与空值
+ */
+const isValidTarget = computed(() => {
+  const t = String(props.targetType || '').trim().toLowerCase();
+  const id = String(props.targetId || '').trim().toLowerCase();
+  return Boolean(
+    t &&
+    t !== 'null' &&
+    t !== 'undefined' &&
+    id &&
+    id !== 'null' &&
+    id !== 'undefined'
+  );
+});
+
+/**
  * 初始化检查点赞状态
  * @returns {Promise<void>}
  */
 const onReady = async () => {
   try {
-    if (!props.targetType || !props.targetId) {
-      console.log('not id', props)
+    if (!isValidTarget.value) {
       return;
     }
 
     likeLoading.value = true;
 
-    isLiked.value = await likeStore.checkLike(props.targetType, props.targetId)
-    likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId)
+    isLiked.value = await likeStore.checkLike(props.targetType!, props.targetId!)
+    likeCount.value = await likeStore.getLikeCount(props.targetType!, props.targetId!)
   } catch (e) {
     handleApiError(e, notice, t, { component: 'LikeWidget' })
   } finally {
@@ -60,10 +75,14 @@ const onReady = async () => {
  */
 const handleLike = async () => {
   try {
+    if (!isValidTarget.value) {
+      return;
+    }
+
     likeLoading.value = true;
 
-    isLiked.value = await likeStore.toggleLike(props.userId, props.targetType, props.targetId)
-    likeCount.value = await likeStore.getLikeCount(props.targetType, props.targetId)
+    isLiked.value = await likeStore.toggleLike(props.userId || '', props.targetType!, props.targetId!)
+    likeCount.value = await likeStore.getLikeCount(props.targetType!, props.targetId!)
   } catch (e) {
     handleApiError(e, notice, t, { component: 'LikeWidget' })
   } finally {

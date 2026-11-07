@@ -1058,7 +1058,9 @@
     "appVersionContext": "You can report issues directly through the <u><a href=\"https://kook.vip/2s0eQP\" target=\"_blank\">Kook Community</a></u> link reserved in the website footer to help fix problems",
     "blogLog": "Blog",
     "slogan": "NO ONE RULES THE SEA",
-    "portraitDescription": "{name} is a fan-made wiki, guide and data collection site for Skull and Bones, built by players for players — free to browse, no login required.\nHere you can look up ships, weapons, armor, furniture, materials, commodities, cosmetics, sets and collectibles, complete with loot sources, crafting recipes and stats.\nThe fully collected interactive map marks every resource node, settlement, chest and shipwreck, with category filters and custom markers to keep your exploration on course.\nYou can share your ship builds and use the material calculator to break down crafting costs and plan farming routes.\nQuestlines, empire skills, masteries, seasonal events and the Smuggler's Report are all kept up to date with every patch.\nMay these charts help you rule the seas."
+    "portraitDescription": "{name} is a fan-made wiki, guide and data collection site for Skull and Bones, built by players for players — free to browse, no login required.\nHere you can look up ships, weapons, armor, furniture, materials, commodities, cosmetics, sets and collectibles, complete with loot sources, crafting recipes and stats.\nThe fully collected interactive map marks every resource node, settlement, chest and shipwreck, with category filters and custom markers to keep your exploration on course.\nYou can share your ship builds and use the material calculator to break down crafting costs and plan farming routes.\nQuestlines, empire skills, masteries, seasonal events and the Smuggler's Report are all kept up to date with every patch.\nMay these charts help you rule the seas.",
+    "seasonShowcaseDesc": "This section showcases the new gear, ships, and loot introduced this season. Click below to view the full season codex statistics and collection analytics.",
+    "viewSeasonDetail": "View Season Details"
   },
   "videoEmbed": {
     "label": "Video link",
@@ -5733,7 +5735,7 @@
         "desc": "Toss however many coins ye like into the chest — meet the mark, and earn a title all the same."
       }
     },
-    "introLine1": "{name} is a community project, but none of this is free or easy to maintain!",
+    "introLine1": "{name} is an open community project, but keeping the services running and content updated requires ongoing resources.",
     "introLine2": "{name} has no major source of income and relies on your generous donations. Your support keeps the app running and lets me develop new features.",
     "introLine3": "Please subscribe to any tier to support me.",
     "pendingOrders": "Pending orders",

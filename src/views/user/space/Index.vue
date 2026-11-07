@@ -11,7 +11,7 @@
     <!-- 空间未公开 E -->
 
     <template v-else>
-      <v-card min-height="200px" class="d-flex flex-column justify-space-between mt-13">
+      <v-card min-height="200px" elevation="0" class="d-flex flex-column justify-space-between mt-13">
         <template v-slot:image>
           <Silk
               :speed="3"

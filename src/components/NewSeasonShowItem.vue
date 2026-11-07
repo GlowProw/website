@@ -215,7 +215,7 @@ const hasMoreItems = computed(() => {
 
 <template>
   <HorizontalScrollList :is-indicator="false" :use-shift-key="false">
-    <div class="ga-2 d-flex align-center py-1">
+    <div class="ga-2 d-flex align-center pb-2">
       <v-chip
           v-for="cat in codexCategories"
           :key="cat.name"

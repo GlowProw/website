@@ -187,7 +187,7 @@ defineOptions({
 </script>
 
 <template>
-  <v-card min-height="200px" class="d-flex flex-column justify-space-between">
+  <v-card min-height="200px" elevation="0" class="d-flex flex-column justify-space-between">
     <template v-slot:image>
       <Silk
           :speed="3"

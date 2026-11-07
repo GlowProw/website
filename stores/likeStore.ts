@@ -19,6 +19,16 @@ const inFlightCheckRequests = new Map<string, Promise<boolean>>();
 const inFlightCountRequests = new Map<string, Promise<number>>();
 
 /**
+ * 校验目标类型与标识有效性，杜绝 null/undefined 字符串穿透
+ */
+function isInvalidTarget(targetType: unknown, targetId: unknown): boolean {
+    if (!targetType || !targetId) return true;
+    const t = String(targetType).trim().toLowerCase();
+    const id = String(targetId).trim().toLowerCase();
+    return !t || t === 'null' || t === 'undefined' || !id || id === 'null' || id === 'undefined';
+}
+
+/**
  * 点赞状态机
  */
 export const useLikeStore = defineStore('like', {
@@ -35,7 +45,7 @@ export const useLikeStore = defineStore('like', {
         async checkLike(targetType: string, targetId: string): Promise<boolean> {
             const authStore = useAuthStore();
 
-            if (!authStore.isLogin || !targetType || !targetId) {
+            if (!authStore.isLogin || isInvalidTarget(targetType, targetId)) {
                 return false;
             }
 
@@ -98,7 +108,7 @@ export const useLikeStore = defineStore('like', {
         async toggleLike(userId: string, targetType: string, targetId: string): Promise<boolean> {
             const authStore = useAuthStore();
 
-            if (!authStore.isLogin || !targetType || !targetId) {
+            if (!authStore.isLogin || isInvalidTarget(targetType, targetId)) {
                 return false;
             }
 
@@ -143,7 +153,7 @@ export const useLikeStore = defineStore('like', {
          * @returns 点赞总数
          */
         async getLikeCount(targetType: any, targetId: any): Promise<number> {
-            if (!targetType || !targetId) {
+            if (isInvalidTarget(targetType, targetId)) {
                 return 0;
             }
 

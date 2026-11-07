@@ -14,6 +14,7 @@ import Loading from "@/components/Loading.vue";
 import QQBotBannerWidget from "@/components/QQBotBannerWidget.vue";
 import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
 import Banner from "@/components/Banner.vue";
+import BannerRightSeasonInfo from "@/components/BannerRightSeasonInfo.vue";
 import NewsCarouselWidget from "@/components/NewsCarouselWidget.vue";
 
 const {t} = useI18n()
@@ -60,6 +61,13 @@ onUnmounted(() => {
 
 <template>
   <Banner>
+    <template #top>
+      <div class="portal-banner-top"></div>
+    </template>
+    <template #right>
+      <BannerRightSeasonInfo :season="currentlySeason" />
+    </template>
+
     <v-card class="portal-banner overflow-hidden position-relative">
       <template v-slot:image>
         <div class="portal-banner-looping-video w-100 opacity-100">
@@ -68,16 +76,6 @@ onUnmounted(() => {
                  src="@/assets/videos/crimsonWaters.webm"></video>
         </div>
       </template>
-
-      <div class="portal-banner-top"></div>
-
-      <div class="portal-season-left-tip" v-if="currentlySeason && currentlySeason.id">
-        <div class="opacity-60">
-          <p>{{ t('portal.seasonTimer', {seasonName: (readSeason(currentlySeason.id).shortName() || (currentlySeason as any).alternativeName || currentlySeason.id).toUpperCase(), day: time.calcRemainingDays(currentlySeason.endDate)}) }}</p>
-          <v-divider thickness="3" vertical/>
-          <p>{{ readSeason(currentlySeason?.id || '').fullName() }}</p>
-        </div>
-      </div>
     </v-card>
   </Banner>
 
@@ -86,20 +84,20 @@ onUnmounted(() => {
       <v-container>
         <v-row>
           <v-col cols="12" md="8" lg="8">
-            <v-row justify="start" density="compact">
+            <v-row justify="start" :gap="5">
               <v-col cols="12" sm="6" md="4" lg="4"
                      :class="{'opacity-30': !i.to}"
                      v-for="(i,index) in appFuns.list" :key="index">
                 <router-link :to="i.to">
                   <v-row density="compact" class="py-2 h-100">
                     <v-col cols="auto">
-                      <div class="d-flex align-start justify-start mr-2">
+                      <div class="d-flex align-start justify-start mr-3">
                         <v-icon :icon="i.icon" size="40"></v-icon>
                       </div>
                     </v-col>
                     <v-col>
                       <p class="u mb-1 text-amber">{{ t(i.title) }}</p>
-                      <p class="font-weight-light opacity-60">{{ t(i.description) }}</p>
+                      <p class="opacity-60">{{ t(i.description) }}</p>
                     </v-col>
                   </v-row>
                 </router-link>
@@ -110,7 +108,7 @@ onUnmounted(() => {
             <v-card variant="text"
                     class="title h-100 d-flex flex-column">
               <h1 class="text-h6 text-amber pb-2">{{ t('name') }}</h1>
-              <p class="font-weight-light opacity-50 portrait-description">{{ t('portal.portraitDescription', {name: t('name')}) }}</p>
+              <p class="opacity-60 portrait-description">{{ t('portal.portraitDescription', {name: t('name')}) }}</p>
             </v-card>
           </v-col>
         </v-row>
@@ -145,7 +143,18 @@ onUnmounted(() => {
             <AffixContainerView>
               <div class="d-flex flex-column justify-space-between">
                 <h1 class="text-h6 text-amber pb-2">{{ readSeason(currentlySeason?.id || '').name() }}</h1>
-                <p class="font-weight-light opacity-60">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
+                <p class="opacity-60 mb-2">{{ t(`snb.calendar.${currentlySeason?.id}.description`) }}</p>
+                <p class="opacity-60 mb-4">{{ t('portal.seasonShowcaseDesc') }}</p>
+                <div>
+                  <v-btn
+                    border
+                    block
+                    variant="text"
+                    :to="{ path: '/statistics/season', query: { season: currentlySeason?.id } }">
+                    {{ t('portal.viewSeasonDetail') }}
+                    <v-icon end>mdi-arrow-right</v-icon>
+                  </v-btn>
+                </div>
               </div>
             </AffixContainerView>
           </v-col>
@@ -258,32 +267,6 @@ onUnmounted(() => {
     position: relative;
     padding-left: 30px;
     padding-top: 100px;
-  }
-
-  .portal-season-left-tip {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding-top: calc(80px + 3vh);
-    padding-left: 3vh;
-    padding-right: 3vh;
-    height: auto;
-    font-size: 18px;
-
-    > div {
-      writing-mode: vertical-rl;
-      display: inline-flex;
-      flex-flow: row wrap;
-      column-gap: 4px;
-      font-weight: 400;
-      margin-bottom: 20px;
-
-      &:after {
-        bottom: 0;
-        content: "";
-        margin: 0 5px;
-      }
-    }
   }
 }
 

@@ -196,6 +196,16 @@ const onAssemblyMainViewReady = () => {
 }
 
 /**
+ * 响应设置面板中的前端数据导入
+ * 仅前端内存变更，即时重新载入到主体视图各附件中展示
+ * @param evt 导入事件参数
+ */
+const onImportFrontendData = ({ type, data }: { type: string; data: any }) => {
+  if (!assemblyMainSubjectView.value?.refs?.[type]) return;
+  assemblyMainSubjectView.value.refs[type].onLoad(data);
+}
+
+/**
  * 克隆当前配装并打开副本的编辑页
  */
 const onCloneAssembly = async () => {
@@ -309,6 +319,7 @@ const onPenPassword = () => {
                   <v-divider vertical></v-divider>
                   <AssemblySettingPanel :id="detailData.uuid"
                                         :data="detailData || {}"
+                                        @import-data="onImportFrontendData"
                                         @change="getAssemblyDetail">
                     <v-btn variant="flat" class="h-100">
                       <v-icon icon="mdi-cog"></v-icon>

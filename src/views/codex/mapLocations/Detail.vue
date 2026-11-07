@@ -244,7 +244,7 @@ const onCodexHistory = () => {
 
             <template v-if="mapLocationDetailData.id">
               <v-divider>{{ t('comment.title') }}</v-divider>
-              <CommentWidget :id="mapLocationDetailData.id" type="treasureMap" placeholder=""></CommentWidget>
+              <CommentWidget :id="mapLocationDetailData.id" type="mapLocation" placeholder=""></CommentWidget>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">

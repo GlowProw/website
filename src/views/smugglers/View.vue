@@ -416,7 +416,7 @@ const masonryColumns = computed(() => {
     </v-row>
   </v-container>
 
-  <v-container class="py-10">
+  <v-container class="py-10" v-if="commentData.length > 0">
     <v-row>
       <v-col>
         <p class="text-h5 text-amber">{{ t('smugglersReport.view.connoisseurs') }}</p>
@@ -444,19 +444,16 @@ const masonryColumns = computed(() => {
               v-for="(i, index) in col"
               :key="i.id || index"
               tile
-              variant="text"
-              class="pa-2">
+              variant="text">
             <v-row no-gutters>
               <v-col cols="auto">
                 <AccountCardWidget :id="i.userId">
-                  <ItemSlotBase size="50px">
-                    <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
-                  </ItemSlotBase>
+                  <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
                 </AccountCardWidget>
               </v-col>
               <v-col class="ml-3 min-w-0">
                 <AccountCardWidget :id="i.userId">
-                  <b class="u">{{ i.username }}</b>
+                  <b class="u">{{ i.username || '' }}</b>
                 </AccountCardWidget>
 
                 <div class="opacity-60">
@@ -468,7 +465,7 @@ const masonryColumns = computed(() => {
                     class="opacity-60 mt-2"
                     :value="i.content"
                     v-if="i.content"
-                    min-height="30">
+                    min-height="auto">
                 </Textarea>
               </v-col>
             </v-row>

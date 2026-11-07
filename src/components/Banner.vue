@@ -1,10 +1,20 @@
 <script setup lang="ts">
-
+defineOptions({
+  name: "Banner"
+})
 </script>
 
 <template>
   <div class="banner">
     <div class="banner-bottom-block"></div>
+
+    <div v-if="$slots.top" class="banner-top-slot">
+      <slot name="top"></slot>
+    </div>
+
+    <div v-if="$slots.right" class="banner-right-slot">
+      <slot name="right"></slot>
+    </div>
 
     <slot></slot>
   </div>
@@ -15,6 +25,25 @@
   min-height: 50px;
   overflow: revert;
   position: relative;
+
+  .banner-top-slot {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 6;
+  }
+
+  .banner-right-slot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 6;
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
+  }
 
   .banner-bottom-block {
     pointer-events: none;

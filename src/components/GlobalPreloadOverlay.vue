@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import {usePreloadStore} from "~/stores/preloadStore";
 import {useI18n} from "vue-i18n";
+import Logo from "@/components/Logo.vue";
+import BannerRightSeasonInfo from "@/components/BannerRightSeasonInfo.vue";
 
 const preloadStore = usePreloadStore();
 const {t} = useI18n();
 </script>
 
 <template>
-  <div v-if="preloadStore.appLoading || !preloadStore.pageReady" class="global-preload-mask bg-black">
-    <div class="portal-up-window h-screen">
-      <div class="global-preload-inner mt-n16">
+  <div v-if="preloadStore.appLoading || !preloadStore.pageReady" class="global-preload-mask pa-6 bg-black">
+    <v-row no-gutters>
+      <v-col cols="auto" class="d-flex align-center">
+        <Logo size="25"></Logo>
+        <span>{{ t('name') }}</span>
+      </v-col>
+      <v-spacer></v-spacer>
+    </v-row>
+
+    <BannerRightSeasonInfo :top="10"></BannerRightSeasonInfo>
+
+    <div class="d-flex justify-center align-center h-100 w-100">
+      <div class="mt-n16">
         <div class="d-flex flex-column justify-center align-center">
           <img src="/logo-format.gif" class="mx-auto"/>
 
@@ -37,17 +49,11 @@ const {t} = useI18n();
 </template>
 
 <style scoped>
-.portal-up-window {
-  position: relative;
-  z-index: 2;
-}
-
 .global-preload-mask {
   position: fixed;
   inset: 0;
-  z-index: 9999;
-  background-color: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(6px);
+  z-index: 1200;
+  background-color: #000;
 
   > div {
     display: flex;
@@ -55,11 +61,5 @@ const {t} = useI18n();
     justify-content: center;
     pointer-events: auto;
   }
-}
-
-.global-preload-inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 </style>

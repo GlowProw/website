@@ -65,10 +65,26 @@ const isCaptchaValid = computed(() => {
 })
 
 /**
+ * 校验目标类型与目标ID是否有效，拦截 null/undefined 伪造字符串与空值
+ */
+const isValidTarget = computed(() => {
+  const t = String(props.type || '').trim().toLowerCase();
+  const id = String(props.id || '').trim().toLowerCase();
+  return Boolean(
+    t &&
+    t !== 'null' &&
+    t !== 'undefined' &&
+    id &&
+    id !== 'null' &&
+    id !== 'undefined'
+  );
+});
+
+/**
  * 获取评论列表数据
  */
 const getComment = async () => {
-  if (!props.id) return;
+  if (!isValidTarget.value) return;
   try {
     commentLoading.value = true
 
@@ -92,7 +108,7 @@ const getComment = async () => {
  * 尝试按需加载评论数据
  */
 const tryLoadComment = () => {
-  if (!props.id || hasLoaded.value || !isVisible.value) return;
+  if (!isValidTarget.value || hasLoaded.value || !isVisible.value) return;
   hasLoaded.value = true;
   getComment();
 }
@@ -132,7 +148,7 @@ const onPushComment = async () => {
       return;
     }
 
-    if (!props.id || !props.type)
+    if (!isValidTarget.value)
       return console.log('not id', props)
 
     commentPushLoading.value = true

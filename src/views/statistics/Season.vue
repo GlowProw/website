@@ -3,7 +3,8 @@
  * 赛季统计
  * 汇总各赛季图鉴构成与全站收藏量，数据截至前一天
  */
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
+import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {Apis} from "@/assets/sripts/api";
 import type {PublicSeasonStats, PublicSeasonSummary} from "@/assets/types/Statistics";
@@ -15,11 +16,25 @@ import SeasonItemsDialog from "@/components/SeasonItemsDialog.vue";
 import usePageHotkeys from "@/assets/sripts/page_hotkeys";
 
 const {t, te} = useI18n(),
+    route = useRoute(),
     statsApi = Apis.publicStatsApi(),
     loading = ref(true),
     data = ref<PublicSeasonStats | null>(null),
     activeSeason = ref<PublicSeasonSummary | null>(null),
     isDetailOpen = ref(false)
+
+/**
+ * 响应路由参数自动打开指定赛季详细
+ */
+const checkAndOpenQuerySeason = () => {
+  const target = (route.query.season || route.query.seasonId) as string | undefined
+  if (target && data.value?.seasons) {
+    const match = data.value.seasons.find(s => s.season.toLowerCase() === target.toLowerCase())
+    if (match) {
+      onOpenSeason(match)
+    }
+  }
+}
 
 /**
  * 打开赛季图鉴明细弹窗
@@ -46,12 +61,17 @@ const onLoad = async () => {
   loading.value = true
   try {
     data.value = await statsApi.getSeason()
+    checkAndOpenQuerySeason()
   } finally {
     loading.value = false
   }
 }
 
 onMounted(onLoad)
+
+watch(() => route.query.season || route.query.seasonId, () => {
+  checkAndOpenQuerySeason()
+})
 
 usePageHotkeys({
   statsRefresh: () => onLoad(),

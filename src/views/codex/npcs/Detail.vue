@@ -200,7 +200,7 @@ const onCodexHistory = () => {
           <v-col cols="auto">
             <div class="d-flex ga-2">
               <v-btn v-if="authStore.isLogin" border>
-                <LikeWidget targetType="item"
+                <LikeWidget targetType="npc"
                             :isShowCount="true"
                             :targetId="npcDetailData.id">
                   <template v-slot:activate>
