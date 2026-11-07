@@ -31,7 +31,7 @@ export function useHttp(options: UseHttpOptions = {}) {
         if (withToken) {
             const token = authStore.user?.token;
             if (token && token !== '') {
-                headers['x-access-token'] = token;
+                headers['x-token'] = token;
             }
         }
 

@@ -26,7 +26,6 @@ const props = withDefaults(defineProps<{
       readonly: true,
       perfectDisplay: false,
     }),
-    {mobile} = useDisplay(),
     {t} = useI18n(),
     route = useRoute(),
     router = useRouter(),
@@ -204,7 +203,7 @@ defineOptions({
 </script>
 
 <template>
-  <v-card class="card-enlargement-flavor mt-n3 mb-5 ml-n10 mr-n10 overflow-visible position-relative mb-n2"
+  <v-card class="card-image-border-flavor mt-n3 mb-5 ml-n10 mr-n10 overflow-visible position-relative mb-n2"
           min-height="500"
           :class="props.class">
     <AffixContainerView :offsetTop="55">

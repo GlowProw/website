@@ -27,7 +27,7 @@ defineOptions({
 <template>
   <ItemCardTooltip :disabled="props.isShowTooltip === false || !cardId">
     <template v-slot:activator="{ props: activatorProps }">
-      <span v-bind="activatorProps">{{ getTitle }}</span>
+      <span class="cursor-pointer" :title="getTitle" v-bind="activatorProps">{{ getTitle }}</span>
     </template>
     <MasteryCardDetail v-if="cardId" :id="cardId" />
   </ItemCardTooltip>

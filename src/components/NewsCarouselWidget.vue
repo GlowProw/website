@@ -240,12 +240,9 @@ onUnmounted(() => {
       @mouseenter="onMouseEnter"
       @mouseleave="onMouseLeave">
     <!-- 轮播顶栏标题与控制操作 S -->
-    <div class="d-flex align-center justify-space-between mb-3 px-1">
-      <v-spacer></v-spacer>
-
-      <div class="d-flex align-center ga-2">
-        <!-- 分页圆点指示器 -->
-        <div class="d-flex align-center ga-1 mr-2" v-if="newsChunks.length > 1">
+    <div class="d-flex align-center justify-space-between mb-2">
+      <!-- 分页圆点指示器 -->
+      <div class="d-flex align-center ga-1 mr-2" v-if="newsChunks.length > 1">
           <span
               v-for="(_, idx) in newsChunks"
               :key="idx"
@@ -253,8 +250,11 @@ onUnmounted(() => {
               :class="{ active: pageIndex === idx }"
               @click="pageIndex = idx">
           </span>
-        </div>
+      </div>
 
+      <v-spacer></v-spacer>
+
+      <div class="d-flex align-center ga-2">
         <!-- 左右翻页控制器 -->
         <v-btn
             icon="mdi-chevron-left"

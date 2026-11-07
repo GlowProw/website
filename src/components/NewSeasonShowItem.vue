@@ -237,7 +237,7 @@ const hasMoreItems = computed(() => {
     </div>
   </HorizontalScrollList>
 
-  <v-row no-gutters>
+  <v-row :gap="4">
     <v-col cols="auto" v-for="(i,index) in visibleItems" :key="index" class="d-flex align-center">
       <ItemSlotBase :size="`${Math.min(Math.max(getIconSize.size, 50), 60)}px`" :padding="0" :margin="0" class="bg-transparent">
         <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
@@ -254,18 +254,18 @@ const hasMoreItems = computed(() => {
         <EmpireSkillIconWidget :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillIconWidget>
       </ItemSlotBase>
 
-      <ItemName :id="i.id" v-if="i._typeStringName == 'Item'"></ItemName>
-      <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipName>
-      <CommoditieName :id="i.id" v-if="i._typeStringName == 'Commoditie' || i._typeStringName == 'Commodity'"></CommoditieName>
-      <UltimateName :id="i.id" v-if="i._typeStringName == 'Ultimate'"></UltimateName>
-      <MaterialName :id="i.id" v-if="i._typeStringName == 'Material'"></MaterialName>
-      <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'"></MapLocationName>
-      <TreasureMapName :id="i.id" v-if="i._typeStringName == 'TreasureMap'"></TreasureMapName>
-      <CosmeticName :id="i.id" v-if="i._typeStringName == 'Cosmetic'"></CosmeticName>
-      <NpcName :id="i.id" v-if="i._typeStringName == 'Npc'"></NpcName>
-      <ModName :id="i.id" v-if="i._typeStringName == 'Modification'"></ModName>
-      <SetName :id="i.id" v-if="i._typeStringName == 'Set'"></SetName>
-      <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'"></EmpireSkillName>
+      <ItemName :id="i.id" v-if="i._typeStringName == 'Item'" :is-show-tooltip="true"></ItemName>
+      <ShipName :id="i.id" v-if="i._typeStringName == 'Ship'" :is-show-tooltip="true"></ShipName>
+      <CommoditieName :id="i.id" v-if="i._typeStringName == 'Commoditie' || i._typeStringName == 'Commodity'" :is-show-tooltip="true"></CommoditieName>
+      <UltimateName :id="i.id" v-if="i._typeStringName == 'Ultimate'" :is-show-tooltip="true"></UltimateName>
+      <MaterialName :id="i.id" v-if="i._typeStringName == 'Material'" :is-show-tooltip="true"></MaterialName>
+      <MapLocationName :id="i.id" v-if="i._typeStringName == 'MapLocation'" :is-show-tooltip="true"></MapLocationName>
+      <TreasureMapName :id="i.id" v-if="i._typeStringName == 'TreasureMap'" :is-show-tooltip="true"></TreasureMapName>
+      <CosmeticName :id="i.id" v-if="i._typeStringName == 'Cosmetic'" :is-show-tooltip="true"></CosmeticName>
+      <NpcName :id="i.id" v-if="i._typeStringName == 'Npc'" :is-show-tooltip="true"></NpcName>
+      <ModName :id="i.id" v-if="i._typeStringName == 'Modification'" :is-show-tooltip="true"></ModName>
+      <SetName :id="i.id" v-if="i._typeStringName == 'Set'" :is-show-tooltip="true"></SetName>
+      <EmpireSkillName :id="i.id" v-if="i._typeStringName == 'EmpireSkill'" :is-show-tooltip="true"></EmpireSkillName>
     </v-col>
 
     <!-- 尾部加载全部与收起按钮 S -->

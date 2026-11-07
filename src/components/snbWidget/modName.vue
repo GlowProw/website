@@ -22,7 +22,7 @@ defineOptions({
 <template>
   <ItemCardTooltip :disabled="props.isShowTooltip === false">
     <template v-slot:activator="{ props: activatorProps }">
-      <span :class="`grade-${grade}-title`" v-bind="activatorProps">{{ getTitle }}</span>
+      <span class="cursor-pointer" :class="`grade-${grade}-title`" :title="getTitle" v-bind="activatorProps">{{ getTitle }}</span>
     </template>
     <ModCardDetail :id="props.id" />
   </ItemCardTooltip>

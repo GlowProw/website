@@ -81,10 +81,6 @@ onUnmounted(() => {
     </v-card>
   </Banner>
 
-  <div class="bg-black py-5">
-    <NewsCarouselWidget></NewsCarouselWidget>
-  </div>
-
   <div>
     <div class="portal-body overflow-hidden position-relative pl-3 pr-3 pt-10">
       <v-container>
@@ -171,7 +167,11 @@ onUnmounted(() => {
       </v-container>
     </div>
 
-    <div class="portal-body bg-black pt-5 pb-5">
+    <div class="portal-body bg-black py-5">
+      <div class="mb-8">
+        <NewsCarouselWidget></NewsCarouselWidget>
+      </div>
+
       <v-container>
         <v-row>
           <v-col cols="12" sm="12" md="4" lg="4">
@@ -290,7 +290,7 @@ onUnmounted(() => {
 .portal-body {
   background: rbga(var(--v-theme-background));
   z-index: 10;
-  border-radius: 20px 20px 10px 10px;
+  border-radius: 20px 20px 0 0;
 }
 
 @media screen and (max-width: 980px) {

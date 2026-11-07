@@ -455,7 +455,7 @@ onMounted(async () => {
   <v-divider opacity=".06"></v-divider>
 
   <!-- 天梯主体视图 S -->
-  <div class="card-enlargement-mask-flavor mt-n2 mx-n16 py-5">
+  <div class="card-image-border-flavor mt-n3 mb-5 ml-n10 mr-n10 overflow-visible position-relative mb-n2">
     <v-container>
       <RankingDesignedMainSubjectView
           ref="rankingMainSubjectView"

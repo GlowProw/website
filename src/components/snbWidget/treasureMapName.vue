@@ -28,7 +28,7 @@ defineOptions({
 <template>
   <ItemCardTooltip :disabled="props.isShowTooltip === false || !cardId">
     <template v-slot:activator="{ props: activatorProps }">
-      <span :title="getTitle" v-bind="activatorProps">{{ getTitle }}</span>
+      <span class="cursor-pointer" :title="getTitle" v-bind="activatorProps">{{ getTitle }}</span>
     </template>
     <TreasureMapCardDetail v-if="cardId" :id="cardId" />
   </ItemCardTooltip>

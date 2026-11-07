@@ -19,7 +19,7 @@ defineOptions({
 <template>
   <ItemCardTooltip :disabled="props.isShowTooltip === false">
     <template v-slot:activator="{ props: activatorProps }">
-      <span v-bind="activatorProps">{{ getTitle }}</span>
+      <span class="cursor-pointer" :title="getTitle" v-bind="activatorProps">{{ getTitle }}</span>
     </template>
     <MapLocationCardDetail :id="props.id" />
   </ItemCardTooltip>

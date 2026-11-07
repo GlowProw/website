@@ -52,7 +52,7 @@ defineOptions({
 <template>
   <ItemCardTooltip :disabled="props.isShowTooltip === false || !(props.id || props.data?.id)">
     <template v-slot:activator="{ props: activatorProps }">
-      <span :title="getTitle" v-bind="activatorProps">{{ getTitle }}</span>
+      <span class="cursor-pointer" :title="getTitle" v-bind="activatorProps">{{ getTitle }}</span>
     </template>
     <NpcCardDetail :id="props.id" :data="props.data" />
   </ItemCardTooltip>

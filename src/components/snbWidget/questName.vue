@@ -26,7 +26,7 @@ defineOptions({
 <template>
   <ItemCardTooltip :disabled="props.isShowTooltip === false || !props.id">
     <template v-slot:activator="{ props: activatorProps }">
-      <span v-bind="activatorProps">{{ name || id }}</span>
+      <span class="cursor-pointer" :title="name || id" v-bind="activatorProps">{{ name || id }}</span>
     </template>
     <QuestCardDetail v-if="props.id" :id="props.id" />
   </ItemCardTooltip>

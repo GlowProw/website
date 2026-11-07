@@ -54,7 +54,7 @@ defineOptions({
 <template>
   <!-- 默认 -->
   <template v-if="sizeType == 'default'">
-    <v-card class="bg-transparent d-flex ga-3">
+    <v-card class="bg-transparent d-flex ga-3" elevation="0">
       <template v-for="(i, index) in damageIconImages"
                 :key="index">
         <div v-show="damageRefStatus[index]">
@@ -81,7 +81,7 @@ defineOptions({
 
   <!-- 浓缩 无空Widget -->
   <template v-else-if="sizeType == 'mini'">
-    <v-card class="bg-transparent d-flex ga-1" v-if="damageIconImages.length > 0">
+    <v-card class="bg-transparent d-flex ga-1" elevation="0" v-if="damageIconImages.length > 0">
       <template
           v-for="(i, index) in damageIconImages"
           :key="index">

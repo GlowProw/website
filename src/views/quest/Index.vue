@@ -28,7 +28,7 @@ defineOptions({
     <Header></Header>
     <v-main >
       <template v-if="!isDetailPage">
-        <v-card height="200px">
+        <v-card height="200px" elevation="0">
           <template v-slot:image>
             <Silk
                 :speed="3"

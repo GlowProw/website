@@ -144,7 +144,7 @@ const getBrowseList = async () => {
 </script>
 
 <template>
-  <v-card height="200px">
+  <v-card height="200px" elevation="0">
     <template v-slot:image>
       <Silk
           :speed="3"
@@ -160,9 +160,7 @@ const getBrowseList = async () => {
         <v-container>
           <v-breadcrumbs-item to="/">{{ t('portal.title') }}</v-breadcrumbs-item>
           <v-breadcrumbs-divider></v-breadcrumbs-divider>
-          <v-breadcrumbs-item to="/assembly">{{ t('assembly.title') }}</v-breadcrumbs-item>
-          <v-breadcrumbs-divider></v-breadcrumbs-divider>
-          <v-breadcrumbs-item>{{ t('assembly.browse.title') }}</v-breadcrumbs-item>
+          <v-breadcrumbs-item>{{ t('assembly.title') }}</v-breadcrumbs-item>
         </v-container>
       </v-breadcrumbs>
       <v-divider opacity=".01"></v-divider>

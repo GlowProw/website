@@ -12,6 +12,7 @@
   -webkit-mask-size: @mask-size;
   mask-size: @mask-size;
 }
+
 .mask-enlargement-style() {
   -webkit-mask-image: @mask-enlargement-image;
   mask-image: @mask-enlargement-image;
@@ -79,6 +80,7 @@
   text-decoration: @text-decoration;
   transition: @transition;
 }
+
 .card-enlargement-flavor {
   padding: 10px 20px;
   text-transform: uppercase;
@@ -91,15 +93,23 @@
   transition: @transition;
 }
 
-
 .card-enlargement-mask-flavor {
-  background-image: @mask-enlargement-image;
-  .mask-enlargement-style();
+  background-image: url("../images/mark-big-card.png");
+  mask-image: url('../images/mark-big-card.png');
+  mask-size: @mask-size;
   background-color: #000;
   text-decoration: @text-decoration;
   transition: @transition;
 }
 
+.card-image-border-flavor {
+  border-image-slice: 20 16 20 16 fill;
+  border-image-width: 20px 20px 20px 20px;
+  border-image-outset: 3px 0;
+  border-image-repeat: repeat repeat;
+  border-image-source: url('../images/mark-big-card.png');
+  border-style: solid;
+}
 
 .badge-flavor {
   text-transform: uppercase;

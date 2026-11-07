@@ -33,7 +33,7 @@ export interface UseHttpOptions {
     withToken?: boolean;
     /**
      * 是否为外部资源请求
-     * 不携带内部专属头 x-auth-gp 和 x-access-token）
+     * 不携带内部专属头 x-auth-gp 和 x-token）
      **/
     isExternal?: boolean;
 }

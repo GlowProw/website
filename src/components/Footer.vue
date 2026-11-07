@@ -18,13 +18,12 @@ defineOptions({
 </script>
 
 <template>
-  <footer class="footer" v-if="!appStore?.isPwaInstalled">
-    <v-skeleton-loader type="image" height="2px" :color="`var(--main-color)`" class="opacity-10 overflow-hidden"></v-skeleton-loader>
+  <footer class="footer bg-black border-t" v-if="!appStore?.isPwaInstalled">
     <v-container class="pt-0">
       <footer class="mt-10 mb-10">
         <v-row>
           <v-col cols="12" sm="12" md="5" lg="3" order="2" order-sm="2" order-lg="1">
-            <Logo size="50" class="ml-n2"></Logo>
+            <Logo size="60" class="ml-n2"></Logo>
             <h2 class="mt-2 u">
               {{ t('name') }}
             </h2>
@@ -132,8 +131,6 @@ defineOptions({
 
 <style scoped lang="less">
 .footer {
-  background-color: hsl(from var(--main-color) h s calc(l * 0.03));
-
   b {
     font-size: 20px;
   }
