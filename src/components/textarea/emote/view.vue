@@ -24,12 +24,16 @@ export default {
   position: relative;
   display: inline-flex;
   width: auto;
-  height: 25px;
-  align-items: baseline;
+  align-items: center;
+  vertical-align: middle;
   gap: 1px;
+  line-height: 1;
 
   .item-icon {
-    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
 }
 </style>

@@ -8,13 +8,18 @@ import Map from 'ol/Map';
 import View from 'ol/View';
 import TileLayer from 'ol/layer/Tile';
 import XYZ from 'ol/source/XYZ';
-import {fromLonLat, transformExtent} from 'ol/proj';
+import {fromLonLat, toLonLat, transformExtent} from 'ol/proj';
 import {defaults as defaultControls} from 'ol/control';
 import {defaults as defaultInteractions} from 'ol/interaction';
 import DragPan from 'ol/interaction/DragPan';
 import MouseWheelZoom from 'ol/interaction/MouseWheelZoom';
 import PinchZoom from 'ol/interaction/PinchZoom';
 import DoubleClickZoom from 'ol/interaction/DoubleClickZoom';
+import Storage from '@/assets/sripts/storage';
+import {storage_account} from '@/assets/sripts/index';
+
+const storage = new Storage();
+const SAVED_CENTER_STORAGE_KEY = 'map.view.center';
 
 const mapContainerRef = ref<HTMLElement | null>(null);
 // OL Map 是类实例，不能被深层响应式代理，否则内部图层身份比较会失效
@@ -37,6 +42,10 @@ const props = withDefaults(defineProps<{
    */
   bounds?: [number, number, number, number];
   debug?: boolean;
+  /**
+   * 是否在开启“记录地图中心”配置时加载并记录中心坐标
+   */
+  rememberCenter?: boolean;
 }>(), {
   locations: () => [],
   draggable: true,
@@ -45,6 +54,7 @@ const props = withDefaults(defineProps<{
   animated: true,
   bounds: undefined,
   debug: false,
+  rememberCenter: false,
 });
 
 const dragPanInteraction = new DragPan();
@@ -75,6 +85,21 @@ const updateInteractions = () => {
 
 onMounted(() => {
   if (mapContainerRef.value) {
+    let centerCoords = [-0.667206, 0.626653];
+    let initialZoomLevel = props.initialZoom;
+
+    // 当 rememberCenter 为 true 且设置开启时，优先还原上次记录的中心坐标
+    const isRememberCenterActive = props.rememberCenter && storage_account.getConfigurationItem('map', 'rememberMapCenter', {defaultValue: false});
+    if (isRememberCenterActive && props.longitude === undefined && props.latitude === undefined && !props.locationId) {
+      const saved = storage.local.get(SAVED_CENTER_STORAGE_KEY)?.data?.value;
+      if (saved && Number.isFinite(saved.longitude) && Number.isFinite(saved.latitude)) {
+        centerCoords = [saved.longitude, saved.latitude];
+        if (saved.zoom !== undefined && Number.isFinite(saved.zoom)) {
+          initialZoomLevel = saved.zoom;
+        }
+      }
+    }
+
     const map = new Map({
       target: mapContainerRef.value,
       layers: [
@@ -101,8 +126,8 @@ onMounted(() => {
         doubleClickZoomInteraction,
       ]),
       view: new View({
-        center: fromLonLat([-0.667206, 0.626653]),
-        zoom: props.initialZoom,
+        center: fromLonLat(centerCoords),
+        zoom: initialZoomLevel,
         maxZoom: props.debug ? 28 : 15,
         minZoom: props.debug ? 1 : 12,
         // 边界约束：非 debug 模式下严格限制不能划出边界；debug 模式无视边界约束
@@ -113,6 +138,23 @@ onMounted(() => {
     });
     mapInstance.value = map;
     updateInteractions();
+
+    // 开启记录中心时，地图移动停止后保存当前中心与缩放
+    map.on('moveend', () => {
+      if (props.rememberCenter && storage_account.getConfigurationItem('map', 'rememberMapCenter', {defaultValue: false})) {
+        const view = map.getView();
+        const center = view.getCenter();
+        if (center) {
+          const [lon, lat] = toLonLat(center);
+          const currentZoom = view.getZoom();
+          storage.local.set(SAVED_CENTER_STORAGE_KEY, {
+            longitude: Number(lon.toFixed(6)),
+            latitude: Number(lat.toFixed(6)),
+            zoom: currentZoom !== undefined ? Number(currentZoom.toFixed(2)) : undefined,
+          });
+        }
+      }
+    });
 
     if (props.longitude !== undefined && props.latitude !== undefined) {
       panTo(props.longitude, props.latitude, props.zoom);

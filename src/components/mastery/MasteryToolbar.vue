@@ -9,7 +9,7 @@ const {mobile} = useDisplay();
 
 const props = defineProps<{
   searchSelected: string | null;
-  searchItems: Array<{ id: string; skill: string; category?: string; title: string }>;
+  searchItems: Array<{ id: string; key?: string; skill: string; category?: string; title: string }>;
   isLeftPanelOpen: boolean;
   viewRef?: HTMLElement | null;
   // 保留可选兼容属性
@@ -81,8 +81,8 @@ function filterSearchItem(value: any, queryText: string, item: any): boolean {
           <template v-slot:prepend>
             <div class="mr-3">
               <MasteryIconWidget
-                  :id="((item as any).raw ?? item).id"
-                  :name="((item as any).raw ?? item).id"
+                  :id="((item as any).raw ?? item).skill || ((item as any).raw ?? item).id"
+                  :name="((item as any).raw ?? item).skill || ((item as any).raw ?? item).id"
                   :category="((item as any).raw ?? item).category"
                   :with-background="true"
                   :size="30"

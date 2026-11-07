@@ -264,6 +264,9 @@ onMounted(async () => {
  * 提交补充注册
  */
 const onCompleteSignup = async () => {
+  if (!signupForm.value.username || !signupForm.value.password || !signupForm.value.email) {
+    return;
+  }
   if (!isCaptchaValid(signupCaptcha.value)) {
     notice.warning(t('captcha.messages.bad'));
     return;
@@ -278,7 +281,7 @@ const onCompleteSignup = async () => {
       username: signupForm.value.username,
       alternativeName: signupForm.value.alternativeName || signupForm.value.username,
       password: signupForm.value.password,
-      email: signupForm.value.email || undefined,
+      email: signupForm.value.email,
       captcha: signupCaptcha.value,
       language: locale.value,
     });
@@ -560,7 +563,7 @@ const onBackRoute = () => {
                         size="50"
                         block
                         :loading="submitLoading"
-                        :disabled="!signupForm.username || !signupForm.password || !isCaptchaValid(signupCaptcha) || ticketExpired"
+                        :disabled="!signupForm.username || !signupForm.password || !signupForm.email || !isCaptchaValid(signupCaptcha) || ticketExpired"
                         variant="flat">
                       {{ t('oauth.completeSignupBtn') }}
                     </v-btn>

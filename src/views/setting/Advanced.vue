@@ -1,7 +1,7 @@
 <template>
   <v-row>
       <!-- 桌面通知与活动提醒权限控制 -->
-      <v-col cols="12" md="6" lg="8">
+      <v-col cols="12" md="6" lg="4">
         <AffixBoxHasTitleView>
           <p class="text-caption opacity-60 mb-5">
             {{ t('setting.advanced.notification.description') }}

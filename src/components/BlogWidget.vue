@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, Ref, ref} from "vue";
+import {computed, onMounted, onUnmounted, Ref, ref} from "vue";
 import {useBlogApi} from "@/assets/sripts/api/blog_service";
 
 import MarkdownIt from 'markdown-it';
@@ -19,6 +19,11 @@ const md = new MarkdownIt({
 let loading: Ref<boolean> = ref(true),
     showBlogIndex: Ref<number> = ref(0),
     blogData: Ref<BlogData> = ref({})
+
+// 根元素引用与滚动监听
+const rootRef = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
+let hasRequested = false;
 
 onMounted(() => {
   md.renderer.rules.image = function (tokens, idx, options, env, self) {
@@ -49,7 +54,33 @@ onMounted(() => {
     return self.renderToken(tokens, idx, options);
   };
 
-  getBlogData()
+  // 滚动进可视范围才发起请求
+  if (rootRef.value && typeof IntersectionObserver !== 'undefined') {
+    observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && !hasRequested) {
+          hasRequested = true;
+          getBlogData();
+          observer?.disconnect();
+          observer = null;
+          break;
+        }
+      }
+    }, {
+      rootMargin: '100px',
+      threshold: 0,
+    });
+    observer.observe(rootRef.value);
+  } else {
+    getBlogData();
+  }
+})
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
 })
 
 let isNext = computed(() => {
@@ -123,7 +154,7 @@ const onPage = (type) => {
 </script>
 
 <template>
-  <div class="blog read-view">
+  <div ref="rootRef" class="blog read-view">
     <div class="position-relative">
       <template v-if="blogData.latestPosts">
         <v-row align="center" class="mb-2">

@@ -123,13 +123,14 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     const panelExpanded = ref<string[]>(['points', 'seasonal', 'aggregated']);
     const showShareDialog = ref(false);
 
-    // 搜索
+    // 搜索候选列表，条目唯一键必须为节点 key，避免同技能节点产生重复 ID
     const searchSelected = ref<string | null>(null);
     const searchItems = computed(() => {
         if (!activeTree.value?.nodes) return [];
         return Object.values(activeTree.value.nodes).map(n => ({
-            id: n.id,
+            id: n.key,
             key: n.key,
+            value: n.key,
             skill: n.id,
             category: n.category,
             title: `${getSkillName(n.id, n.key)} (${n.key})`

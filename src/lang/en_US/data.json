@@ -3217,6 +3217,38 @@
       "noReport": "No connoisseur report for this week"
     }
   },
+  "news": {
+    "title": "News & Updates",
+    "subtitle": "Real-time official tweets, community feeds, and game updates",
+    "heroTitle": "Official & Community Feeds",
+    "heroSubtitle": "Real-time official tweets, community feeds, and game updates for Skull and Bones",
+    "records": "records",
+    "currentPlatform": "Filtered Platform",
+    "searchPlaceholder": "Search content, author, or ID...",
+    "copyContent": "Copy Text",
+    "copySuccess": "Content copied to clipboard",
+    "viewMedia": "View Media",
+    "meta": {
+      "description": "Latest Skull and Bones news, official tweets, community updates, and release notes",
+      "keywords": "Skull and Bones, news, updates, official tweets, patch notes, Ubisoft"
+    },
+    "all": "All Platforms",
+    "x": "X (Twitter)",
+    "xiaoheihe": "Xiaoheihe",
+    "statsTotal": "Total Scraped",
+    "statsUnit": "Articles",
+    "refresh": "Refresh",
+    "refreshSuccess": "News refreshed successfully",
+    "viewOriginal": "View Original / Media",
+    "noNews": "No news articles found",
+    "noNewsDesc": "No articles matching current filters. Please try another platform or refresh later",
+    "author": "Author",
+    "publishedAt": "Published at",
+    "dialogTitle": "News Details",
+    "copyLink": "Copy Share Link",
+    "copyLinkSuccess": "News link copied to clipboard",
+    "viewOriginalPlatform": "View Original Post"
+  },
   "map": {
     "title": "Map",
     "description": "Inventory of all map items",
@@ -3224,6 +3256,8 @@
     "generalSettings": "General Settings",
     "rememberMarkerSelection": "Remember Selection",
     "rememberMarkerSelectionDesc": "Remember marker and layer visibility selections across browser sessions",
+    "rememberMapCenter": "Remember Map Center",
+    "rememberMapCenterDesc": "Restore last viewed center coordinates and zoom level when re-entering the map",
     "markerZoomSettings": "Marker Zoom & Scale Settings",
     "markerZoomSettingsDesc": "Customize visibility zoom range (Zoom 12-15) and icon scale size for marker categories",
     "visibleZoomRange": "Visible Zoom Range",
@@ -5256,6 +5290,10 @@
       "drop": {
         "title": "Twitch Drops",
         "description": "Seize active Twitch bounty drops and unearth historical plunder archives"
+      },
+      "news": {
+        "title": "News & Updates",
+        "description": "Real-time updates, official tweets, community news, and game notices"
       },
       "maps": {
         "title": "Map",

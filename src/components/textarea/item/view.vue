@@ -36,22 +36,22 @@ const items = Items
 .ultimate-span-box {
   position: relative;
   display: inline-flex;
-  width: auto;
-  height: inherit;
-  align-items: baseline;
-  gap: 2px;
+  align-items: center;
+  vertical-align: middle;
+  gap: 4px;
+  line-height: 1;
 
   .item-icon {
-    position: relative;
-    top: 7px;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   > .item-name {
-    position: relative;
-    top: auto;
-    left: auto;
-    width: auto;
-    height: auto;
+    display: inline-flex;
+    align-items: center;
+    line-height: inherit;
     z-index: 1;
   }
 }

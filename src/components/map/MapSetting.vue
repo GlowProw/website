@@ -5,13 +5,13 @@
       max-width="850"
       scrollable
       :fullscreen="mobile">
-    <v-card border class="map-setting-card">
-      <v-card-title class="py-10 text-center bg-black mx-n5 create-marker-card">
+    <v-card border class="map-setting-card pa-2">
+      <v-card-title class="py-10 text-center rounded-lg bg-black create-marker-card">
         <v-icon size="80">mdi-map-marker</v-icon>
         <v-icon size="80" icon="mdi-cog" class="ml-2"></v-icon>
       </v-card-title>
 
-      <v-card-item class="border-b pa-0">
+      <v-card-item class="border-b pa-0 px-2 mx-n2">
         <v-tabs v-model="activeTab" color="amber" density="comfortable" class="">
           <v-tab value="general">
             {{ t('map.generalSettings') }}
@@ -22,10 +22,10 @@
         </v-tabs>
       </v-card-item>
 
-      <v-card-text class="pa-4 pa-md-6" style="max-height: 65vh">
+      <v-card-text class="px-2 py-5" style="max-height: 65vh">
         <!-- 常规设置 S -->
         <div v-show="activeTab === 'general'">
-          <v-card border elevation="0" class="mb-4">
+          <v-card border elevation="0">
             <v-list class="bg-transparent" lines="two">
               <v-list-item>
                 <v-list-item-title class="font-weight-medium">
@@ -44,6 +44,26 @@
                   </v-switch>
                 </template>
               </v-list-item>
+
+              <v-divider></v-divider>
+
+              <v-list-item>
+                <v-list-item-title class="font-weight-medium">
+                  {{ t('map.rememberMapCenter') }}
+                </v-list-item-title>
+                <v-list-item-subtitle class="text-caption opacity-70">
+                  {{ t('map.rememberMapCenterDesc') }}
+                </v-list-item-subtitle>
+                <template v-slot:append>
+                  <v-switch
+                      v-model="rememberMapCenter"
+                      color="amber"
+                      hide-details
+                      inset
+                      @update:model-value="onToggleRememberMapCenter">
+                  </v-switch>
+                </template>
+              </v-list-item>
             </v-list>
           </v-card>
         </div>
@@ -51,43 +71,36 @@
 
         <!-- 标记缩放与尺寸设置 S -->
         <div v-show="activeTab === 'zoom'">
-          <v-alert
-              type="info"
-              variant="tonal"
-              density="compact"
-              color="amber"
-              icon="mdi-information-outline"
-              class="mb-4 text-caption">
-            <div>{{ t('map.markerZoomSettingsDesc') }}</div>
-            <div class="opacity-70 mt-1">{{ t('map.zoomLevelHint') }}</div>
-          </v-alert>
-
           <!-- 快速预设按钮栏 -->
-          <div class="d-flex flex-wrap align-center ga-2 mb-4">
-            <span class="text-caption opacity-70 mr-2">{{ t('map.batchConfig') }}:</span>
-            <v-btn
-                size="small"
-                variant="outlined"
-                color="amber"
-                prepend-icon="mdi-restore"
-                @click="onApplyPreset('default')">
-              {{ t('map.presetDefault') }}
-            </v-btn>
-            <v-btn
-                size="small"
-                variant="outlined"
-                prepend-icon="mdi-eye-outline"
-                @click="onApplyPreset('allVisible')">
-              {{ t('map.presetAlwaysVisible') }}
-            </v-btn>
-          </div>
+          <v-row class="mb-3 mx-1">
+            <v-col class="text-caption mr-2">{{ t('map.batchConfig') }}</v-col>
+            <v-spacer></v-spacer>
+            <v-col cols="auto" class="d-flex ga-2">
+              <v-btn
+                  size="small"
+                  variant="tonal"
+                  color="amber"
+                  prepend-icon="mdi-restore"
+                  @click="onApplyPreset('default')">
+                {{ t('map.presetDefault') }}
+              </v-btn>
+              <v-btn
+                  size="small"
+                  variant="tonal"
+                  prepend-icon="mdi-eye-outline"
+                  @click="onApplyPreset('allVisible')">
+                {{ t('map.presetAlwaysVisible') }}
+              </v-btn>
+            </v-col>
+          </v-row>
 
           <!-- 分组配置折叠面板 -->
-          <v-expansion-panels v-model="openedPanels" multiple variant="accordion" class="zoom-config-panels">
+          <v-expansion-panels v-model="openedPanels" multiple :gap="10" variant="accordion" class="zoom-config-panels">
             <v-expansion-panel
                 v-for="(categories, groupName) in groupedCategories"
                 :key="groupName"
-                class="mb-2 border rounded">
+                :rounded="30"
+                elevation="0">
               <v-expansion-panel-title class="py-2 px-4">
                 <div class="d-flex align-center justify-space-between w-100 pr-2">
                   <div class="d-flex align-center font-weight-medium">
@@ -97,7 +110,7 @@
                 </div>
               </v-expansion-panel-title>
 
-              <v-expansion-panel-text>
+              <v-expansion-panel-text class="bg-surface">
                 <v-row density="comfortable">
                   <v-col
                       cols="12"
@@ -183,13 +196,22 @@
               </v-expansion-panel-text>
             </v-expansion-panel>
           </v-expansion-panels>
+
+          <v-alert
+              type="info"
+              variant="tonal"
+              density="compact"
+              color="amber"
+              icon="mdi-information-outline"
+              class="my-2 text-caption">
+            <div>{{ t('map.markerZoomSettingsDesc') }}</div>
+            <div class="opacity-70 mt-1">{{ t('map.zoomLevelHint') }}</div>
+          </v-alert>
         </div>
         <!-- 标记缩放与尺寸设置 E -->
       </v-card-text>
 
-      <v-divider></v-divider>
-
-      <v-card-actions class="py-3 px-6 bg-surface">
+      <v-card-actions class="py-3 px-6 mx-n2 mb-n2 border-t bg-surface">
         <v-btn
             v-show="activeTab === 'zoom'"
             variant="text"
@@ -220,10 +242,14 @@
 import {onMounted, ref, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
 import {useDisplay} from 'vuetify/framework';
+import Storage from '@/assets/sripts/storage';
 import {storage_account} from '@/assets/sripts/index';
 import {useNoticeStore} from '~/stores/noticeStore';
 import {DEFAULT_CATEGORY_ZOOM_CONFIG, getActiveCategoryZoomConfig} from '@/assets/sripts/map_zoom_config';
 import type {CategoryZoomRule} from '@/assets/types/Map';
+
+const storage = new Storage();
+const SAVED_CENTER_STORAGE_KEY = 'map.view.center';
 
 const props = defineProps<{
   modelValue: boolean;
@@ -242,11 +268,15 @@ const openedPanels = ref<number[]>([0]);
 // 常规设置：记录选择开关
 const rememberMarkerSelection = ref(true);
 
+// 常规设置：记录地图中心开关
+const rememberMapCenter = ref(false);
+
 // 自定义分类缩放配置（本地草稿状态）
 const customConfig = ref<Record<string, CategoryZoomRule>>({});
 
 const loadCurrentSettings = () => {
   rememberMarkerSelection.value = storage_account.getConfigurationItem('map', 'rememberMarkerSelection', {defaultValue: true});
+  rememberMapCenter.value = storage_account.getConfigurationItem('map', 'rememberMapCenter', {defaultValue: false});
   const active = getActiveCategoryZoomConfig();
 
   // 深拷贝
@@ -268,6 +298,18 @@ const onToggleRememberSelection = (val: boolean) => {
 
   if (!val) {
     storage_account.updateConfiguration('map', 'marker.select', null);
+  }
+};
+
+/**
+ * 切换记录地图中心配置项
+ * @param val 开关布尔值
+ */
+const onToggleRememberMapCenter = (val: boolean) => {
+  storage_account.updateConfiguration('map', 'rememberMapCenter', val);
+
+  if (!val) {
+    storage.local.rem(SAVED_CENTER_STORAGE_KEY);
   }
 };
 
@@ -333,7 +375,12 @@ const onResetAllToDefault = () => {
 
 const onSaveSettings = () => {
   storage_account.updateConfiguration('map', 'rememberMarkerSelection', rememberMarkerSelection.value);
+  storage_account.updateConfiguration('map', 'rememberMapCenter', rememberMapCenter.value);
   storage_account.updateConfiguration('map', 'categoryZoomConfig', customConfig.value);
+
+  if (!rememberMapCenter.value) {
+    storage.local.rem(SAVED_CENTER_STORAGE_KEY);
+  }
 
   notice.success(t('map.settingsSaved'));
 

@@ -1,23 +1,16 @@
 <script setup lang="ts">
 import {useI18n} from "vue-i18n";
 import I18nWidget from "./i18nWidget.vue";
-import ServiceProviderWidget from "@/components/ServiceProviderWidget.vue";
-import ServiceStatusBadge from "@/components/ServiceStatusBadge.vue";
 import {appFuns, appNavs} from "@/assets/sripts/index";
+import {useAppStore} from "~/stores/appStore";
+
+import ServiceProviderWidget from "@/components/ServiceProviderWidget.vue";
+import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import Logo from "@/components/Logo.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
-import {useAppStore} from "~/stores/appStore";
-import { usePWAEnvironment } from "@/assets/sripts/use_pwa_environment";
-import {onMounted} from "vue";
-import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 
 const {t} = useI18n(),
-    appStore = useAppStore(),
-    pwa = usePWAEnvironment()
-
-onMounted(() => {
-  pwa.isPWA
-})
+    appStore = useAppStore()
 
 defineOptions({
   name: 'Footer'
@@ -36,7 +29,6 @@ defineOptions({
               {{ t('name') }}
             </h2>
             <p class="mb-3 mt-1 opacity-80">{{ t('footer.basic.description') }}</p>
-            <ServiceStatusBadge class="ml-n2 mb-1"></ServiceStatusBadge>
             <p class="opacity-60 mt-2">@2025-{{ new Date().getFullYear() }} {{ t('name') }}</p>
           </v-col>
           <v-col cols="12" sm="12" md="7" lg="9" order="1" order-sm="1" order-lg="2">

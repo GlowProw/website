@@ -20,6 +20,7 @@ import {useAccountGrowthApi} from "@/assets/sripts/api/account_growth_service";
 import {useCollectionApi} from "@/assets/sripts/api/collection_service";
 import {usePublicStatsApi} from "@/assets/sripts/api/public_stats_service";
 import {useMcpOAuthApi} from "@/assets/sripts/api/mcp_oauth_service";
+import {useNewsApi} from "@/assets/sripts/api/news_service";
 
 export * from './user_service'
 export * from './assembly_service'
@@ -43,6 +44,7 @@ export * from './bot_service'
 export * from './account_growth_service'
 export * from './collection_service'
 export * from './public_stats_service'
+export * from './news_service'
 export * from './api-util'
 
 export class Apis {
@@ -68,4 +70,5 @@ export class Apis {
     static collectionApi = useCollectionApi
     static publicStatsApi = usePublicStatsApi
     static mcpOAuthApi = useMcpOAuthApi
+    static newsApi = useNewsApi
 }

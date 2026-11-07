@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {onMounted, Ref, ref} from "vue";
+import {onMounted, onUnmounted, Ref, ref} from "vue";
 import {VersionData} from "@/assets/types/Blog";
 
 import MarkdownIt from 'markdown-it';
@@ -19,6 +19,10 @@ let loading = ref(true),
     showVersionIndex = ref(0),
     versionData: Ref<VersionData> = ref({})
 
+// 根元素引用与滚动监听
+const rootRef = ref<HTMLElement | null>(null);
+let observer: IntersectionObserver | null = null;
+let hasRequested = false;
 
 onMounted(() => {
   md.renderer.rules.image = function (tokens, idx, options, env, self) {
@@ -27,7 +31,33 @@ onMounted(() => {
     return `<div class="img"><img src="${convertPath(src, api.blogBaseUrl)}" alt="${token.content}" /></div>`;
   };
 
-  getVersionData()
+  // 滚动进可视范围才发起请求
+  if (rootRef.value && typeof IntersectionObserver !== 'undefined') {
+    observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting && !hasRequested) {
+          hasRequested = true;
+          getVersionData();
+          observer?.disconnect();
+          observer = null;
+          break;
+        }
+      }
+    }, {
+      rootMargin: '100px',
+      threshold: 0,
+    });
+    observer.observe(rootRef.value);
+  } else {
+    getVersionData();
+  }
+})
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+    observer = null;
+  }
 })
 
 /**
@@ -75,7 +105,7 @@ const getVersionData = async () => {
 </script>
 
 <template>
-  <div class="app-version read-view">
+  <div ref="rootRef" class="app-version read-view">
     <template v-if="versionData.latestPosts">
       <v-row align="center">
         <v-col cols="auto">

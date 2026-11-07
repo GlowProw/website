@@ -54,6 +54,12 @@ export default class AppFuns {
                 to: `/${lang}/drop`
             },
             {
+                title: 'header.functions.news.title',
+                icon: 'mdi-newspaper-variant-outline',
+                description: 'header.functions.news.description',
+                to: `/${lang}/news`
+            },
+            {
                 title: 'codex.treasureMaps.comparison.title',
                 icon: 'mdi-image-search-outline',
                 description: 'codex.treasureMaps.comparison.description',

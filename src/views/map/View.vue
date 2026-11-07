@@ -10,8 +10,8 @@
         :locations="locations"
         :bounds="mapBounds"
         :debug="isDebug"
-        @map-created="onMapCreated"
-    />
+        :remember-center="true"
+        @map-created="onMapCreated" />
 
     <MapToolbar
         v-model="searchQuery"

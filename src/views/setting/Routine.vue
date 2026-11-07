@@ -31,25 +31,19 @@
 
         <div class="d-flex align-center justify-space-between mb-4">
           <div class="text-caption opacity-80">
-            <span>{{ t('setting.routine.activeFunctionsCount', { count: activeFunctions.length }) }}</span>
+            <span>{{ t('setting.routine.activeFunctionsCount', {count: activeFunctions.length}) }}</span>
           </div>
-          <v-btn
-              color="amber"
-              variant="tonal"
-              size="small"
-              prepend-icon="mdi-cog-outline"
-              @click="isManageFunctionsOpen = true">
-            {{ t('basic.button.manage') || '管理' }}
-          </v-btn>
         </div>
 
         <!-- 激活列表预览 -->
-        <div class="d-flex flex-wrap ga-2">
+        <div class="d-flex flex-wrap ga-2"
+             @click="isManageFunctionsOpen = true">
           <v-chip
               v-for="func in activeFunctions"
               :key="func.key"
-              size="x-small"
+              size="small"
               variant="tonal"
+              class="cursor-pointer"
               color="amber">
             {{ t(func.key) }}
           </v-chip>
@@ -282,20 +276,22 @@
   <!-- 功能管理弹窗 S -->
   <v-dialog v-model="isManageFunctionsOpen" max-width="720">
     <v-card border class="bg-grey-darken-4 pa-2">
-      <v-card-title class="py-6 border rounded-lg text-center bg-black mb-4">
-        <v-icon size="48" class="mb-2 text-amber">mdi-view-dashboard-edit-outline</v-icon>
+      <v-card-title class="py-6 border rounded-lg text-center bg-black">
+        <v-icon size="48" class="mb-2">mdi-view-dashboard-edit-outline</v-icon>
         <p class="text-h6 font-weight-bold">{{ t('setting.routine.manageFunctions') }}</p>
-        <p class="text-caption opacity-60 mt-1">{{ t('setting.routine.featureDesc') }}</p>
-        <p class="text-caption text-grey">{{ t('setting.routine.featureHint') }}</p>
       </v-card-title>
 
       <v-card-text class="px-2">
+        <div class="mb-4">
+          <p class="text-caption opacity-60">{{ t('setting.routine.featureDesc') }}</p>
+          <p class="text-caption text-grey">{{ t('setting.routine.featureHint') }}</p>
+        </div>
+
         <v-row>
           <!-- 激活区域（支持拖拽排序与上下移动） -->
           <v-col cols="12" md="7">
             <div class="d-flex align-center justify-space-between mb-2">
               <div class="font-weight-bold text-body-2 d-flex align-center ga-1">
-                <v-icon size="small" color="amber">mdi-check-circle-outline</v-icon>
                 <span>{{ t('setting.routine.activeArea') }} ({{ activeFunctions.length }})</span>
               </div>
               <span class="text-caption opacity-50">{{ t('setting.routine.dragHint') }}</span>
@@ -358,48 +354,14 @@
           <v-col cols="12" md="5">
             <div class="d-flex align-center justify-space-between mb-2">
               <div class="font-weight-bold text-body-2 d-flex align-center ga-1">
-                <v-icon size="small" class="opacity-60">mdi-minus-circle-outline</v-icon>
                 <span>{{ t('setting.routine.inactiveArea') }} ({{ inactiveFunctions.length }})</span>
               </div>
             </div>
 
-            <!-- 下拉快捷激活 -->
-            <v-select
-                v-model="selectedToActivate"
-                :items="inactiveFunctions"
-                item-title="title"
-                item-value="key"
-                :label="t('setting.routine.inactiveFunctions', { count: inactiveFunctions.length })"
-                multiple
-                chips
-                variant="outlined"
-                density="compact"
-                hide-details
-                class="mb-3"
-                @update:model-value="onActivateFunctions">
-              <template v-slot:chip="{ props, item }">
-                <v-chip v-bind="props" size="x-small" color="info">
-                  {{ t((item.raw ?? item).key) }}
-                </v-chip>
-              </template>
-              <template v-slot:item="{ props, item }">
-                <v-list-item v-bind="props">
-                  <template v-slot:title>
-                    {{ t((item.raw ?? item).key) }}
-                  </template>
-                </v-list-item>
-              </template>
-              <template v-slot:no-data>
-                <EmptyView></EmptyView>
-              </template>
-            </v-select>
-
-            <div
-                class="inactive-drop-zone pa-2 rounded-lg border"
-                :class="{ 'drop-active': isDraggingOverInactive }"
-                @dragover.prevent="onDragOverInactiveZone"
-                @dragleave="onDragLeaveInactiveZone"
-                @drop="onDropToInactiveZone">
+            <div :class="{ 'drop-active': isDraggingOverInactive }"
+                 @dragover.prevent="onDragOverInactiveZone"
+                 @dragleave="onDragLeaveInactiveZone"
+                 @drop="onDropToInactiveZone">
               <div v-if="inactiveFunctions.length === 0" class="text-center py-6 opacity-40 text-caption">
                 {{ t('setting.routine.allActivated') }}
               </div>
@@ -409,9 +371,8 @@
                     v-for="func in inactiveFunctions"
                     :key="func.key"
                     size="small"
-                    variant="outlined"
                     class="cursor-move"
-                    draggable="true"
+                    :draggable="true"
                     append-icon="mdi-plus"
                     @dragstart="onInactiveDragStart($event, func)"
                     @dragend="onDragEnd"
@@ -441,12 +402,11 @@ import ItemIconManager from "@/components/ItemIconManager.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import {appFuns, storage_account, storage_capacity_monitor} from "@/assets/sripts/index";
-import {onMounted, Ref, ref, computed} from "vue";
+import {computed, onMounted, ref, Ref} from "vue";
 import {useI18n} from "vue-i18n";
 import ItemIconCdnAssets from "@/components/ItemIconCdnAssets.vue";
 import ItemModelCdnAssets from "@/components/ItemModelCdnAssets.vue";
 import ItemLangCdnAssets from "@/components/ItemLangCdnAssets.vue";
-import EmptyView from "@/components/EmptyView.vue";
 
 const {t} = useI18n()
 
@@ -855,10 +815,6 @@ const clearStorage = () => {
 
 .active-item-row {
   transition: all .2s ease;
-
-  &:hover {
-    border-color: rgba(255, 179, 0, 0.4) !important;
-  }
 
   &.dragging {
     opacity: 0.35;

@@ -14,6 +14,7 @@ import Loading from "@/components/Loading.vue";
 import QQBotBannerWidget from "@/components/QQBotBannerWidget.vue";
 import QQBotShowcaseWidget from "@/components/QQBotShowcaseWidget.vue";
 import Banner from "@/components/Banner.vue";
+import NewsCarouselWidget from "@/components/NewsCarouselWidget.vue";
 
 const {t} = useI18n()
 const {season: readSeason} = useI18nReadName()
@@ -61,7 +62,6 @@ onUnmounted(() => {
   <Banner>
     <v-card class="portal-banner overflow-hidden position-relative">
       <template v-slot:image>
-
         <div class="portal-banner-looping-video w-100 opacity-100">
           <video autoplay playsinline
                  muted loop
@@ -80,6 +80,10 @@ onUnmounted(() => {
       </div>
     </v-card>
   </Banner>
+
+  <div class="bg-black py-5">
+    <NewsCarouselWidget></NewsCarouselWidget>
+  </div>
 
   <div>
     <div class="portal-body overflow-hidden position-relative pl-3 pr-3 pt-10">
@@ -291,6 +295,13 @@ onUnmounted(() => {
 
 @media screen and (max-width: 980px) {
   .portal-banner {
+    min-height: 480px;
+
+    .portal-banner-top {
+      padding-left: 10px;
+      padding-top: 50px;
+    }
+
     .title {
       margin-bottom: 50px;
       max-width: 80% !important;

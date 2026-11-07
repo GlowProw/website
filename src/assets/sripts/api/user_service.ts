@@ -497,7 +497,7 @@ export function useUserApi() {
     /**
      * 第三方登录新用户补充注册
      */
-    const oauthCompleteSignup = async (data: { oauthTicket: string; username: string; alternativeName?: string; password: string; email?: string; captcha: CaptchaParams; language?: string }) => {
+    const oauthCompleteSignup = async (data: { oauthTicket: string; username: string; alternativeName?: string; password: string; email: string; captcha: CaptchaParams; language?: string }) => {
         try {
             const result = await http.post('user/oauth/complete-signup', { data })
             return handleResponse(result)

@@ -20,6 +20,7 @@ const QQBotPage = () => import('@/views/apps/QQBot.vue');
 const ApiDocsPage = () => import('@/views/apps/ApiDocs.vue');
 const AIConnectorPage = () => import('@/views/apps/AIConnector.vue');
 const DropPage = () => import('@/views/drop/Index.vue');
+const NewsPage = () => import('@/views/news/Index.vue');
 const ReminderIndexPage = () => import('@/views/reminder/Index.vue');
 const ReminderViewPage = () => import('@/views/reminder/View.vue');
 const Test = () => import('@/views/Test.vue');
@@ -180,6 +181,15 @@ export const miscRoutes: RouteRecordRaw[] = [
         meta: {
             title: 'drop.title',
             keywords: 'drop.meta.keywords'
+        }
+    },
+    {
+        path: '/news',
+        name: 'News',
+        component: NewsPage,
+        meta: {
+            title: 'news.title',
+            keywords: 'news.meta.keywords'
         }
     },
     {

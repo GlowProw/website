@@ -3152,6 +3152,38 @@
       "noReport": "本週暫無鑑賞家週報"
     }
   },
+  "news": {
+    "title": "新聞資訊",
+    "subtitle": "即時同步《碧海黑帆》官方推文、社群與最新動態",
+    "heroTitle": "官方與社群動態",
+    "heroSubtitle": "即時同步《碧海黑帆》官方推特公告、小黑盒社群動態與最新資訊",
+    "records": "條記錄",
+    "currentPlatform": "目前篩選平台",
+    "searchPlaceholder": "搜尋新聞內容、作者或 ID...",
+    "copyContent": "複製正文",
+    "copySuccess": "正文內容已複製到剪貼簿",
+    "viewMedia": "查看大圖",
+    "meta": {
+      "description": "碧海黑帆最新新聞資訊、官方推特公告、小黑盒社群動態即時彙總",
+      "keywords": "碧海黑帆, 碧海黑帆新聞, 官方推特, 小黑盒動態, 遊戲更新, Skull and Bones"
+    },
+    "all": "全部平台",
+    "x": "X (Twitter)",
+    "xiaoheihe": "小黑盒",
+    "statsTotal": "累計抓取",
+    "statsUnit": "條新聞",
+    "refresh": "重新整理",
+    "refreshSuccess": "已更新最新新聞",
+    "viewOriginal": "檢視原文 / 媒體",
+    "noNews": "暫無匹配的新聞內容",
+    "noNewsDesc": "未找到目前篩選條件下的新聞或動態，請嘗試切換平台或稍後重新整理",
+    "author": "發布者",
+    "publishedAt": "發布於",
+    "dialogTitle": "新聞詳情",
+    "copyLink": "複製分享連結",
+    "copyLinkSuccess": "新聞連結已複製到剪貼簿",
+    "viewOriginalPlatform": "造訪原文發布位址"
+  },
   "map": {
     "title": "地圖",
     "description": "所有地圖物品清單",
@@ -3159,6 +3191,8 @@
     "generalSettings": "一般設定",
     "rememberMarkerSelection": "記錄選擇",
     "rememberMarkerSelectionDesc": "關閉或重新整理網頁後，保留地圖標記與圖層的勾選狀態",
+    "rememberMapCenter": "記錄地圖中心",
+    "rememberMapCenterDesc": "再次進入地圖時恢復上次瀏覽的中心座標與縮放級別",
     "markerZoomSettings": "標記縮放與尺寸設定",
     "markerZoomSettingsDesc": "自訂各分類標記在不同地圖縮放層級（Zoom 12-15）下的可見範圍與圖示大小比例",
     "visibleZoomRange": "顯示層級範圍",
@@ -5259,6 +5293,10 @@
       "drop": {
         "title": "Twitch掉寶",
         "description": "掌握Twitch海域掉寶動態，打撈限時補給與歷史戰利品檔案"
+      },
+      "news": {
+        "title": "新聞資訊",
+        "description": "即時同步《碧海黑帆》官方推文、小黑盒社群動態與最新資訊"
       },
       "maps": {
         "title": "地圖",
