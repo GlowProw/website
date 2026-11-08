@@ -9,8 +9,10 @@ import type {TimeMap} from "@/assets/types/Codex";
 const props = withDefaults(defineProps<{
   time?: string | number | Date;
   trigger?: string;
+  relative?: boolean;
 }>(), {
-  trigger: 'click'
+  trigger: 'click',
+  relative: false
 });
 
 const {t} = useI18n();
@@ -117,7 +119,7 @@ onMounted(() => {
          @mousemove="onMouseMove"
          @mouseenter="onMouseEnter">
         <slot></slot>
-        <Time :time="time"/>
+        <Time :time="time" :relative="relative"/>
       </u>
     </template>
 

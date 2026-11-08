@@ -1,7 +1,14 @@
 import {ApiError} from "@/assets/types/Api";
 import {useHttpToken} from "@/assets/sripts/http_util";
 import {createApiBase} from "@/assets/sripts/api/api-util";
-import {CommentListParams, CreateCommentParams, UpdateCommentParams} from "@/assets/types/Comment";
+import {
+    CommentListParams,
+    CreateCommentParams,
+    UpdateCommentParams,
+    ReplyListParams,
+    CreateReplyParams,
+    UpdateReplyParams
+} from "@/assets/types/Comment";
 
 /**
  * 评论
@@ -20,6 +27,32 @@ export function useCommentApi() {
                 params: {
                     targetId: params.targetId,
                     targetType: params.targetType,
+                    sort: params.sort,
+                    page: params.page,
+                    pageSize: params.pageSize,
+                }
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
+    /**
+     * 获取回复列表
+     * @param params
+     */
+    const getReplies = async (params: ReplyListParams) => {
+        try {
+            const result = await http.get('comment/replies', {
+                params: {
+                    id: params.id,
+                    sort: params.sort,
+                    page: params.page,
+                    pageSize: params.pageSize,
                 }
             })
             return handleResponse(result)
@@ -38,6 +71,24 @@ export function useCommentApi() {
     const createComment = async (data: CreateCommentParams) => {
         try {
             const result = await http.post('comment', {
+                data
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
+    /**
+     * 创建回复
+     * @param data
+     */
+    const createReply = async (data: CreateReplyParams) => {
+        try {
+            const result = await http.post('comment/reply', {
                 data
             })
             return handleResponse(result)
@@ -72,6 +123,28 @@ export function useCommentApi() {
     };
 
     /**
+     * 编辑回复
+     * @param replyId
+     * @param data
+     */
+    const editReply = async (replyId: string, data: UpdateReplyParams) => {
+        try {
+            const result = await http.post('comment/reply/edit', {
+                data: {
+                    id: replyId,
+                    content: data.content
+                }
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
+    /**
      * 删除评论
      * @param commentId
      */
@@ -91,10 +164,34 @@ export function useCommentApi() {
         }
     };
 
+    /**
+     * 删除回复
+     * @param replyId
+     */
+    const deleteReply = async (replyId: string) => {
+        try {
+            const result = await http.post('comment/reply/delete', {
+                data: {
+                    id: replyId
+                }
+            })
+            return handleResponse(result)
+        } catch (error) {
+            if (error instanceof ApiError) {
+                throw error;
+            }
+            return handleError(error)
+        }
+    };
+
     return {
         getComments,
+        getReplies,
         createComment,
+        createReply,
         editComment,
+        editReply,
         deleteComment,
+        deleteReply,
     };
 }

@@ -25,11 +25,13 @@ import AccountCardWidget from "@/components/AccountCardWidget.vue";
 import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {useBrowseApi} from "@/assets/sripts/api/browse_service";
+import {useLikeStore} from "~/stores/likeStore";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 
 const route = useRoute(),
     router = useRouter(),
     authStore = useAuthStore(),
+    likeStore = useLikeStore(),
     notice = useNoticeStore(),
     {t} = useI18n(),
     {asString} = useI18nUtils()
@@ -38,6 +40,8 @@ const browseApi = useBrowseApi()
 
 // 浏览相关状态
 const browseCount = ref<{ total: number; today: number }>({total: 0, today: 0})
+// 点赞数量状态
+const likeCount = ref(0)
 
 let detailData: Ref<any> = ref({
       cloningUuid: '',
@@ -151,6 +155,12 @@ const getAssemblyDetail = async (force: boolean = false) => {
     // 拉取浏览统计（后端已在 /item 路由自动记录浏览，前端异步拉取数量展示）
     try {
       browseCount.value = await browseApi.getBrowseCount('assembly', <string>uuid);
+    } catch { /* 静默 */
+    }
+
+    // 拉取点赞统计
+    try {
+      likeCount.value = await likeStore.getLikeCount('assembly', <string>uuid);
     } catch { /* 静默 */
     }
   } catch (e) {
@@ -280,7 +290,8 @@ const onPenPassword = () => {
                 <div v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isLike">
                   <LikeWidget targetType="assembly"
                               :targetId="detailData.uuid"
-                              :userId="authStore.user.userId">
+                              :userId="authStore.user.userId"
+                              @change="(res: any) => { likeCount = res.likeCount; }">
                     <template v-slot:activate>
                       <v-btn variant="text" icon="mdi-thumb-up"></v-btn>
                     </template>
@@ -342,6 +353,10 @@ const onPenPassword = () => {
                   {{ browseCount.total || 0 }}
                   <span v-if="browseCount.today" class="opacity-60 ml-1">+{{ browseCount.today }}</span>
                 </v-chip>
+                <v-chip>
+                  <v-icon start icon="mdi-thumb-up-outline"></v-icon>
+                  {{ likeCount || 0 }}
+                </v-chip>
                 <v-chip :to="`/assembly/browse/${detailData.cloningUuid}/detail`" target="_blank" v-if="detailData.cloningUuid">
                   {{ t('assembly.byCloningUuid') }}: {{ detailData.cloningUuid }}
                 </v-chip>
@@ -393,7 +408,6 @@ const onPenPassword = () => {
           <AdsWidget class="my-5" id="assembly-detail-content"></AdsWidget>
 
           <template v-if="detailData.assembly.attr.isComment">
-            <v-divider>{{ t('comment.title') }}</v-divider>
             <CommentWidget :id="detailData.uuid" :placeholder="t('assembly.commentPlaceholder')"
                            type="assembly"></CommentWidget>
           </template>

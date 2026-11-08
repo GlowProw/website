@@ -4,7 +4,7 @@ import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 import {storeToRefs} from "pinia";
 import {type Season, Seasons} from "glow-prow-data";
-import {apis} from "@/assets/sripts";
+import {apis, formatRemainingTime} from "@/assets/sripts";
 import {getCurrentSeason, getCurrentSeasonId} from "@/assets/sripts/season";
 import {useStateOfWarStore} from "~/stores/stateOfWarStore";
 import type {CalendarData, CalendarEvent, DailyCalendarEventItem} from "@/assets/types/Calendar";
@@ -253,20 +253,9 @@ const activeCycleRemainingText = computed<string>(() => {
     return t("dailyReport.stateOfWar.cycleUpcoming");
   }
 
-  const now = Date.now();
-  const end = Number(activeCycle.value.endDate) || new Date(activeCycle.value.endDate).getTime();
-  const diff = end - now;
-  if (diff <= 0) return t("dailyReport.stateOfWar.cycleEnded");
-
-  const days = Math.floor(diff / 86400000);
-  const hours = Math.floor((diff % 86400000) / 3600000);
-
-  if (days > 0) {
-    return `${days}d ${hours}h`;
-  }
-  const minutes = Math.floor((diff % 3600000) / 60000);
-
-  return `${hours}h ${minutes}m`;
+  return formatRemainingTime(activeCycle.value.endDate, t, {
+    expiredText: t("dailyReport.stateOfWar.cycleEnded")
+  });
 });
 
 /**
@@ -544,11 +533,11 @@ const refreshAll = async () => {
             <v-col cols="12" lg="6" class="d-flex ga-3">
               <div>
                 <div class="d-flex align-center ga-2 flex-wrap">
-                  <h2 class="text-h3 font-weight-bold text-amber tracking-wide mb-0">
+                  <h2 class="text-h1 font-weight-bold text-amber tracking-wide mb-0">
                     {{ t("dailyReport.title") }}
                   </h2>
                 </div>
-                <p class="text-medium-emphasis mb-0 mt-3">
+                <p class="text-medium-emphasis mb-0">
                   {{ t("dailyReport.subtitle") }}
                 </p>
               </div>
@@ -564,23 +553,21 @@ const refreshAll = async () => {
                   <v-col>
                     <v-row align="center" justify="space-between" density="compact">
                       <v-col cols="12" sm="12" class="mt-2 mt-sm-0">
-                        <div class="d-inline-flex align-center ga-2 font-weight-bold bg-black-opacity-50 text-h3 text-amber">
-                          <span v-html="isSeasonEnded ? t('dailyReport.season.ended') : t('dailyReport.season.remainingDays', {days: `<span class='u'>${seasonDaysRemaining}</span>`})"></span>
+                        <div class="d-inline-flex align-center ga-2 font-weight-bold bg-black-opacity-50 text-h2 text-amber roun">
+                          <span v-html="isSeasonEnded ? t('dailyReport.season.ended') : t('dailyReport.season.remainingDays', {days: `<span class='bg-amber px-1 rounded-lg'>${seasonDaysRemaining}</span>`})"></span>
                         </div>
                       </v-col>
 
                       <v-col cols="12" sm="12">
                         <div class="d-flex align-center ga-2">
                           <div>
-                            <p class="text-subtitle-1 font-weight-bold text-white u">{{ seasonName }}</p>
+                            <p class="text-subtitle-1 font-weight-bold text-white">{{ seasonName }}</p>
                             <p v-if="seasonDateRange" class="text-medium-emphasis">
                               {{ seasonDateRange }}
                             </p>
                           </div>
                         </div>
                       </v-col>
-
-
                     </v-row>
                   </v-col>
                   <v-col cols="5">
@@ -886,12 +873,10 @@ const refreshAll = async () => {
                   <v-col cols="4" v-for="(comment, index) in connoisseurComments"
                          :key="index">
                     <v-card variant="text" width="360px" min-height="140px">
-                      <v-row no-gutters>
+                      <v-row>
                         <v-col cols="auto">
                           <AccountCardWidget :id="comment.userId">
-                            <ItemSlotBase size="50px">
-                              <UserAvatar :src="comment.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
-                            </ItemSlotBase>
+                            <UserAvatar :src="comment.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
                           </AccountCardWidget>
                         </v-col>
                         <v-col>

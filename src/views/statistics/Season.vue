@@ -7,6 +7,7 @@ import {computed, onMounted, ref, watch} from "vue";
 import {useRoute} from "vue-router";
 import {useI18n} from "vue-i18n";
 import {Apis} from "@/assets/sripts/api";
+import {formatDateInUserTimezone} from "@/assets/sripts";
 import type {PublicSeasonStats, PublicSeasonSummary} from "@/assets/types/Statistics";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Loading from "@/components/Loading.vue";
@@ -144,7 +145,7 @@ defineOptions({
       <v-spacer class="hidden-sm hidden-md"></v-spacer>
       <v-col cols="12" lg="auto">
         <span v-if="data" class="opacity-60 ml-auto">
-          {{ t('statistics.common.updated') }}: {{ new Date(data.updatedAt).toLocaleString() }}
+          {{ t('statistics.common.updated') }}: {{ formatDateInUserTimezone(data.updatedAt) }}
         </span>
       </v-col>
     </v-row>

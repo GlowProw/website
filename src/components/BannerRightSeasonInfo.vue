@@ -9,7 +9,7 @@ import {getCurrentSeason, time} from "@/assets/sripts";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const props = defineProps<{
-  season?: Season | null,
+  season?: any | null,
   top?: number
 }>()
 

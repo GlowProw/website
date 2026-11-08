@@ -269,7 +269,6 @@ defineOptions({
 
             <!-- 评论区 -->
             <template v-if="questDetailData.id">
-              <v-divider class="mt-8 mb-4">{{ t('comment.title') }}</v-divider>
               <CommentWidget :id="questDetailData.id" placeholder="" type="quest"></CommentWidget>
             </template>
           </v-col>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {useAuthStore} from "~/stores/userAccountStore";
 import {computed, onMounted, onUnmounted, type Ref, ref, triggerRef, type UnwrapRef, watch} from "vue";
-import {apis, getBrowserFingerprint, storage} from "@/assets/sripts";
+import {apis, getBrowserFingerprint, storage, formatRemainingTime, formatDateInUserTimezone, formatTimestamp} from "@/assets/sripts";
 
 import {useI18n} from "vue-i18n";
 import type {VForm} from "vuetify/components";
@@ -117,32 +117,10 @@ const normalizeExpiresMinutesAt = () => {
 watch(() => authStore.isLogin, normalizeExpiresMinutesAt, {immediate: true})
 
 /**
- * 转换 Unix 时间戳为毫秒
- */
-const formatTimestamp = (ts: number) => {
-  if (!ts) return 0;
-  return ts < 1e11 ? ts * 1000 : ts;
-}
-
-/**
- * 计算剩余喇叭时间格式化字符串
+ * 计算剩余喇叭时间格式化字符串（统一采用 date.ts 提供的标准剩余时间算法）
  */
 const getRemainingHornTime = (expiresAt: number) => {
-  if (!expiresAt) return '';
-  const expiresMs = formatTimestamp(expiresAt);
-  const diffMs = expiresMs - Date.now();
-  if (diffMs <= 0) return t('teamUp.expired') || '已到期';
-
-  const totalMinutes = Math.floor(diffMs / (1000 * 60));
-  if (totalMinutes < 60) {
-    return `${totalMinutes}分钟`;
-  }
-  const hours = Math.floor(totalMinutes / 60);
-  const mins = totalMinutes % 60;
-  if (mins === 0) {
-    return `${hours}小时`;
-  }
-  return `${hours}小时${mins}分钟`;
+  return formatRemainingTime(expiresAt, t, { expiredText: t('teamUp.expired') });
 }
 
 /**
@@ -822,7 +800,7 @@ usePageHotkeys({
                           <v-icon :icon="i.crossPlatform === false ? 'mdi-earth-off' : 'mdi-earth'" class="mr-1" size="17"></v-icon>
                           {{ t('teamUp.form.crossPlatform') }}：{{ i.crossPlatform === false ? t('teamUp.form.crossPlatformNo') : t('teamUp.form.crossPlatformYes') }}
                         </v-col>
-                        <v-col cols="auto" v-tooltip="`${t('teamUp.hornValidTimeTooltip')}: ${new Date(formatTimestamp(i.expiresAt)).toLocaleString()}`">
+                        <v-col cols="auto" v-tooltip="`${t('teamUp.hornValidTimeTooltip')}: ${formatDateInUserTimezone(i.expiresAt)}`">
                           <v-icon icon="mdi-update" class="mr-1" size="17"></v-icon>
                           {{ t('teamUp.expiresLabel') }}：{{ getRemainingHornTime(i.expiresAt) }}
                         </v-col>

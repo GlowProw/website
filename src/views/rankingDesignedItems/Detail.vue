@@ -9,6 +9,7 @@ import {useRankingDesignedApi} from "@/assets/sripts/api/ranking_designed_servic
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {getAppUrl} from "@/assets/sripts/index";
 import {useBrowseApi} from "@/assets/sripts/api/browse_service";
+import {useLikeStore} from "~/stores/likeStore";
 
 import LikeWidget from "@/components/LikeWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
@@ -25,6 +26,7 @@ import RankingDesignedMainSubjectView from "@/components/RankingDesignedMainSubj
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
+const likeStore = useLikeStore();
 const notice = useNoticeStore();
 const {t} = useI18n();
 const rankingApi = useRankingDesignedApi();
@@ -32,6 +34,8 @@ const browseApi = useBrowseApi();
 
 // 浏览相关状态（与配装一致）
 const browseCount = ref<{ total: number; today: number }>({total: 0, today: 0});
+// 点赞数量状态
+const likeCount = ref(0);
 
 const rankingMainSubjectView = ref<any>(null);
 const loading = ref(false);
@@ -192,6 +196,13 @@ const getRankingDetail = async (force: boolean = false) => {
     // 拉取浏览统计（后端已在 /item 路由自动去重记录浏览，前端异步拉取数量展示）
     try {
       browseCount.value = await browseApi.getBrowseCount("rankingDesigned", <string>uuid);
+    } catch {
+      /* 静默 */
+    }
+
+    // 拉取点赞统计
+    try {
+      likeCount.value = await likeStore.getLikeCount("rankingDesigned", <string>uuid);
     } catch {
       /* 静默 */
     }
@@ -368,7 +379,8 @@ onMounted(async () => {
                   <LikeWidget
                       targetType="rankingDesigned"
                       :targetId="detailData.uuid"
-                      :userId="authStore.user?.userId">
+                      :userId="authStore.user?.userId"
+                      @change="(res: any) => { likeCount = res.likeCount; }">
                     <template v-slot:activate>
                       <v-btn variant="text" icon="mdi-thumb-up"></v-btn>
                     </template>
@@ -432,6 +444,10 @@ onMounted(async () => {
                   {{ browseCount.total || detailData.views || 0 }}
                   <span v-if="browseCount.today" class="opacity-60 ml-1">+{{ browseCount.today }}</span>
                 </v-chip>
+                <v-chip>
+                  <v-icon start icon="mdi-thumb-up-outline"></v-icon>
+                  {{ likeCount || 0 }}
+                </v-chip>
                 <v-chip
                     :to="`/ranking-designed-items/browse/${detailData.cloningUuid}/detail`"
                     target="_blank"
@@ -490,7 +506,6 @@ onMounted(async () => {
           ></Textarea>
 
           <template v-if="detailData.attr?.isComment !== false">
-            <v-divider class="my-4">{{ t("comment.title") }}</v-divider>
             <CommentWidget
                 :id="detailData.uuid"
                 :placeholder="t('assembly.commentPlaceholder')"

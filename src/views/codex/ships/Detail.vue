@@ -329,7 +329,6 @@ const onAddCalculator = () => {
             </v-row>
 
             <template v-if="shipDetailData.id">
-              <v-divider>{{ t('comment.title') }}</v-divider>
               <CommentWidget :id="shipDetailData.id" type="ship" placeholder=""></CommentWidget>
             </template>
           </v-col>

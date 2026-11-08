@@ -5,6 +5,7 @@ import { useNoticeStore } from "~/stores/noticeStore";
 import { useAuthStore } from "~/stores/userAccountStore";
 import { useRankingDesignedApi } from "@/assets/sripts/api/ranking_designed_service";
 import { handleApiError } from "@/assets/sripts/error_handler";
+import { formatDateInUserTimezone } from "@/assets/sripts";
 
 import Loading from "@/components/Loading.vue";
 import EmptyView from "@/components/EmptyView.vue";
@@ -48,7 +49,7 @@ onMounted(() => {
  */
 const formatDate = (date: string) => {
   if (!date) return "—";
-  return new Date(date).toLocaleString();
+  return formatDateInUserTimezone(date);
 };
 
 /**

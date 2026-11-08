@@ -1,7 +1,3 @@
-import Time from "./date";
-
-const time = new Time();
-
 export default class Storage {
     STORAGENAME = `snb.${process.env.NODE_ENV}:`;
 
@@ -24,7 +20,7 @@ export default class Storage {
         return {
             name: fullName,
             set: (name: string, value: any): { code: number; data: { time: number; value: any; }; } => {
-                let data = {value, time: time.update().nowTimeStamp};
+                let data = {value, time: Date.now()};
                 if (isClient) sessionStorage.setItem(fullName(name), JSON.stringify(data))
                 return {code: 0, data};
             },
@@ -62,7 +58,7 @@ export default class Storage {
         return {
             name: fullName,
             set: (name: string, value: any): { code: number; data: { time: number; value: any; }; } => {
-                let data = {value, time: time.update().nowTimeStamp}
+                let data = {value, time: Date.now()}
                 if (isClient) localStorage.setItem(fullName(name), JSON.stringify(data))
                 return {code: 0, data};
             },

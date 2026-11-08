@@ -515,6 +515,11 @@ defineOptions({
                   <CommoditieName v-else-if="i.data._typeStringName == 'Commodity'" :id="i.data.id"></CommoditieName>
                   <ItemName v-else :id="i.data.id"></ItemName>
                 </div>
+                <div v-if="i && i.currency" class="d-flex ga-2 align-center justify-center text-caption mt-1">
+                  <ItemSlotBase size="18px" class="rounded-lg mx-n1">
+                    <MaterialIconWidget :id="i.currency"></MaterialIconWidget>
+                  </ItemSlotBase> <u class="u">{{ i.worth || 0 }}</u>
+                </div>
               </div>
             </v-col>
           </v-row>

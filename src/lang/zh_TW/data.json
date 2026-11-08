@@ -288,6 +288,22 @@
     }
   },
   "basic": {
+    "relativeTime": {
+      "justNow": "剛剛發布",
+      "minutesAgo": "{n} 分鐘前發布",
+      "hoursAgo": "{n} 小時前發布",
+      "daysAgo": "{n} 天前發布"
+    },
+    "duration": {
+      "expired": "已過期",
+      "seconds": "{s} 秒",
+      "minutes": "{m} 分鐘",
+      "minutesSeconds": "{m} 分鐘 {s} 秒",
+      "hours": "{h} 小時",
+      "hoursMinutes": "{h} 小時 {m} 分鐘",
+      "days": "{d} 天",
+      "daysHours": "{d} 天 {h} 小時"
+    },
     "selectedCount": "已選擇 {count} 項",
     "selectedCountLimit": "已選擇 {count} / {max} 項",
     "selectedLimitReached": "最多只能選擇 {max} 項",
@@ -931,22 +947,9 @@
       "contributor2": "貢獻者2",
       "contributor1": "貢獻者1",
       "contributor": "貢獻者",
-      "smuggler_weekly_report_ownership": "週報所有權",
-      "smuggler_weekly_report_create": "建立週報",
-      "smuggler_weekly_report_update": "更新週報",
-      "smuggler_weekly_report_delete": "刪除週報",
-      "smuggler_weekly_report_comment_create": "週報建立評論",
-      "smuggler_weekly_report_comment_update": "週報更新評論",
-      "smuggler_weekly_report_comment_delete": "週報刪除評論",
-      "admin_smuggler_weekly_report_ownership": "後台週報所有權",
-      "admin_smuggler_weekly_report_create": "後台建立週報",
-      "admin_smuggler_weekly_report_update": "後台更新週報",
-      "admin_smuggler_weekly_report_delete": "後台刪除週報",
-      "admin_smuggler_weekly_report_hard_delete": "後台週報實體刪除",
-      "admin_smuggler_weekly_report_comment_create": "後台週報建立評論",
-      "admin_smuggler_weekly_report_comment_update": "後台週報更新評論",
-      "admin_smuggler_weekly_report_comment_delete": "後台週報刪除評論",
-      "admin_smuggler_weekly_report_comment_hard_delete": "後台週報評論實體刪除"
+      "volunteer": "志願者",
+      "test": "測試",
+      "freezed": "凍結"
     },
     "rules": {
       "username": {
@@ -1027,7 +1030,21 @@
     "beFirst": "成爲第一個評論的人",
     "me": "我",
     "deleteConfirmation": "刪除評論？",
-    "deleteWarning": "此操作不可逆。"
+    "deleteWarning": "此操作不可逆。",
+    "reply": "回覆",
+    "replyPlaceholder": "撰寫回覆內容...",
+    "replySuccess": "回覆發佈成功",
+    "replyDeleteConfirmation": "刪除回覆？",
+    "replyEdit": "編輯回覆",
+    "repliesCount": "{count} 條回覆",
+    "viewReplies": "展開 {count} 條回覆",
+    "expandAllReplies": "展開所有回覆（共 {count} 條）",
+    "collapseReplies": "收起回覆",
+    "sortComposite": "綜合",
+    "sortLatest": "最新",
+    "sortHot": "熱門",
+    "like": "點贊",
+    "liked": "已點贊"
   },
   "portal": {
     "title": "首頁",
@@ -3979,6 +3996,24 @@
       "deleteDescription": "刪除配裝是不可逆行爲, 將會刪除對應評論和點贊",
       "deleteConfirmation": "刪除配裝？",
       "deleteWarning": "此操作不可逆，將永久刪除配裝及其評論和點贊。",
+      "data": {
+        "copy": "複製數據",
+        "export": "導出文件",
+        "import": "導入數據",
+        "importTitle": "導入{name}數據",
+        "importAlert": "注意：此導入僅在當前前端頁面內存臨時生效，不會上傳或修改伺服器資料庫記錄。",
+        "importPrompt": "可粘貼 JSON 字串或選擇本地文件載入：",
+        "selectFile": "選擇文件",
+        "importPlaceholder": "請在此粘貼對應模組的 JSON 數據...",
+        "importRequired": "請輸入或上傳 JSON 數據",
+        "importInvalidJson": "JSON 格式無效，請檢查語法",
+        "importFailed": "數據導入解析失敗，請檢查數據結構",
+        "importSuccess": "{name}數據導入成功（僅前端生效）",
+        "copySuccess": "數據已複製到剪貼板",
+        "copyFailed": "複製失敗",
+        "exportSuccess": "數據已導出下載",
+        "exportFailed": "導出失敗"
+      },
       "routine": {
         "title": "常規設置",
         "translationHelp": "如果您對翻譯感興趣，可以通過下方連結這裡幫助我們內容糾正或翻譯，對於翻譯成員我們將公示中網站中，並為帳戶賦予譯者身份",

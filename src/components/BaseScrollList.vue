@@ -44,7 +44,8 @@
         :style="wrapperStyle"
         @mousedown="handleMouseDown"
         @wheel="handleWheel"
-        @scroll="handleScroll">
+        @scroll="handleScroll"
+        @dragstart.prevent>
       <div
           class="scroll-content"
           :class="{ 'scroll-content--vertical': isVertical, 'scroll-content--horizontal': !isVertical }"
@@ -702,6 +703,11 @@ defineExpose({
 
   &--draggable {
     cursor: grab;
+
+    :deep(img) {
+      -webkit-user-drag: none;
+      user-drag: none;
+    }
   }
 
   &--horizontal {

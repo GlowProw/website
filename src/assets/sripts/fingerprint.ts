@@ -1,6 +1,12 @@
 import Storage from './storage';
 
-const _storage = new Storage();
+let _storageInstance: Storage | null = null;
+function getStorage(): Storage {
+  if (!_storageInstance) {
+    _storageInstance = new Storage();
+  }
+  return _storageInstance;
+}
 
 // 持久客户端唯一标识
 const CLIENT_ID_KEY = 'client.id';
@@ -124,12 +130,12 @@ function generateSessionId(): string {
  */
 export function getClientId(): string {
   try {
-    const stored = _storage.local.get(CLIENT_ID_KEY);
+    const stored = getStorage().local.get(CLIENT_ID_KEY);
     if (stored?.data?.value && typeof stored.data.value === 'string' && stored.data.value.length >= 8) {
       return stored.data.value;
     }
     const newId = generateClientId();
-    _storage.local.set(CLIENT_ID_KEY, newId);
+    getStorage().local.set(CLIENT_ID_KEY, newId);
     return newId;
   } catch (e) {
     console.error('Failed to get/create clientId:', e);
@@ -142,12 +148,12 @@ export function getClientId(): string {
  */
 export function getSessionId(): string {
   try {
-    const stored = _storage.session.get(SESSION_ID_KEY);
+    const stored = getStorage().session.get(SESSION_ID_KEY);
     if (stored?.data?.value && typeof stored.data.value === 'string' && stored.data.value.length >= 8) {
       return stored.data.value;
     }
     const newId = generateSessionId();
-    _storage.session.set(SESSION_ID_KEY, newId);
+    getStorage().session.set(SESSION_ID_KEY, newId);
     return newId;
   } catch (e) {
     console.error('Failed to get/create sessionId:', e);
@@ -169,7 +175,7 @@ export function getBrowserFingerprint(): string {
  */
 export function regenerateClientId(): string {
   try {
-    _storage.local.rem(CLIENT_ID_KEY);
+    getStorage().local.rem(CLIENT_ID_KEY);
   } catch { /* ignore */ }
   return getClientId();
 }

@@ -138,10 +138,10 @@ const close = () => {
 
 // 数据模块定义列表
 const dataModules = [
-  { key: 'assembly', labelKey: 'assembly.additions.assembly', icon: 'mdi-ship-wheel' },
-  { key: 'mastery', labelKey: 'assembly.additions.mastery', icon: 'mdi-tree-outline' },
-  { key: 'warehouse', labelKey: 'assembly.additions.warehouse', icon: 'mdi-package-variant-closed' },
-  { key: 'wheel', labelKey: 'assembly.additions.wheel', icon: 'mdi-circle-slice-8' },
+  { key: 'assembly', labelKey: 'assembly.additions.assembly' },
+  { key: 'mastery', labelKey: 'assembly.additions.mastery'},
+  { key: 'warehouse', labelKey: 'assembly.additions.warehouse'},
+  { key: 'wheel', labelKey: 'assembly.additions.wheel' },
 ];
 
 // 当前选中的数据子标签页
@@ -197,9 +197,9 @@ const onCopyCurrentData = async () => {
       document.execCommand('copy');
       document.body.removeChild(input);
     }
-    notice.success(t('basic.tips.copySuccess') || '复制成功');
+    notice.success(t('assembly.setting.data.copySuccess'));
   } catch (e) {
-    notice.error('复制失败');
+    notice.error(t('assembly.setting.data.copyFailed'));
   }
 };
 
@@ -217,9 +217,9 @@ const onDownloadCurrentData = () => {
     a.download = `assembly-${props.id || 'export'}-${dataTabValue.value}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    notice.success(t('basic.tips.downloadSuccess') || '导出下载成功');
+    notice.success(t('assembly.setting.data.exportSuccess'));
   } catch (e) {
-    notice.error('导出失败');
+    notice.error(t('assembly.setting.data.exportFailed'));
   }
 };
 
@@ -258,7 +258,7 @@ const onSelectFile = (event: Event) => {
  */
 const confirmImport = () => {
   if (!importInputText.value.trim()) {
-    notice.warning('请输入或上传 JSON 数据');
+    notice.warning(t('assembly.setting.data.importRequired'));
     return;
   }
 
@@ -266,7 +266,7 @@ const confirmImport = () => {
   try {
     parsed = JSON.parse(importInputText.value.trim());
   } catch (e) {
-    notice.error('JSON 格式无效，请检查语法');
+    notice.error(t('assembly.setting.data.importInvalidJson'));
     return;
   }
 
@@ -297,9 +297,9 @@ const confirmImport = () => {
 
     importDialog.value = false;
     importInputText.value = '';
-    notice.success(`${currentTabLabel.value}数据导入成功（仅前端生效）`);
+    notice.success(t('assembly.setting.data.importSuccess', { name: currentTabLabel.value }));
   } catch (e) {
-    notice.error('数据导入解析失败，请检查数据结构');
+    notice.error(t('assembly.setting.data.importFailed'));
   }
 };
 
@@ -348,50 +348,62 @@ defineOptions({ name: 'AssemblySettingPanel' })
               </v-tabs-window-item>
 
               <v-tabs-window-item value="data">
-                <div class="w-100 pa-1">
-                  <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-3">
-                    <v-tabs v-model="dataTabValue" density="compact" color="amber">
-                      <v-tab v-for="mod in dataModules" :key="mod.key" :value="mod.key" :prepend-icon="mod.icon">
-                        {{ t(mod.labelKey) }}
-                      </v-tab>
+                <v-row no-gutters>
+                  <v-col cols="3" sm="2">
+                    <v-tabs
+                        v-model="dataTabValue"
+                        direction="vertical"
+                        class="pa-0 w-100">
+                      <v-tab
+                          v-for="mod in dataModules"
+                          :key="mod.key"
+                          :value="mod.key"
+                          :text="t(mod.labelKey)"></v-tab>
                     </v-tabs>
-
-                    <div class="d-flex align-center ga-2">
-                      <v-btn
-                          size="small"
-                          variant="tonal"
-                          prepend-icon="mdi-content-copy"
-                          @click="onCopyCurrentData">
-                        {{ t('basic.button.copy') || '复制' }}
-                      </v-btn>
-                      <v-btn
-                          size="small"
-                          variant="tonal"
-                          prepend-icon="mdi-download"
-                          @click="onDownloadCurrentData">
-                        {{ t('basic.button.export') || '导出' }}
-                      </v-btn>
-                      <v-btn
-                          size="small"
-                          variant="flat"
-                          color="amber"
-                          class="text-black font-weight-bold"
-                          prepend-icon="mdi-upload"
-                          @click="openImportDialog">
-                        {{ t('basic.button.import') || '导入' }}
-                      </v-btn>
+                  </v-col>
+                  <v-divider vertical></v-divider>
+                  <v-col class="pa-4 flex-1">
+                    <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-3">
+                      <span class="text-subtitle-1 font-weight-bold">
+                        {{ currentTabLabel }} {{ t('assembly.setting.tagData') }}
+                      </span>
+                      <div class="d-flex align-center ga-2">
+                        <v-btn
+                            size="small"
+                            variant="tonal"
+                            prepend-icon="mdi-content-copy"
+                            @click="onCopyCurrentData">
+                          {{ t('assembly.setting.data.copy') }}
+                        </v-btn>
+                        <v-btn
+                            size="small"
+                            variant="tonal"
+                            prepend-icon="mdi-download"
+                            @click="onDownloadCurrentData">
+                          {{ t('assembly.setting.data.export') }}
+                        </v-btn>
+                        <v-btn
+                            size="small"
+                            variant="flat"
+                            color="amber"
+                            class="text-black font-weight-bold"
+                            prepend-icon="mdi-upload"
+                            @click="openImportDialog">
+                          {{ t('assembly.setting.data.import') }}
+                        </v-btn>
+                      </div>
                     </div>
-                  </div>
 
-                  <v-card elevation="0" border min-height="240" max-height="58vh" class="pa-2 overflow-auto">
-                    <VueJsonPretty
-                        theme="dark"
-                        showLine
-                        showIcon
-                        showDoubleQuotes
-                        :data="currentExportedData"/>
-                  </v-card>
-                </div>
+                    <v-card elevation="0" border min-height="260" max-height="56vh" class="pa-2 overflow-auto">
+                      <VueJsonPretty
+                          theme="dark"
+                          showLine
+                          showIcon
+                          showDoubleQuotes
+                          :data="currentExportedData"/>
+                    </v-card>
+                  </v-col>
+                </v-row>
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
@@ -412,7 +424,7 @@ defineOptions({ name: 'AssemblySettingPanel' })
     <v-card border>
       <v-card-title class="d-flex align-center justify-space-between pa-4">
         <span class="text-h6 font-weight-bold">
-          {{ t('basic.button.import') || '导入' }} - {{ currentTabLabel }}
+          {{ t('assembly.setting.data.importTitle', { name: currentTabLabel }) }}
         </span>
         <v-btn icon="mdi-close" variant="text" density="compact" @click="importDialog = false"></v-btn>
       </v-card-title>
@@ -424,17 +436,17 @@ defineOptions({ name: 'AssemblySettingPanel' })
             density="compact"
             class="mb-3"
             icon="mdi-information-outline">
-          注意：此导入仅在当前前端页面内存临时生效，不会上传或修改服务器数据库记录。
+          {{ t('assembly.setting.data.importAlert') }}
         </v-alert>
 
         <div class="d-flex align-center justify-space-between mb-2">
-          <span class="text-caption text-medium-emphasis">可粘贴 JSON 字符串或选择本地文件载入：</span>
+          <span class="text-caption text-medium-emphasis">{{ t('assembly.setting.data.importPrompt') }}</span>
           <v-btn
               size="x-small"
               variant="outlined"
               prepend-icon="mdi-file-upload-outline"
               @click="fileInputRef?.click()">
-            选择文件
+            {{ t('assembly.setting.data.selectFile') }}
           </v-btn>
           <input
               ref="fileInputRef"
@@ -450,7 +462,7 @@ defineOptions({ name: 'AssemblySettingPanel' })
             variant="outlined"
             density="comfortable"
             hide-details
-            placeholder="请在此粘贴对应模块的 JSON 数据..."
+            :placeholder="t('assembly.setting.data.importPlaceholder')"
             class="font-monospace text-caption"></v-textarea>
       </v-card-text>
       <v-divider></v-divider>

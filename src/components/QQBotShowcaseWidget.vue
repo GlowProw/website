@@ -26,17 +26,15 @@ let size = ref({
 })
 
 watch(() => mobile.value, () => {
-  if (mobile.value) {
-    size.value.width = props.cardWidth / 1.5;
-    size.value.height = props.cardHeight / 1.5;
-  } else {
-    size.value.width = props.cardWidth;
-    size.value.height = props.cardHeight;
-  }
+  size.value.width = props.cardWidth;
+  size.value.height = props.cardHeight;
 })
 
 onMounted(() => {
   contentImages.value = serializationMap(images);
+
+  size.value.width = props.cardWidth;
+  size.value.height = props.cardHeight;
 });
 
 const getUseImage = (id: string) => {
@@ -58,7 +56,7 @@ defineOptions({
           class="bg-black qq-bot-show-card"
           v-for="i in props.count"
           :key="i">
-        <v-img height="100%" :src="getUseImage(String(i))"/>
+        <v-img height="100%" :src="getUseImage(String(i))" draggable="false" @dragstart.prevent/>
       </v-card>
     </HorizontalScrollList>
   </div>
@@ -74,5 +72,14 @@ defineOptions({
   border-radius: 8px;
   overflow: hidden;
   user-select: none;
+  -webkit-user-select: none;
+
+  :deep(img),
+  :deep(.v-img__img) {
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
 }
 </style>

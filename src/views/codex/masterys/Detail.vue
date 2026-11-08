@@ -457,7 +457,6 @@ const onStarMastery = (data: Mastery) => {
 
             <!-- 评论区 -->
             <template v-if="masteryDetailData.id">
-              <v-divider class="mt-8 mb-4">{{ t('comment.title') }}</v-divider>
               <CommentWidget :id="masteryDetailData.id" placeholder="" type="mastery"></CommentWidget>
             </template>
           </v-col>

@@ -2,6 +2,7 @@
 import {computed, onMounted, ref} from "vue";
 import {useI18n} from "vue-i18n";
 import {Apis} from "@/assets/sripts/api";
+import {formatDateInUserTimezone} from "@/assets/sripts";
 import type {StatsAssemblyTop, StatsRankingTop, StatsOverview, StatsRange, StatsTrend, StatsVisitor} from "@/assets/types/Stats";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
 import Loading from "@/components/Loading.vue";
@@ -263,7 +264,7 @@ defineOptions({
       <v-spacer class="hidden-sm hidden-md"></v-spacer>
       <v-col cols="12" lg="auto">
         <span v-if="trend" class="opacity-60 ml-auto">
-          {{ t('account.dataCenter.trend.updated') }}: {{ new Date(trend.updatedAt).toLocaleString() }}
+          {{ t('account.dataCenter.trend.updated') }}: {{ formatDateInUserTimezone(trend.updatedAt) }}
         </span>
       </v-col>
     </v-row>
@@ -500,7 +501,7 @@ defineOptions({
                           </template>
                           <div>
                             <div>{{ visitorName(v) }}</div>
-                            <div class="text-caption opacity-70">{{ new Date(v.browseTime).toLocaleString() }}</div>
+                            <div class="text-caption opacity-70">{{ formatDateInUserTimezone(v.browseTime) }}</div>
                           </div>
                         </v-tooltip>
                       </template>

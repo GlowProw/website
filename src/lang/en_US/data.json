@@ -286,6 +286,22 @@
     }
   },
   "basic": {
+    "relativeTime": {
+      "justNow": "Just now",
+      "minutesAgo": "{n}m ago",
+      "hoursAgo": "{n}h ago",
+      "daysAgo": "{n}d ago"
+    },
+    "duration": {
+      "expired": "Expired",
+      "seconds": "{s}s",
+      "minutes": "{m}m",
+      "minutesSeconds": "{m}m {s}s",
+      "hours": "{h}h",
+      "hoursMinutes": "{h}h {m}m",
+      "days": "{d}d",
+      "daysHours": "{d}d {h}h"
+    },
     "untitled": "Untitled",
     "selectedCount": "{count} selected",
     "selectedCountLimit": "{count} / {max} selected",
@@ -951,22 +967,9 @@
       "contributor2": "Contributor 2",
       "contributor1": "Contributor 1",
       "contributor": "Contributor",
-      "smuggler_weekly_report_ownership": "Weekly Report Ownership",
-      "smuggler_weekly_report_create": "Create Weekly Report",
-      "smuggler_weekly_report_update": "Update Weekly Report",
-      "smuggler_weekly_report_delete": "Delete Weekly Report",
-      "smuggler_weekly_report_comment_create": "Create Report Comment",
-      "smuggler_weekly_report_comment_update": "Update Report Comment",
-      "smuggler_weekly_report_comment_delete": "Delete Report Comment",
-      "admin_smuggler_weekly_report_ownership": "Admin Weekly Report Ownership",
-      "admin_smuggler_weekly_report_create": "Admin Create Weekly Report",
-      "admin_smuggler_weekly_report_update": "Admin Update Weekly Report",
-      "admin_smuggler_weekly_report_delete": "Admin Delete Weekly Report",
-      "admin_smuggler_weekly_report_hard_delete": "Admin Hard Delete Weekly Report",
-      "admin_smuggler_weekly_report_comment_create": "Admin Create Report Comment",
-      "admin_smuggler_weekly_report_comment_update": "Admin Update Report Comment",
-      "admin_smuggler_weekly_report_comment_delete": "Admin Delete Report Comment",
-      "admin_smuggler_weekly_report_comment_hard_delete": "Admin Hard Delete Report Comment"
+      "volunteer": "Volunteer",
+      "test": "Tester",
+      "freezed": "Frozen"
     },
     "rules": {
       "username": {
@@ -1047,7 +1050,21 @@
     "beFirst": "Be the first to comment",
     "me": "Me",
     "deleteConfirmation": "Delete comment?",
-    "deleteWarning": "This operation is irreversible."
+    "deleteWarning": "This operation is irreversible.",
+    "reply": "Reply",
+    "replyPlaceholder": "Write your reply...",
+    "replySuccess": "Reply published successfully",
+    "replyDeleteConfirmation": "Delete reply?",
+    "replyEdit": "Edit Reply",
+    "repliesCount": "{count} replies",
+    "viewReplies": "View {count} replies",
+    "expandAllReplies": "View all {count} replies",
+    "collapseReplies": "Collapse replies",
+    "sortComposite": "Recommended",
+    "sortLatest": "Latest",
+    "sortHot": "Hot",
+    "like": "Like",
+    "liked": "Liked"
   },
   "portal": {
     "title": "Portal",
@@ -4043,7 +4060,25 @@
       "enable": "Enable",
       "deleteDescription": "Deleting an assembly is irreversible and will delete corresponding comments and likes",
       "deleteConfirmation": "Delete Assembly?",
-      "deleteWarning": "This operation is irreversible and will permanently delete the assembly, its comments, and likes."
+      "deleteWarning": "This operation is irreversible and will permanently delete the assembly, its comments, and likes.",
+      "data": {
+        "copy": "Copy Data",
+        "export": "Export File",
+        "import": "Import Data",
+        "importTitle": "Import {name} Data",
+        "importAlert": "Note: This import only takes effect in frontend memory temporarily, and will not upload or modify server records.",
+        "importPrompt": "Paste JSON string or select a local file to load:",
+        "selectFile": "Select File",
+        "importPlaceholder": "Please paste JSON data for the corresponding module here...",
+        "importRequired": "Please enter or upload JSON data",
+        "importInvalidJson": "Invalid JSON format, please check syntax",
+        "importFailed": "Failed to parse imported data, please check data structure",
+        "importSuccess": "{name} data imported successfully (frontend only)",
+        "copySuccess": "Data copied to clipboard",
+        "copyFailed": "Failed to copy",
+        "exportSuccess": "Data exported and downloaded",
+        "exportFailed": "Failed to export"
+      }
     },
     "modification": {
       "basic": "Basic",

@@ -1,11 +1,11 @@
 /**
  * 包装器
  */
+import _Storage from './storage'
 import _Conf from './api_config';
 import {Apis as _Apis} from './api';
 import _Http from './http';
 import _Ws from './ws'
-import _Storage from './storage'
 import _StorageCapacityMonitor from './storage_capacity_monitor'
 import _StorageAccount from './storage_account'
 import _StorageAds from './storage_ads'
@@ -50,6 +50,11 @@ export {
     getTimezoneOptions,
     formatDateInUserTimezone,
     formatHourInUserTimezone,
+    formatRelativeTime,
+    formatRemainingTime,
+    formatDuration,
+    normalizeTimestamp,
+    formatTimestamp,
     activeTimezone,
     type TimezoneOption
 } from './date';

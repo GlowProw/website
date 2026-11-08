@@ -3,6 +3,7 @@ import {useI18n} from "vue-i18n";
 import {ref} from "vue";
 import {useCalculatorStore} from "~/stores/calculatorStore";
 import {useDisplay} from "vuetify/framework";
+import {formatDateInUserTimezone} from "@/assets/sripts";
 
 const {t} = useI18n()
 const {mobile} = useDisplay()
@@ -29,7 +30,7 @@ function onDelete(uid: string) {
 }
 
 function formatDate(timestamp: number) {
-  return new Date(timestamp).toLocaleString()
+  return formatDateInUserTimezone(timestamp)
 }
 
 defineExpose({dialog})

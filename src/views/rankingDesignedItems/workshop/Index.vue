@@ -6,7 +6,7 @@ import {useDisplay, useGoTo} from "vuetify/framework";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {useAppStore} from "~/stores/appStore";
 import {StorageIntermediateTransferSaveType} from "@/assets/sripts/storage_assembly";
-import {storageIntermediateTransfer} from "@/assets/sripts/index";
+import {storageIntermediateTransfer, formatDateInUserTimezone} from "@/assets/sripts/index";
 import {useRankingDesignedApi} from "@/assets/sripts/api/ranking_designed_service";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import Silk from "@/components/Silk.vue";
@@ -685,7 +685,7 @@ onMounted(() => {
               {{ item.id === 'quickArchiving' ? t('rankingDesignedItems.workshop.quickArchiving') : (item.name || t('rankingDesignedItems.workshop.untitledDraft')) }}
             </v-list-item-title>
             <v-list-item-subtitle class="opacity-60 text-caption mt-1">
-              <span v-if="item.updateTime">{{ new Date(item.updateTime).toLocaleString() }} · </span>
+              <span v-if="item.updateTime">{{ formatDateInUserTimezone(item.updateTime) }} · </span>
               <span>{{ t('rankingDesignedItems.browse.layers', {count: (item.ranking || item.data)?.length || 0}) }}</span>
             </v-list-item-subtitle>
             <template v-slot:append>

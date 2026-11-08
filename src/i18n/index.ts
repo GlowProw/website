@@ -11,7 +11,9 @@ import zh_TW_meta from '@/lang/zh_TW/meta.json';
 import en_US_local from '@/lang/en_US/data.json';
 import en_US_meta from '@/lang/en_US/meta.json';
 
-import { storage } from "@/assets/sripts";
+import Storage from "@/assets/sripts/storage";
+
+const storage = new Storage();
 
 // 游戏数据翻译（snb.*）
 // 通过 vite.config.ts 里的 snbI18nPlugin 虚拟模块加载

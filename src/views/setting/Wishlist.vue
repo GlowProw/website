@@ -312,6 +312,7 @@ import { parseWishlistText, validateWishlist } from '@/assets/sripts/wishlist_da
 import AffixBoxHasTitleView from '@/components/AffixBoxHasTitleView.vue'
 import WishlistEditDialog from './WishlistEditDialog.vue'
 import { useNoticeStore } from '~/stores/noticeStore'
+import { formatDateInUserTimezone } from '@/assets/sripts'
 import type { WishlistFile } from '@/assets/types/Wishlist'
 
 const { t } = useI18n()
@@ -518,7 +519,7 @@ const truncateSource = (source: string): string => {
  * 格式化时间戳
  */
 const formatTime = (ts: number): string => {
-  return new Date(ts).toLocaleString()
+  return formatDateInUserTimezone(ts)
 }
 </script>
 

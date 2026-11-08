@@ -8,6 +8,7 @@ import {useI18n} from "vue-i18n";
 import {useRoute} from "vue-router";
 import {storeToRefs} from "pinia";
 import {Apis} from "@/assets/sripts/api";
+import {formatDateInUserTimezone} from "@/assets/sripts";
 import {useAuthStore} from "~/stores/userAccountStore";
 import type {PublicSigninStats, PublicStatsCardItem, PublicStatsRange} from "@/assets/types/Statistics";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
@@ -195,7 +196,7 @@ defineOptions({
       <v-col cols="12" lg="auto" class="text-lg-right">
         <div class="opacity-60">{{ t('statistics.common.period') }}: {{ periodLabel }}</div>
         <div v-if="data" class="opacity-60">
-          {{ t('statistics.common.updated') }}: {{ new Date(data.updatedAt).toLocaleString() }}
+          {{ t('statistics.common.updated') }}: {{ formatDateInUserTimezone(data.updatedAt) }}
         </div>
       </v-col>
     </v-row>

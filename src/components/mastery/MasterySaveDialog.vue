@@ -2,6 +2,7 @@
 import {computed, ref, watch} from 'vue';
 import {useI18n} from 'vue-i18n';
 import type {MasterySavedBuild} from '@/assets/types/Mastery';
+import {formatDateInUserTimezone} from '@/assets/sripts';
 
 const {t} = useI18n();
 
@@ -50,7 +51,7 @@ function onDelete(id: string) {
 }
 
 function formatDate(ts: number): string {
-  return new Date(ts).toLocaleString(undefined, {
+  return formatDateInUserTimezone(ts, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

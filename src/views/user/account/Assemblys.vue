@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, ref} from "vue";
-import {apis} from "@/assets/sripts/index";
+import {apis, formatDateInUserTimezone} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
@@ -45,7 +45,7 @@ onMounted(() => {
  */
 const formatDate = (date: string) => {
   if (!date) return '—'
-  return new Date(date).toLocaleString()
+  return formatDateInUserTimezone(date)
 }
 
 /**

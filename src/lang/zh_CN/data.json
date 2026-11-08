@@ -286,6 +286,22 @@
     }
   },
   "basic": {
+    "relativeTime": {
+      "justNow": "刚刚发布",
+      "minutesAgo": "{n} 分钟前发布",
+      "hoursAgo": "{n} 小时前发布",
+      "daysAgo": "{n} 天前发布"
+    },
+    "duration": {
+      "expired": "已过期",
+      "seconds": "{s} 秒",
+      "minutes": "{m} 分钟",
+      "minutesSeconds": "{m} 分钟 {s} 秒",
+      "hours": "{h} 小时",
+      "hoursMinutes": "{h} 小时 {m} 分钟",
+      "days": "{d} 天",
+      "daysHours": "{d} 天 {h} 小时"
+    },
     "untitled": "未命名",
     "selectedCount": "已选择 {count} 项",
     "selectedCountLimit": "已选择 {count} / {max} 项",
@@ -950,22 +966,9 @@
       "contributor2": "贡献者2",
       "contributor1": "贡献者1",
       "contributor": "贡献者",
-      "smuggler_weekly_report_ownership": "周报所有权",
-      "smuggler_weekly_report_create": "创建周报",
-      "smuggler_weekly_report_update": "更新周报",
-      "smuggler_weekly_report_delete": "删除周报",
-      "smuggler_weekly_report_comment_create": "周报创建评论",
-      "smuggler_weekly_report_comment_update": "周报更新评论",
-      "smuggler_weekly_report_comment_delete": "周报删除评论",
-      "admin_smuggler_weekly_report_ownership": "后台周报所有权",
-      "admin_smuggler_weekly_report_create": "后台创建周报",
-      "admin_smuggler_weekly_report_update": "后台更新周报",
-      "admin_smuggler_weekly_report_delete": "后台删除周报",
-      "admin_smuggler_weekly_report_hard_delete": "后台周报物理删除",
-      "admin_smuggler_weekly_report_comment_create": "后台周报创建评论",
-      "admin_smuggler_weekly_report_comment_update": "后台周报更新评论",
-      "admin_smuggler_weekly_report_comment_delete": "后台周报删除评论",
-      "admin_smuggler_weekly_report_comment_hard_delete": "后台周报评论物理删除"
+      "volunteer": "志愿者",
+      "test": "测试",
+      "freezed": "冻结"
     },
     "rules": {
       "username": {
@@ -1046,7 +1049,21 @@
     "beFirst": "成为第一个评论的人",
     "me": "我",
     "deleteConfirmation": "删除评论？",
-    "deleteWarning": "此操作不可逆。"
+    "deleteWarning": "此操作不可逆。",
+    "reply": "回复",
+    "replyPlaceholder": "撰写回复内容...",
+    "replySuccess": "回复发布成功",
+    "replyDeleteConfirmation": "删除回复？",
+    "replyEdit": "编辑回复",
+    "repliesCount": "{count} 条回复",
+    "viewReplies": "展开 {count} 条回复",
+    "expandAllReplies": "展开所有回复（共 {count} 条）",
+    "collapseReplies": "收起回复",
+    "sortComposite": "综合",
+    "sortLatest": "最新",
+    "sortHot": "热门",
+    "like": "点赞",
+    "liked": "已点赞"
   },
   "portal": {
     "title": "首页",
@@ -4041,7 +4058,25 @@
       "enable": "启用",
       "deleteDescription": "删除配装是不可逆行为, 将会删除对应评论和点赞",
       "deleteConfirmation": "删除配装？",
-      "deleteWarning": "此操作不可逆，将永久删除配装及其评论和点赞。"
+      "deleteWarning": "此操作不可逆，将永久删除配装及其评论和点赞。",
+      "data": {
+        "copy": "复制数据",
+        "export": "导出文件",
+        "import": "导入数据",
+        "importTitle": "导入{name}数据",
+        "importAlert": "注意：此导入仅在当前前端页面内存临时生效，不会上传或修改服务器数据库记录。",
+        "importPrompt": "可粘贴 JSON 字符串或选择本地文件载入：",
+        "selectFile": "选择文件",
+        "importPlaceholder": "请在此粘贴对应模块的 JSON 数据...",
+        "importRequired": "请输入或上传 JSON 数据",
+        "importInvalidJson": "JSON 格式无效，请检查语法",
+        "importFailed": "数据导入解析失败，请检查数据结构",
+        "importSuccess": "{name}数据导入成功（仅前端生效）",
+        "copySuccess": "数据已复制到剪贴板",
+        "copyFailed": "复制失败",
+        "exportSuccess": "数据已导出下载",
+        "exportFailed": "导出失败"
+      }
     },
     "modification": {
       "basic": "基础",

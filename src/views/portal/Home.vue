@@ -130,7 +130,7 @@ onUnmounted(() => {
             </QQBotBannerWidget>
           </v-col>
           <v-col cols="12" md="8" lg="8" offset="0" offset-lg="1">
-            <QQBotShowcaseWidget/>
+            <QQBotShowcaseWidget :card-height="575 / 1.5" :card-width="300 / 1.5" />
           </v-col>
         </v-row>
       </v-container>

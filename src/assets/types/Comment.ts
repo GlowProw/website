@@ -1,5 +1,7 @@
 import {CaptchaParams} from "@/assets/types/Captcha";
 
+export type CommentSortType = 'composite' | 'latest' | 'hot';
+
 /**
  * 评论
  */
@@ -8,19 +10,92 @@ export interface Comment {
     content: string;
     userId: string;
     userName?: string;
+    username?: string;
     userAvatar?: string;
-    createTime: string;
+    createTime?: string;
+    createdTime?: string;
     likeCount?: number;
     replyCount?: number;
     isLiked?: boolean;
+    spam?: number;
+    reviewStatus?: number;
+    likeLoading?: boolean;
+    deleteLoading?: boolean;
+    isEdit?: boolean;
+    editContent?: string;
+    loading?: boolean;
+    showReplyInput?: boolean;
+    replyContent?: string;
+    replyPushLoading?: boolean;
+    showReplies?: boolean;
+    repliesLoading?: boolean;
+    replies?: CommentReply[];
+    previewReplies?: CommentReply[];
+    paginatedReplies?: CommentReply[];
+    isExpandedAll?: boolean;
+    replyPage?: number;
+    replyPageSize?: number;
+    replyTotalPages?: number;
+    repliesTotalCount?: number;
+}
+
+/**
+ * 评论回复
+ */
+export interface CommentReply {
+    id: string;
+    commentId: string;
+    userId: string;
+    username?: string;
+    userAvatar?: string;
+    content: string;
+    createdTime: string;
+    updatedTime?: string;
+    spam?: number;
+    reviewStatus?: number;
+    likeCount?: number;
+    isLiked?: boolean;
+    likeLoading?: boolean;
+    deleteLoading?: boolean;
+    isEdit?: boolean;
+    editContent?: string;
+    loading?: boolean;
 }
 
 /**
  * 评论列表请求体
  */
 export interface CommentListParams {
-    targetId: string | number | null | unknown,
-    targetType: string | number | null | unknown,
+    targetId: string | number | null | unknown;
+    targetType: string | number | null | unknown;
+    page?: number;
+    pageSize?: number;
+    sort?: CommentSortType;
+}
+
+/**
+ * 回复列表请求体
+ */
+export interface ReplyListParams {
+    id: string;
+    sort?: 'hot' | 'latest' | 'asc';
+    page?: number;
+    pageSize?: number;
+}
+
+/**
+ * 创建回复请求体
+ */
+export interface CreateReplyParams {
+    commentId: string;
+    content: string;
+}
+
+/**
+ * 更新回复请求体
+ */
+export interface UpdateReplyParams {
+    content: string;
 }
 
 /**

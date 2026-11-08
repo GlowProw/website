@@ -248,7 +248,6 @@ const onCodexHistory = (id: string) => {
             </template>
 
             <!-- 评论区 -->
-            <v-divider class="my-8">{{ t('comment.title') }}</v-divider>
             <CommentWidget :id="empireSkillDetailData.id" type="empireSkill" placeholder=""></CommentWidget>
           </v-col>
 

@@ -265,7 +265,6 @@ const onCodexHistory = () => {
             </v-row>
 
             <template v-if="commoditieDetailData.id">
-              <v-divider>{{ t('comment.title') }}</v-divider>
               <CommentWidget :id="commoditieDetailData.id" type="commoditie" placeholder=""></CommentWidget>
             </template>
           </v-col>
