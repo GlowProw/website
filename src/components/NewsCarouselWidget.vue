@@ -109,12 +109,16 @@ const formatTime = (timeStr: string): string => {
 
 /**
  * 解析并提取第一张媒体图片链接
- * @param mediaUrl 媒体链接（可能包含逗号分隔多图）
+ * @param mediaUrl 媒体链接（数组或逗号分隔多图）
  */
-const getFirstImageUrl = (mediaUrl?: string | null): string => {
+const getFirstImageUrl = (mediaUrl?: string[] | string | null): string => {
   if (!mediaUrl) return '';
-  const urls = mediaUrl.split(',').map(u => u.trim()).filter(Boolean);
-  return urls.length > 0 ? urls[0] : '';
+  const urls: string[] = Array.isArray(mediaUrl)
+    ? mediaUrl.map(u => String(u).trim()).filter(Boolean)
+    : String(mediaUrl).split(',').map(u => u.trim()).filter(Boolean);
+  if (urls.length === 0) return '';
+  const firstImg = urls.find(u => !/\.(mp4|webm|ogg|mov|m3u8)(\?.*)?$/i.test(u) && !u.includes('/video/'));
+  return firstImg || urls[0] || '';
 };
 
 /**

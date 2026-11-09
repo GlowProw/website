@@ -134,12 +134,22 @@ const formatTime = (timeStr: string): string => {
 };
 
 /**
- * 解析以逗号分隔的多张媒体图片链接
- * @param mediaUrl 媒体链接字符串
+ * 解析媒体图片或视频链接列表
+ * @param mediaUrl 媒体链接数组或逗号分隔字符串
  */
-const parseMediaUrls = (mediaUrl?: string | null): string[] => {
+const parseMediaUrls = (mediaUrl?: string[] | string | null): string[] => {
   if (!mediaUrl) return [];
-  return mediaUrl.split(',').map(u => u.trim()).filter(Boolean);
+  if (Array.isArray(mediaUrl)) return mediaUrl.map(u => String(u).trim()).filter(Boolean);
+  return String(mediaUrl).split(',').map(u => u.trim()).filter(Boolean);
+};
+
+/**
+ * 判断是否为视频链接
+ * @param url 媒体链接
+ */
+const isVideoUrl = (url?: string): boolean => {
+  if (!url) return false;
+  return /\.(mp4|webm|ogg|mov|m3u8)(\?.*)?$/i.test(url) || url.includes('/video/');
 };
 
 /**
@@ -471,19 +481,32 @@ onMounted(() => {
                   <div class="news-body text-body-2 text-high-emphasis mb-3" v-html="item.content"></div>
                   <!-- 卡片新闻正文 E -->
 
-                  <!-- 媒体图片预览 S -->
+                  <!-- 媒体图片与视频预览 S -->
                   <div v-if="parseMediaUrls(item.mediaUrl || (item as any).media_url).length > 0" class="news-media-grid">
                     <v-row density="compact">
                       <v-col
                           v-for="(url, idx) in parseMediaUrls(item.mediaUrl || (item as any).media_url)"
                           :key="idx"
                           :cols="parseMediaUrls(item.mediaUrl || (item as any).media_url).length === 1 ? 12 : 6">
-                        <v-hover v-slot="{ isHovering, props }">
+                        <template v-if="isVideoUrl(url)">
+                          <div class="rounded-lg overflow-hidden border bg-black">
+                            <video
+                                :src="url"
+                                controls
+                                playsinline
+                                preload="metadata"
+                                class="w-100 d-block"
+                                style="max-height: 220px; object-fit: contain;">
+                            </video>
+                          </div>
+                        </template>
+                        <v-hover v-else v-slot="{ isHovering, props }">
                           <v-card
                               border
                               v-bind="props"
                               variant="tonal"
-                              class="media-preview-card rounded-lg overflow-hidden cursor-pointer">
+                              class="media-preview-card rounded-lg overflow-hidden cursor-pointer"
+                              @click="onPreviewImage(url)">
                             <v-img
                                 :src="url"
                                 max-height="220"
@@ -500,7 +523,7 @@ onMounted(() => {
                       </v-col>
                     </v-row>
                   </div>
-                  <!-- 媒体图片预览 E -->
+                  <!-- 媒体图片与视频预览 E -->
                 </v-card>
               </div>
             </div>

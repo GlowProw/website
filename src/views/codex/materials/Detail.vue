@@ -35,6 +35,8 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useWishlistStore} from "~/stores/wishlistStore";
+import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 import Banner from "@/components/Banner.vue";
 
 const {t, messages} = useI18n(),
@@ -45,12 +47,17 @@ const {t, messages} = useI18n(),
     cdnStore = useCDNAssetsServiceStore(),
     calculatorStore = useCalculatorStore(),
     noticeStore = useNoticeStore(),
+    wishlistStore = useWishlistStore(),
     materials = Materials,
     rarityColorConfig = rarity.color
 
 const
     id = computed(() => (route.params.id as string) || ''),
     materialDetailData = computed(() => (id.value ? materials[id.value] : {})),
+    wishlistMatch = computed(() => {
+      if (!materialDetailData.value?.id) return null
+      return wishlistStore.getMatchForItem(materialDetailData.value.id) || wishlistStore.getMatchForMod(materialDetailData.value.id)
+    }),
 
     headTitle = computed(() => {
       if (!id.value || !materials[id.value]) return t(route.meta?.title as string || 'codex.material.title');
@@ -244,6 +251,14 @@ const onAddCalculator = () => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12" lg="12" sm="12" xl="12" v-if="wishlistMatch">
+                <!-- 愿望清单栏目 S -->
+                <v-divider>
+                  {{ t('setting.wishlist.title') }}
+                </v-divider>
+                <WishlistMatchWidget :id="materialDetailData.id"></WishlistMatchWidget>
+                <!-- 愿望清单栏目 E -->
+              </v-col>
               <v-col cols="12">
                 <ItemMaterials :data="materialDetailData">
                   <v-divider>{{ t('codex.item.materialsTitle') }}</v-divider>
@@ -252,7 +267,9 @@ const onAddCalculator = () => {
             </v-row>
 
             <template v-if="materialDetailData.id">
-              <CommentWidget :id="materialDetailData.id" type="material" placeholder=""></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="materialDetailData.id" type="material" placeholder=""></CommentWidget>
+              </div>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
@@ -261,6 +278,15 @@ const onAddCalculator = () => {
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
+                <!-- 愿望清单栏目 S -->
+                <template v-if="wishlistMatch">
+                  <p class="text-no-wrap font-weight-bold mb-2 mt-2 d-flex align-center ga-1 text-amber">
+                    <v-icon icon="mdi-playlist-star" size="18"></v-icon>
+                    <span>{{ t('setting.wishlist.title') }}</span>
+                  </p>
+                  <WishlistMatchWidget :id="materialDetailData.id"></WishlistMatchWidget>
+                </template>
+                <!-- 愿望清单栏目 E -->
                 <template v-if="materialDetailData.blueprint">
                   <ByBluePrintWidget :data="materialDetailData"></ByBluePrintWidget>
                 </template>

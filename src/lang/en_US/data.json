@@ -129,7 +129,7 @@
           "workbuddy": [
             "Open WorkBuddy, go to Connectors / MCP settings.",
             "Click Add Custom Connector, set type to HTTP / Streamable HTTP.",
-            "Paste the Chinese Optimized Endpoint URL (.../mcp/zh-CN).",
+            "Paste the Chinese Optimized Endpoint URL (/mcp/zh-CN).",
             "Click Connect / Authenticate, sign in to your Glow Prow account and allow access.",
             "In your chat, query weapons or loadouts directly; the model will automatically invoke the tools."
           ],
@@ -313,9 +313,11 @@
       "today": "today"
     },
     "preload": {
-      "remoteI18n": "Loading remote translations...",
-      "siteAssets": "Waiting for site assets...",
-      "default": "Loading assets..."
+      "remoteI18n": "Loading remote translations",
+      "siteAssets": "Waiting for site assets",
+      "default": "Loading assets",
+      "remoteWishlist": "Checking and syncing preset wishlists",
+      "versionCheck": "Checking for website version updates"
     },
     "review": {
       "pendingTitle": "Content under review",
@@ -1052,7 +1054,7 @@
     "deleteConfirmation": "Delete comment?",
     "deleteWarning": "This operation is irreversible.",
     "reply": "Reply",
-    "replyPlaceholder": "Write your reply...",
+    "replyPlaceholder": "Write your reply",
     "replySuccess": "Reply published successfully",
     "replyDeleteConfirmation": "Delete reply?",
     "replyEdit": "Edit Reply",
@@ -1751,7 +1753,7 @@
       "emptyUser": "No direct messages yet",
       "emptySystem": "No notifications yet",
       "selectConv": "Select a conversation on the left to start chatting",
-      "inputPlaceholder": "Type a message...",
+      "inputPlaceholder": "Type a message",
       "send": "Send",
       "systemHint": "Replies, likes and other activity will appear here",
       "privateHint": "Private conversation",
@@ -1771,7 +1773,7 @@
         "notifyLikeDesc": "Notify when someone likes your assemblies",
         "dmDisabledHint": "Direct messages disabled, unable to receive messages",
         "save": "Save Settings",
-        "saving": "Saving...",
+        "saving": "Saving",
         "saved": "Saved"
       }
     },
@@ -1796,7 +1798,7 @@
       "presetTitle": "Preset Avatars",
       "presetDesc": "Click to select, then confirm to apply:",
       "presetSelected": "Preset avatar selected. Click Confirm to apply.",
-      "applying": "Applying preset avatar...",
+      "applying": "Applying preset avatar",
       "dialog": {
         "title": "Change Avatar",
         "subtitle": "Choose a way to set your avatar",
@@ -2000,7 +2002,7 @@
       "selectAll": "Select All",
       "deselectAll": "Deselect All",
       "deletePoints": "Delete Coordinates",
-      "searchPoints": "Search coordinates...",
+      "searchPoints": "Search coordinates",
       "noDescription": "No description"
     },
     "smugglersReport": {
@@ -2058,7 +2060,7 @@
     "orders": {
       "title": "My Orders",
       "pageTitle": "Orders & Sponsorships",
-      "searchPlaceholder": "Search order number / custom ID...",
+      "searchPlaceholder": "Search order number / custom ID",
       "filterStatus": "Order Status",
       "filterPlatform": "Payment Method",
       "allStatus": "All Statuses",
@@ -2933,16 +2935,16 @@
         },
         "clip": {
           "hint": "Powered by OpenAI CLIP (ViT-B/32), matches against precomputed features in milliseconds with high accuracy",
-          "loading": "Loading CLIP model...",
+          "loading": "Loading CLIP model",
           "ready": "CLIP Model Ready",
           "error": "Failed to load",
-          "featuresLoading": "Loading gallery features...",
+          "featuresLoading": "Loading gallery features",
           "featuresReady": "Gallery features ready",
           "featuresError": "Failed to load gallery features"
         },
         "tfjs": {
           "hint": "Uses MobileNet neural network to extract image features, higher accuracy but slower speed",
-          "loading": "Loading model...",
+          "loading": "Loading model",
           "ready": "Model ready",
           "error": "Load failed"
         },
@@ -3077,7 +3079,7 @@
       "lookDetail": "View Quest Details",
       "category": "Storyline",
       "allCategories": "All Storylines",
-      "searchPlaceholder": "Search quest name, ID, category or lore...",
+      "searchPlaceholder": "Search quest name, ID, category or lore",
       "count": "{count} Quests ({total} Total)",
       "viewCategoryQuests": "View All in this Storyline"
     },
@@ -3092,7 +3094,7 @@
     "lookDetail": "View Quest Details",
     "category": "Storyline",
     "allCategories": "All Storylines",
-    "searchPlaceholder": "Search quest name, ID, category or lore...",
+    "searchPlaceholder": "Search quest name, ID, category or lore",
     "prerequisites": "Prerequisites",
     "noPrerequisites": "Initial Quest / No Prerequisites",
     "subsequentQuests": "Subsequent Quests",
@@ -3165,7 +3167,7 @@
       "keywords": "Skull and Bones,Twitch Drops,Drops History,Stream Rewards",
       "description": "Skull and Bones Twitch Drops campaign tracker, active drops and historical reward archive."
     },
-    "searchPlaceholder": "Search event name..."
+    "searchPlaceholder": "Search event name"
   },
   "calendar": {
     "title": "Calendar",
@@ -3243,7 +3245,7 @@
     "heroSubtitle": "Real-time official tweets, community feeds, and game updates for Skull and Bones",
     "records": "records",
     "currentPlatform": "Filtered Platform",
-    "searchPlaceholder": "Search content, author, or ID...",
+    "searchPlaceholder": "Search content, author, or ID",
     "copyContent": "Copy Text",
     "copySuccess": "Content copied to clipboard",
     "viewMedia": "View Media",
@@ -3415,7 +3417,7 @@
     "pointsInCollection": "Points in Collection",
     "availablePoints": "Available Points",
     "deletePoints": "Delete Points",
-    "searchPointsPlaceholder": "Search points...",
+    "searchPointsPlaceholder": "Search points",
     "selectAll": "Select All",
     "deselectAll": "Deselect All",
     "noCollections": "No collections yet",
@@ -3466,7 +3468,7 @@
       },
       "settlement": {
         "name": "Settlement",
-        "description": "A small faction settlement, also a trading post. You can buy and sell goods here... or try to take them by force?"
+        "description": "A small faction settlement, also a trading post. You can buy and sell goods here or try to take them by force?"
       },
       "megafort": {
         "name": "Megafort",
@@ -3686,7 +3688,7 @@
     "manageRegions": "Manage Regions",
     "remove": "Remove",
     "add": "Add to Atlas",
-    "searchPoints": "Search unassigned points...",
+    "searchPoints": "Search unassigned points",
     "editCollection": "Edit Atlas",
     "confirmDeletePoints": "Are you sure you want to delete the selected point(s)?",
     "public": "Public",
@@ -3792,7 +3794,7 @@
       "title": "Tier List Plaza",
       "subtitle": "Explore and discover community-created item, weapon and gear rankings",
       "newRanking": "Create New Tier List",
-      "searchPlaceholder": "Search tier list title, author or tag...",
+      "searchPlaceholder": "Search tier list title, author or tag",
       "sortUpdated": "Recently Updated",
       "sortLikes": "Most Liked",
       "sortCreated": "Newest",
@@ -3841,11 +3843,11 @@
       "preview": "Tier List Preview",
       "subtitle": "Confirm details and share with the community",
       "name": "Title",
-      "namePlaceholder": "Enter tier list title...",
+      "namePlaceholder": "Enter tier list title",
       "nameRequired": "Tier list title cannot be empty",
       "nameLength": "Tier list title must not exceed 140 characters",
       "description": "Description",
-      "descriptionPlaceholder": "Share tips or reasoning behind this tier list...",
+      "descriptionPlaceholder": "Share tips or reasoning behind this tier list",
       "tags": "Tags",
       "tagsPlaceholder": "Input tag and press Enter",
       "visibility": "Visibility",
@@ -3932,7 +3934,7 @@
       "transaction": "Item Transaction",
       "other": "Other"
     },
-    "searchPlaceholder": "Search recruitment description or player name...",
+    "searchPlaceholder": "Search recruitment description or player name",
     "create": "Post Recruitment",
     "push": {
       "queued": "Added to the QQ push queue, will be sent on the next cycle",
@@ -3976,7 +3978,7 @@
       "shortBtn": "Compare",
       "left": "Base Assembly (A)",
       "right": "Target Assembly (B)",
-      "searchPlaceholder": "Search assembly name, UUID, or author...",
+      "searchPlaceholder": "Search assembly name, UUID, or author",
       "useCurrent": "Use Current Assembly",
       "swap": "Swap Assemblies",
       "clear": "Clear",
@@ -3986,7 +3988,7 @@
       "emptyRight": "Please select target assembly B",
       "selectPrompt": "Search and select a public assembly to compare",
       "noResults": "No assemblies found",
-      "searching": "Searching assemblies...",
+      "searching": "Searching assemblies",
       "loadFailed": "Failed to load assembly details",
       "viewDetail": "View Detail",
       "currentTag": "Current",
@@ -4069,7 +4071,7 @@
         "importAlert": "Note: This import only takes effect in frontend memory temporarily, and will not upload or modify server records.",
         "importPrompt": "Paste JSON string or select a local file to load:",
         "selectFile": "Select File",
-        "importPlaceholder": "Please paste JSON data for the corresponding module here...",
+        "importPlaceholder": "Please paste JSON data for the corresponding module here",
         "importRequired": "Please enter or upload JSON data",
         "importInvalidJson": "Invalid JSON format, please check syntax",
         "importFailed": "Failed to parse imported data, please check data structure",
@@ -4093,7 +4095,7 @@
       "availableCount": "{count} items",
       "dragTip": "Drag {type} module here",
       "lockedTip": "Slot locked. Configure previous modules first",
-      "searchPlaceholder": "Search module name, effects...",
+      "searchPlaceholder": "Search module name, effects",
       "noMatching": "No matching modules found",
       "ignoreConditionsTip": "Ignore module conditions. Enabling this option disables restrictions within assembly and may cause mismatches with in-game modules.",
       "categories": {
@@ -4288,10 +4290,10 @@
       "showTabs": "Show Tags",
       "showDescription": "Show Description",
       "language": "Language",
-      "generating": "Generating poster...",
+      "generating": "Generating poster",
       "generatingHint": "Exporting high-quality image, please wait",
-      "generatingPage1": "Generating Page 1/2 Assembly Poster...",
-      "generatingPage2": "Generating Page 2/2 Mastery Poster...",
+      "generatingPage1": "Generating Page 1/2 Assembly Poster",
+      "generatingPage2": "Generating Page 2/2 Mastery Poster",
       "createPosterMultiple": "Generate Posters ({total} Pages)"
     },
     "browse": {
@@ -4332,7 +4334,7 @@
     "selectWeaponDirection": "Select Weapon Direction",
     "unnamed": "Unnamed Loadout",
     "create": "Create Build",
-    "searchPlaceholder": "Search build name..."
+    "searchPlaceholder": "Search build name"
   },
   "smugglersReport": {
     "title": "Smuggler's Connoisseur",
@@ -4469,7 +4471,7 @@
       "pasteSuccess": "Report data pasted and imported successfully",
       "pasteInvalid": "Invalid report data format in clipboard",
       "cloneFromSelect": "Clone from Existing Report",
-      "cloneSelectPlaceholder": "Select a report to clone...",
+      "cloneSelectPlaceholder": "Select a report to clone",
       "cloneConfirm": "Are you sure you want to clone data from the selected report? Current item data will be overwritten.",
       "weeklyReport": "Smuggler's Weekly Report",
       "reportComment": "Weekly Report Comment",
@@ -4630,8 +4632,8 @@
       "showEffects": "Show Aggregated Attributes",
       "showQrCode": "Show QR Code",
       "language": "Language",
-      "generating": "Generating Mastery Poster...",
-      "generatingHint": "Exporting high-resolution image, please wait...",
+      "generating": "Generating Mastery Poster",
+      "generatingHint": "Exporting high-resolution image, please wait",
       "defaultTitle": "Skull and Bones Mastery Build",
       "treeTitle": "Mastery Path & Constellation",
       "seasonalTitle": "Active Seasonal Perks",
@@ -4664,7 +4666,7 @@
     "perkSwitched": "Only one perk per tier: \"{from}\" was replaced by \"{to}\"",
     "perkPointsRequired": "Requires {spent}/{cost} pts",
     "aggregatedTitle": "Aggregated Effects",
-    "filterEffectsPlaceholder": "Filter effect attributes...",
+    "filterEffectsPlaceholder": "Filter effect attributes",
     "collapseAll": "Collapse All",
     "expandAll": "Expand All",
     "noAggregatedEffects": "No active aggregated effects found",
@@ -4688,7 +4690,7 @@
       "copyFailed": "Copy failed, please copy manually",
       "importTitle": "Import Build",
       "importDesc": "Paste share link with encoded string here to restore build",
-      "importPlaceholder": "Paste link or compressed code...",
+      "importPlaceholder": "Paste link or compressed code",
       "importAction": "Decode & Apply",
       "importSuccess": "Mastery build loaded successfully",
       "importFailed": "Failed to parse build code, please check string"
@@ -4696,7 +4698,7 @@
     "saveDialog": {
       "title": "Save Mastery Build",
       "saveCurrentTitle": "Save Current Build",
-      "namePlaceholder": "Enter build name...",
+      "namePlaceholder": "Enter build name",
       "saveBtn": "Save",
       "savedTitle": "Saved Builds",
       "empty": "No saved builds yet",
@@ -5008,7 +5010,7 @@
       "subtitle": "Customize keybindings across modules, automatically saved locally",
       "mainSwitch": "Global Hotkeys Switch",
       "mainSwitchDesc": "When disabled, all hotkeys across the site will be inactive, shortcut indicators on buttons will be hidden, and buttons will only be triggered by clicking.",
-      "searchPlaceholder": "Search hotkeys by action, key, or scope...",
+      "searchPlaceholder": "Search hotkeys by action, key, or scope",
       "noResults": "No matching hotkeys found",
       "resetDefaults": "Reset Defaults",
       "groupWorkshop": "Workshop & Loadouts",
@@ -5195,7 +5197,7 @@
       "enabled": "Enabled",
       "disabled": "Disabled",
       "pasteTitle": "Paste Wishlist Text",
-      "pastePlaceholder": "Paste wishlist text content here...",
+      "pastePlaceholder": "Paste wishlist text content here",
       "matchedItems": "Stats",
       "update": "Update",
       "updateError": "Update failed",
@@ -5224,9 +5226,9 @@
       "tags": "Tags",
       "actions": "Actions",
       "editNotes": "Edit Notes",
-      "notesPlaceholder": "Click to add/edit notes...",
+      "notesPlaceholder": "Click to add/edit notes",
       "noNotes": "No notes",
-      "tagsPlaceholder": "Type tag & press Enter...",
+      "tagsPlaceholder": "Type tag & press Enter",
       "rulesCount": "Total Rules",
       "rulesTitle": "Wishlist Rules",
       "noRules": "No rules yet, click 'Add Item' above to add items",
@@ -5248,7 +5250,19 @@
         "ultimates": "Ultimates",
         "modifications": "Modifications",
         "ships": "Ships"
-      }
+      },
+      "presetTitle": "Preset Wishlists (Remote Subscriptions)",
+      "presetSubtitle": "Official recommended remote wishlists containing subscription links only with no embedded data. Preloaded and checked for updates on startup.",
+      "presetBadge": "Preset",
+      "defaultEnabledBadge": "Default Enabled",
+      "customListTitle": "Custom Wishlists",
+      "noCustomWishlists": "No custom wishlists imported yet. Use the tools above to import from URLs, files, or text.",
+      "checkUpdate": "Check Updates",
+      "copyLink": "Copy Link",
+      "linkCopied": "Subscription link copied to clipboard",
+      "openLink": "Open link in new tab",
+      "autoPreloaded": "Startup Preloaded",
+      "presetUpdateSuccess": "Preset wishlist updated and up to date"
     },
     "advanced": {
       "title": "Advanced",
@@ -5436,7 +5450,7 @@
   "captcha": {
     "get": "Get Captcha",
     "fresh": "Refresh Captcha",
-    "turnstileLoading": "Loading Turnstile security verification...",
+    "turnstileLoading": "Loading Turnstile security verification",
     "turnstileFailed": "Failed to load Turnstile",
     "turnstileFailedHint": "Network restricted or service temporarily unavailable",
     "retry": "Retry",
@@ -5461,7 +5475,7 @@
     "targets": {
       "title": "Targets",
       "addTarget": "Add Target",
-      "searchPlaceholder": "Search items or ships...",
+      "searchPlaceholder": "Search items or ships",
       "quantity": "Quantity",
       "type": "Type",
       "item": "Item",
@@ -5483,7 +5497,7 @@
     },
     "exclude": {
       "title": "Exclude",
-      "searchPlaceholder": "Search materials to exclude...",
+      "searchPlaceholder": "Search materials to exclude",
       "noExcludes": "No excluded materials",
       "description": "Excluded materials will not be further broken down"
     },
@@ -5513,8 +5527,8 @@
       "selectBuild": "Select Build",
       "noBuildsFound": "No saved builds or drafts",
       "importByUid": "Import via ID",
-      "importByUidPlaceholder": "Enter Build ID (UID)...",
-      "importing": "Loading...",
+      "importByUidPlaceholder": "Enter Build ID (UID)",
+      "importing": "Loading",
       "importSuccess": "Imported successfully",
       "importError": "Import failed, please check if the ID is correct"
     },
@@ -5778,7 +5792,7 @@
     "cancelPay": "Cancel payment",
     "continuePay": "Continue to pay",
     "syncOrder": "Refresh Status",
-    "syncing": "Syncing...",
+    "syncing": "Syncing",
     "orderSyncedPaid": "Payment confirmed, thank you for your support!",
     "orderStillPending": "Payment record not found from the provider yet. If already paid, please try refreshing in a moment.",
     "orderCancelled": "Order cancelled"
@@ -5792,7 +5806,7 @@
     "deleteConfirm": "Are you sure you want to delete the reminder “{title}”? This action cannot be undone.",
     "goToSettings": "Go to Settings",
     "permissionWarning": "Desktop notification permission is not enabled. Click request or go to settings to receive alerts.",
-    "search": "Search reminder title or notes...",
+    "search": "Search reminder title or notes",
     "empty": "No reminder tasks found. Click above to create one or load presets.",
     "testTrigger": "Test Notification",
     "save": "Save Reminder",
@@ -5946,7 +5960,7 @@
     "quickLogin": "Sign in with Third-Party",
     "bindTitle": "Connect Third-Party Platform",
     "callbackTitle": "OAuth Verification",
-    "processing": "Verifying authorization, please wait...",
+    "processing": "Verifying authorization, please wait",
     "failedTitle": "Authorization Failed",
     "backToSignin": "Back to Sign In",
     "authorizedPlatform": "Connected to",
@@ -5962,7 +5976,7 @@
     "authFailed": "Failed to initiate third-party authorization",
     "urlError": "Failed to retrieve authorization URL",
     "unknownError": "Authorization failed",
-    "waitHint": "Verifying your authorization with the third-party platform, please keep this window open...",
+    "waitHint": "Verifying your authorization with the third-party platform, please keep this window open",
     "ticketExpired": "OAuth ticket has expired. Please re-authorize.",
     "restartAuth": "Re-authorize",
     "platformNickname": "Platform nickname",

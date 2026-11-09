@@ -148,7 +148,7 @@ const onCodexHistory = (id: string) => {
             <h1 class="text-amber text-h3 font-weight-bold">
               <EmpireSkillName :id="empireSkillDetailData.id"></EmpireSkillName>
             </h1>
-            <p class="mt-2 mb-3 text-caption text-grey">
+            <p class="mt-2 mb-3">
               <v-icon icon="mdi-identifier" size="small"/>
               {{ empireSkillDetailData.id }}
             </p>
@@ -204,7 +204,7 @@ const onCodexHistory = (id: string) => {
             <!-- 前置条件 / 所需技能 -->
             <template v-if="realRequisites.length > 0">
               <v-divider class="my-6"></v-divider>
-              <h3 class="text-amber text-subtitle-1 mb-3">{{ t('empireSkillSimulation.requirements') }}</h3>
+              <h3 class="text-subtitle-1 mb-3">{{ t('empireSkillSimulation.requirements') }}</h3>
               <v-list density="compact" class="bg-transparent pa-0">
                 <v-list-item v-for="req in realRequisites" :key="req" class="px-0">
                   <v-row no-gutters align="center">
@@ -226,7 +226,7 @@ const onCodexHistory = (id: string) => {
             <!-- 所需消耗 -->
             <template v-if="empireSkillDetailData.requiredCost && Object.keys(empireSkillDetailData.requiredCost).length > 0">
               <v-divider class="my-6"></v-divider>
-              <h3 class="text-amber text-subtitle-1 mb-3">{{ t('empireSkillSimulation.requiredCost') }}</h3>
+              <h3 class="text-subtitle-1 mb-3">{{ t('empireSkillSimulation.requiredCost') }}</h3>
               <v-table density="compact" class="bg-transparent border">
                 <thead>
                   <tr>
@@ -247,8 +247,10 @@ const onCodexHistory = (id: string) => {
               </v-table>
             </template>
 
-            <!-- 评论区 -->
-            <CommentWidget :id="empireSkillDetailData.id" type="empireSkill" placeholder=""></CommentWidget>
+            <div class="mt-10">
+              <!-- 评论区 -->
+              <CommentWidget :id="empireSkillDetailData.id" type="empireSkill" placeholder=""></CommentWidget>
+            </div>
           </v-col>
 
           <!-- 侧边栏信息 -->

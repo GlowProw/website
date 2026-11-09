@@ -176,9 +176,10 @@ const containerStyle = computed(() => {
       minHeight: sizeVal,
     };
   }
-  // 未指定尺寸时交给外层 flex 拉伸，避免百分比高度叠加外边距后撑破 ItemSlotBase
+  // 未指定尺寸时铺满外层容器并保持正方形，与 ItemSlotBase 完美贴合
   return {
     width: '100%',
+    aspectRatio: '1 / 1',
   };
 });
 

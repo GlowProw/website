@@ -8,7 +8,10 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
 import MasteryName from "@/components/snbWidget/masteryName.vue";
 import MasteryDescription from "@/components/snbWidget/masteryDescription.vue";
+import MasteryPrerequisitesWidget from "@/components/snbWidget/masteryPrerequisitesWidget.vue";
+import MasterySubsequentWidget from "@/components/snbWidget/masterySubsequentWidget.vue";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
+import ByMasteryWidget from "@/components/ByMasteryWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import ShareWidget from "@/components/ShareWidget.vue";
@@ -20,7 +23,7 @@ import Time from "@/components/Time.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
-import {storage, storageCollect, getAppUrl} from "@/assets/sripts";
+import {storage, getAppUrl} from "@/assets/sripts";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useAppStore} from "~/stores/appStore";
 import {useHead} from "@unhead/vue";
@@ -76,48 +79,10 @@ const masteryDetailData = computed<Mastery | null>(() => {
   return findMasteryNode(id.value);
 });
 
-let isCollect = ref(false);
-
-const getCollectStatus = computed(() => {
-  if (typeof window === 'undefined' || !masteryDetailData.value?.id) return false;
-  return !!storageCollect.get(masteryDetailData.value.id, 'mastery')?.data;
-});
-
 const seasonTitle = computed(() => {
   const sId = masteryDetailData.value?.bySeason?.id || (masteryDetailData.value?.season as any)?.id || (masteryDetailData.value?.season as any);
   if (!sId) return '';
   return i18nReadName.season(sId).name();
-});
-
-// 前置节点解析（转换为对应节点实体）
-const requisiteNodes = computed(() => {
-  if (!masteryDetailData.value?.requisite?.length) return [];
-  return masteryDetailData.value.requisite
-    .map(reqKey => findMasteryNode(reqKey))
-    .filter((n): n is Mastery => n !== null);
-});
-
-// 后续依赖节点解析
-const dependentNodes = computed(() => {
-  if (!masteryDetailData.value) return [];
-  const currentKey = masteryDetailData.value.key;
-  const currentId = masteryDetailData.value.id;
-  const result: Mastery[] = [];
-  const seen = new Set<string>();
-
-  for (const tree of Object.values(Masterys)) {
-    if (tree && (tree as any).nodes) {
-      for (const node of Object.values((tree as any).nodes) as Mastery[]) {
-        if (node.requisite && (node.requisite.includes(currentKey) || node.requisite.includes(currentId))) {
-          if (!seen.has(node.id)) {
-            seen.add(node.id);
-            result.push(node);
-          }
-        }
-      }
-    }
-  }
-  return result;
 });
 
 const headData = computed(() => {
@@ -219,22 +184,6 @@ const onCodexHistory = () => {
     }
   });
 };
-
-/**
- * 收藏专精
- */
-const onStarMastery = (data: Mastery) => {
-  isCollect.value = !isCollect.value;
-
-  if (isCollect.value)
-    return storageCollect.delete(data.id, 'mastery');
-
-  storageCollect.updata(
-      {collectTime: new Date().getTime()},
-      'mastery',
-      data.id
-  );
-};
 </script>
 
 <template>
@@ -275,9 +224,7 @@ const onStarMastery = (data: Mastery) => {
           <v-spacer></v-spacer>
           <v-col cols="auto">
             <div class="d-flex ga-2">
-              <v-btn :class="getCollectStatus ? 'text-amber' : ''" border variant="text" @click="onStarMastery(masteryDetailData)">
-                <v-icon :icon="`mdi-${getCollectStatus ? 'star' : 'star-outline'}`"></v-icon>
-              </v-btn>
+              <CollectionToggle target-type="mastery" :target-id="masteryDetailData.id"></CollectionToggle>
 
               <v-btn v-if="authStore.isLogin" border>
                 <LikeWidget :isShowCount="true"
@@ -299,7 +246,6 @@ const onStarMastery = (data: Mastery) => {
                 <v-icon icon="mdi-transit-connection-variant"></v-icon>
               </v-btn>
 
-              <CollectionToggle target-type="mastery" :target-id="masteryDetailData.id"></CollectionToggle>
               <ShareWidget :target-id="masteryDetailData.id" type="mastery"/>
             </div>
           </v-col>
@@ -313,7 +259,7 @@ const onStarMastery = (data: Mastery) => {
             <v-row>
               <div>
                 <ItemSlotBase :id="masteryDetailData.id" size="130px">
-                  <MasteryIconWidget :id="masteryDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false" size="110px"></MasteryIconWidget>
+                  <MasteryIconWidget :id="masteryDetailData.id" :isOpenDetail="false" :isShowOpenDetail="false"></MasteryIconWidget>
                 </ItemSlotBase>
               </div>
               <v-col>
@@ -416,48 +362,20 @@ const onStarMastery = (data: Mastery) => {
             </v-row>
 
             <!-- 前置需求节点 -->
-            <template v-if="requisiteNodes.length > 0">
-              <v-divider class="mt-8 mb-4">{{ t('mastery.debug.requisites') }}</v-divider>
-              <v-row>
-                <v-col v-for="req in requisiteNodes" :key="req.id" cols="12" sm="6">
-                  <v-card border class="pa-2 d-flex align-center" :to="`/codex/mastery/${req.id}`">
-                    <ItemSlotBase size="40px" class="mr-3">
-                      <MasteryIconWidget :id="req.id" :isOpenDetail="false" :isShowOpenDetail="false" size="36px" />
-                    </ItemSlotBase>
-                    <div class="overflow-hidden">
-                      <p class="font-weight-bold text-amber singe-line mb-0">
-                        <MasteryName :id="req.id" />
-                      </p>
-                      <p class="text-caption text-grey singe-line mb-0 font-monospace">{{ req.id }}</p>
-                    </div>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </template>
+            <MasteryPrerequisitesWidget v-if="masteryDetailData" :id="masteryDetailData.id" :data="masteryDetailData">
+              <v-divider>{{ t('mastery.debug.requisites') }}</v-divider>
+            </MasteryPrerequisitesWidget>
 
             <!-- 后续依赖节点 -->
-            <template v-if="dependentNodes.length > 0">
-              <v-divider class="mt-8 mb-4">{{ t('mastery.card.dependentNodes') }}</v-divider>
-              <v-row>
-                <v-col v-for="dep in dependentNodes" :key="dep.id" cols="12" sm="6">
-                  <v-card border class="pa-2 d-flex align-center" :to="`/codex/mastery/${dep.id}`">
-                    <ItemSlotBase size="40px" class="mr-3">
-                      <MasteryIconWidget :id="dep.id" :isOpenDetail="false" :isShowOpenDetail="false" size="36px" />
-                    </ItemSlotBase>
-                    <div class="overflow-hidden">
-                      <p class="font-weight-bold text-amber singe-line mb-0">
-                        <MasteryName :id="dep.id" />
-                      </p>
-                      <p class="text-caption text-grey singe-line mb-0 font-monospace">{{ dep.id }}</p>
-                    </div>
-                  </v-card>
-                </v-col>
-              </v-row>
-            </template>
+            <MasterySubsequentWidget v-if="masteryDetailData" :id="masteryDetailData.id" :data="masteryDetailData">
+              <v-divider>{{ t('mastery.card.dependentNodes') }}</v-divider>
+            </MasterySubsequentWidget>
 
             <!-- 评论区 -->
             <template v-if="masteryDetailData.id">
-              <CommentWidget :id="masteryDetailData.id" placeholder="" type="mastery"></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="masteryDetailData.id" placeholder="" type="mastery"></CommentWidget>
+              </div>
             </template>
           </v-col>
 
@@ -466,18 +384,6 @@ const onStarMastery = (data: Mastery) => {
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
-                <template v-if="masteryDetailData.bySeason?.id || (masteryDetailData.season as any)?.id">
-                  <v-text-field
-                      :value="seasonTitle"
-                      density="compact"
-                      hide-details
-                      readonly variant="underlined">
-                    <template v-slot:append-inner>
-                      <p class="text-no-wrap">{{ t('mastery.card.season') }}</p>
-                    </template>
-                  </v-text-field>
-                </template>
-
                 <template v-if="masteryDetailData.category">
                   <v-text-field
                       :value="t(`mastery.categorys.${masteryDetailData.category}`) || masteryDetailData.category"
@@ -540,15 +446,14 @@ const onStarMastery = (data: Mastery) => {
                   </template>
                 </v-text-field>
 
-                <v-btn
-                    block
-                    color="amber"
-                    variant="tonal"
-                    class="mt-6"
-                    prepend-icon="mdi-transit-connection-variant"
-                    :to="`/mastery?season=${masteryDetailData.bySeason?.id || (masteryDetailData.season as any)?.id || 'crimsonWaters'}&locate=${masteryDetailData.id}`">
-                  {{ t('codex.mastery.openInTree') }}
-                </v-btn>
+                <template v-if="masteryDetailData.id">
+                  <ByMasteryWidget
+                      :data="masteryDetailData"
+                      :target-key="masteryDetailData.id"
+                      open-in-mastery-view>
+                    {{ t('codex.mastery.openInTree') }}
+                  </ByMasteryWidget>
+                </template>
 
                 <CodexItemStatsCard v-if="masteryDetailData?.id || id" target-type="mastery" :target-id="masteryDetailData?.id || id" class="mt-4"></CodexItemStatsCard>
               </VerticalScrollList>

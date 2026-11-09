@@ -19,6 +19,7 @@ import {
     toWishlistMeta,
 } from '@/assets/sripts/wishlist_data_processing';
 import Storage from '@/assets/sripts/storage';
+import { PRESET_WISHLISTS, type PresetWishlistConfig } from '@/config/presetWishlists';
 
 const storage = new Storage();
 const INDEX_KEY = 'wishlist.index';
@@ -98,6 +99,14 @@ export const useWishlistStore = defineStore('wishlist', () => {
             .reduce((sum, w) => sum + w.rules.length, 0)
     );
 
+    const presetMetas = computed(() =>
+        metaList.value.filter(m => m.isPreset)
+    );
+
+    const userMetas = computed(() =>
+        metaList.value.filter(m => !m.isPreset)
+    );
+
     /**
      * 合并所有启用清单的 lookup Map
      */
@@ -161,7 +170,8 @@ export const useWishlistStore = defineStore('wishlist', () => {
      * 添加愿望清单（需先通过验证）
      */
     function addWishlist(wl: WishlistFile): { success: boolean; errors?: string[] } {
-        if (!loadedWishlists.value.has(wl.id) && metaList.value.length >= 10) {
+        const userCustomCount = metaList.value.filter(m => !m.isPreset).length;
+        if (!wl.isPreset && !loadedWishlists.value.has(wl.id) && userCustomCount >= 10) {
             return { success: false, errors: ['max_limit'] };
         }
         const validation = validateWishlist(wl);
@@ -304,15 +314,186 @@ export const useWishlistStore = defineStore('wishlist', () => {
     }
 
     /**
-     * 清空所有
+     * 清空所有自定义愿望清单（保留预设订阅）
      */
     function removeAll() {
         for (const meta of metaList.value) {
-            removeWishlistData(meta.id);
+            if (!meta.isPreset) {
+                removeWishlistData(meta.id);
+                loadedWishlists.value.delete(meta.id);
+            }
         }
-        loadedWishlists.value.clear();
-        metaList.value = [];
-        saveIndex([]);
+        const preserved = metaList.value.filter(m => m.isPreset);
+        metaList.value = preserved;
+        saveIndex(preserved);
+    }
+
+    /**
+     * 同步所有预设愿望清单
+     * 自动处理首次导入（默认开启）、版本比对升级与多语言切换
+     */
+    async function syncPresetWishlists(currentLang?: string): Promise<void> {
+        const lang = (currentLang || 'zh_CN').replace('-', '_');
+        const langKey: 'zh_CN' | 'en_US' | 'zh_TW' = lang === 'zh_TW' ? 'zh_TW' : (lang.startsWith('zh') ? 'zh_CN' : 'en_US');
+
+        for (const preset of PRESET_WISHLISTS) {
+            const presetId = 'preset_' + preset.id;
+            updatingIds.value.add(presetId);
+            try {
+                const candidateUrls = [
+                    preset.urls[langKey],
+                    ...(preset.fallbackUrls[langKey] || []),
+                ];
+
+                let fetchedText = '';
+                let successfulUrl = '';
+
+                for (const url of candidateUrls) {
+                    try {
+                        const response = await fetch(url);
+                        if (response.ok) {
+                            fetchedText = await response.text();
+                            successfulUrl = url;
+                            break;
+                        }
+                    } catch {
+                        // 忽略单源异常，继续尝试备用镜像源
+                    }
+                }
+
+                if (!fetchedText) continue;
+
+                const parsed = parseWishlistText(fetchedText, successfulUrl);
+                const validation = validateWishlist(parsed);
+                if (!validation.valid) continue;
+
+                const existing = loadedWishlists.value.get(presetId) ||
+                    wishlists.value.find(w => w.presetId === preset.id || w.id === presetId);
+
+                if (!existing) {
+                    parsed.id = presetId;
+                    parsed.isPreset = true;
+                    parsed.presetId = preset.id;
+                    parsed.enabled = preset.defaultEnabled;
+                    parsed.importedAt = Date.now();
+                    parsed.lastUpdatedAt = Date.now();
+                    parsed.updateUrls = candidateUrls;
+                    persistWishlist(parsed);
+                } else {
+                    const isNewVersion = parsed.version !== existing.version;
+                    const isLangChanged = existing.title !== parsed.title && Boolean(parsed.title);
+
+                    if (isNewVersion || isLangChanged) {
+                        parsed.id = existing.id;
+                        parsed.isPreset = true;
+                        parsed.presetId = preset.id;
+                        parsed.enabled = existing.enabled;
+                        parsed.importedAt = existing.importedAt;
+                        parsed.lastUpdatedAt = Date.now();
+                        parsed.updateUrls = candidateUrls;
+                        persistWishlist(parsed);
+                    }
+                }
+            } catch (err) {
+                console.warn(`[wishlistStore] 预设愿望清单 ${preset.id} 同步失败:`, err);
+            } finally {
+                updatingIds.value.delete(presetId);
+            }
+        }
+    }
+
+    /**
+     * 检查单个预设清单的远程更新状态
+     */
+    async function checkPresetUpdate(presetId: string, currentLang?: string): Promise<{
+        hasUpdate: boolean;
+        localVersion?: string;
+        remoteVersion?: string;
+        error?: string;
+    }> {
+        const preset = PRESET_WISHLISTS.find(p => p.id === presetId);
+        if (!preset) return { hasUpdate: false, error: 'preset_not_found' };
+
+        const fullId = 'preset_' + preset.id;
+        const existing = loadedWishlists.value.get(fullId) ||
+            wishlists.value.find(w => w.presetId === preset.id || w.id === fullId);
+
+        const lang = (currentLang || 'zh_CN').replace('-', '_');
+        const langKey: 'zh_CN' | 'en_US' | 'zh_TW' = lang === 'zh_TW' ? 'zh_TW' : (lang.startsWith('zh') ? 'zh_CN' : 'en_US');
+        const candidateUrls = [preset.urls[langKey], ...(preset.fallbackUrls[langKey] || [])];
+
+        for (const url of candidateUrls) {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) continue;
+                const text = await response.text();
+                const parsed = parseWishlistText(text, url);
+                const localVer = existing?.version || '';
+                const remoteVer = parsed.version || '';
+                const hasUpdate = Boolean(remoteVer && remoteVer !== localVer);
+                return {
+                    hasUpdate,
+                    localVersion: localVer,
+                    remoteVersion: remoteVer,
+                };
+            } catch {
+                continue;
+            }
+        }
+        return { hasUpdate: false, error: 'fetch_failed' };
+    }
+
+    /**
+     * 立即拉取并更新指定预设愿望清单
+     */
+    async function updatePreset(presetId: string, currentLang?: string): Promise<{ success: boolean; error?: string }> {
+        const preset = PRESET_WISHLISTS.find(p => p.id === presetId);
+        if (!preset) return { success: false, error: 'preset_not_found' };
+
+        const fullId = 'preset_' + preset.id;
+        updatingIds.value.add(fullId);
+        try {
+            const lang = (currentLang || 'zh_CN').replace('-', '_');
+            const langKey: 'zh_CN' | 'en_US' | 'zh_TW' = lang === 'zh_TW' ? 'zh_TW' : (lang.startsWith('zh') ? 'zh_CN' : 'en_US');
+            const candidateUrls = [preset.urls[langKey], ...(preset.fallbackUrls[langKey] || [])];
+
+            let fetchedText = '';
+            let successfulUrl = '';
+
+            for (const url of candidateUrls) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        fetchedText = await response.text();
+                        successfulUrl = url;
+                        break;
+                    }
+                } catch {
+                    continue;
+                }
+            }
+
+            if (!fetchedText) return { success: false, error: 'network_failed' };
+
+            const parsed = parseWishlistText(fetchedText, successfulUrl);
+            const validation = validateWishlist(parsed);
+            if (!validation.valid) return { success: false, error: 'invalid_data' };
+
+            const existing = loadedWishlists.value.get(fullId) ||
+                wishlists.value.find(w => w.presetId === preset.id || w.id === fullId);
+
+            parsed.id = fullId;
+            parsed.isPreset = true;
+            parsed.presetId = preset.id;
+            parsed.enabled = existing ? existing.enabled : preset.defaultEnabled;
+            parsed.importedAt = existing ? existing.importedAt : Date.now();
+            parsed.lastUpdatedAt = Date.now();
+            parsed.updateUrls = candidateUrls;
+            persistWishlist(parsed);
+            return { success: true };
+        } finally {
+            updatingIds.value.delete(fullId);
+        }
     }
 
     /**
@@ -341,6 +522,8 @@ export const useWishlistStore = defineStore('wishlist', () => {
         enabledWishlists,
         totalRules,
         enabledRules,
+        presetMetas,
+        userMetas,
         lookupMap,
         modLookupMap,
 
@@ -353,6 +536,9 @@ export const useWishlistStore = defineStore('wishlist', () => {
         importFromText,
         importFromUrl,
         updateFromUrls,
+        syncPresetWishlists,
+        checkPresetUpdate,
+        updatePreset,
         removeWishlist,
         toggleWishlist,
         enableAll,

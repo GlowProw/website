@@ -12,6 +12,7 @@ import {useReminderStore} from "~/stores/reminderStore";
 import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {useAppStore} from "~/stores/appStore";
 import {usePreloadStore} from "~/stores/preloadStore";
+import {useWishlistStore} from "~/stores/wishlistStore";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
 import {setupGlobalHotkeys} from "@/assets/sripts/global_hotkeys";
@@ -23,6 +24,7 @@ const reminderStore = useReminderStore();
 const messagesUnreadStore = useMessagesUnreadStore();
 const appStore = useAppStore();
 const preloadStore = usePreloadStore();
+const wishlistStore = useWishlistStore();
 const authStore = useAuthStore();
 
 const route = useRoute();
@@ -188,6 +190,14 @@ onMounted(async () => {
       await loadRemoteLangMessages(appStore.cdnLangSource, locale.value);
     }
   });
+  preloadStore.registerTask({
+    id: 'remote-wishlist',
+    phase: t('basic.preload.remoteWishlist') || '检查并同步预设愿望清单...',
+    run: async () => {
+      if (typeof window === 'undefined') return;
+      await wishlistStore.syncPresetWishlists(locale.value);
+    }
+  });
 
   try {
     await preloadStore.runAll();
@@ -201,6 +211,7 @@ onMounted(async () => {
         if (newLang === oldLang) return;
         try {
           await loadRemoteLangMessages(appStore.cdnLangSource, newLang);
+          await wishlistStore.syncPresetWishlists(newLang);
         } catch (err) {
           console.warn('[remote_i18n] 语言切换加载失败:', newLang, err);
         }

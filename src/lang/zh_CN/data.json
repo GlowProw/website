@@ -129,7 +129,7 @@
           "workbuddy": [
             "打开 WorkBuddy 客户端，进入「连接器 / MCP 设置」页面。",
             "点击「添加 / 自定义连接器」，名称填写「闪耀船首」。",
-            "服务器 URL 粘贴上方的「中文模型优化版」地址（.../mcp/zh-CN）。",
+            "服务器 URL 粘贴上方的「中文模型优化版」地址（/mcp/zh-CN）。",
             "点击连接或认证，在弹出的浏览器页面中登录并点击「允许访问」。",
             "在对话中直接发送中文问题（如“帮我查一下达达尼尔炮”或“有哪些双桅配装”），模型将自动精准调用对应工具。"
           ],
@@ -313,9 +313,11 @@
       "today": "今日"
     },
     "preload": {
-      "remoteI18n": "从远程加载文本数据...",
-      "siteAssets": "等待站点资源加载完成...",
-      "default": "正在加载资源..."
+      "remoteI18n": "从远程加载文本数据",
+      "siteAssets": "等待站点资源加载完成",
+      "default": "正在加载资源",
+      "remoteWishlist": "检查并同步预设愿望清单",
+      "versionCheck": "检查网站版本更新"
     },
     "review": {
       "pendingTitle": "内容审核中",
@@ -1051,7 +1053,7 @@
     "deleteConfirmation": "删除评论？",
     "deleteWarning": "此操作不可逆。",
     "reply": "回复",
-    "replyPlaceholder": "撰写回复内容...",
+    "replyPlaceholder": "撰写回复内容",
     "replySuccess": "回复发布成功",
     "replyDeleteConfirmation": "删除回复？",
     "replyEdit": "编辑回复",
@@ -1751,7 +1753,7 @@
       "emptyUser": "暂无私信会话",
       "emptySystem": "暂无系统通知",
       "selectConv": "选择左侧会话开始聊天",
-      "inputPlaceholder": "输入消息...",
+      "inputPlaceholder": "输入消息",
       "send": "发送",
       "systemHint": "评论、回复、点赞的通知都会显示在这里",
       "privateHint": "私聊",
@@ -1771,7 +1773,7 @@
         "notifyLikeDesc": "有人点赞你的配装时提醒",
         "dmDisabledHint": "已关闭私信功能，无法接收消息",
         "save": "保存设置",
-        "saving": "保存中...",
+        "saving": "保存中",
         "saved": "已保存"
       }
     },
@@ -1796,7 +1798,7 @@
       "presetTitle": "预设头像",
       "presetDesc": "点击选中，再点击确定应用：",
       "presetSelected": "已选择预设头像，点击确定即可应用",
-      "applying": "正在应用预设头像...",
+      "applying": "正在应用预设头像",
       "dialog": {
         "title": "更换头像",
         "subtitle": "选择一种方式设置你的头像",
@@ -2022,7 +2024,7 @@
     "orders": {
       "title": "我的订单",
       "pageTitle": "订单与赞助记录",
-      "searchPlaceholder": "搜索订单号/自定义单号...",
+      "searchPlaceholder": "搜索订单号/自定义单号",
       "filterStatus": "订单状态",
       "filterPlatform": "支付渠道",
       "allStatus": "全部状态",
@@ -2102,7 +2104,7 @@
       "selectAll": "全选",
       "deselectAll": "取消全选",
       "deletePoints": "删除坐标",
-      "searchPoints": "搜索坐标...",
+      "searchPoints": "搜索坐标",
       "noDescription": "无描述"
     },
     "smugglersReport": {
@@ -2938,16 +2940,16 @@
         },
         "clip": {
           "hint": "基于 OpenAI CLIP (ViT-B/32) 预训练多模态特征，直接加载预计算图库特征，秒级高精度对比",
-          "loading": "CLIP 模型加载中...",
+          "loading": "CLIP 模型加载中",
           "ready": "CLIP 已就绪",
           "error": "加载失败",
-          "featuresLoading": "图库特征加载中...",
+          "featuresLoading": "图库特征加载中",
           "featuresReady": "图库特征已就绪",
           "featuresError": "图库特征加载失败"
         },
         "tfjs": {
           "hint": "使用 MobileNet 神经网络提取图像特征，精度更高但速度较慢",
-          "loading": "模型加载中...",
+          "loading": "模型加载中",
           "ready": "模型已就绪",
           "error": "加载失败"
         },
@@ -3074,7 +3076,7 @@
       "lookDetail": "查看剧情详情",
       "category": "剧情线",
       "allCategories": "全部剧情",
-      "searchPlaceholder": "搜索任务名称、ID、分类或线索...",
+      "searchPlaceholder": "搜索任务名称、ID、分类或线索",
       "count": "共 {count} 个任务 (总计 {total})",
       "viewCategoryQuests": "查看该分类全部任务"
     },
@@ -3089,7 +3091,7 @@
     "lookDetail": "查看剧情详情",
     "category": "剧情线",
     "allCategories": "全部剧情",
-    "searchPlaceholder": "搜索任务名称、ID、分类或线索...",
+    "searchPlaceholder": "搜索任务名称、ID、分类或线索",
     "prerequisites": "前置剧情",
     "noPrerequisites": "初始任务 / 无前置要求",
     "subsequentQuests": "后续接续任务",
@@ -3162,7 +3164,7 @@
       "keywords": "碧海黑帆,Skull and Bones,Twitch Drops,掉宝,掉宝历史,观看奖励",
       "description": "《碧海黑帆》Twitch Drops 掉宝活动追踪、当前生效掉宝与历史奖励档案。"
     },
-    "searchPlaceholder": "搜索活动名称..."
+    "searchPlaceholder": "搜索活动名称"
   },
   "calendar": {
     "title": "日历",
@@ -3240,7 +3242,7 @@
     "heroSubtitle": "实时同步《碧海黑帆》官方推特公告、小黑盒社区动态与最新资讯",
     "records": "条记录",
     "currentPlatform": "当前筛选平台",
-    "searchPlaceholder": "搜索新闻内容、作者或 ID...",
+    "searchPlaceholder": "搜索新闻内容、作者或 ID",
     "copyContent": "复制正文",
     "copySuccess": "正文内容已复制到剪贴板",
     "viewMedia": "查看大图",
@@ -3412,7 +3414,7 @@
     "pointsInCollection": "地图集内坐标",
     "availablePoints": "可添加的坐标",
     "deletePoints": "删除坐标",
-    "searchPointsPlaceholder": "搜索坐标...",
+    "searchPointsPlaceholder": "搜索坐标",
     "selectAll": "全选",
     "deselectAll": "取消全选",
     "noCollections": "暂无地图集",
@@ -3463,7 +3465,7 @@
       },
       "settlement": {
         "name": "定居点",
-        "description": "一处小型阵营定居点，同时也是交易场所。你可以在此买卖货物.....或是尝试暴力夺取?"
+        "description": "一处小型阵营定居点，同时也是交易场所。你可以在此买卖货物..或是尝试暴力夺取?"
       },
       "megafort": {
         "name": "大型要塞",
@@ -3683,7 +3685,7 @@
     "manageRegions": "管理区域",
     "remove": "移出",
     "add": "加入图集",
-    "searchPoints": "搜索未分组坐标...",
+    "searchPoints": "搜索未分组坐标",
     "editCollection": "编辑地图集",
     "confirmDeletePoints": "确定要删除选中的坐标吗？",
     "public": "公开",
@@ -3789,7 +3791,7 @@
       "title": "天梯广场",
       "subtitle": "浏览并探索社区玩家创建的物品、武器与装备评级榜单",
       "newRanking": "创建新榜单",
-      "searchPlaceholder": "搜索天梯标题、作者名或标签...",
+      "searchPlaceholder": "搜索天梯标题、作者名或标签",
       "sortUpdated": "最新更新",
       "sortLikes": "最多点赞",
       "sortCreated": "最新发布",
@@ -3838,11 +3840,11 @@
       "preview": "天梯预览",
       "subtitle": "确认天梯信息并分享给全站玩家",
       "name": "榜单标题",
-      "namePlaceholder": "输入天梯榜单名称...",
+      "namePlaceholder": "输入天梯榜单名称",
       "nameRequired": "天梯标题不能为空",
       "nameLength": "天梯名称不能超过140个字符",
       "description": "详细说明",
-      "descriptionPlaceholder": "添加对该分级方案的见解或搭配建议...",
+      "descriptionPlaceholder": "添加对该分级方案的见解或搭配建议",
       "tags": "分类标签",
       "tagsPlaceholder": "输入标签后回车添加",
       "visibility": "可见性",
@@ -3930,7 +3932,7 @@
       "transaction": "物品交易",
       "other": "其他"
     },
-    "searchPlaceholder": "搜索招募描述或玩家名...",
+    "searchPlaceholder": "搜索招募描述或玩家名",
     "create": "发布招募",
     "push": {
       "queued": "已加入 QQ 推送队列，将按周期推送",
@@ -3974,7 +3976,7 @@
       "shortBtn": "对比",
       "left": "基准配装 (A)",
       "right": "对比配装 (B)",
-      "searchPlaceholder": "搜索配装名称、UUID 或作者...",
+      "searchPlaceholder": "搜索配装名称、UUID 或作者",
       "useCurrent": "使用当前配装",
       "swap": "交换左右配装",
       "clear": "清空",
@@ -3984,7 +3986,7 @@
       "emptyRight": "请选择右侧对比配装",
       "selectPrompt": "搜索并选择一套公开配装进行对比",
       "noResults": "未找到相关配装",
-      "searching": "正在搜索配装...",
+      "searching": "正在搜索配装",
       "loadFailed": "加载配装详情失败",
       "viewDetail": "查看详情",
       "currentTag": "当前",
@@ -4067,7 +4069,7 @@
         "importAlert": "注意：此导入仅在当前前端页面内存临时生效，不会上传或修改服务器数据库记录。",
         "importPrompt": "可粘贴 JSON 字符串或选择本地文件载入：",
         "selectFile": "选择文件",
-        "importPlaceholder": "请在此粘贴对应模块的 JSON 数据...",
+        "importPlaceholder": "请在此粘贴对应模块的 JSON 数据",
         "importRequired": "请输入或上传 JSON 数据",
         "importInvalidJson": "JSON 格式无效，请检查语法",
         "importFailed": "数据导入解析失败，请检查数据结构",
@@ -4091,7 +4093,7 @@
       "availableCount": "{count} 个",
       "dragTip": "拖拽{type}模组到此处",
       "lockedTip": "卡槽已锁定，请先配置前置模组",
-      "searchPlaceholder": "搜索模组名称、效果...",
+      "searchPlaceholder": "搜索模组名称、效果",
       "noMatching": "未找到匹配的模组",
       "ignoreConditionsTip": "无视模组条件，打开此选项将关闭对配装内的条件约束，同时可能带来与游戏模组不匹配问题",
       "categories": {
@@ -4282,10 +4284,10 @@
       "showTabs": "显示标签",
       "showDescription": "显示描述内容",
       "language": "语言",
-      "generating": "正在生成海报...",
+      "generating": "正在生成海报",
       "generatingHint": "正在导出图像，请稍候",
-      "generatingPage1": "正在生成第 1/2 页配装海报...",
-      "generatingPage2": "正在生成第 2/2 页专精方案海报...",
+      "generatingPage1": "正在生成第 1/2 页配装海报",
+      "generatingPage2": "正在生成第 2/2 页专精方案海报",
       "createPosterMultiple": "生成海报 (共 {total} 页)"
     },
     "browse": {
@@ -4327,7 +4329,7 @@
     "selectWeaponDirection": "选择武器方向",
     "unnamed": "未命名配装",
     "create": "创建配装",
-    "searchPlaceholder": "搜索配装名称..."
+    "searchPlaceholder": "搜索配装名称"
   },
   "smugglersReport": {
     "title": "走私犯鉴赏家",
@@ -4466,7 +4468,7 @@
       "pasteSuccess": "周报数据粘贴导入成功",
       "pasteInvalid": "剪贴板中的周报数据格式无效",
       "cloneFromSelect": "从已有周报克隆数据",
-      "cloneSelectPlaceholder": "选择要克隆的历史周报...",
+      "cloneSelectPlaceholder": "选择要克隆的历史周报",
       "cloneConfirm": "确定要从选中的周报克隆数据吗？当前编辑中的物品数据将被覆盖。",
       "weeklyReport": "走私贩周报",
       "reportComment": "周报评论",
@@ -4636,8 +4638,8 @@
       "showEffects": "显示聚合属性",
       "showQrCode": "显示专属二维码",
       "language": "显示语言",
-      "generating": "正在生成专精海报...",
-      "generatingHint": "正在导出高分辨率图像，请稍候...",
+      "generating": "正在生成专精海报",
+      "generatingHint": "正在导出高分辨率图像，请稍候",
       "defaultTitle": "碧海黑帆专精方案",
       "treeTitle": "专精星图路径",
       "seasonalTitle": "赛季核心特长",
@@ -4670,7 +4672,7 @@
     "perkSwitched": "同阶仅可生效一个：「{from}」已替换为「{to}」",
     "perkPointsRequired": "需投入 {spent}/{cost} 点",
     "aggregatedTitle": "聚合效果统计",
-    "filterEffectsPlaceholder": "筛选效果属性...",
+    "filterEffectsPlaceholder": "筛选效果属性",
     "collapseAll": "全部折叠",
     "expandAll": "全部展开",
     "noAggregatedEffects": "未检索到激活的聚合属性",
@@ -4694,7 +4696,7 @@
       "copyFailed": "复制失败，请手动复制",
       "importTitle": "导入加点方案",
       "importDesc": "在此粘贴链接或分享代码，快速恢复对应赛季与专精加点",
-      "importPlaceholder": "粘贴链接或压缩代码...",
+      "importPlaceholder": "粘贴链接或压缩代码",
       "importAction": "解析并更新",
       "importSuccess": "加点方案导入成功",
       "importFailed": "加点方案解析失败，请检查分享代码"
@@ -4702,7 +4704,7 @@
     "saveDialog": {
       "title": "保存专精加点",
       "saveCurrentTitle": "保存当前加点方案",
-      "namePlaceholder": "输入方案名称...",
+      "namePlaceholder": "输入方案名称",
       "saveBtn": "保存",
       "savedTitle": "已保存的方案",
       "empty": "暂无已保存的方案",
@@ -5013,7 +5015,7 @@
       "subtitle": "配置全局与各核心模块的键盘快捷键，绑定将自动同步并持久化",
       "mainSwitch": "全局快捷键开关",
       "mainSwitchDesc": "关闭后全站快捷键将全部失效，按钮上的快捷键提示不再显示，仅保留传统点击操作",
-      "searchPlaceholder": "搜索快捷键动作、按键或作用位置...",
+      "searchPlaceholder": "搜索快捷键动作、按键或作用位置",
       "noResults": "未找到匹配的快捷键",
       "resetDefaults": "恢复系统默认",
       "groupWorkshop": "工坊与配装",
@@ -5200,7 +5202,7 @@
       "enabled": "已启用",
       "disabled": "已禁用",
       "pasteTitle": "粘贴愿望清单文本",
-      "pastePlaceholder": "在此粘贴愿望清单文本内容...",
+      "pastePlaceholder": "在此粘贴愿望清单文本内容",
       "matchedItems": "统计",
       "update": "更新",
       "updateError": "更新失败",
@@ -5229,9 +5231,9 @@
       "tags": "标签",
       "actions": "操作",
       "editNotes": "编辑备注",
-      "notesPlaceholder": "点击添加/编辑备注...",
+      "notesPlaceholder": "点击添加/编辑备注",
       "noNotes": "暂无备注",
-      "tagsPlaceholder": "输入标签按回车...",
+      "tagsPlaceholder": "输入标签按回车",
       "rulesCount": "规则总数",
       "rulesTitle": "规则配置列表",
       "noRules": "暂无规则，请点击“添加物品”按钮添加物品",
@@ -5253,7 +5255,19 @@
         "modifications": "模组",
         "ships": "船只"
       },
-      "item": "物品"
+      "item": "物品",
+      "presetTitle": "预设愿望清单 (远程订阅)",
+      "presetSubtitle": "内置官方推荐的远程愿望清单，仅包含订阅链接无内嵌数据。应用启动时自动预加载并检查版本更新。",
+      "presetBadge": "预设",
+      "defaultEnabledBadge": "默认开启",
+      "customListTitle": "自定义愿望清单",
+      "noCustomWishlists": "暂无导入的自定义清单，可通过上方工具从链接、文件或文本导入。",
+      "checkUpdate": "检查更新",
+      "copyLink": "复制链接",
+      "linkCopied": "订阅链接已复制到剪贴板",
+      "openLink": "在新窗口打开链接",
+      "autoPreloaded": "启动预加载同步",
+      "presetUpdateSuccess": "预设愿望清单更新完成并保持最新"
     },
     "advanced": {
       "title": "进阶设置",
@@ -5441,7 +5455,7 @@
   "captcha": {
     "get": "获得验证码",
     "fresh": "刷新验证码",
-    "turnstileLoading": "Turnstile 安全验证加载中...",
+    "turnstileLoading": "Turnstile 安全验证加载中",
     "turnstileFailed": "Turnstile 安全验证加载失败",
     "turnstileFailedHint": "网络受限或服务暂时不可用",
     "retry": "重试",
@@ -5466,7 +5480,7 @@
     "targets": {
       "title": "目标",
       "addTarget": "添加目标",
-      "searchPlaceholder": "搜索物品或船只...",
+      "searchPlaceholder": "搜索物品或船只",
       "quantity": "数量",
       "type": "类型",
       "item": "物品",
@@ -5488,7 +5502,7 @@
     },
     "exclude": {
       "title": "排除材料",
-      "searchPlaceholder": "搜索要排除的材料...",
+      "searchPlaceholder": "搜索要排除的材料",
       "noExcludes": "无排除材料",
       "description": "排除的材料不会被进一步分解"
     },
@@ -5518,8 +5532,8 @@
       "selectBuild": "选择配装",
       "noBuildsFound": "暂无保存的配装或草稿",
       "importByUid": "通过 ID 导入",
-      "importByUidPlaceholder": "输入配装 ID (UID)...",
-      "importing": "加载中...",
+      "importByUidPlaceholder": "输入配装 ID (UID)",
+      "importing": "加载中",
       "importSuccess": "导入成功",
       "importError": "导入失败，请检查 ID 是否正确"
     },
@@ -5783,7 +5797,7 @@
     "cancelPay": "取消支付",
     "continuePay": "继续支付",
     "syncOrder": "刷新状态",
-    "syncing": "同步中...",
+    "syncing": "同步中",
     "orderSyncedPaid": "订单支付已确认，感谢您的赞助支持！",
     "orderStillPending": "尚未查询到第三方支付完成记录，若已付款请稍后再次刷新",
     "orderCancelled": "订单已取消"
@@ -5797,7 +5811,7 @@
     "deleteConfirm": "确认要删除提醒 “{title}” 吗？此操作不可撤销。",
     "goToSettings": "前往设置",
     "permissionWarning": "桌面通知权限未开启，点击右侧申请或前往设置以接收桌面系统通知",
-    "search": "搜索活动名称或备注...",
+    "search": "搜索活动名称或备注",
     "empty": "暂无活动提醒任务，点击上方按钮创建或导入预设",
     "testTrigger": "测试通知",
     "save": "保存提醒",
@@ -5951,7 +5965,7 @@
     "quickLogin": "第三方快捷登录",
     "bindTitle": "快捷关联第三方平台",
     "callbackTitle": "第三方授权验证",
-    "processing": "正在验证第三方授权，请稍候...",
+    "processing": "正在验证第三方授权，请稍候",
     "failedTitle": "授权失败",
     "backToSignin": "返回登录页",
     "authorizedPlatform": "已连接",
@@ -5967,7 +5981,7 @@
     "authFailed": "第三方授权启动失败",
     "urlError": "获取授权链接失败",
     "unknownError": "授权处理失败",
-    "waitHint": "正在与第三方平台确认授权信息，请勿关闭窗口...",
+    "waitHint": "正在与第三方平台确认授权信息，请勿关闭窗口",
     "ticketExpired": "授权凭证已失效，请重新发起第三方授权。",
     "restartAuth": "重新授权",
     "platformNickname": "平台昵称",

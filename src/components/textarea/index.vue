@@ -133,8 +133,14 @@ const
       })
     })
 
-watch(() => props.readonly, (value) => {
-  tiptap.value.options.editable = !value;
+watch(() => [props.placeholder, props.readonly, props.disabled], () => {
+  if (tiptap.value && !tiptap.value.isDestroyed) {
+    tiptap.value.setEditable(!props.readonly && !props.disabled);
+    if (tiptap.value.view) {
+      const { state, view } = tiptap.value;
+      view.dispatch(state.tr);
+    }
+  }
 })
 
 watch(() => props.value, (value) => {
@@ -197,6 +203,7 @@ const flatMap = (array: any[], callback: (item: any) => any) => {
 }
 
 const onLink = () => {
+  if (props.disabled) return
   if (linkWidget.value && !editor.value?.isFocused) {
     linkWidget.value.openPanel()
     isOpenLink.value = true
@@ -204,6 +211,7 @@ const onLink = () => {
 }
 
 const onImg = () => {
+  if (props.disabled) return
   if (imgWidget.value && !editor.value?.isFocused) {
     imgWidget.value.openPanel()
     isOpenImg.value = true
@@ -211,6 +219,7 @@ const onImg = () => {
 }
 
 const onVideo = () => {
+  if (props.disabled) return
   if (videoWidget.value && !editor.value?.isFocused) {
     videoWidget.value.openPanel()
     isOpenVideo.value = true
@@ -218,6 +227,7 @@ const onVideo = () => {
 }
 
 const onEmote = () => {
+  if (props.disabled) return
   if (emoteWidget.value && !editor.value?.isFocused) {
     emoteWidget.value.openPanel()
     isOpenEmoji.value = true
@@ -225,6 +235,7 @@ const onEmote = () => {
 }
 
 const onShip = () => {
+  if (props.disabled) return
   if (shipWidget.value && !editor.value?.isFocused) {
     shipWidget.value.openPanel()
     isOpenShip.value = true
@@ -235,6 +246,7 @@ const onShip = () => {
  * 触发物品菜单选择（支持物品、材料、装饰品、装饰品集等）
  */
 const onItem = (e: any) => {
+  if (props.disabled) return
   if (itemWidget.value && !editor.value?.isFocused) {
     currentItemCategory.value = e.category || 'item'
     itemWidget.value.openPanel(e.tags, e.category)
@@ -243,6 +255,7 @@ const onItem = (e: any) => {
 }
 
 const onMod = () => {
+  if (props.disabled) return
   if (modWidget.value && !editor.value?.isFocused) {
     modWidget.value.openPanel()
     isOpenMod.value = true
@@ -250,6 +263,7 @@ const onMod = () => {
 }
 
 const onUltimate = () => {
+  if (props.disabled) return
   if (ultimateWidget.value && !editor.value?.isFocused) {
     ultimateWidget.value.openPanel()
     isOpenUltimate.value = true
@@ -322,6 +336,7 @@ const onInsertMod = (id: string) => {
 }
 
 const onInsertLang = (lang: string) => {
+  if (props.disabled) return
   editor.value?.commands.insertLang({lang})
   isOpenLang.value = false
 }
@@ -338,7 +353,7 @@ const onInitEdit = () => {
     parseOptions: {
       preserveWhitespace: 'full',
     },
-    editable: !props.readonly,
+    editable: !props.readonly && !props.disabled,
     enablePasteRules: ['code'],
     injectCSS: false,
     editorProps: {},
@@ -350,7 +365,12 @@ const onInitEdit = () => {
         paragraph: {}
       }),
       Placeholder.configure({
-        placeholder: props.placeholder
+        placeholder: () => {
+          if (props.readonly) return ''
+          return props.placeholder || ''
+        },
+        showOnlyWhenEditable: false,
+        showOnlyCurrent: false,
       }),
       MaxLength,
 
@@ -531,10 +551,15 @@ defineOptions({
 
 <template>
   <div v-if="tiptap"
-       class="textarea-wrapper container readonly html-widget-box bg-transparent"
-       :class="{ 'force-show-all-lang': forceShowAllLang, 'is-textized': textization && textization.length > 0 }"
+       class="textarea-wrapper container html-widget-box bg-transparent"
+       :class="{
+         'force-show-all-lang': forceShowAllLang,
+         'is-textized': textization && textization.length > 0,
+         'textarea-disabled': props.disabled,
+         'readonly': props.readonly
+       }"
        :data-locale="effectiveLocale">
-    <div class="mb-3 control-group editor-toolbar" v-if="!props.readonly">
+    <div class="mb-3 control-group editor-toolbar" :class="{ 'opacity-40 pointer-events-none': props.disabled }" v-if="!props.readonly">
       <v-row :gutter="20" type="flex" align="center">
         <v-col>
           <div class="bg-transparent d-flex ga-2">
@@ -543,7 +568,7 @@ defineOptions({
                 density="compact"
                 elevation="0"
                 @click="onLink"
-                :disabled="isOpenLink"
+                :disabled="props.disabled || isOpenLink"
                 v-if="toolbarAs.indexOf('link') >= 0">
               <v-icon icon="mdi-link"></v-icon>
             </v-icon-btn>
@@ -552,7 +577,7 @@ defineOptions({
                 density="compact"
                 elevation="0"
                 @click="onImg"
-                :disabled="isOpenImg"
+                :disabled="props.disabled || isOpenImg"
                 v-if="toolbarAs.indexOf('img') >= 0">
               <v-icon icon="mdi-image-outline"></v-icon>
             </v-icon-btn>
@@ -561,7 +586,7 @@ defineOptions({
                 density="compact"
                 elevation="0"
                 @click="onVideo"
-                :disabled="isOpenVideo"
+                :disabled="props.disabled || isOpenVideo"
                 v-if="toolbarAs.indexOf('video') >= 0">
               <v-icon icon="mdi-video-outline"></v-icon>
             </v-icon-btn>
@@ -571,12 +596,13 @@ defineOptions({
                 density="compact"
                 elevation="0"
                 @click="onEmote"
-                :disabled="isOpenEmoji"
+                :disabled="props.disabled || isOpenEmoji"
                 v-if="toolbarAs.indexOf('emote') >= 0">
               <v-icon icon="mdi-emoticon-happy-outline"></v-icon>
             </v-icon-btn>
 
             <FullItemRightClickMenu
+                :disabled="props.disabled"
                 :visible-categories="[toolbarAs.indexOf('ship') >= 0 ? 'ship' : null,'item','material','cosmetic','set', toolbarAs.indexOf('ultimate') >= 0 ? 'ultimate' : null, toolbarAs.indexOf('mod') >= 0 ? 'modification' : null]"
                 @clickMenuItem="(e) => onItem(e)">
               <template v-slot="menuProps">
@@ -585,7 +611,7 @@ defineOptions({
                     density="compact"
                     elevation="0"
                     v-bind="menuProps"
-                    :disabled="isOpenItem"
+                    :disabled="props.disabled || isOpenItem"
                     v-if="toolbarAs.indexOf('item') >= 0">
                   <v-icon icon="mdi-cube-outline"></v-icon>
                 </v-icon-btn>
@@ -593,14 +619,15 @@ defineOptions({
             </FullItemRightClickMenu>
 
             <v-menu location="bottom right"
+                    :disabled="props.disabled"
                     v-if="toolbarAs.indexOf('lang') >= 0">
-              <template v-slot:activator="{ props }">
+              <template v-slot:activator="{ props: langMenuProps }">
                 <v-icon-btn
                     class="btn"
                     density="compact"
                     elevation="0"
-                    v-bind="props"
-                    :disabled="isOpenLang || isLangActive"
+                    v-bind="langMenuProps"
+                    :disabled="props.disabled || isOpenLang || isLangActive"
                     :v-tooltip="t('basic.language')">
                   <v-icon icon="mdi-translate"></v-icon>
                 </v-icon-btn>
@@ -702,6 +729,26 @@ each(@languages-list, {
 
   p .ProseMirror-separator {
     display: none;
+  }
+}
+
+.textarea-wrapper.textarea-disabled {
+  cursor: not-allowed;
+
+  .editor {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.6;
+
+    .ProseMirror {
+      cursor: not-allowed !important;
+      user-select: none;
+    }
+  }
+
+  .editor-toolbar {
+    pointer-events: none;
+    opacity: 0.4;
   }
 }
 </style>

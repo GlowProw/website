@@ -4,7 +4,7 @@ import { createApiBase } from "@/assets/sripts/api/api-util";
 export interface NewsItem {
     id: string;
     content: string;
-    mediaUrl?: string | null;
+    mediaUrl?: string[];
     author?: string | null;
     platform: string;
     createdTime: string;

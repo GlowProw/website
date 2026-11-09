@@ -158,6 +158,10 @@ const props = defineProps({
   visibleCategories: {
     type: Array as () => string[],
     default: () => []
+  },
+  disabled: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -235,10 +239,10 @@ const onClickMenu = (tags: string[] = [], category?: string) => {
 </script>
 
 <template>
-  <v-menu location="bottom end" :offset="[10, 20]" :width="filteredMenuConfig.width">
-    <template v-slot:activator="{ props }">
-      <div v-bind="props" class="cursor-pointer">
-        <slot v-bind="props"></slot>
+  <v-menu location="bottom end" :offset="[10, 20]" :width="filteredMenuConfig.width" :disabled="props.disabled">
+    <template v-slot:activator="{ props: menuActivatorProps }">
+      <div v-bind="menuActivatorProps" :class="{'cursor-pointer': !props.disabled, 'pointer-events-none': props.disabled}">
+        <slot v-bind="menuActivatorProps"></slot>
       </div>
     </template>
 

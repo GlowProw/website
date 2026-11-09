@@ -44,6 +44,8 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useWishlistStore} from "~/stores/wishlistStore";
+import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 import Banner from "@/components/Banner.vue";
 
 const
@@ -57,6 +59,7 @@ const
     cdnStore = useCDNAssetsServiceStore(),
     calculatorStore = useCalculatorStore(),
     noticeStore = useNoticeStore(),
+    wishlistStore = useWishlistStore(),
 
     // 物品数据
     items: any = Items
@@ -64,6 +67,10 @@ const
 const
     id = computed(() => (route.params.id as string) || ''),
     itemDetailData = computed(() => (id.value ? items[id.value] : null)),
+    wishlistMatch = computed(() => {
+      if (!itemDetailData.value?.id) return null
+      return wishlistStore.getMatchForItem(itemDetailData.value.id) || wishlistStore.getMatchForMod(itemDetailData.value.id)
+    }),
     requiredRank = computed(() => {
       const r = sanitizeString(itemDetailData.value?.requiredRank)
       return asString([
@@ -429,6 +436,14 @@ const onAddCalculator = () => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12" lg="12" sm="12" xl="12" v-if="wishlistMatch">
+                <!-- 愿望清单栏目 S -->
+                <v-divider>
+                    {{ t('setting.wishlist.title') }}
+                </v-divider>
+                <WishlistMatchWidget :id="itemDetailData.id"></WishlistMatchWidget>
+                <!-- 愿望清单栏目 E -->
+              </v-col>
               <v-col cols="12" lg="12" sm="12" xl="12">
                 <ItemContentWidget :data="itemDetailData">
                   <v-divider>{{ t('codex.item.contentsTitle') }}</v-divider>
@@ -456,7 +471,9 @@ const onAddCalculator = () => {
             </v-row>
 
             <template v-if="itemDetailData.id">
-              <CommentWidget :id="itemDetailData.id" placeholder="" type="item"></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="itemDetailData.id" placeholder="" type="item"></CommentWidget>
+              </div>
             </template>
           </v-col>
           <v-col cols="12" lg="4" md="4" order="1" order-sm="2" sm="12">
@@ -464,7 +481,6 @@ const onAddCalculator = () => {
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
-
                 <template v-if="itemDetailData.blueprint">
                   <ByBluePrintWidget :data="itemDetailData"></ByBluePrintWidget>
                 </template>

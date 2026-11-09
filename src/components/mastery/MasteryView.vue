@@ -1,36 +1,136 @@
 <script setup lang="ts">
 import {onMounted, onUnmounted, ref, watch, computed} from 'vue';
 import {useI18n} from 'vue-i18n';
+import {useRouter} from 'vue-router';
 import * as d3 from 'd3';
-import type {Mastery, SeasonMasteryTree, MasteryEdge} from 'glow-prow-data';
+import {type Mastery, type SeasonMasteryTree, type MasteryEdge, Masterys} from 'glow-prow-data';
 import type {DebugContextMenu} from '@/assets/types/Mastery';
+import {useCDNAssetsServiceStore} from '~/stores/cdnAssetsStore';
+import {useI18nReadName} from '@/assets/sripts/i18n_read_name';
 
 const {t} = useI18n();
+const router = useRouter();
+const cdnStore = useCDNAssetsServiceStore();
+const i18nReadName = useI18nReadName();
 
 const props = withDefaults(defineProps<{
-  nodes: Record<string, Mastery>;
+  nodes?: Record<string, Mastery>;
   edges?: MasteryEdge[];
-  selectedNode: Mastery | null;
-  selectedNodeIds: Set<string>;
-  regularPointsSpent: number;
-  scaleExtent: [number, number];
+  selectedNode?: Mastery | null;
+  selectedNodeIds?: Set<string>;
+  targetKey?: string;
+  targetNode?: Mastery | null;
+  regularPointsSpent?: number;
+  scaleExtent?: [number, number];
   isDebug?: boolean;
-  getNodeIconUrl: (skill: string) => string;
+  getNodeIconUrl?: (skill: string) => string;
   getSkillName?: (skillKey: string, nodeKey?: string) => string;
-  isNodeActive: (id: string) => boolean;
-  isNodeAvailable: (id: string) => boolean;
+  isNodeActive?: (id: string) => boolean;
+  isNodeAvailable?: (id: string) => boolean;
   initialScale?: number;
   initialTx?: number;
   initialTy?: number;
   dpr?: number;
   readonly?: boolean;
-  // 是否允许拖拽/缩放画布（与 readonly 解耦：只读详情页仍可平移查看）
   draggable?: boolean;
+  zoomable?: boolean;
+  openInMasteryView?: boolean;
+  seasonId?: string;
+  dimInactive?: boolean;
+  isolateTarget?: boolean;
 }>(), {
   isDebug: false,
   readonly: false,
   draggable: true,
+  zoomable: true,
+  openInMasteryView: false,
+  dimInactive: false,
+  isolateTarget: false,
   edges: () => [],
+  scaleExtent: () => [0.3, 3.0] as [number, number],
+  selectedNode: null,
+  selectedNodeIds: () => new Set<string>(),
+  regularPointsSpent: 0,
+  isNodeActive: () => false,
+  isNodeAvailable: () => true,
+});
+
+// 默认图标解析器
+const defaultGetNodeIconUrl = (skill: string): string => {
+  if (!skill) return '';
+  return cdnStore.currentService.url({
+    'glow-prow': {
+      id: skill,
+      category: 'mastery',
+    },
+    'glow-prow-zh-cn': {
+      id: skill,
+      category: 'mastery',
+    }
+  });
+};
+
+const effectiveGetNodeIconUrl = (skill: string): string => {
+  if (props.getNodeIconUrl) return props.getNodeIconUrl(skill);
+  return defaultGetNodeIconUrl(skill);
+};
+
+// 默认技能名解析器
+const defaultGetSkillName = (skillKey: string, nodeKey?: string): string => {
+  if (!skillKey) return nodeKey || '';
+  const item = i18nReadName.mastery(skillKey);
+  return (item?.name() as string) || skillKey || nodeKey || '';
+};
+
+const effectiveGetSkillName = (skillKey: string, nodeKey?: string): string => {
+  if (props.getSkillName) return props.getSkillName(skillKey, nodeKey);
+  return defaultGetSkillName(skillKey, nodeKey);
+};
+
+// 节点集解析：优先使用传入的 nodes，若未传入则根据目标节点/赛季智能匹配全量树
+const effectiveNodes = computed<Record<string, Mastery>>(() => {
+  if (props.nodes && Object.keys(props.nodes).length > 0) {
+    return props.nodes;
+  }
+  const sId = props.seasonId ||
+    props.targetNode?.season ||
+    (props.targetNode as any)?.bySeason?.id ||
+    props.selectedNode?.season ||
+    (props.selectedNode as any)?.bySeason?.id;
+
+  if (sId && (Masterys as any)[sId]?.nodes) {
+    return (Masterys as any)[sId].nodes;
+  }
+
+  if (props.targetKey) {
+    for (const tree of Object.values(Masterys)) {
+      if (tree && (tree as any).nodes) {
+        for (const [k, n] of Object.entries((tree as any).nodes)) {
+          if (k === props.targetKey || (n as any).id === props.targetKey) {
+            return (tree as any).nodes;
+          }
+        }
+      }
+    }
+  }
+
+  const defaultTree = (Masterys as any)['crimsonWaters'] || (Masterys as any)['shatteredSeas'] || Object.values(Masterys)[0];
+  return (defaultTree as any)?.nodes || {};
+});
+
+// 目标节点解析
+const effectiveTargetNode = computed<Mastery | null>(() => {
+  if (props.targetNode) return props.targetNode;
+  if (props.targetKey) {
+    const nodes = effectiveNodes.value;
+    for (const [k, n] of Object.entries(nodes)) {
+      if (k === props.targetKey || n.id === props.targetKey) {
+        return n;
+      }
+    }
+  }
+  if (props.selectedNode) return props.selectedNode;
+  return null;
 });
 
 // 自动从 nodes.requisite 生成连线 (若外部未传入 edges)
@@ -38,7 +138,7 @@ const resolvedEdges = computed<MasteryEdge[]>(() => {
   if (props.edges && props.edges.length > 0) return props.edges;
   const edges: MasteryEdge[] = [];
   const edgeSet = new Set<string>();
-  const nodeMap = props.nodes;
+  const nodeMap = effectiveNodes.value;
   for (const [nodeKey, node] of Object.entries(nodeMap)) {
     if (node.requisite && node.requisite.length > 0) {
       for (const reqKey of node.requisite) {
@@ -58,6 +158,7 @@ const resolvedEdges = computed<MasteryEdge[]>(() => {
 
 const emit = defineEmits<{
   (e: 'select-node', node: Mastery | null): void;
+  (e: 'node-click', node: Mastery): void;
   (e: 'toggle-activation', nodeId: string): void;
   (e: 'update:transform', transform: { k: number; x: number; y: number }): void;
   (e: 'debug-add-node', position: { x: number; y: number }): void;
@@ -171,7 +272,7 @@ function render() {
   ctx.scale(t.k, t.k);
 
   const activeIds = props.selectedNodeIds;
-  const nodeMap = props.nodes;
+  const nodeMap = effectiveNodes.value;
 
   // 批量绘制连线
   // 分别存储三种状态的路径，减少 stroke 状态切换
@@ -207,7 +308,11 @@ function render() {
   // 绘制锁定连线
   if (lockedEdges.length > 0) {
     ctx.save();
-    if (props.readonly) ctx.globalAlpha = 0.3;
+    if (props.isolateTarget) {
+      ctx.globalAlpha = 0.25;
+    } else if (props.dimInactive) {
+      ctx.globalAlpha = 0.3;
+    }
     ctx.beginPath();
     for (const e of lockedEdges) {
       const s = nodeMap[e.source].position;
@@ -224,7 +329,11 @@ function render() {
   // 绘制可用前置相连线
   if (availableEdges.length > 0) {
     ctx.save();
-    if (props.readonly) ctx.globalAlpha = 0.1;
+    if (props.isolateTarget) {
+      ctx.globalAlpha = 0.25;
+    } else if (props.dimInactive) {
+      ctx.globalAlpha = 0.1;
+    }
     ctx.beginPath();
     for (const e of availableEdges) {
       const s = nodeMap[e.source].position;
@@ -233,7 +342,7 @@ function render() {
       ctx.lineTo(tg.x, tg.y);
     }
     ctx.strokeStyle = '#999999';
-    if (props.readonly) ctx.strokeStyle = 'rgba(70, 70, 70, 0.45)';
+    if (props.dimInactive) ctx.strokeStyle = 'rgba(70, 70, 70, 0.45)';
     ctx.lineWidth = 2.0;
     ctx.stroke();
     ctx.restore();
@@ -242,6 +351,9 @@ function render() {
   // 绘制已激活点亮连线
   if (activeEdges.length > 0) {
     ctx.save();
+    if (props.isolateTarget) {
+      ctx.globalAlpha = 0.35;
+    }
     ctx.beginPath();
     for (const e of activeEdges) {
       const s = nodeMap[e.source].position;
@@ -264,13 +376,29 @@ function render() {
     const {x, y} = node.position;
     const isActive = props.isNodeActive(node.key || node.id);
     const isAvailable = props.isNodeAvailable(node.key || node.id);
-    const isSelected = Boolean(props.selectedNode && (props.selectedNode.key === node.key || props.selectedNode.id === node.id && !node.key));
+    const isTarget = Boolean(
+      (props.targetKey && (props.targetKey === node.key || props.targetKey === node.id)) ||
+      (props.targetNode && (props.targetNode.key === node.key || props.targetNode.id === node.id)) ||
+      (effectiveTargetNode.value && (effectiveTargetNode.value.key === node.key || effectiveTargetNode.value.id === node.id))
+    );
+    const isSelected = Boolean(
+      (props.selectedNode && (props.selectedNode.key === node.key || props.selectedNode.id === node.id && !node.key)) ||
+      isTarget
+    );
     const isHovered = Boolean(hoveredNode.value && (hoveredNode.value.key === node.key || hoveredNode.value.id === node.id && !node.key));
-    // 仅在已激活或可加点的可用节点上悬停才呈现高亮，未激活且不可用时不发光
-    const isHoverActive = isHovered && (isActive || isAvailable);
+    // 仅在已激活、可用或目标节点上悬停才呈现高亮
+    const isHoverActive = isHovered && (isActive || isAvailable || isTarget);
 
     ctx.save();
-    if (props.readonly && !isActive) ctx.globalAlpha = 0.1;
+    if (props.isolateTarget) {
+      if (!isTarget) {
+        ctx.globalAlpha = 0.35;
+      } else {
+        ctx.globalAlpha = 1.0;
+      }
+    } else if (props.dimInactive && !isActive && !isSelected && !isHovered) {
+      ctx.globalAlpha = 0.15;
+    }
     ctx.translate(x, y);
 
     const grad = getCategoryGradient(ctx, node.category, 0, 27);
@@ -315,10 +443,15 @@ function render() {
         ctx.lineTo(0, selSize);
         ctx.lineTo(-selSize, 0);
         ctx.closePath();
-        ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
-        ctx.lineWidth = 1.5;
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
+        if (props.isolateTarget && isTarget) {
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 2.2;
+          ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+          ctx.shadowBlur = 10;
+        } else {
+          ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
+          ctx.lineWidth = 1.5;
+        }
         ctx.stroke();
       }
 
@@ -327,7 +460,7 @@ function render() {
       ctx.shadowBlur = 0;
 
       // 中心图标 (内边 5px)
-      const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
+      const iconUrl = effectiveGetNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
         const iconSize = 17;
@@ -388,10 +521,15 @@ function render() {
       if (isSelected) {
         ctx.beginPath();
         ctx.arc(0, 0, rOuter + 4, 0, Math.PI * 2);
-        ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
-        ctx.lineWidth = 1.5;
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
+        if (props.isolateTarget && isTarget) {
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 2.2;
+          ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+          ctx.shadowBlur = 10;
+        } else {
+          ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
+          ctx.lineWidth = 1.5;
+        }
         ctx.stroke();
       }
 
@@ -408,7 +546,7 @@ function render() {
       ctx.stroke();
 
       // 中心图标 (内边 5px，圆形裁剪)
-      const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
+      const iconUrl = effectiveGetNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
         ctx.save();
@@ -451,10 +589,15 @@ function render() {
       if (isSelected) {
         ctx.beginPath();
         ctx.arc(0, 0, r + 4, 0, Math.PI * 2);
-        ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
-        ctx.lineWidth = 1.5;
-        ctx.shadowColor = 'transparent';
-        ctx.shadowBlur = 0;
+        if (props.isolateTarget && isTarget) {
+          ctx.strokeStyle = '#ffd700';
+          ctx.lineWidth = 2.2;
+          ctx.shadowColor = 'rgba(255, 215, 0, 0.8)';
+          ctx.shadowBlur = 10;
+        } else {
+          ctx.strokeStyle = isActive ? 'rgba(255, 215, 0, 0.65)' : (isAvailable ? 'rgba(255, 255, 255, 0.65)' : 'rgba(180, 180, 180, 0.5)');
+          ctx.lineWidth = 1.5;
+        }
         ctx.stroke();
       }
 
@@ -462,7 +605,7 @@ function render() {
       ctx.shadowBlur = 0;
 
       // 中心图标 (内边 5px，圆形裁剪)
-      const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
+      const iconUrl = effectiveGetNodeIconUrl((node as any).skill || node.id);
       const img = getImage(iconUrl);
       if (img) {
         ctx.save();
@@ -475,7 +618,7 @@ function render() {
     }
 
     // 节点下方显示名称
-    const skillName = props.getSkillName ? props.getSkillName(node.id, node.key) : ((node as any).name || (node as any).label || node.id);
+    const skillName = effectiveGetSkillName((node as any).skill || node.id, node.key);
     if (skillName) {
       const bottomY = (node.role === 'keyBuff' || node.role === 'seasonalPerk') ? 28 : 20;
       const textY = bottomY + 10;
@@ -530,7 +673,14 @@ function screenToWorld(clientX: number, clientY: number) {
 
 // 命中检测
 function findNodeAtWorld(wx: number, wy: number): Mastery | null {
-  const nodes = Object.values(props.nodes);
+  if (props.isolateTarget) {
+    const target = effectiveTargetNode.value;
+    if (!target || !target.position) return null;
+    const r = target.role === 'keyBuff' ? 31 : (target.role === 'seasonalPerk' ? 31 : 23);
+    const dist = Math.hypot(wx - target.position.x, wy - target.position.y);
+    return dist <= r ? target : null;
+  }
+  const nodes = Object.values(effectiveNodes.value);
   for (let i = nodes.length - 1; i >= 0; i--) {
     const node = nodes[i];
     const r = node.role === 'keyBuff' ? 31 : (node.role === 'seasonalPerk' ? 31 : 23);
@@ -562,8 +712,8 @@ function findEdgeAtWorld(wx: number, wy: number): MasteryEdge | null {
   let best: MasteryEdge | null = null;
   let bestDist = threshold;
   for (const edge of resolvedEdges.value) {
-    const s = props.nodes[edge.source];
-    const tg = props.nodes[edge.target];
+    const s = effectiveNodes.value[edge.source];
+    const tg = effectiveNodes.value[edge.target];
     if (!s || !tg) continue;
     const seg = distanceToSegment(wx, wy, s.position.x, s.position.y, tg.position.x, tg.position.y);
     if (!seg.inside) continue;
@@ -581,9 +731,10 @@ function findEdgeAtWorld(wx: number, wy: number): MasteryEdge | null {
 
 // 事件监听与交互
 function onMouseDown(event: MouseEvent) {
-  if (props.readonly) return;
   mouseDownPos = { x: event.clientX, y: event.clientY };
   hasMovedSignificantly = false;
+
+  if (props.readonly) return;
 
   const { wx, wy } = screenToWorld(event.clientX, event.clientY);
   const hit = findNodeAtWorld(wx, wy);
@@ -595,7 +746,6 @@ function onMouseDown(event: MouseEvent) {
 }
 
 function onMouseMove(event: MouseEvent) {
-  if (props.readonly) return;
   if (Math.hypot(event.clientX - mouseDownPos.x, event.clientY - mouseDownPos.y) > 4) {
     hasMovedSignificantly = true;
   }
@@ -613,14 +763,13 @@ function onMouseMove(event: MouseEvent) {
   if (hit !== hoveredNode.value) {
     hoveredNode.value = hit;
     if (canvasRef.value) {
-      canvasRef.value.style.cursor = hit ? 'pointer' : 'default';
+      canvasRef.value.style.cursor = hit ? 'pointer' : (props.draggable ? 'grab' : 'default');
     }
     requestRender();
   }
 }
 
 function onMouseUp(event: MouseEvent) {
-  if (props.readonly) return;
   if (isDraggingNode.value) {
     isDraggingNode.value = false;
     draggedNode = null;
@@ -629,7 +778,6 @@ function onMouseUp(event: MouseEvent) {
 }
 
 function onMouseLeave() {
-  if (props.readonly) return;
   if (hoveredNode.value) {
     hoveredNode.value = null;
     if (canvasRef.value) {
@@ -640,7 +788,6 @@ function onMouseLeave() {
 }
 
 function onClick(event: MouseEvent) {
-  if (props.readonly) return;
   // 如果是大幅度拖动平移，忽略点击
   if (hasMovedSignificantly) return;
 
@@ -648,14 +795,33 @@ function onClick(event: MouseEvent) {
   const hit = findNodeAtWorld(wx, wy);
 
   if (hit) {
+    emit('node-click', hit);
     emit('select-node', hit);
-    // 单击即切换激活：
-    // - 常规节点：已激活或与起点相连可达时直接加/退点；未相连激活节点时，沿最短路径连接激活
-    // - 赛季特长：点数达标即激活/取消，同一条件(tier)下只能选中一个，互斥由控制器保证
-    const nodeId = hit.key || hit.id;
-    emit('toggle-activation', nodeId);
+
+    if (props.openInMasteryView) {
+      const seasonId = (hit as any).bySeason?.id || (hit.season as any)?.id || (hit.season as any) || props.seasonId || 'crimsonWaters';
+      const locateId = hit.id || hit.key;
+      router.push({
+        path: '/mastery',
+        query: {
+          season: seasonId,
+          locate: locateId,
+        }
+      });
+      return;
+    }
+
+    if (!props.readonly) {
+      // 单击即切换激活：
+      // - 常规节点：已激活或与起点相连可达时直接加/退点；未相连激活节点时，沿最短路径连接激活
+      // - 赛季特长：点数达标即激活/取消，同一条件(tier)下只能选中一个，互斥由控制器保证
+      const nodeId = hit.key || hit.id;
+      emit('toggle-activation', nodeId);
+    }
   } else {
-    emit('select-node', null);
+    if (!props.readonly) {
+      emit('select-node', null);
+    }
   }
   requestRender();
 }
@@ -727,7 +893,7 @@ const menuInsertBetweenLabel = computed(() => {
 });
 
 function onContextMenu(event: MouseEvent) {
-  if (!props.isDebug) return;
+  if (!props.isDebug || props.isolateTarget) return;
   event.preventDefault();
 
   const { wx, wy } = screenToWorld(event.clientX, event.clientY);
@@ -850,7 +1016,11 @@ function resizeCanvas() {
   // 首次获得有效尺寸时重置视图居中
   if (!hasInitiallySized) {
     hasInitiallySized = true;
-    resetView(0);
+    if (effectiveTargetNode.value) {
+      locateNode(effectiveTargetNode.value, 0);
+    } else {
+      resetView(0);
+    }
     return;
   }
 
@@ -917,25 +1087,26 @@ function resetView(duration?: number) {
   setTransform(targetK, targetX, targetY, actualDuration);
 }
 
-function locateNode(node: Mastery) {
+function locateNode(node: Mastery, duration = 500) {
   const container = containerRef.value;
-  if (!container || !node) return;
+  if (!container || !node || !node.position) return;
   const width = container.clientWidth || container.offsetWidth;
   const height = container.clientHeight || container.offsetHeight;
+  if (width === 0 || height === 0) return;
   const cx = width / 2;
   const cy = height / 2;
-  const targetScale = 2.0;
+  const targetScale = props.initialScale ?? (props.readonly ? 1.4 : 2.0);
 
   const newX = -node.position.x * targetScale + cx;
   const newY = -node.position.y * targetScale + cy;
 
-  setTransform(targetScale, newX, newY, 500);
+  setTransform(targetScale, newX, newY, duration);
 }
 
 async function preloadAllIcons(): Promise<void> {
   const urls: string[] = [];
-  for (const node of Object.values(props.nodes || {})) {
-    const iconUrl = props.getNodeIconUrl((node as any).skill || node.id);
+  for (const node of Object.values(effectiveNodes.value || {})) {
+    const iconUrl = effectiveGetNodeIconUrl((node as any).skill || node.id);
     if (iconUrl && !urls.includes(iconUrl)) {
       urls.push(iconUrl);
     }
@@ -973,6 +1144,10 @@ onMounted(() => {
         .scaleExtent(props.scaleExtent)
         .filter((event: MouseEvent) => {
           if (isDraggingNode.value) return false;
+          // 允许滚轮缩放需受 zoomable 控制
+          if (event.type === 'wheel' && !props.zoomable) return false;
+          // 允许拖拽平移需受 draggable 控制
+          if (event.type !== 'wheel' && !props.draggable) return false;
           // 允许滚轮与左键拖动画布
           return (!event.ctrlKey || event.type === 'wheel') && !event.button;
         })
@@ -991,14 +1166,23 @@ onMounted(() => {
     currentTransform.value = d3.zoomIdentity.translate(targetX, targetY).scale(targetK);
   }
 
-  // 初始居中（初始加载无动画直接就位）
-  resetView(0);
+  // 初始居中定位：优先定位目标节点
+  if (effectiveTargetNode.value) {
+    locateNode(effectiveTargetNode.value, 0);
+  } else {
+    resetView(0);
+  }
 
   window.addEventListener('resize', resizeCanvas);
 
   // 观察容器尺寸：处理挂载于 v-show/display:none 容器、切为可见时的尺寸补偿
   if (typeof ResizeObserver !== 'undefined' && containerRef.value) {
-    resizeObserver = new ResizeObserver(() => resizeCanvas());
+    resizeObserver = new ResizeObserver(() => {
+      resizeCanvas();
+      if (effectiveTargetNode.value) {
+        locateNode(effectiveTargetNode.value, 0);
+      }
+    });
     resizeObserver.observe(containerRef.value);
   }
 });
@@ -1013,13 +1197,21 @@ onUnmounted(() => {
 });
 
 // 响应属性变化重绘
-watch([() => props.nodes, resolvedEdges, () => props.selectedNodeIds, () => props.selectedNode, () => props.regularPointsSpent], () => {
+watch([effectiveNodes, resolvedEdges, () => props.selectedNodeIds, () => props.selectedNode, () => props.regularPointsSpent, () => props.targetKey, () => props.targetNode], () => {
   requestRender();
 }, { deep: true });
 
+watch([() => props.targetKey, () => props.targetNode, effectiveTargetNode], () => {
+  if (effectiveTargetNode.value) {
+    locateNode(effectiveTargetNode.value, props.readonly ? 0 : 500);
+  }
+});
+
 watch([() => props.initialScale, () => props.initialTx, () => props.initialTy], () => {
-  if (props.initialScale !== undefined) {
-    resetView();
+  if (effectiveTargetNode.value) {
+    locateNode(effectiveTargetNode.value, 0);
+  } else {
+    resetView(0);
   }
 });
 
@@ -1031,7 +1223,8 @@ defineExpose({
   locateNode,
   requestRender,
   preloadAllIcons,
-  canvasRef
+  canvasRef,
+  effectiveNodes,
 });
 </script>
 

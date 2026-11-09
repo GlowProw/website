@@ -309,7 +309,9 @@ const onCodexHistory = () => {
             </template>
 
             <template v-if="enemyDetailData.id">
-              <CommentWidget :id="enemyDetailData.id" placeholder="" type="enemy"></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="enemyDetailData.id" placeholder="" type="enemy"></CommentWidget>
+              </div>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">

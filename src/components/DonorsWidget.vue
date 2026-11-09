@@ -1,10 +1,10 @@
 <script setup lang="ts">
 
-import {onMounted, ref} from 'vue'
+import {ref, watch} from 'vue'
 import {useI18n} from 'vue-i18n'
 import {useSubscriptionApi} from '@/assets/sripts/api/subscription_service'
 import {storage} from '@/assets/sripts'
-import {useAuthStore} from '~/stores/userAccountStore'
+import {useIntersectionObserver} from '@/assets/sripts/intersection_observer'
 import UserAvatar from "@/components/UserAvatar.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 
@@ -12,11 +12,9 @@ import AccountCardWidget from "@/components/AccountCardWidget.vue";
  * 捐助者组件
  */
 const {t} = useI18n()
-const authStore = useAuthStore()
 const api = useSubscriptionApi()
 
 const donors = ref<any[]>([])
-const isCoreDonor = ref(false)
 const TOTAL = 60
 
 /**
@@ -42,7 +40,17 @@ const renderDonors = (real: any[]) => {
   donors.value = filled
 }
 
-onMounted(() => {
+// 交叉观察器：仅当组件滚动至视口可见范围时才延迟拉取核心赞助者
+const {targetElement, isVisible} = useIntersectionObserver({
+  threshold: 0.05,
+  rootMargin: '200px',
+})
+
+let hasLoaded = false
+const loadDonors = () => {
+  if (hasLoaded) return
+  hasLoaded = true
+
   // 读取会话存储中已有缓存数据优先渲染
   const cached = storage.session.get('donors_core')
   if (cached?.code === 0 && Array.isArray(cached?.data?.value)) {
@@ -59,19 +67,17 @@ onMounted(() => {
       donors.value = Array.from({length: TOTAL}, (_, i) => placeholder(i))
     }
   })
+}
 
-  if (authStore.user?.token) {
-    api.getMyStatus().then(s => {
-      const d = s?.contributor5
-      isCoreDonor.value = !!d && (!d.expiryTime || new Date(d.expiryTime).getTime() > Date.now())
-    }).catch(() => {
-    })
+watch(isVisible, (visible) => {
+  if (visible) {
+    loadDonors()
   }
-})
+}, {immediate: true})
 </script>
 
 <template>
-  <div class="pt-5 px-5">
+  <div class="pt-5 px-5" ref="targetElement">
     <v-container>
       <v-row align="start">
         <v-col cols="12" md="3">

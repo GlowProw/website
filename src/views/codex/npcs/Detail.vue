@@ -290,7 +290,9 @@ const onCodexHistory = () => {
             </v-row>
 
             <template v-if="npcDetailData.id">
-              <CommentWidget :id="npcDetailData.id" type="npc" placeholder=""></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="npcDetailData.id" type="npc" placeholder=""></CommentWidget>
+              </div>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">

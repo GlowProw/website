@@ -155,7 +155,7 @@
           "workbuddy": [
             "開啟 WorkBuddy 用戶端，進入「連接器 / MCP 設定」頁面。",
             "點擊「新增 / 自訂連接器」，名稱填寫「閃耀船首」。",
-            "伺服器 URL 貼上上方的「中文模型最佳化版」位址（.../api/mcp/zh）。",
+            "伺服器 URL 貼上上方的「中文模型最佳化版」位址（/api/mcp/zh）。",
             "點擊連接或認證，在彈出的瀏覽器頁面中登入並點擊「允許存取」。",
             "在對話中直接發送中文問題（如“幫我查一下達达尼爾炮”或“有哪些雙桅配裝”），模型將自動精準調用對應工具。"
           ]
@@ -314,9 +314,10 @@
       "today": "今日"
     },
     "preload": {
-      "remoteI18n": "從遠端載入文字資料...",
-      "siteAssets": "等待站點資源載入完成...",
-      "default": "正在載入資源..."
+      "remoteI18n": "從遠端載入文字資料",
+      "siteAssets": "等待站點資源載入完成",
+      "default": "正在載入資源",
+      "versionCheck": "檢查網站版本更新"
     },
     "review": {
       "pendingTitle": "內容審核中",
@@ -1032,7 +1033,7 @@
     "deleteConfirmation": "刪除評論？",
     "deleteWarning": "此操作不可逆。",
     "reply": "回覆",
-    "replyPlaceholder": "撰寫回覆內容...",
+    "replyPlaceholder": "撰寫回覆內容",
     "replySuccess": "回覆發佈成功",
     "replyDeleteConfirmation": "刪除回覆？",
     "replyEdit": "編輯回覆",
@@ -1730,7 +1731,7 @@
       "emptyUser": "暫無私訊會話",
       "emptySystem": "暫無系統通知",
       "selectConv": "選擇左側會話開始聊天",
-      "inputPlaceholder": "輸入訊息...",
+      "inputPlaceholder": "輸入訊息",
       "send": "發送",
       "systemHint": "評論、回覆、點贊的通知都會顯示在這裡",
       "privateHint": "私訊",
@@ -1750,7 +1751,7 @@
         "notifyLikeDesc": "有人按讚你的配裝時提醒",
         "dmDisabledHint": "已關閉私信功能，無法接收訊息",
         "save": "儲存設定",
-        "saving": "儲存中...",
+        "saving": "儲存中",
         "saved": "已儲存"
       }
     },
@@ -1763,7 +1764,7 @@
       "uploadTitle": "頭像設定",
       "presetTitle": "預設頭像",
       "presetDesc": "點擊選取，再點擊確定套用：",
-      "applying": "正在套用預設頭像...",
+      "applying": "正在套用預設頭像",
       "crop": {
         "title": "裁剪頭像",
         "confirm": "裁剪並上傳",
@@ -1997,7 +1998,7 @@
     "orders": {
       "title": "我的訂單",
       "pageTitle": "訂單與贊助記錄",
-      "searchPlaceholder": "搜尋訂單號/自訂單號...",
+      "searchPlaceholder": "搜尋訂單號/自訂單號",
       "filterStatus": "訂單狀態",
       "filterPlatform": "支付渠道",
       "allStatus": "全部狀態",
@@ -2030,7 +2031,7 @@
       "selectAll": "全選",
       "deselectAll": "取消全選",
       "deletePoints": "刪除坐標",
-      "searchPoints": "搜索坐標...",
+      "searchPoints": "搜索坐標",
       "noDescription": "無描述"
     },
     "smugglersReport": {
@@ -2868,16 +2869,16 @@
         },
         "clip": {
           "hint": "基於 OpenAI CLIP (ViT-B/32) 預訓練多模態特徵，直接加載預計算圖庫特徵，秒級高精度對比",
-          "loading": "CLIP 模型加載中...",
+          "loading": "CLIP 模型加載中",
           "ready": "CLIP 已就緒",
           "error": "加載失敗",
-          "featuresLoading": "圖庫特徵加載中...",
+          "featuresLoading": "圖庫特徵加載中",
           "featuresReady": "圖庫特徵已就緒",
           "featuresError": "圖庫特徵加載失敗"
         },
         "tfjs": {
           "hint": "使用 MobileNet 神經網絡提取圖像特徵，精度更高但速度較慢",
-          "loading": "模型加載中...",
+          "loading": "模型加載中",
           "ready": "模型已就緒",
           "error": "加載失敗"
         },
@@ -3012,7 +3013,7 @@
       "lookDetail": "查看劇情詳情",
       "category": "劇情線",
       "allCategories": "全部劇情",
-      "searchPlaceholder": "搜尋任務名稱、ID、分類或線索...",
+      "searchPlaceholder": "搜尋任務名稱、ID、分類或線索",
       "count": "共 {count} 個任務 (總計 {total})",
       "viewCategoryQuests": "查看該分類全部任務"
     },
@@ -3027,7 +3028,7 @@
     "lookDetail": "查看劇情詳情",
     "category": "劇情線",
     "allCategories": "全部劇情",
-    "searchPlaceholder": "搜尋任務名稱、ID、分類或線索...",
+    "searchPlaceholder": "搜尋任務名稱、ID、分類或線索",
     "prerequisites": "前置劇情",
     "noPrerequisites": "初始任務 / 無前置要求",
     "subsequentQuests": "後續接續任務",
@@ -3100,7 +3101,7 @@
       "keywords": "怒海戰記,碧海黑帆,Skull and Bones,Twitch Drops,掉寶,掉寶歷史,觀看獎勵",
       "description": "《怒海戰記》Twitch Drops 掉寶活動追蹤、當前生效掉寶與歷史獎勵檔案。"
     },
-    "searchPlaceholder": "搜尋活動名稱..."
+    "searchPlaceholder": "搜尋活動名稱"
   },
   "calendar": {
     "title": "日曆",
@@ -3178,7 +3179,7 @@
     "heroSubtitle": "即時同步《碧海黑帆》官方推特公告、小黑盒社群動態與最新資訊",
     "records": "條記錄",
     "currentPlatform": "目前篩選平台",
-    "searchPlaceholder": "搜尋新聞內容、作者或 ID...",
+    "searchPlaceholder": "搜尋新聞內容、作者或 ID",
     "copyContent": "複製正文",
     "copySuccess": "正文內容已複製到剪貼簿",
     "viewMedia": "查看大圖",
@@ -3350,7 +3351,7 @@
     "pointsInCollection": "地圖集內座標",
     "availablePoints": "可新增的座標",
     "deletePoints": "刪除座標",
-    "searchPointsPlaceholder": "搜尋座標...",
+    "searchPointsPlaceholder": "搜尋座標",
     "selectAll": "全選",
     "deselectAll": "取消全選",
     "noCollections": "暫無地圖集",
@@ -3401,7 +3402,7 @@
       },
       "settlement": {
         "name": "定居點",
-        "description": "一處小型陣營定居點，同時也是交易場所。你可以在此買賣貨物.....或是嘗試暴力奪取?"
+        "description": "一處小型陣營定居點，同時也是交易場所。你可以在此買賣貨物..或是嘗試暴力奪取?"
       },
       "megafort": {
         "name": "大型要塞",
@@ -3621,7 +3622,7 @@
     "manageRegions": "管理區域",
     "remove": "移出",
     "add": "加入圖集",
-    "searchPoints": "搜尋未分組座標...",
+    "searchPoints": "搜尋未分組座標",
     "editCollection": "編輯地圖集",
     "confirmDeletePoints": "確定要刪除選中的座標嗎？",
     "public": "公開",
@@ -3727,7 +3728,7 @@
       "title": "天梯廣場",
       "subtitle": "瀏覽並探索社群玩家建立的物品、武器與裝備評級榜單",
       "newRanking": "建立新榜單",
-      "searchPlaceholder": "搜尋天梯標題、作者名或標籤...",
+      "searchPlaceholder": "搜尋天梯標題、作者名或標籤",
       "sortUpdated": "最新更新",
       "sortLikes": "最多按讚",
       "sortCreated": "最新發布",
@@ -3776,11 +3777,11 @@
       "preview": "天梯預覽",
       "subtitle": "確認天梯資訊並分享給全站玩家",
       "name": "榜單標題",
-      "namePlaceholder": "輸入天梯榜單名稱...",
+      "namePlaceholder": "輸入天梯榜單名稱",
       "nameRequired": "天梯標題不能為空",
       "nameLength": "天梯名稱不能超過140個字符",
       "description": "詳細說明",
-      "descriptionPlaceholder": "新增對該分級方案的見解或搭配建議...",
+      "descriptionPlaceholder": "新增對該分級方案的見解或搭配建議",
       "tags": "分類標籤",
       "tagsPlaceholder": "輸入標籤後按 Enter 新增",
       "visibility": "可見性",
@@ -3867,7 +3868,7 @@
       "transaction": "物品交易",
       "other": "其他"
     },
-    "searchPlaceholder": "搜尋招募描述或玩家名...",
+    "searchPlaceholder": "搜尋招募描述或玩家名",
     "create": "發佈招募",
     "push": {
       "queued": "已加入 QQ 推送佇列，將依週期推送",
@@ -3911,7 +3912,7 @@
       "shortBtn": "對比",
       "left": "基準配裝 (A)",
       "right": "對比配裝 (B)",
-      "searchPlaceholder": "搜尋配裝名稱、UUID 或作者...",
+      "searchPlaceholder": "搜尋配裝名稱、UUID 或作者",
       "useCurrent": "使用當前配裝",
       "swap": "交換左右配裝",
       "clear": "清空",
@@ -3921,7 +3922,7 @@
       "emptyRight": "請選擇右側對比配裝",
       "selectPrompt": "搜尋並選擇一套公開配裝進行對比",
       "noResults": "未找到相關配裝",
-      "searching": "正在搜尋配裝...",
+      "searching": "正在搜尋配裝",
       "loadFailed": "載入配裝詳情失敗",
       "viewDetail": "查看詳情",
       "currentTag": "當前",
@@ -4004,7 +4005,7 @@
         "importAlert": "注意：此導入僅在當前前端頁面內存臨時生效，不會上傳或修改伺服器資料庫記錄。",
         "importPrompt": "可粘貼 JSON 字串或選擇本地文件載入：",
         "selectFile": "選擇文件",
-        "importPlaceholder": "請在此粘貼對應模組的 JSON 數據...",
+        "importPlaceholder": "請在此粘貼對應模組的 JSON 數據",
         "importRequired": "請輸入或上傳 JSON 數據",
         "importInvalidJson": "JSON 格式無效，請檢查語法",
         "importFailed": "數據導入解析失敗，請檢查數據結構",
@@ -4024,12 +4025,12 @@
         "inactiveFunctions": "未激活功能 ({count})",
         "noActiveFunctions": "暫無激活的功能，請從上方下拉列表中選擇",
         "featuresTitle": "功能",
-      "manageFunctions": "功能管理",
-      "activeArea": "激活區域",
-      "inactiveArea": "未激活區域",
-      "dragHint": "可拖拽上下排序",
-      "activeFunctionsCount": "已激活功能 ({count})",
-      "allActivated": "已激活全部功能",
+        "manageFunctions": "功能管理",
+        "activeArea": "激活區域",
+        "inactiveArea": "未激活區域",
+        "dragHint": "可拖拽上下排序",
+        "activeFunctionsCount": "已激活功能 ({count})",
+        "allActivated": "已激活全部功能",
         "itemConfigTitle": "物品配置",
         "storageReportDesc": "閃耀船首使用本地快取存儲數據，包含用戶配置/操作記錄等",
         "clearStorage": "清空快取",
@@ -4110,7 +4111,7 @@
       "availableCount": "{count} 個",
       "dragTip": "拖曳{type}模組到此處",
       "lockedTip": "卡槽已鎖定，請先配置前置模組",
-      "searchPlaceholder": "搜尋模組名稱、效果...",
+      "searchPlaceholder": "搜尋模組名稱、效果",
       "noMatching": "未找到相符的模組",
       "ignoreConditionsTip": "無視模組條件，開啟此選項將關閉對配裝內的條件約束，同時可能帶來與遊戲模組不相符問題",
       "categories": {
@@ -4305,10 +4306,10 @@
       "showTabs": "顯示標籤",
       "showDescription": "顯示描述內容",
       "language": "語言",
-      "generating": "正在生成海報...",
+      "generating": "正在生成海報",
       "generatingHint": "正在導出極高畫質圖像，請稍候",
-      "generatingPage1": "正在生成第 1/2 頁配裝海報...",
-      "generatingPage2": "正在生成第 2/2 頁專精方案海報...",
+      "generatingPage1": "正在生成第 1/2 頁配裝海報",
+      "generatingPage2": "正在生成第 2/2 頁專精方案海報",
       "createPosterMultiple": "生成海報 (共 {total} 頁)"
     },
     "browse": {
@@ -4349,7 +4350,7 @@
     "selectWeaponDirection": "選擇武器方向",
     "unnamed": "未命名配裝",
     "create": "創建配裝",
-    "searchPlaceholder": "搜尋配裝名稱..."
+    "searchPlaceholder": "搜尋配裝名稱"
   },
   "smugglersReport": {
     "title": "走私犯鑑賞家",
@@ -4479,7 +4480,7 @@
       "cloneReport": "複製此週報",
       "cloneSuccess": "週報資料複製成功",
       "cloneFromSelect": "從現有週報複製資料",
-      "cloneSelectPlaceholder": "選擇要複製的歷史週報...",
+      "cloneSelectPlaceholder": "選擇要複製的歷史週報",
       "cloneConfirm": "確定要從選中的週報複製資料嗎？目前編輯中的物品資料將被覆蓋。",
       "jsonPanelTitle": "JSON 面板 (Debug)",
       "jsonPanelDesc": "雙向同步週報資料，支援直接編輯與格式化",
@@ -4638,8 +4639,8 @@
       "showEffects": "顯示聚合屬性",
       "showQrCode": "顯示專屬二維碼",
       "language": "顯示語言",
-      "generating": "正在生成專精海報...",
-      "generatingHint": "正在導出高分辨率圖像，請稍候...",
+      "generating": "正在生成專精海報",
+      "generatingHint": "正在導出高分辨率圖像，請稍候",
       "defaultTitle": "碧海黑帆專精方案",
       "treeTitle": "專精星圖路徑",
       "seasonalTitle": "賽季核心特長",
@@ -4672,7 +4673,7 @@
     "perkSwitched": "同階僅可生效一個：「{from}」已取代為「{to}」",
     "perkPointsRequired": "需投入 {spent}/{cost} 點",
     "aggregatedTitle": "聚合效果統計",
-    "filterEffectsPlaceholder": "篩選效果屬性...",
+    "filterEffectsPlaceholder": "篩選效果屬性",
     "collapseAll": "全部折疊",
     "expandAll": "全部展開",
     "noAggregatedEffects": "未檢索到啟動的聚合屬性",
@@ -4696,7 +4697,7 @@
       "copyFailed": "複製失敗，請手動複製",
       "importTitle": "匯入加點方案",
       "importDesc": "在此貼上包含連結或分享代碼，快速恢復對應賽季與專精加點",
-      "importPlaceholder": "貼上連結或壓縮代碼...",
+      "importPlaceholder": "貼上連結或壓縮代碼",
       "importAction": "解析並更新",
       "importSuccess": "加點方案匯入成功",
       "importFailed": "加點方案解析失敗，請檢查分享代碼"
@@ -4704,7 +4705,7 @@
     "saveDialog": {
       "title": "保存專精加點",
       "saveCurrentTitle": "保存當前加點方案",
-      "namePlaceholder": "輸入方案名稱...",
+      "namePlaceholder": "輸入方案名稱",
       "saveBtn": "保存",
       "savedTitle": "已保存的方案",
       "empty": "暫無已保存的方案",
@@ -5016,7 +5017,7 @@
       "subtitle": "配置全域與各核心模組的鍵盤快捷鍵，綁定將自動同步並持久化",
       "mainSwitch": "全局快捷鍵開關",
       "mainSwitchDesc": "關閉後全站快捷鍵將全部失效，按鈕上的快捷鍵提示不再顯示，僅保留傳統點擊操作",
-      "searchPlaceholder": "搜尋快捷鍵動作、按鍵或作用位置...",
+      "searchPlaceholder": "搜尋快捷鍵動作、按鍵或作用位置",
       "noResults": "未找到相符的快捷鍵",
       "resetDefaults": "恢復系統預設",
       "groupWorkshop": "工坊與配裝",
@@ -5203,7 +5204,7 @@
       "enabled": "已啟用",
       "disabled": "已停用",
       "pasteTitle": "貼上願望清單文字",
-      "pastePlaceholder": "在此貼上願望清單文字內容...",
+      "pastePlaceholder": "在此貼上願望清單文字內容",
       "matchedItems": "統計",
       "update": "更新",
       "updateError": "更新失敗",
@@ -5232,9 +5233,9 @@
       "tags": "標籤",
       "actions": "操作",
       "editNotes": "編輯備註",
-      "notesPlaceholder": "點擊新增/編輯備註...",
+      "notesPlaceholder": "點擊新增/編輯備註",
       "noNotes": "暫無備註",
-      "tagsPlaceholder": "輸入標籤按回車...",
+      "tagsPlaceholder": "輸入標籤按回車",
       "rulesCount": "規則總數",
       "rulesTitle": "規則配置列表",
       "noRules": "暫無規則，請點擊“新增物品”按鈕新增物品",
@@ -5256,7 +5257,19 @@
         "ultimates": "終極技能",
         "modifications": "模組",
         "ships": "船隻"
-      }
+      },
+      "presetTitle": "預設願望清單 (遠端訂閱)",
+      "presetSubtitle": "內建官方推薦的遠端願望清單，僅包含訂閱連結無內嵌資料。應用啟動時自動預載入並檢查版本更新。",
+      "presetBadge": "預設",
+      "defaultEnabledBadge": "預設開啟",
+      "customListTitle": "自訂願望清單",
+      "noCustomWishlists": "暫無匯入的自訂清單，可透過上方工具從連結、檔案或文本匯入。",
+      "checkUpdate": "檢查更新",
+      "copyLink": "複製連結",
+      "linkCopied": "訂閱連結已複製到剪貼簿",
+      "openLink": "在新視窗開啟連結",
+      "autoPreloaded": "啟動預載入同步",
+      "presetUpdateSuccess": "預設願望清單更新完成並保持最新"
     },
     "advanced": {
       "title": "進階設定",
@@ -5439,7 +5452,7 @@
   "captcha": {
     "get": "獲得驗證碼",
     "fresh": "刷新驗證碼",
-    "turnstileLoading": "Turnstile 安全驗證載入中...",
+    "turnstileLoading": "Turnstile 安全驗證載入中",
     "turnstileFailed": "Turnstile 安全驗證載入失敗",
     "turnstileFailedHint": "網路受限或服務暫時不可用",
     "retry": "重試",
@@ -5464,7 +5477,7 @@
     "targets": {
       "title": "目標",
       "addTarget": "添加目標",
-      "searchPlaceholder": "搜索物品或船只...",
+      "searchPlaceholder": "搜索物品或船只",
       "quantity": "數量",
       "type": "类型",
       "item": "物品",
@@ -5486,7 +5499,7 @@
     },
     "exclude": {
       "title": "排除材料",
-      "searchPlaceholder": "搜索要排除的材料...",
+      "searchPlaceholder": "搜索要排除的材料",
       "noExcludes": "无排除材料",
       "description": "排除的材料不会被进一步分解"
     },
@@ -5516,8 +5529,8 @@
       "selectBuild": "選擇配裝",
       "noBuildsFound": "暫無保存的配裝或草稿",
       "importByUid": "通過 ID 導入",
-      "importByUidPlaceholder": "輸入配裝 ID (UID)...",
-      "importing": "加載中...",
+      "importByUidPlaceholder": "輸入配裝 ID (UID)",
+      "importing": "加載中",
       "importSuccess": "導入成功",
       "importError": "導入失敗，請檢查 ID 是否正確"
     },
@@ -5797,7 +5810,7 @@
     "deleteConfirm": "確認要刪除提醒 “{title}” 嗎？此操作不可撤銷。",
     "goToSettings": "前往設定",
     "permissionWarning": "桌面通知權限未開啟，點擊右側申請或前往設定以接收桌面系統通知",
-    "search": "搜尋活動名稱或備註...",
+    "search": "搜尋活動名稱或備註",
     "empty": "暫無活動提醒任務，點擊上方按鈕建立或匯入預設",
     "testTrigger": "測試通知",
     "save": "儲存提醒",
@@ -5951,7 +5964,7 @@
     "quickLogin": "第三方快捷登入",
     "bindTitle": "快捷關聯第三方平臺",
     "callbackTitle": "第三方授權驗證",
-    "processing": "正在驗證第三方授權，請稍候...",
+    "processing": "正在驗證第三方授權，請稍候",
     "failedTitle": "授權失敗",
     "backToSignin": "返回登入頁",
     "authorizedPlatform": "已連接",
@@ -5967,7 +5980,7 @@
     "authFailed": "第三方授權啟動失敗",
     "urlError": "獲取授權鏈接失敗",
     "unknownError": "授權處理失敗",
-    "waitHint": "正在與第三方平台確認授權資訊，請勿關閉視窗...",
+    "waitHint": "正在與第三方平台確認授權資訊，請勿關閉視窗",
     "ticketExpired": "授權憑證已失效，請重新發起第三方授權。",
     "restartAuth": "重新授權",
     "platformNickname": "平臺暱稱",

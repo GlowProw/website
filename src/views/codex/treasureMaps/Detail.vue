@@ -32,6 +32,8 @@ import {useCodexDetailHotkeys} from "@/assets/sripts/codex_detail_hotkeys";
 import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useWishlistStore} from "~/stores/wishlistStore";
+import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
 import Banner from "@/components/Banner.vue";
@@ -43,6 +45,7 @@ const {t, te, messages} = useI18n(),
     i18nReadName = useI18nReadName(),
     authStore = useAuthStore(),
     cdnStore = useCDNAssetsServiceStore(),
+    wishlistStore = useWishlistStore(),
     maps = TreasureMaps as Record<string, any>,
     rarityColorConfig = rarity.color;
 
@@ -54,6 +57,11 @@ const id = computed(() => {
 const mapDetailData = computed(() => {
   if (!id.value) return {};
   return maps[id.value] || {};
+});
+
+const wishlistMatch = computed(() => {
+  if (!mapDetailData.value?.id) return null
+  return wishlistStore.getMatchForItem(mapDetailData.value.id) || wishlistStore.getMatchForMod(mapDetailData.value.id)
 });
 
 const isTreasureMapDescription = computed(() => {
@@ -273,6 +281,14 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12" lg="12" sm="12" xl="12" v-if="wishlistMatch">
+                <!-- 愿望清单栏目 S -->
+                <v-divider>
+                  {{ t('setting.wishlist.title') }}
+                </v-divider>
+                <WishlistMatchWidget :id="mapDetailData.id"></WishlistMatchWidget>
+                <!-- 愿望清单栏目 E -->
+              </v-col>
               <v-col cols="12">
                 <v-divider>{{ t('codex.treasureMap.treasureMapSameArea') }}</v-divider>
                 <TreasureMapSameArea :data="mapDetailData"></TreasureMapSameArea>
@@ -280,7 +296,9 @@ const onCodexHistory = () => {
             </v-row>
 
             <template v-if="mapDetailData.id">
-              <CommentWidget :id="mapDetailData.id" type="treasureMap" placeholder=""></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="mapDetailData.id" type="treasureMap" placeholder=""></CommentWidget>
+              </div>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
@@ -288,6 +306,15 @@ const onCodexHistory = () => {
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
+                <!-- 愿望清单栏目 S -->
+                <template v-if="wishlistMatch">
+                  <p class="text-no-wrap font-weight-bold mb-2 mt-2 d-flex align-center ga-1 text-amber">
+                    <v-icon icon="mdi-playlist-star" size="18"></v-icon>
+                    <span>{{ t('setting.wishlist.title') }}</span>
+                  </p>
+                  <WishlistMatchWidget :id="mapDetailData.id"></WishlistMatchWidget>
+                </template>
+                <!-- 愿望清单栏目 E -->
 
                 <ByObtainableWidget :data="mapDetailData" byType="treasureMap">
                   {{ t('codex.item.obtainable') }}

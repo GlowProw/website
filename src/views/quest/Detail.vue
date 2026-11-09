@@ -16,7 +16,7 @@ import TimeView from "@/components/TimeView.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
-import {storage, storageCollect, getAppUrl} from "@/assets/sripts";
+import {storage, getAppUrl} from "@/assets/sripts";
 import {useAuthStore} from "~/stores/userAccountStore";
 import {useAppStore} from "~/stores/appStore";
 import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
@@ -42,13 +42,6 @@ const id = computed(() => {
 const questDetailData = computed<Questlog | null>(() => {
   if (!id.value) return null;
   return allQuestsMap[id.value] || null;
-});
-
-let isCollect = ref(false);
-
-const getCollectStatus = computed(() => {
-  if (typeof window === 'undefined' || !questDetailData.value?.id) return false;
-  return !!storageCollect.get(questDetailData.value.id, 'quest')?.data;
 });
 
 const headData = computed(() => {
@@ -128,19 +121,6 @@ const onCodexHistory = () => {
       time: new Date().getTime()
     }
   });
-};
-
-const onStarQuest = (data: Questlog) => {
-  isCollect.value = !isCollect.value;
-
-  if (isCollect.value)
-    return storageCollect.delete(data.id, 'quest');
-
-  storageCollect.updata(
-      {collectTime: new Date().getTime()},
-      'quest',
-      data.id
-  );
 };
 
 defineOptions({

@@ -22,6 +22,8 @@ import BySeasonWidget from "@/components/BySeasonCardWidget.vue";
 import UltimateDescription from "@/components/snbWidget/ultimateDescription.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
+import {useWishlistStore} from "~/stores/wishlistStore";
+import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import Banner from "@/components/Banner.vue";
 
@@ -31,11 +33,16 @@ const
     router = useRouter(),
     route = useRoute(),
     authStore = useAuthStore(),
-    cdnStore = useCDNAssetsServiceStore();
+    cdnStore = useCDNAssetsServiceStore(),
+    wishlistStore = useWishlistStore();
 
 const
     id = computed(() => (Array.isArray(route.params.id) ? route.params.id[0] : route.params.id) || 'hunter'),
     ultimateDetailData = computed(() => Ultimates[id.value] || Ultimates['hunter']),
+    wishlistMatch = computed(() => {
+      if (!ultimateDetailData.value?.id) return null
+      return wishlistStore.getMatchForItem(ultimateDetailData.value.id) || wishlistStore.getMatchForMod(ultimateDetailData.value.id)
+    }),
     ultimateDetailPageData = computed(() => ({
       img: '',
       loading: false
@@ -217,10 +224,20 @@ const onUltimateHistory = (id: string) => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12" lg="12" sm="12" xl="12" v-if="wishlistMatch">
+                <!-- 愿望清单栏目 S -->
+                <v-divider>
+                  {{ t('setting.wishlist.title') }}
+                </v-divider>
+                <WishlistMatchWidget :id="ultimateDetailData.id"></WishlistMatchWidget>
+                <!-- 愿望清单栏目 E -->
+              </v-col>
             </v-row>
 
             <template v-if="ultimateDetailData.id">
-              <CommentWidget :id="ultimateDetailData.id" type="ultimate" placeholder=""></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="ultimateDetailData.id" type="ultimate" placeholder=""></CommentWidget>
+              </div>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
@@ -229,6 +246,15 @@ const onUltimateHistory = (id: string) => {
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
+                <!-- 愿望清单栏目 S -->
+                <template v-if="wishlistMatch">
+                  <p class="text-no-wrap font-weight-bold mb-2 mt-2 d-flex align-center ga-1 text-amber">
+                    <v-icon icon="mdi-playlist-star" size="18"></v-icon>
+                    <span>{{ t('setting.wishlist.title') }}</span>
+                  </p>
+                  <WishlistMatchWidget :id="ultimateDetailData.id"></WishlistMatchWidget>
+                </template>
+                <!-- 愿望清单栏目 E -->
 
                 <v-text-field :value="ultimateDetailData.chargeRequired" readonly
                               hide-details

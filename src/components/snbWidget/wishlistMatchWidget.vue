@@ -57,7 +57,7 @@ defineOptions({
         </span>
       </div>
 
-      <div v-if="rule.notes" class="text-caption opacity-60 text-pre-wrap">
+      <div v-if="rule.notes" class="opacity-60 text-pre-wrap">
         {{ t('setting.wishlist.notes') }}: {{ rule.notes }}
       </div>
 

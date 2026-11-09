@@ -543,26 +543,27 @@ defineOptions({
   <div class="comment-widget-wrapper" ref="commentWidgetWrapperRef">
     <v-card variant="text" class="mb-5" v-if="authStore.isLogin">
       <Textarea v-model="content"
+                :disabled="!authStore.isLogin"
                 :maxlength="5000"
                 :min-height="'120px'"
                 :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
-                :placeholder="props.placeholder"></Textarea>
+                :placeholder="!authStore.isLogin ? t('comment.loginRequired') : props.placeholder"></Textarea>
       <v-row no-gutters align="end">
         <v-col>
-          <Captcha @getCaptchaData="onCaptchaData" class="captcha" ref="captchaRef"></Captcha>
+          <Captcha @getCaptchaData="onCaptchaData" class="captcha" ref="captchaRef" v-if="authStore.isLogin"></Captcha>
         </v-col>
         <v-spacer></v-spacer>
         <v-col>
           <v-btn size="55" class="bg-amber text-black" :max-width="150" block
                   :loading="commentPushLoading"
-                  :disabled="!content || !isCaptchaValid"
+                  :disabled="!authStore.isLogin || (!content || !isCaptchaValid)"
                   @click="onPushComment">
             {{ t('basic.button.submit') }}
           </v-btn>
         </v-col>
       </v-row>
     </v-card>
-    <v-alert v-else>
+    <v-alert v-else class="mb-5 bg-surface" variant="text">
       {{ t('comment.loginRequired') }}
       <template v-slot:append>
         <router-link :to="`/account/signin?backUrl=${route.path}`">

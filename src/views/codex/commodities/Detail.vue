@@ -32,6 +32,8 @@ import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useWishlistStore} from "~/stores/wishlistStore";
+import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 import Banner from "@/components/Banner.vue";
 
 const
@@ -44,6 +46,7 @@ const
     i18nReadName = useI18nReadName(),
     rarityColorConfig = rarity.color,
     cdnStore = useCDNAssetsServiceStore(),
+    wishlistStore = useWishlistStore(),
 
     // 物品数据
     commodities: any = Commodities
@@ -51,6 +54,10 @@ const
 const
     id = computed(() => (route.params.id as string) || ''),
     commoditieDetailData = computed(() => (id.value ? commodities[id.value] : null)),
+    wishlistMatch = computed(() => {
+      if (!commoditieDetailData.value?.id) return null
+      return wishlistStore.getMatchForItem(commoditieDetailData.value.id) || wishlistStore.getMatchForMod(commoditieDetailData.value.id)
+    }),
     bluePrint = computed(() => {
       let bluePrints = commoditieDetailData.value?.blueprint;
 
@@ -262,10 +269,20 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12" lg="12" sm="12" xl="12" v-if="wishlistMatch">
+                <!-- 愿望清单栏目 S -->
+                <v-divider>
+                  {{ t('setting.wishlist.title') }}
+                </v-divider>
+                <WishlistMatchWidget :id="commoditieDetailData.id"></WishlistMatchWidget>
+                <!-- 愿望清单栏目 E -->
+              </v-col>
             </v-row>
 
             <template v-if="commoditieDetailData.id">
-              <CommentWidget :id="commoditieDetailData.id" type="commoditie" placeholder=""></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="commoditieDetailData.id" type="commoditie" placeholder=""></CommentWidget>
+              </div>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
@@ -273,6 +290,16 @@ const onCodexHistory = () => {
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
+                <!-- 愿望清单栏目 S -->
+                <template v-if="wishlistMatch">
+                  <p class="text-no-wrap font-weight-bold mb-2 mt-2 d-flex align-center ga-1 text-amber">
+                    <v-icon icon="mdi-playlist-star" size="18"></v-icon>
+                    <span>{{ t('setting.wishlist.title') }}</span>
+                  </p>
+                  <WishlistMatchWidget :id="commoditieDetailData.id"></WishlistMatchWidget>
+                </template>
+                <!-- 愿望清单栏目 E -->
+
                 <div class="mt-5 d-flex ga-2" v-if="bluePrint">
                   <p class="text-no-wrap font-weight-bold mb-2 mt-2">{{ t('codex.item.bluePrint') }}</p>
                   <v-chip class="badge-flavor text-center tag-badge text-black" v-if="typeof bluePrint == 'string'">

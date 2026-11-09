@@ -57,13 +57,23 @@ const platformConfig = computed(() => {
 });
 
 /**
- * 解析媒体图片列表
+ * 解析媒体图片与视频列表
  */
 const mediaUrls = computed((): string[] => {
   const raw = activeNews.value?.mediaUrl || (activeNews.value as any)?.media_url;
   if (!raw) return [];
+  if (Array.isArray(raw)) return raw.map(u => String(u).trim()).filter(Boolean);
   return String(raw).split(',').map(u => u.trim()).filter(Boolean);
 });
+
+/**
+ * 判断是否为视频链接
+ * @param url 媒体链接
+ */
+const isVideoUrl = (url?: string): boolean => {
+  if (!url) return false;
+  return /\.(mp4|webm|ogg|mov|m3u8)(\?.*)?$/i.test(url) || url.includes('/video/');
+};
 
 /**
  * 根据 ID 远端拉取单条新闻
@@ -221,14 +231,26 @@ watch(() => [props.modelValue, props.newsItem, props.newsId], ([visible, item, i
           <div class="news-dialog-body mb-5" v-html="activeNews.content"></div>
           <!-- 富文本正文 E -->
 
-          <!-- 媒体图片画廊 S -->
+          <!-- 媒体图片与视频画廊 S -->
           <div v-if="mediaUrls.length > 0" class="news-media-gallery mt-4">
             <v-row density="compact">
               <v-col
                   v-for="(url, idx) in mediaUrls"
                   :key="idx"
                   :cols="mediaUrls.length === 1 ? 12 : (mediaUrls.length === 2 ? 6 : (mobile ? 12 : 6))">
-                <v-hover v-slot="{ isHovering, props }">
+                <template v-if="isVideoUrl(url)">
+                  <div class="rounded-lg overflow-hidden border bg-black">
+                    <video
+                        :src="url"
+                        controls
+                        playsinline
+                        preload="metadata"
+                        class="w-100 d-block"
+                        :style="{ maxHeight: mediaUrls.length === 1 ? '460px' : '260px', objectFit: 'contain' }">
+                    </video>
+                  </div>
+                </template>
+                <v-hover v-else v-slot="{ isHovering, props }">
                   <v-card
                       border
                       v-bind="props"
@@ -259,7 +281,7 @@ watch(() => [props.modelValue, props.newsItem, props.newsId], ([visible, item, i
               </v-col>
             </v-row>
           </div>
-          <!-- 媒体图片画廊 E -->
+          <!-- 媒体图片与视频画廊 E -->
         </div>
 
         <div v-else class="text-center py-10 opacity-60 text-caption">

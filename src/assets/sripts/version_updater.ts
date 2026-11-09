@@ -8,20 +8,11 @@ const storage = new Storage()
 // 远端版本清单地址
 const VERSION_URL = '/version.json'
 
-// 初始延迟检测时间（毫秒）
-const INITIAL_DELAY = 8 * 1000
-
-// 轮询检测间隔（毫秒）
-const POLL_INTERVAL = 5 * 60 * 1000
-
 // 会话内已提示通知标记前缀
 const NOTIFY_FLAG_PREFIX = 'app.version.notified.'
 
 // 最多保留的历史标记数量
 const KEEP_FLAG_COUNT = 5
-
-// 定时轮询句柄
-let timer: ReturnType<typeof setInterval> | null = null
 
 // 正在执行版本检查标记
 let checking = false
@@ -144,8 +135,9 @@ function notifyVersionUpdate(currentVersion: string, remoteVersion: string): voi
 /**
  * 检查远端版本并在发现更新时提示用户
  */
-async function checkVersion(): Promise<void> {
+export async function checkVersion(): Promise<void> {
     if (checking || typeof window === 'undefined') return
+    if (import.meta.env.DEV || !import.meta.env.PROD) return
     checking = true
     try {
         const res = await fetch(`${VERSION_URL}?t=${Date.now()}`, {
@@ -178,7 +170,7 @@ async function checkVersion(): Promise<void> {
 
         notifyVersionUpdate(currentVersion, remoteVersion)
     } catch {
-        // 网络异常等情况静默忽略，等待下一轮轮询
+        // 网络异常等情况静默忽略
     } finally {
         checking = false
     }
@@ -194,7 +186,7 @@ export function startVersionWatcher(): void {
     // 开发环境下自动清理历史残留的 Service Worker，避免拦截开发请求与打印警告
     if (import.meta.env.DEV) {
         unregisterServiceWorkers().then(() => {
-            // 本地开发无需启动远端版本轮询
+            // 本地开发无需启动远端版本监听
         })
         return
     }
@@ -202,9 +194,9 @@ export function startVersionWatcher(): void {
     if (!import.meta.env.PROD) return
 
     started = true
-    window.setTimeout(() => checkVersion(), INITIAL_DELAY)
-    timer = setInterval(() => checkVersion(), POLL_INTERVAL)
 
+    // 移除 8 秒初始延迟检查与 5 分钟轮询，首次检查交由 GlobalPreloadOverlay 执行
+    // 保留切回页面 (visibilitychange) 和窗口重新聚焦 (focus) 时的版本检测
     document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') checkVersion()
     })

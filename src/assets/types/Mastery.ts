@@ -77,3 +77,15 @@ export interface DebugContextMenu {
   // 命中的连线（在两节点之间插入节点用）
   edge: MasteryEdge | null;
 }
+
+// ByMasteryWidget.vue 的入参
+export interface ByMasteryWidgetProps {
+  data?: Mastery | null;
+  targetKey?: string;
+  draggable?: boolean;
+  zoomable?: boolean;
+  initialZoom?: number;
+  isolateTarget?: boolean;
+  openInMasteryView?: boolean;
+  height?: number | string;
+}

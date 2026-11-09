@@ -31,6 +31,8 @@ import CodexItemStatsCard from "@/components/CodexItemStatsCard.vue";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
+import {useWishlistStore} from "~/stores/wishlistStore";
+import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 import Banner from "@/components/Banner.vue";
 
 const {t, messages} = useI18n(),
@@ -39,11 +41,16 @@ const {t, messages} = useI18n(),
     authStore = useAuthStore(),
     i18nReadName = useI18nReadName(),
     cdnStore = useCDNAssetsServiceStore(),
+    wishlistStore = useWishlistStore(),
     cosmetics: any = Cosmetics
 
 const
     id = computed(() => (route.params.id as string) || ''),
     cosmeticDetailData = computed(() => (id.value ? cosmetics[id.value] : {})),
+    wishlistMatch = computed(() => {
+      if (!cosmeticDetailData.value?.id) return null
+      return wishlistStore.getMatchForItem(cosmeticDetailData.value.id) || wishlistStore.getMatchForMod(cosmeticDetailData.value.id)
+    }),
 
     headTitle = computed(() => {
       if (!id.value || !cosmetics[id.value]) return t(route.meta?.title as string || 'codex.cosmetic.title');
@@ -220,10 +227,20 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12" lg="12" sm="12" xl="12" v-if="wishlistMatch">
+                <!-- 愿望清单栏目 S -->
+                <v-divider>
+                  {{ t('setting.wishlist.title') }}
+                </v-divider>
+                <WishlistMatchWidget :id="cosmeticDetailData.id"></WishlistMatchWidget>
+                <!-- 愿望清单栏目 E -->
+              </v-col>
             </v-row>
 
             <template v-if="cosmeticDetailData.id">
-              <CommentWidget :id="cosmeticDetailData.id" type="cosmetic" placeholder=""></CommentWidget>
+              <div class="mt-10">
+                <CommentWidget :id="cosmeticDetailData.id" type="cosmetic" placeholder=""></CommentWidget>
+              </div>
             </template>
           </v-col>
           <v-col cols="12" sm="12" md="4" lg="4" order="1" order-sm="2">
@@ -231,6 +248,15 @@ const onCodexHistory = () => {
 
             <AffixContainerView :offsetTop="80">
               <VerticalScrollList :force-draggable="false" :is-indicator="false" height="calc(100vh - 120px)">
+                <!-- 愿望清单栏目 S -->
+                <template v-if="wishlistMatch">
+                  <p class="text-no-wrap font-weight-bold mb-2 mt-2 d-flex align-center ga-1 text-amber">
+                    <v-icon icon="mdi-playlist-star" size="18"></v-icon>
+                    <span>{{ t('setting.wishlist.title') }}</span>
+                  </p>
+                  <WishlistMatchWidget :id="cosmeticDetailData.id"></WishlistMatchWidget>
+                </template>
+                <!-- 愿望清单栏目 E -->
 
                 <template v-if="cosmeticDetailData.worldEvent">
                   <ByWorldEventWidget :data="cosmeticDetailData"></ByWorldEventWidget>

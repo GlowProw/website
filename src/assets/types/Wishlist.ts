@@ -84,6 +84,14 @@ export interface WishlistFile {
      * 导入时去除的重复规则数
      */
     duplicatesRemoved?: number;
+    /**
+     * 是否为预设远程订阅清单
+     */
+    isPreset?: boolean;
+    /**
+     * 关联的预设唯一标识
+     */
+    presetId?: string;
 }
 
 /**

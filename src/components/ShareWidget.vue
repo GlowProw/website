@@ -22,13 +22,15 @@ const getShareUrl = () => {
 const getIframeCode = () => {
   const baseUrl = getAppOrigin();
   const widgetUrl = `${baseUrl}/widgets/${props.type}/${props.targetId}`;
+  
   return `<iframe src="${widgetUrl}" width="100%" height="400" frameborder="0"></iframe>`;
 };
 
 const copyToClipboard = async (text: string, messageKey: string = 'codex.share.copySuccess') => {
   try {
     await navigator.clipboard.writeText(text);
-    notice.success(t(messageKey));
+
+    notice.success(t(messageKey), {mode: 'minimal'});
   } catch (err) {
     console.error('Failed to copy: ', err);
     notice.error(t('basic.tips.error', { content: err }));
@@ -61,15 +63,15 @@ const onCopyIframe = () => {
         ></v-btn>
       </template>
 
-      <v-list density="compact">
-        <v-list-item @click="onShareMain">
+      <v-list class="pa-2" border rounded="lg">
+        <v-list-item @click="onShareMain" rounded="lg">
           <template v-slot:prepend>
             <v-icon icon="mdi-link-variant"></v-icon>
           </template>
           <v-list-item-title>{{ t('codex.share.copyLink') }}</v-list-item-title>
         </v-list-item>
 
-        <v-list-item @click="onCopyIframe">
+        <v-list-item @click="onCopyIframe" rounded="lg">
           <template v-slot:prepend>
             <v-icon icon="mdi-code-tags"></v-icon>
           </template>

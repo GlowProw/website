@@ -34,16 +34,6 @@
             <v-btn
                 variant="tonal"
                 size="small"
-                color="amber"
-                prepend-icon="mdi-plus"
-                @click="onCreateNew">
-              {{ t('setting.wishlist.createNew') }}
-            </v-btn>
-          </v-col>
-          <v-col cols="auto">
-            <v-btn
-                variant="tonal"
-                size="small"
                 prepend-icon="mdi-file-upload"
                 @click="onTriggerFileUpload">
               {{ t('setting.wishlist.importFromFile') }}
@@ -53,8 +43,7 @@
                 type="file"
                 accept=".txt,.csv,.text"
                 style="display: none"
-                @change="onFileUpload"
-            />
+                @change="onFileUpload"/>
           </v-col>
           <v-col cols="auto">
             <v-btn
@@ -125,97 +114,128 @@
     </v-col>
     <!-- 统计信息 E -->
 
-    <!-- 已导入清单列表 S -->
+    <!-- 愿望清单列表 S -->
     <v-col cols="12">
       <AffixBoxHasTitleView>
-        <div v-if="wishlistStore.wishlists.length === 0" class="text-center py-10">
-          <v-icon icon="mdi-playlist-star" size="60" class="opacity-20 mb-3"></v-icon>
-          <p class="opacity-50">{{ t('setting.wishlist.noWishlists') }}</p>
-        </div>
+        <EmptyView v-if="wishlistStore.wishlists.length === 0"></EmptyView>
 
         <v-row v-else>
           <v-col cols="12" md="6" lg="4"
                  v-for="wl in wishlistStore.wishlists"
                  :key="wl.id">
             <v-card
-                border
-                :class="[wl.enabled ? 'wishlist-card-enabled' : 'wishlist-card-disabled']"
-                class="wishlist-card pa-4">
-              <v-row align="start">
-                <v-col cols="9">
-                  <div class="font-weight-bold singe-line" :title="wl.title">
+                rounded="lg"
+                class="h-100 d-flex flex-column justify-space-between"
+                :class="wl.enabled ? 'border-amber' : 'opacity-70'">
+              <div>
+                <v-card-title class="py-10 text-center bg-black mb-2">
+                  <div class="d-flex justify-center mb-2">
+                    <v-icon size="60" icon="mdi-playlist-star"></v-icon>
+                  </div>
+                  <div class="text-h6 text-amber font-weight-bold singe-line px-2" :title="wl.title">
                     {{ wl.title }}
                   </div>
+                </v-card-title>
+
+                <v-card-item class="pt-2">
+                  <div class="d-flex align-center justify-space-between">
+                    <div class="text-h4 font-weight-bold text-amber">
+                      {{ wl.rules.length.toLocaleString() }}
+                      <span class="text-body-2 text-medium-emphasis">
+                        {{ t('setting.wishlist.rules') }}
+                      </span>
+                    </div>
+                    <div class="d-flex align-center ga-1 flex-wrap">
+                      <v-chip v-if="wl.isPreset" size="x-small" color="amber" variant="flat">
+                        {{ t('setting.wishlist.presetBadge') }}
+                      </v-chip>
+                      <v-chip v-if="wl.version" size="x-small" variant="tonal" color="amber">
+                        v{{ wl.version }}
+                      </v-chip>
+                    </div>
+                  </div>
+                </v-card-item>
+
+                <v-card-text class="text-body-2 pt-0 d-flex flex-column flex-grow-1">
                   <!-- 描述 -->
-                  <p v-if="wl.description" class="text-caption opacity-50 mb-2 singe-line" :title="wl.description">
+                  <p v-if="wl.description" class="opacity-60 mb-3" :title="wl.description">
                     {{ wl.description }}
                   </p>
-                </v-col>
-                <v-col cols="auto">
-                  <v-switch
-                      hide-details
-                      inset
-                      density="compact"
-                      :model-value="wl.enabled"
-                      @update:model-value="wishlistStore.toggleWishlist(wl.id)">
-                  </v-switch>
-                </v-col>
-              </v-row>
 
-              <!-- 元数据标签 -->
-              <div class="d-flex flex-wrap ga-1 mb-2">
-                <!-- 规则数 -->
-                <v-chip size="x-small" variant="tonal" :color="wl.enabled ? 'amber' : 'grey'">
-                  {{ t('setting.wishlist.rules', {count: wl.rules.length}) }}
-                </v-chip>
-                <!-- 去重数 -->
-                <v-chip size="x-small" variant="tonal" v-if="wl.duplicatesRemoved && wl.duplicatesRemoved > 0">
-                  {{ t('setting.wishlist.duplicatesRemoved', {count: wl.duplicatesRemoved}) }}
-                </v-chip>
-                <!-- 版本 -->
-                <v-chip size="x-small" variant="tonal" v-if="wl.version" prepend-icon="mdi-tag">
-                  v{{ wl.version }}
-                </v-chip>
+                  <!-- 作者与去重信息 -->
+                  <div class="d-flex align-center flex-wrap ga-2 mb-3 text-caption opacity-80">
+                    <div class="d-flex align-center ga-1" v-if="wl.author">
+                      <a v-if="wl.authorUrl" :href="wl.authorUrl" target="_blank" class="text-decoration-none text-amber">{{ wl.author }}</a>
+                      <span v-else>{{ wl.author }}</span>
+                    </div>
+                    <v-chip size="x-small" variant="tonal" v-if="wl.duplicatesRemoved && wl.duplicatesRemoved > 0">
+                      {{ t('setting.wishlist.duplicatesRemoved', {count: wl.duplicatesRemoved}) }}
+                    </v-chip>
+                  </div>
+
+                  <!-- 远程主链接 -->
+                  <div v-if="wl.updateUrls && wl.updateUrls.length > 0" class="bg-grey-darken-4 rounded mb-2">
+                    <div class="text-caption opacity-50 mb-1 d-flex align-center justify-space-between">
+                      <span>{{ t('setting.wishlist.source') }}:</span>
+                      <div class="d-flex align-center ga-1">
+                        <v-btn
+                            size="x-small"
+                            variant="text"
+                            icon="mdi-content-copy"
+                            :title="t('setting.wishlist.copyLink')"
+                            @click="onCopyWishlistUrl(wl)"></v-btn>
+                        <v-btn
+                            size="x-small"
+                            variant="text"
+                            icon="mdi-open-in-new"
+                            :title="t('setting.wishlist.openLink')"
+                            @click="onOpenWishlistUrl(wl)"></v-btn>
+                      </div>
+                    </div>
+                    <div class="text-caption text-truncate opacity-80 font-mono">
+                      {{ wl.updateUrls[0] }}
+                    </div>
+                  </div>
+                </v-card-text>
               </div>
 
-              <!-- 作者 -->
-              <p class="text-caption opacity-50 singe-line" v-if="wl.author">
-                <a v-if="wl.authorUrl" :href="wl.authorUrl" target="_blank" class="text-decoration-none">{{ wl.author }}</a>
-                <span v-else>{{ wl.author }}</span>
-              </p>
+              <div>
+                <v-divider></v-divider>
+                <v-card-actions class="px-4 py-2">
+                  <v-switch
+                      density="compact"
+                      hide-details
+                      color="amber"
+                      class="ma-0 pa-0"
+                      :model-value="wl.enabled"
+                      @update:model-value="wishlistStore.toggleWishlist(wl.id)"></v-switch>
 
-              <!-- 来源 -->
-              <p class="text-caption opacity-40 singe-line" :title="wl.source" v-if="wl.source">
-                {{ t('setting.wishlist.source') }}: {{ truncateSource(wl.source) }}
-              </p>
+                  <span class="text-caption opacity-60 ml-2">
+                    {{ wl.enabled ? t('setting.wishlist.enabled') : t('setting.wishlist.disabled') }}
+                  </span>
 
-              <!-- 更新时间 -->
-              <p class="text-caption opacity-40" v-if="wl.lastUpdatedAt">
-                {{ t('setting.wishlist.lastUpdated') }}: {{ formatTime(wl.lastUpdatedAt) }}
-              </p>
+                  <v-spacer></v-spacer>
 
-              <v-row no-gutters class="mt-3 ga-1" align="center">
-                <!-- 更新按钮 -->
-                <v-col cols="auto" v-if="wl.updateUrls && wl.updateUrls.length > 0">
-                  <v-btn size="x-small" variant="tonal" color="var(--main-color)"
-                         :loading="wishlistStore.isUpdating(wl.id)"
-                         @click="onUpdate(wl.id)">
+                  <!-- 更新按钮 -->
+                  <v-btn
+                      v-if="wl.updateUrls && wl.updateUrls.length > 0"
+                      size="small"
+                      variant="tonal"
+                      color="amber"
+                      :loading="wishlistStore.isUpdating(wl.id)"
+                      @click="onUpdate(wl.id)">
                     <v-icon icon="mdi-refresh" class="mr-1"></v-icon>
                     {{ t('setting.wishlist.update') }}
                   </v-btn>
-                </v-col>
-                <v-spacer></v-spacer>
-                <v-col cols="auto">
+
+                  <!-- 菜单 -->
                   <v-menu>
                     <template v-slot:activator="{ props }">
-                      <v-btn size="x-small" variant="text" v-bind="props" icon slim>
+                      <v-btn size="small" variant="text" v-bind="props" icon slim>
                         <v-icon icon="mdi-dots-vertical"></v-icon>
                       </v-btn>
                     </template>
                     <v-list slim density="compact">
-                      <v-list-item prepend-icon="mdi-pencil" @click="onEdit(wl.id)">
-                        {{ t('setting.wishlist.edit') }}
-                      </v-list-item>
                       <v-list-item prepend-icon="mdi-export" @click="onExport(wl.id)">
                         {{ t('setting.wishlist.export') }}
                       </v-list-item>
@@ -224,8 +244,8 @@
                       </v-list-item>
                     </v-list>
                   </v-menu>
-                </v-col>
-              </v-row>
+                </v-card-actions>
+              </div>
             </v-card>
           </v-col>
         </v-row>
@@ -235,16 +255,8 @@
         </template>
       </AffixBoxHasTitleView>
     </v-col>
-    <!-- 已导入清单列表 E -->
+    <!-- 愿望清单列表 E -->
   </v-row>
-
-  <!-- 愿望清单编辑/新建对话框 S -->
-  <WishlistEditDialog
-      v-model="editDialog"
-      :wishlist="editingWishlist"
-      @save="onSaveWishlist"
-  />
-  <!-- 愿望清单编辑/新建对话框 E -->
 
   <!-- 粘贴对话框 S -->
   <v-dialog v-model="pasteDialog" max-width="600">
@@ -305,17 +317,17 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useWishlistStore } from '~/stores/wishlistStore'
 import { parseWishlistText, validateWishlist } from '@/assets/sripts/wishlist_data_processing'
 import AffixBoxHasTitleView from '@/components/AffixBoxHasTitleView.vue'
-import WishlistEditDialog from './WishlistEditDialog.vue'
+import EmptyView from '@/components/EmptyView.vue'
 import { useNoticeStore } from '~/stores/noticeStore'
 import { formatDateInUserTimezone } from '@/assets/sripts'
 import type { WishlistFile } from '@/assets/types/Wishlist'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const wishlistStore = useWishlistStore()
 
 const importUrl = ref('')
@@ -327,40 +339,6 @@ const deleteTargetId = ref('')
 const clearAllDialog = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
 const not = useNoticeStore()
-
-const editDialog = ref(false)
-const editingWishlist = ref<WishlistFile | null>(null)
-
-/**
- * 触发新建清单
- */
-const onCreateNew = () => {
-  editingWishlist.value = null
-  editDialog.value = true
-}
-
-/**
- * 触发编辑清单
- */
-const onEdit = (id: string) => {
-  const wl = wishlistStore.wishlists.find(w => w.id === id)
-  if (wl) {
-    editingWishlist.value = wl
-    editDialog.value = true
-  }
-}
-
-/**
- * 保存愿望清单回调
- */
-const onSaveWishlist = (savedWl: WishlistFile) => {
-  const result = wishlistStore.addWishlist(savedWl)
-  if (result.success) {
-    not.success(t('setting.wishlist.importSuccess'))
-  } else {
-    not.error(t('setting.wishlist.importError'))
-  }
-}
 
 /**
  * 粘贴文本实时预览验证
@@ -514,6 +492,37 @@ const truncateSource = (source: string): string => {
   if (source.length <= 50) return source
   return source.slice(0, 20) + '...' + source.slice(-25)
 }
+
+/**
+ * 复制订阅链接到剪贴板
+ */
+const onCopyWishlistUrl = async (wl: WishlistFile) => {
+  const url = wl.updateUrls?.[0] || wl.source
+  if (!url) return
+  try {
+    await navigator.clipboard.writeText(url)
+    not.success(t('setting.wishlist.linkCopied'))
+  } catch {
+    not.info(url)
+  }
+}
+
+/**
+ * 在新窗口打开订阅链接
+ */
+const onOpenWishlistUrl = (wl: WishlistFile) => {
+  const url = wl.updateUrls?.[0] || wl.source
+  if (url) window.open(url, '_blank')
+}
+
+/**
+ * 组件挂载后，若尚无预设愿望清单则触发静默同步
+ */
+onMounted(() => {
+  if (wishlistStore.presetMetas.length === 0) {
+    wishlistStore.syncPresetWishlists(locale.value)
+  }
+})
 
 /**
  * 格式化时间戳
