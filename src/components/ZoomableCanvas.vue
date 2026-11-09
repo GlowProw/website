@@ -183,7 +183,19 @@ const setupResizeObserver = () => {
 
   resizeObserver.value = new ResizeObserver((entries: ResizeObserverEntry[]) => {
     for (const entry of entries) {
-      contentHeight.value = entry.contentRect.height;
+      const newHeight = entry.contentRect.height;
+      contentHeight.value = newHeight;
+
+      // 当内容高度变化导致画布内容漂移到视口之外时，自动纠偏保证内容可见
+      if (container.value && newHeight > 0) {
+        const containerH = container.value.clientHeight || 0;
+        const currentScaledH = newHeight * scale.value;
+        const currentTop = position.value.y;
+        const currentBottom = currentTop + currentScaledH;
+        if (currentBottom < 50 || currentTop > containerH - 50) {
+          centerCanvas();
+        }
+      }
     }
   });
 

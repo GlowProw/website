@@ -89,6 +89,6 @@ export interface ResetPasswordParams {
     newPassword: string
 }
 
-export type UserInfoSessionType = 'user'
+export type UserInfoSessionType = 'user' | 'achievement'
 
 export type HeaderAccountType = 'header-drawer' | 'header'

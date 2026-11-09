@@ -600,6 +600,7 @@ defineOptions({
     <div class="comment-widget">
       <v-progress-linear v-if="commentLoading" indeterminate color="amber" class="mb-4 rounded"></v-progress-linear>
       <v-timeline
+          align="start"
           density="compact"
           side="end"
           v-if="commentListData && commentListData.length > 0">
@@ -607,7 +608,6 @@ defineOptions({
             dot-color="orange"
             class="w-100"
             min-width="100%"
-            size="large"
             fill-dot
             v-for="(i,index) in commentListData" :key="index">
           <template v-slot:icon>
@@ -707,8 +707,8 @@ defineOptions({
               </v-card>
               <!-- 嵌套回复输入框 E -->
 
-              <!-- 嵌套回复展示列表 S (有回复则默认直接展示，无回复不显示该卡片) -->
-              <div v-if="i.replyCount && i.replyCount > 0" class="replies-wrapper rounded-lg mt-3 px-3 py-1">
+              <!-- 嵌套回复展示列表 S -->
+              <div v-if="i.replyCount && i.replyCount > 0 && (((i.isExpandedAll ? i.paginatedReplies : i.previewReplies)?.length || 0) > 0 || i.repliesLoading)" class="replies-wrapper rounded-lg mt-3 px-3 py-1">
                 <v-progress-linear v-if="i.repliesLoading" indeterminate color="amber" height="2" class="mb-2"></v-progress-linear>
 
                 <!-- 回复列表渲染（未展开所有时直接渲染前3条；展开所有时渲染分页列表） -->

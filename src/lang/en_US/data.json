@@ -1226,8 +1226,7 @@
       "loadFailed": "Failed to load achievements",
       "widget": {
         "hidden": "Achievements are not public",
-        "obtained": "{count} achievements obtained",
-        "empty": "No achievements yet"
+        "obtained": "{count} achievements obtained"
       },
       "categories": {
         "assembly": "Loadouts",

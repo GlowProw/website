@@ -26,7 +26,7 @@ defineOptions({
 
 <template>
   <template v-if="subsequentQuests.length > 0">
-    <div class="mb-10">
+    <div>
       <slot></slot>
     </div>
     <v-row class="ga-6 mb-2" justify="center">

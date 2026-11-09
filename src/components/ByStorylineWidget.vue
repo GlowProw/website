@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed, nextTick, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {Quests, Questlog} from "glow-prow-data";
 import QuestName from "@/components/snbWidget/questName.vue";
@@ -236,21 +236,33 @@ watch(
     {immediate: true}
 );
 
+const zoomableAreaRef = ref<any>(null);
+
+const onLayoutChange = () => {
+  nextTick(() => {
+    zoomableAreaRef.value?.centerCanvas?.();
+  });
+};
+
 // 切换分支折叠
 const toggleBranch = (key: string) => {
   collapsedBranches.value[key] = !collapsedBranches.value[key];
+  onLayoutChange();
 };
 
 // 切换故事线折叠
 const toggleArc = (key: string) => {
-  collapsedArcs.value[key] = !collapsedArcs.value[key];
+  if (storyArcs.value.length > 1) {
+    collapsedArcs.value[key] = !collapsedArcs.value[key];
+    onLayoutChange();
+  }
 };
 
 // 全部展开 / 全部折叠
 const isAllExpanded = computed(() => {
   let hasCollapsed = false;
   storyArcs.value.forEach(arc => {
-    if (collapsedArcs.value[arc.arcId]) hasCollapsed = true;
+    if (storyArcs.value.length > 1 && collapsedArcs.value[arc.arcId]) hasCollapsed = true;
     arc.steps.forEach(s => {
       if (s.type === 'fork' && s.branches) {
         s.branches.forEach(b => {
@@ -265,7 +277,12 @@ const isAllExpanded = computed(() => {
 const toggleAll = () => {
   const target = isAllExpanded.value;
   storyArcs.value.forEach(arc => {
-    collapsedArcs.value[arc.arcId] = target;
+    // 仅当存在多条故事线时才允许折叠故事线主干；单故事线时始终不折叠主干
+    if (storyArcs.value.length > 1) {
+      collapsedArcs.value[arc.arcId] = target;
+    } else {
+      collapsedArcs.value[arc.arcId] = false;
+    }
     arc.steps.forEach(s => {
       if (s.type === 'fork' && s.branches) {
         s.branches.forEach(b => {
@@ -274,6 +291,7 @@ const toggleAll = () => {
       }
     });
   });
+  onLayoutChange();
 };
 
 // 统计总任务数与总分支数
@@ -313,13 +331,12 @@ defineOptions({
             class="text-caption px-2"
             variant="text"
             size="x-small"
-            prepend-icon="mdi-format-list-bulleted"
             :to="`/quest?category=${categoryKey}`">
           {{ t('quest.viewCategoryQuests') }}
         </v-btn>
       </v-col>
       <v-spacer></v-spacer>
-      <v-col cols="auto">
+      <v-col cols="auto" v-if="storyArcs.length > 1 || totalBranchesCount > 0">
         <v-btn
            class="text-caption px-2"
             variant="text"
@@ -338,7 +355,7 @@ defineOptions({
     </v-row>
 
     <!-- 流程图主容器 -->
-    <v-card class="bg-black card-enlargement-mask-flavor">
+    <v-card class="bg-black">
       <ZoomableCanvas
           ref="zoomableAreaRef"
           style="height: 520px"
@@ -380,7 +397,7 @@ defineOptions({
               </div>
 
               <!-- 故事线步骤流 (Flow Steps) -->
-              <div v-show="!collapsedArcs[arc.arcId]" class="arc-steps-wrapper">
+              <div v-show="storyArcs.length <= 1 || !collapsedArcs[arc.arcId]" class="arc-steps-wrapper">
                 <template v-for="(step, sIdx) in arc.steps" :key="sIdx">
                   <!-- 单一阶段节点 (Single Node) -->
                   <template v-if="step.type === 'single' && step.questId">

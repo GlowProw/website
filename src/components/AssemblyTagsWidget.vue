@@ -57,6 +57,35 @@ const internalTags = computed({
   }
 });
 
+const allPanelKeys = ['modes', 'teamFormation', 'seasons', 'damageTypes', 'archetypes', 'difficulty'];
+
+const categoryTags: Record<string, string[]> = {
+  modes: ['pvp', 'pve'],
+  teamFormation: ['teamFormationMethod_singlePlayer', 'teamFormationMethod_multiPlayer'],
+  seasons: tagsConfig.seasons.map(i => `season_${i}`),
+  damageTypes: tagsConfig.damageTypes.map(i => `damageType_${i}`),
+  archetypes: tagsConfig.archeTypes.map(i => `archetype_${i}`),
+  difficulty: tagsConfig.difficultyOfAcquisitions.map(i => `difficultyOfAcquisition_${i}`),
+};
+
+const getCategorySelectedCount = (cat: string) => {
+  const tags = categoryTags[cat] || [];
+  return internalTags.value.filter(t => tags.includes(t)).length;
+};
+
+const activePanels = ref<string[]>([...allPanelKeys]);
+
+let hasAutoExpanded = false;
+watch(() => poops.modelValue, (newVal) => {
+  if (poops.readonly && !hasAutoExpanded && newVal && newVal.length > 0) {
+    const selectedCats = allPanelKeys.filter(cat => getCategorySelectedCount(cat) > 0);
+    if (selectedCats.length > 0) {
+      activePanels.value = selectedCats;
+      hasAutoExpanded = true;
+    }
+  }
+}, { immediate: true });
+
 defineOptions({name: 'AssemblyTagsWidget'})
 </script>
 
@@ -66,81 +95,172 @@ defineOptions({name: 'AssemblyTagsWidget'})
       :class="poops.class"
       column
       multiple>
-    <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.applicableModes') }}</p>
-      <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small"
-                color="var(--main-color)"
-                v-for="(i, index) in ['pvp', 'pve']"
-                :key="index"
-                :value="i">{{ t('assembly.tags.modes.' + i) }}
-        </v-chip>
-      </div>
-    </div>
+    <v-expansion-panels
+        v-model="activePanels"
+        multiple
+        variant="accordion"
+        gap="10">
+      <!-- 适用模式 -->
+      <v-expansion-panel rounded="30" eager value="modes">
+        <v-expansion-panel-title class="text-body-1 font-weight-bold">
+          <div class="d-flex align-center justify-space-between w-100 pr-2">
+            <span>{{ t('assembly.tags.titles.applicableModes') }}</span>
+            <v-chip v-if="getCategorySelectedCount('modes') > 0"
+                    size="x-small"
+                    color="amber"
+                    variant="tonal"
+                    class="font-weight-bold">
+              {{ getCategorySelectedCount('modes') }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text class="text-body-2">
+          <div class="d-flex flex-wrap ga-2" :class="[readonly ? 'readonly' : '']">
+            <v-chip filter size="small"
+                    color="var(--main-color)"
+                    v-for="(i, index) in ['pvp', 'pve']"
+                    :key="index"
+                    :value="i">{{ t('assembly.tags.modes.' + i) }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
 
-    <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.teamFormation') }}</p>
-      <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip size="small" color="var(--main-color)"
-                v-for="(i, index) in ['singlePlayer', 'multiPlayer']"
-                :key="index"
-                :value="`teamFormationMethod_${i}`">
-          {{ t(`assembly.tags.teamFormationMethods.${i}`) }}
-        </v-chip>
-      </div>
-    </div>
+      <!-- 组队方式 -->
+      <v-expansion-panel rounded="30" eager value="teamFormation">
+        <v-expansion-panel-title class="text-body-1 font-weight-bold">
+          <div class="d-flex align-center justify-space-between w-100 pr-2">
+            <span>{{ t('assembly.tags.titles.teamFormation') }}</span>
+            <v-chip v-if="getCategorySelectedCount('teamFormation') > 0"
+                    size="x-small"
+                    color="amber"
+                    variant="tonal"
+                    class="font-weight-bold">
+              {{ getCategorySelectedCount('teamFormation') }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text class="text-body-2">
+          <div class="d-flex flex-wrap ga-2" :class="[readonly ? 'readonly' : '']">
+            <v-chip filter size="small"
+                    color="var(--main-color)"
+                    v-for="(i, index) in ['singlePlayer', 'multiPlayer']"
+                    :key="index"
+                    :value="`teamFormationMethod_${i}`">
+              {{ t(`assembly.tags.teamFormationMethods.${i}`) }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
 
-    <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100 mx-n">{{ t('assembly.tags.titles.seasons') }}</p>
-      <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small"
-                color="var(--main-color)"
-                v-for="(i, index) in tagsConfig.seasons"
-                :key="index"
-                :value="`season_${i}`">{{ readSeason(i).name() }}
-        </v-chip>
-      </div>
-    </div>
+      <!-- 赛季 -->
+      <v-expansion-panel rounded="30" eager value="seasons">
+        <v-expansion-panel-title class="text-body-1 font-weight-bold">
+          <div class="d-flex align-center justify-space-between w-100 pr-2">
+            <span>{{ t('assembly.tags.titles.seasons') }}</span>
+            <v-chip v-if="getCategorySelectedCount('seasons') > 0"
+                    size="x-small"
+                    color="amber"
+                    variant="tonal"
+                    class="font-weight-bold">
+              {{ getCategorySelectedCount('seasons') }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text class="text-body-2">
+          <div class="d-flex flex-wrap ga-2" :class="[readonly ? 'readonly' : '']">
+            <v-chip filter size="small"
+                    color="var(--main-color)"
+                    v-for="(i, index) in tagsConfig.seasons"
+                    :key="index"
+                    :value="`season_${i}`">{{ readSeason(i).name() }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
 
-    <div class="mt-3">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.damageTypes') }}</p>
-      <div class="mt-3 ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter
-                size="small"
-                color="var(--main-color)"
-                v-for="(i, index) in tagsConfig.damageTypes"
-                :key="index"
-                :value="`damageType_${i}`">
-          <DamageIconWidget :id="i" size="20px" class="mr-1" iconType="aggressivity" :is-border="false"></DamageIconWidget>
-          {{ t(`assembly.tags.damageTypes.${i}`) }}
-        </v-chip>
-      </div>
-    </div>
+      <!-- 伤害类型 -->
+      <v-expansion-panel rounded="30" eager value="damageTypes">
+        <v-expansion-panel-title class="text-body-1 font-weight-bold">
+          <div class="d-flex align-center justify-space-between w-100 pr-2">
+            <span>{{ t('assembly.tags.titles.damageTypes') }}</span>
+            <v-chip v-if="getCategorySelectedCount('damageTypes') > 0"
+                    size="x-small"
+                    color="amber"
+                    variant="tonal"
+                    class="font-weight-bold">
+              {{ getCategorySelectedCount('damageTypes') }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text class="text-body-2">
+          <div class="d-flex flex-wrap ga-2" :class="[readonly ? 'readonly' : '']">
+            <v-chip filter
+                    size="small"
+                    color="var(--main-color)"
+                    v-for="(i, index) in tagsConfig.damageTypes"
+                    :key="index"
+                    :value="`damageType_${i}`">
+              <DamageIconWidget :id="i" size="20px" class="mr-1" iconType="aggressivity" :is-border="false"></DamageIconWidget>
+              {{ t(`assembly.tags.damageTypes.${i}`) }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
 
-    <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.archetypes') }}</p>
-      <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small"
-                color="var(--main-color)"
-                v-for="(i, index) in tagsConfig.archeTypes"
-                :key="index"
-                :value="`archetype_${i}`">{{ t(`codex.ships.archetypes.${i}.name`) }}
-        </v-chip>
-      </div>
-    </div>
+      <!-- 战舰定位 -->
+      <v-expansion-panel rounded="30" eager value="archetypes">
+        <v-expansion-panel-title class="text-body-1 font-weight-bold">
+          <div class="d-flex align-center justify-space-between w-100 pr-2">
+            <span>{{ t('assembly.tags.titles.archetypes') }}</span>
+            <v-chip v-if="getCategorySelectedCount('archetypes') > 0"
+                    size="x-small"
+                    color="amber"
+                    variant="tonal"
+                    class="font-weight-bold">
+              {{ getCategorySelectedCount('archetypes') }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text class="text-body-2">
+          <div class="d-flex flex-wrap ga-2" :class="[readonly ? 'readonly' : '']">
+            <v-chip filter size="small"
+                    color="var(--main-color)"
+                    v-for="(i, index) in tagsConfig.archeTypes"
+                    :key="index"
+                    :value="`archetype_${i}`">{{ t(`codex.ships.archetypes.${i}.name`) }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
 
-    <div class="mt-3 w-100">
-      <p class="title-long-flavor bg-black ml-n1 pl-3 pt-2 pb-2 w-100">{{ t('assembly.tags.titles.difficultyOfAcquisition') }}</p>
-      <div class="mt-3 d-flex ga-2" :class="[readonly ? 'readonly' : '']">
-        <v-chip filter size="small"
-                color="var(--main-color)"
-                v-for="(i, index) in tagsConfig.difficultyOfAcquisitions"
-                :key="index"
-                :value="`difficultyOfAcquisition_${i}`">
-          {{ t(`assembly.tags.difficultyOfAcquisitions.${i}`) }}
-        </v-chip>
-      </div>
-    </div>
+      <!-- 获取难度 -->
+      <v-expansion-panel rounded="30" eager value="difficulty">
+        <v-expansion-panel-title class="text-body-1 font-weight-bold">
+          <div class="d-flex align-center justify-space-between w-100 pr-2">
+            <span>{{ t('assembly.tags.titles.difficultyOfAcquisition') }}</span>
+            <v-chip v-if="getCategorySelectedCount('difficulty') > 0"
+                    size="x-small"
+                    color="amber"
+                    variant="tonal"
+                    class="font-weight-bold">
+              {{ getCategorySelectedCount('difficulty') }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text class="text-body-2">
+          <div class="d-flex flex-wrap ga-2" :class="[readonly ? 'readonly' : '']">
+            <v-chip filter size="small"
+                    color="var(--main-color)"
+                    v-for="(i, index) in tagsConfig.difficultyOfAcquisitions"
+                    :key="index"
+                    :value="`difficultyOfAcquisition_${i}`">
+              {{ t(`assembly.tags.difficultyOfAcquisitions.${i}`) }}
+            </v-chip>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
   </v-chip-group>
 </template>
 

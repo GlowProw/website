@@ -1207,8 +1207,7 @@
       "loadFailed": "成就載入失敗",
       "widget": {
         "hidden": "該用戶未公開成就資訊",
-        "obtained": "已獲得 {count} 個成就",
-        "empty": "暫未獲得成就"
+        "obtained": "已獲得 {count} 個成就"
       },
       "categories": {
         "assembly": "配裝",

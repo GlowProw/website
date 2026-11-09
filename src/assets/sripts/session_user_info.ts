@@ -20,7 +20,7 @@ export default class UserInfoSession extends Storage {
         let name = `${this.NAME}.${key}`,
             d: any = super.session.get(name)
 
-        if (d.code < 0) {
+        if (d.code < 0 || !d.data || typeof d.data.value !== 'object' || d.data.value === null) {
             d = {data: {value: {}}}
         }
 
@@ -40,7 +40,7 @@ export default class UserInfoSession extends Storage {
         let name = `${this.NAME}.${key}`,
             d = super.session.get(name)
 
-        if (d.code < 0) return options?.defaultValue || false;
+        if (d.code < 0 || !d.data || typeof d.data.value !== 'object' || d.data.value === null) return options?.defaultValue || false;
 
         return value in d.data.value ? d.data.value[value] : options?.defaultValue || false;
     }
