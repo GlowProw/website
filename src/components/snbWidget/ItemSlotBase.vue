@@ -98,9 +98,9 @@ defineOptions({
 
 .item-slot-base-top-view {
   position: absolute;
-  top: 0px;
+  top: 0;
   right: 0;
-  left: 0px;
+  left: 0;
   z-index: 10;
 }
 </style>

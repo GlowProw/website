@@ -13,7 +13,6 @@ const props = withDefaults(
           class: ''
         }
     ),
-    {t} = useI18n(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
 
     // 阵营相同图标字典， 规划同类图标
@@ -53,10 +52,14 @@ defineOptions({
 </script>
 
 <template>
-  <v-card :class="props.class" class="w-100 h-100"
+  <v-card :class="props.class"
+          :width="props.size"
+          :height="props.size"
+          rounded="lg"
           variant="text">
     <v-img :src="src"
            v-if="!!src"
+           class="img-wrap"
            width="100%"
            height="100%"
            cover>
@@ -68,6 +71,8 @@ defineOptions({
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/img";
+
 .faction-icon {
   user-select: none;
 

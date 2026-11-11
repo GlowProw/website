@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import Silk from "@/components/Silk.vue";
-import ZoneName from "@/components/snbWidget/zoneName.vue";
-import RegionName from "@/components/snbWidget/regionName.vue";
 import {useI18n} from "vue-i18n";
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useNoticeStore} from "~/stores/noticeStore";
@@ -10,17 +7,21 @@ import {storeToRefs} from "pinia";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import {useHead} from "@unhead/vue";
 import {useRoute, useRouter} from "vue-router";
+import {formatCompactNumber, formatNumber} from "@/assets/sripts/number";
+import {getAppUrl, getCurrentSeasonId} from "@/assets/sripts";
+import {useAuthStore} from "~/stores/userAccountStore";
+
+import Silk from "@/components/Silk.vue";
+import ZoneName from "@/components/snbWidget/zoneName.vue";
+import RegionName from "@/components/snbWidget/regionName.vue";
 import EmptyView from "@/components/EmptyView.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 import LightRays from "@/components/LightRays.vue";
 import FactionNameWidget from "@/components/snbWidget/factionNameWidget.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import AffixBoxHasTitleView from "@/components/AffixBoxHasTitleView.vue";
-import {formatCompactNumber, formatNumber} from "@/assets/sripts/number";
-import {getAppUrl, getCurrentSeasonId} from "@/assets/sripts";
 import Loading from "@/components/Loading.vue";
 import TimeView from "@/components/TimeView.vue";
-import {useAuthStore} from "~/stores/userAccountStore";
 import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const {t} = useI18n(),
@@ -381,7 +382,7 @@ const getZoneData = (zoneName: string) => {
             {{ t('stateOfWar.title') }}
             <v-chip
                 size="small"
-                :color="isSeasonEnded ? 'grey' : 'success'"
+                :color="isSeasonEnded ? 'red' : 'success'"
                 variant="tonal"
                 class="font-weight-medium ml-3">
               {{ isSeasonEnded ? t('stateOfWar.ended') : t('stateOfWar.active') }}
@@ -425,9 +426,7 @@ const getZoneData = (zoneName: string) => {
                   <div class="mr-10 d-flex align-center ga-1">
                     <span class="u text-h5 singe-line" :style="{ color: factionAColor }"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
 
-                    <v-avatar size="30" tile>
-                      <FactionIconWidget :name="factionAKey" size="30"></FactionIconWidget>
-                    </v-avatar>
+                    <FactionIconWidget :name="factionAKey" size="30px"></FactionIconWidget>
                   </div>
 
                   <div>
@@ -457,9 +456,7 @@ const getZoneData = (zoneName: string) => {
                   </div>
 
                   <div class="ml-10 d-flex align-center ga-1">
-                    <v-avatar size="30" tile>
-                      <FactionIconWidget :name="factionBKey" size="30"></FactionIconWidget>
-                    </v-avatar>
+                    <FactionIconWidget :name="factionBKey" size="30px"></FactionIconWidget>
 
                     <span class="u text-h5 singe-line" :style="{ color: factionBColor }"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
                   </div>
@@ -638,15 +635,13 @@ const getZoneData = (zoneName: string) => {
 
                 <v-row class="text-caption" align="center" justify="center">
                   <v-col cols="auto" class="d-flex align-center ga-2" :style="{ color: factionAColor }">
-                    <v-avatar size="20">
-                      <FactionIconWidget :name="factionAKey"></FactionIconWidget>
-                    </v-avatar>
+                    <FactionIconWidget :name="factionAKey" size="20px"></FactionIconWidget>
+
                     <span class="font-weight-medium u"><FactionNameWidget :id="factionAKey"></FactionNameWidget></span>
                   </v-col>
                   <v-col cols="auto" class="d-flex align-center ga-2" :style="{ color: factionBColor }">
-                    <v-avatar size="20">
-                      <FactionIconWidget :name="factionBKey"></FactionIconWidget>
-                    </v-avatar>
+                    <FactionIconWidget :name="factionBKey" size="20px"></FactionIconWidget>
+
                     <span class="font-weight-medium u"><FactionNameWidget :id="factionBKey"></FactionNameWidget></span>
                   </v-col>
                 </v-row>
@@ -691,9 +686,8 @@ const getZoneData = (zoneName: string) => {
               <!-- 阵营 A -->
               <v-col cols="4" md="4" lg="4" class="text-center text-md-left">
                 <div class="d-flex align-center ga-3 justify-center justify-md-start">
-                  <v-avatar size="44" tile>
-                    <FactionIconWidget :name="factionAKey" size="44"></FactionIconWidget>
-                  </v-avatar>
+                  <FactionIconWidget :name="factionAKey" size="44px"></FactionIconWidget>
+
                   <div>
                     <div class="text-subtitle-1 font-weight-bold u" :style="{ color: factionAColor }">
                       <FactionNameWidget :id="factionAKey"></FactionNameWidget>
@@ -734,9 +728,8 @@ const getZoneData = (zoneName: string) => {
                       {{ formatCompactNumber(factionBScore) }}
                     </div>
                   </div>
-                  <v-avatar size="44" tile>
-                    <FactionIconWidget :name="factionBKey" size="44"></FactionIconWidget>
-                  </v-avatar>
+
+                  <FactionIconWidget :name="factionBKey" size="44px"></FactionIconWidget>
                 </div>
               </v-col>
             </v-row>
@@ -869,9 +862,7 @@ const getZoneData = (zoneName: string) => {
                     <v-card-text class="pt-5">
                       <v-row class="d-flex justify-space-between align-center text-body-2">
                         <v-col cols="auto" class="font-weight-medium d-flex align-center ga-1" :style="{ color: factionAColor }">
-                          <v-avatar tile size="30">
-                            <FactionIconWidget :name="factionAKey" size="14"></FactionIconWidget>
-                          </v-avatar>
+                          <FactionIconWidget :name="factionAKey" size="14px"></FactionIconWidget>
                         </v-col>
                         <v-col>
                           <v-row>
@@ -901,9 +892,7 @@ const getZoneData = (zoneName: string) => {
 
                       <v-row class="d-flex justify-space-between align-center text-body-2">
                         <v-col cols="auto" class="font-weight-medium d-flex align-center ga-1" :style="{ color: factionBColor }">
-                          <v-avatar tile size="30">
-                            <FactionIconWidget :name="factionBKey"></FactionIconWidget>
-                          </v-avatar>
+                          <FactionIconWidget :name="factionBKey" size="30px"></FactionIconWidget>
                         </v-col>
                         <v-col>
                           <v-row>
@@ -998,9 +987,8 @@ const getZoneData = (zoneName: string) => {
                           <FactionNameWidget :id="factionAKey"></FactionNameWidget>
                           {{ t('stateOfWar.capturedCount', {count: cycle.totals?.[factionAKey] || 0}) }}
                         </p>
-                        <v-avatar tile size="30px" class="bg-black" border>
-                          <FactionIconWidget :name="factionAKey"></FactionIconWidget>
-                        </v-avatar>
+
+                        <FactionIconWidget :name="factionAKey" size="30px"></FactionIconWidget>
                       </v-col>
                       <v-col class="text-center opacity-30">
                         vs
@@ -1008,9 +996,8 @@ const getZoneData = (zoneName: string) => {
                       <v-col cols="auto"
                              class="text-subtitle-2 font-weight-bold d-flex align-center"
                              :style="{ color: factionBColor }">
-                        <v-avatar tile size="30px" class="bg-black" border>
-                          <FactionIconWidget :name="factionBKey"></FactionIconWidget>
-                        </v-avatar>
+                        <FactionIconWidget :name="factionBKey" size="30px"></FactionIconWidget>
+
                         <p class="ml-2">
                           <FactionNameWidget :id="factionBKey"></FactionNameWidget>
                           {{ t('stateOfWar.capturedCount', {count: cycle.totals?.[factionBKey] || 0}) }}

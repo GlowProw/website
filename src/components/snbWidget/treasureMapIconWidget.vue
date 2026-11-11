@@ -102,6 +102,7 @@ defineOptions({
           ref="targetElement"
           width="100%"
           v-bind="activatorProps"
+          variant="text"
           :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/codex/treasureMap/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
@@ -115,7 +116,7 @@ defineOptions({
           <v-img :src="raritysAssets[`treasureMap-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div class="d-flex align-center justify-center h-100">
+        <div class="d-flex align-center justify-center h-100 img-wrap pa-lg-10 pa-5">
           <v-img
               referrerpolicy="no-referrer"
               class="prohibit-drag"
@@ -142,6 +143,7 @@ defineOptions({
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/img";
 @import "@/assets/styles/demo-reel";
 
 // 覆盖新藏宝图位置
