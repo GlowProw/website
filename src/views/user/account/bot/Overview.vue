@@ -317,7 +317,7 @@ onMounted(onLoad)
 
 <template>
   <v-card variant="text" class="position-relative">
-    <v-overlay contained v-if="loading" class="text-center opacity-60 py-12">
+    <v-overlay contained :z-index="10" v-if="loading" class="text-center opacity-60 py-12">
       <Loading size="50"></Loading>
     </v-overlay>
 

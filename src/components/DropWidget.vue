@@ -222,7 +222,7 @@ defineOptions({
                     )
                   ">
                 <!-- 奖励图片容器 -->
-                <div class="reward-img-wrap rounded-lg mb-3 d-flex align-center justify-center overflow-hidden">
+                <div class="reward-img-wrap img-wrap rounded-lg mb-3 d-flex align-center justify-center overflow-hidden">
                   <v-img
                       :src="drop.benefits?.[0]?.imageAssetURL || bannerImage || '/favicon.ico'"
                       :alt="drop.benefits?.[0]?.name || drop.name"

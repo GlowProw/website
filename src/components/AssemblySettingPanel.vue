@@ -325,6 +325,7 @@ defineOptions({ name: 'AssemblySettingPanel' })
 
         <v-overlay :model-value="getSettingLoading"
                    contained
+                   :z-index="10"
                    disabled
                    class="align-center justify-center">
           <Loading size="30"></Loading>

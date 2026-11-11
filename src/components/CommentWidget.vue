@@ -77,12 +77,12 @@ const isValidTarget = computed(() => {
   const t = String(props.type || '').trim().toLowerCase();
   const id = String(props.id || '').trim().toLowerCase();
   return Boolean(
-    t &&
-    t !== 'null' &&
-    t !== 'undefined' &&
-    id &&
-    id !== 'null' &&
-    id !== 'undefined'
+      t &&
+      t !== 'null' &&
+      t !== 'undefined' &&
+      id &&
+      id !== 'null' &&
+      id !== 'undefined'
   );
 });
 
@@ -142,9 +142,9 @@ const tryLoadComment = () => {
  * 评论排序下拉选项
  */
 const sortOptions = computed<{ label: string; value: CommentSortType }[]>(() => [
-  { label: t('comment.sortLatest'), value: 'latest' },
-  { label: t('comment.sortComposite'), value: 'composite' },
-  { label: t('comment.sortHot'), value: 'hot' },
+  {label: t('comment.sortLatest'), value: 'latest'},
+  {label: t('comment.sortComposite'), value: 'composite'},
+  {label: t('comment.sortHot'), value: 'hot'},
 ]);
 
 /**
@@ -364,7 +364,7 @@ const loadPaginatedReplies = async (comment: Comment) => {
     comment.replyCount = total;
     comment.replyTotalPages = Math.ceil(total / 10);
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'CommentWidget' });
+    handleApiError(e, notice, t, {component: 'CommentWidget'});
   } finally {
     comment.repliesLoading = false;
   }
@@ -423,7 +423,7 @@ const onPushReply = async (comment: Comment) => {
       }
     }
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'CommentWidget' });
+    handleApiError(e, notice, t, {component: 'CommentWidget'});
   } finally {
     comment.replyPushLoading = false;
   }
@@ -451,7 +451,7 @@ const onEditReply = async (reply: CommentReply) => {
       }
     }
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'CommentWidget' });
+    handleApiError(e, notice, t, {component: 'CommentWidget'});
   } finally {
     reply.loading = false;
   }
@@ -480,7 +480,7 @@ const onDeleteReply = async (comment: Comment, reply: CommentReply) => {
 
     notice.success(t(`basic.tips.${d.code}`) || t('basic.delete'));
   } catch (e) {
-    handleApiError(e, notice, t, { component: 'CommentWidget' });
+    handleApiError(e, notice, t, {component: 'CommentWidget'});
   } finally {
     reply.deleteLoading = false;
   }
@@ -510,7 +510,7 @@ const onToggleLike = async (item: any, targetType: 'comment' | 'reply') => {
   } catch (e: any) {
     item.isLiked = originalIsLiked;
     item.likeCount = originalLikeCount;
-    handleApiError(e, notice, t, { component: 'CommentWidget' });
+    handleApiError(e, notice, t, {component: 'CommentWidget'});
   } finally {
     item.likeLoading = false;
   }
@@ -545,18 +545,18 @@ defineOptions({
       <v-row>
         <v-col>
            <Textarea v-model="content"
-                :disabled="!authStore.isLogin"
-                :maxlength="5000"
-                :min-height="'60px'"
-                :max-height="'100px'"
-                :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
-                :placeholder="!authStore.isLogin ? t('comment.loginRequired') : props.placeholder"></Textarea>
+                     :disabled="!authStore.isLogin"
+                     :maxlength="5000"
+                     :min-height="'60px'"
+                     :max-height="'100px'"
+                     :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
+                     :placeholder="!authStore.isLogin ? t('comment.loginRequired') : props.placeholder"></Textarea>
         </v-col>
         <v-col cols="auto" class="mb-2 d-flex align-end pt-13">
           <v-btn size="75" class="bg-amber text-black h-100 " :max-width="150" block
-                  :loading="commentPushLoading"
-                  :disabled="!authStore.isLogin || (!content || !isCaptchaValid)"
-                  @click="onPushComment">
+                 :loading="commentPushLoading"
+                 :disabled="!authStore.isLogin || (!content || !isCaptchaValid)"
+                 @click="onPushComment">
             {{ t('basic.button.submit') }}
           </v-btn>
         </v-col>
@@ -579,7 +579,7 @@ defineOptions({
     </v-alert>
 
     <!-- 评论筛选与统计头部 S -->
-    <AffixContainerView>
+    <AffixContainerView :offset-top="60">
       <v-card class="comment-header d-flex align-center justify-space-between px-3 py-2 flex-wrap ga-2">
         <div class="d-flex align-center ga-2">
           <span class="text-subtitle-1 font-weight-bold">{{ t('comment.title') }}</span>
@@ -622,29 +622,16 @@ defineOptions({
 
           <template v-slot:default>
             <div class="comment-card-item">
-              <v-row class="mb-1" no-gutters align="center">
+              <v-row class="mb-2" no-gutters align="center">
                 <v-col>
-                  <div class="font-weight-bold d-flex align-center ga-2">
-                    <UserAvatar :src="i.userAvatar" :size="32"></UserAvatar>
+                  <div class="text-h6 d-flex align-center ga-2">
+                    <UserAvatar :src="i.userAvatar" :size="45" class="rounded-lg"></UserAvatar>
                     <AccountCardWidget :id="i.userId">{{ i.username }}</AccountCardWidget>
                     <v-chip v-if="authStore.user?.userId == i.userId" size="x-small" color="amber" variant="tonal">{{ t('comment.me') }}</v-chip>
                   </div>
                 </v-col>
                 <v-col cols="auto" class="d-flex align-center ga-2" v-if="i.createdTime">
                   <TimeView :time="i.createdTime" relative></TimeView>
-                  <!-- 评论作者编辑/删除按钮：移动到顶部，桌面端悬停显示，移动端始终显示 -->
-                  <div v-if="authStore.isLogin && authStore.user?.userId == i.userId && !i.isEdit"
-                       class="comment-hover-actions d-flex align-center ga-1">
-                    <v-btn size="x-small" variant="text" prepend-icon="mdi-pencil-outline" @click="i.isEdit = true; i.editContent = i.content">
-                      {{ t('basic.button.edit') }}
-                    </v-btn>
-                    <v-btn size="x-small" variant="text" color="red" prepend-icon="mdi-delete-outline"
-                           :loading="i.deleteLoading"
-                           :title="t('basic.delete')"
-                           @click="onDeleteComment(i)">
-                      {{ t('basic.button.delete') }}
-                    </v-btn>
-                  </div>
                 </v-col>
               </v-row>
 
@@ -691,6 +678,20 @@ defineOptions({
                          @click="onToggleReplyInput(i)">
                     {{ t('comment.reply') }}
                   </v-btn>
+
+                  <div v-if="authStore.isLogin && authStore.user?.userId == i.userId && !i.isEdit"
+                       class="comment-hover-actions d-flex align-center ga-1">
+                    <v-btn size="small" variant="text" prepend-icon="mdi-pencil-outline" @click="i.isEdit = true; i.editContent = i.content">
+                      {{ t('basic.button.edit') }}
+                    </v-btn>
+
+                    <v-btn size="small" variant="text" color="red" prepend-icon="mdi-delete-outline"
+                           :loading="i.deleteLoading"
+                           :title="t('basic.delete')"
+                           @click="onDeleteComment(i)">
+                      {{ t('basic.button.delete') }}
+                    </v-btn>
+                  </div>
                 </div>
               </div>
               <!-- 操作栏 E -->
@@ -714,87 +715,102 @@ defineOptions({
               <!-- 嵌套回复输入框 E -->
 
               <!-- 嵌套回复展示列表 S -->
-              <div v-if="i.replyCount && i.replyCount > 0 && (((i.isExpandedAll ? i.paginatedReplies : i.previewReplies)?.length || 0) > 0 || i.repliesLoading)" class="replies-wrapper rounded-lg mt-3 px-3 py-1">
+              <v-list v-if="i.replyCount && i.replyCount > 0 && (((i.isExpandedAll ? i.paginatedReplies : i.previewReplies)?.length || 0) > 0 || i.repliesLoading)"
+                      class="replies-wrapper bg-transparent" density="comfortable">
                 <v-progress-linear v-if="i.repliesLoading" indeterminate color="amber" height="2" class="mb-2"></v-progress-linear>
 
                 <!-- 回复列表渲染（未展开所有时直接渲染前3条；展开所有时渲染分页列表） -->
-                <div v-for="(reply, rIndex) in (i.isExpandedAll ? (i.paginatedReplies || []) : (i.previewReplies || []))" :key="reply.id || rIndex" class="reply-item py-4">
-                  <div class="d-flex align-center justify-space-between mb-1">
-                    <div class="text-subtitle-2 font-weight-bold d-flex align-center ga-2">
-                      <UserAvatar :src="reply.userAvatar" :size="24"></UserAvatar>
-                      <AccountCardWidget :id="reply.userId">{{ reply.username }}</AccountCardWidget>
-                      <v-chip v-if="authStore.user?.userId == reply.userId" size="x-small" color="amber" variant="tonal">{{ t('comment.me') }}</v-chip>
-                    </div>
-                    <div class="d-flex align-center ga-2">
-                      <span class="text-subtitle-2"><TimeView v-if="reply.createdTime" :time="reply.createdTime" relative></TimeView></span>
-                      <!-- 回复作者操作：移动到顶部，桌面端悬停显示，移动端始终显示 -->
-                      <div v-if="authStore.isLogin && authStore.user?.userId == reply.userId && !reply.isEdit"
-                           class="reply-hover-actions d-flex align-center ga-1">
-                        <v-btn size="x-small" variant="text" prepend-icon="mdi-pencil-outline" @click="reply.isEdit = true; reply.editContent = reply.content">
-                          {{ t('basic.button.edit') }}
-                        </v-btn>
-                        <v-btn size="x-small" variant="text" color="red" prepend-icon="mdi-delete-outline"
-                               :loading="reply.deleteLoading"
-                               @click="onDeleteReply(i, reply)">
-                          {{ t('basic.button.delete') }}
-                        </v-btn>
-                      </div>
-                    </div>
-                  </div>
+                <template v-for="(reply, rIndex) in (i.isExpandedAll ? (i.paginatedReplies || []) : (i.previewReplies || []))" :key="reply.id || rIndex">
+                  <v-list-item class="reply-item py-3 px-2" :ripple="false">
+                    <template #prepend>
+                      <UserAvatar :src="reply.userAvatar" :size="45" class="mt-1 mr-3 rounded-lg"></UserAvatar>
+                    </template>
 
-                  <div class="reply-content">
-                    <Textarea v-if="!reply.isEdit" :model-value="reply.content" :readonly="true" :min-height="'40px'" :toolbar="[]"></Textarea>
-                    <div v-else class="mt-1">
-                      <Textarea v-model="reply.editContent" :min-height="'60px'" :maxlength="5000" :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"></Textarea>
-                      <div class="d-flex justify-end ga-2 mt-1">
-                        <v-btn size="small" variant="text" @click="reply.isEdit = false">{{ t('basic.button.cancel') }}</v-btn>
-                        <v-btn size="small" color="amber" class="text-black" :loading="reply.loading" :disabled="!reply.editContent" @click="onEditReply(reply)">{{ t('basic.button.save') }}</v-btn>
+                    <template #title>
+                      <div class="d-flex align-center justify-space-between mb-1">
+                        <div class="text-subtitle-2 font-weight-bold d-flex align-center ga-2">
+                          <AccountCardWidget :id="reply.userId">{{ reply.username }}</AccountCardWidget>
+                          <v-chip v-if="authStore.user?.userId == reply.userId" size="x-small" color="amber" variant="tonal">{{ t('comment.me') }}</v-chip>
+                        </div>
+                        <div class="text-caption text-medium-emphasis">
+                          <TimeView v-if="reply.createdTime" :time="reply.createdTime" relative></TimeView>
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </template>
 
-                  <div class="d-flex align-center justify-space-between mt-1">
-                    <div class="d-flex align-center ga-1">
-                      <!-- 回复点赞 -->
-                      <v-btn size="x-small" variant="text"
-                             :class="reply.isLiked ? 'text-red font-weight-bold' : 'text-medium-emphasis'"
-                             :prepend-icon="reply.isLiked ? 'mdi-heart' : 'mdi-heart-outline'"
-                             :loading="reply.likeLoading"
-                             @click="onToggleLike(reply, 'reply')">
-                        {{ reply.likeCount || 0 }}
-                      </v-btn>
-                    </div>
-                  </div>
-                </div>
+                    <template #default>
+                      <div class="reply-content">
+                        <Textarea v-if="!reply.isEdit" :model-value="reply.content" :readonly="true" :min-height="'40px'" :toolbar="[]"></Textarea>
+                        <div v-else class="mt-1">
+                          <Textarea v-model="reply.editContent" :min-height="'60px'" :maxlength="5000" :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"></Textarea>
+                          <div class="d-flex justify-end ga-2 mt-1">
+                            <v-btn size="small" variant="text" @click="reply.isEdit = false">{{ t('basic.button.cancel') }}</v-btn>
+                            <v-btn size="small" color="amber" class="text-black" :loading="reply.loading" :disabled="!reply.editContent" @click="onEditReply(reply)">{{ t('basic.button.save') }}</v-btn>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="d-flex align-center justify-space-between mt-2">
+                        <div class="d-flex align-center ga-1">
+                          <!-- 回复点赞 -->
+                          <v-btn size="small" variant="tonal"
+                                 :class="reply.isLiked ? 'text-red font-weight-bold' : 'text-medium-emphasis'"
+                                 :prepend-icon="reply.isLiked ? 'mdi-heart' : 'mdi-heart-outline'"
+                                 :loading="reply.likeLoading"
+                                 @click="onToggleLike(reply, 'reply')">
+                            {{ reply.likeCount || 0 }}
+                          </v-btn>
+
+                          <!-- 回复作者操作：桌面端悬停显示，移动端始终显示 -->
+                          <div v-if="authStore.isLogin && authStore.user?.userId == reply.userId && !reply.isEdit"
+                               class="reply-hover-actions d-flex align-center ga-1">
+                            <v-btn size="small" variant="text" prepend-icon="mdi-pencil-outline" @click="reply.isEdit = true; reply.editContent = reply.content">
+                              {{ t('basic.button.edit') }}
+                            </v-btn>
+                            <v-btn size="small" variant="text" color="red" prepend-icon="mdi-delete-outline"
+                                   :loading="reply.deleteLoading"
+                                   @click="onDeleteReply(i, reply)">
+                              {{ t('basic.button.delete') }}
+                            </v-btn>
+                          </div>
+                        </div>
+                      </div>
+                    </template>
+                  </v-list-item>
+
+                  <v-divider v-if="rIndex < (i.isExpandedAll ? (i.paginatedReplies || []) : (i.previewReplies || [])).length - 1"
+                             class="opacity-10 ml-16"></v-divider>
+                </template>
 
                 <!-- 大于3条时：尾部显示“展开所有”；展开后显示分页及“收起回复” -->
-                <div v-if="!i.isExpandedAll && i.replyCount > 3" class="d-flex align-center pt-1 pb-1">
+                <v-list-item v-if="!i.isExpandedAll && i.replyCount > 3" class="d-flex align-center pt-1 pb-1 px-2">
                   <v-btn size="small" variant="text" color="amber" density="compact" class="font-weight-medium px-1 text-caption"
                          prepend-icon="mdi-chevron-down"
                          :loading="i.repliesLoading"
                          @click="onExpandAllReplies(i)">
-                    {{ t('comment.expandAllReplies', { count: i.replyCount }) }}
+                    {{ t('comment.expandAllReplies', {count: i.replyCount}) }}
                   </v-btn>
-                </div>
+                </v-list-item>
 
-                <div v-else-if="i.isExpandedAll" class="d-flex align-center justify-space-between flex-wrap ga-2 pt-2 pb-1 border-t-sm border-opacity-25 mt-1">
-                  <v-pagination v-if="i.replyTotalPages && i.replyTotalPages > 1"
-                                v-model="i.replyPage"
-                                :length="i.replyTotalPages"
-                                density="compact"
-                                size="small"
-                                total-visible="5"
-                                @update:model-value="onReplyPageChange(i)"></v-pagination>
-                  <v-spacer v-else></v-spacer>
-                  <v-btn size="small" variant="text" color="medium-emphasis" density="compact" class="text-caption px-1"
-                         prepend-icon="mdi-chevron-up"
-                         @click="onCollapseAllReplies(i)">
-                    {{ t('comment.collapseReplies') }}
-                  </v-btn>
-                </div>
-              </div>
+                <v-list-item v-else-if="i.isExpandedAll" class="px-2 pt-2 border-t-sm border-opacity-10 mt-1">
+                  <div class="d-flex align-center justify-space-between flex-wrap ga-2 w-100 pb-1">
+                    <v-pagination v-if="i.replyTotalPages && i.replyTotalPages > 1"
+                                  v-model="i.replyPage"
+                                  :length="i.replyTotalPages"
+                                  density="compact"
+                                  size="small"
+                                  total-visible="5"
+                                  @update:model-value="onReplyPageChange(i)"></v-pagination>
+                    <v-spacer v-else></v-spacer>
+                    <v-btn size="small" variant="text" color="medium-emphasis" density="compact" class="text-caption px-1"
+                           prepend-icon="mdi-chevron-up"
+                           @click="onCollapseAllReplies(i)">
+                      {{ t('comment.collapseReplies') }}
+                    </v-btn>
+                  </div>
+                </v-list-item>
+              </v-list>
               <!-- 嵌套回复展示列表 E -->
-
             </div>
           </template>
         </v-timeline-item>
@@ -811,8 +827,7 @@ defineOptions({
 
 <style scoped lang="less">
 .replies-wrapper {
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.01);
 }
 
 .reply-item + .reply-item {

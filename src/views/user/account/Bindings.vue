@@ -403,7 +403,7 @@ defineOptions({
     </v-dialog>
     <!-- QQ机器人绑定 E -->
 
-    <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
+    <v-overlay :model-value="loading" contained :z-index="10" class="d-flex align-center justify-center">
       <Loading size="50"></Loading>
     </v-overlay>
   </div>

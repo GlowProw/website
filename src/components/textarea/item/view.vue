@@ -12,7 +12,7 @@ const items = Items
 </script>
 
 <template>
-  <node-view-wrapper :as="'span'" class="ultimate-span-box">
+  <node-view-wrapper :as="'span'" class="ultimate-span-box mx-1">
     <ItemSlotBase size="30px"
                   :is-auto-size="false"
                   :is-auto-margin="false"

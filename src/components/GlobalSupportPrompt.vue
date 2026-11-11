@@ -128,7 +128,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <v-dialog v-model="visible" max-width="480">
+  <v-dialog
+      v-model="visible"
+      max-width="480"
+      :z-index="3000">
     <v-card class="pa-2">
       <v-card-title class="text-h6 font-weight-bold">
         {{ t('basic.supportPrompt.title') }}

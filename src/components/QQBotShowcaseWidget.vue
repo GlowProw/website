@@ -50,27 +50,27 @@ defineOptions({
   <div class="qq-bot-showcase-widget">
     <HorizontalScrollList :forceDraggable="true" :showControls="true" :isIndicator="false">
       <v-card
-          border
           :width="size.width"
           :height="size.height"
           class="bg-black qq-bot-show-card"
+          rounded="lg"
           v-for="i in props.count"
           :key="i">
-        <v-img height="100%" :src="getUseImage(String(i))" draggable="false" @dragstart.prevent/>
+        <v-img height="100%" :src="getUseImage(String(i))" draggable="false" @dragstart.prevent class="img-wrap"/>
       </v-card>
     </HorizontalScrollList>
   </div>
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/img";
+
 .qq-bot-showcase-widget {
   width: 100%;
   position: relative;
 }
 
 .qq-bot-show-card {
-  border-radius: 8px;
-  overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
 

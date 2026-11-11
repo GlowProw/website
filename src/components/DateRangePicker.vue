@@ -16,7 +16,9 @@ const props = withDefaults(defineProps<DateRangePickerProps>(), {
   mode: 'date',
   allowModeSwitch: true,
   availableModes: () => ['date', 'month', 'year'],
+  allowFuture: true,
   disableFuture: false,
+  allowPast: true,
   disablePast: false,
   min: null,
   max: null,
@@ -60,6 +62,24 @@ const parseToDate = (val?: string | Date | number | null): Date | null => {
     const d = new Date(Number(str));
     return isNaN(d.getTime()) ? null : d;
   }
+  // 纯 YYYY-MM-DD 格式使用本地年月日解析，防止 UTC 解析后产生时区跨天偏移
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+    const [y, m, d] = str.split('-').map(Number);
+    const date = new Date(y, m - 1, d, 0, 0, 0, 0);
+    return isNaN(date.getTime()) ? null : date;
+  }
+  // 纯 YYYY-MM 格式
+  if (/^\d{4}-\d{2}$/.test(str)) {
+    const [y, m] = str.split('-').map(Number);
+    const date = new Date(y, m - 1, 1, 0, 0, 0, 0);
+    return isNaN(date.getTime()) ? null : date;
+  }
+  // 纯 YYYY 格式
+  if (/^\d{4}$/.test(str)) {
+    const y = Number(str);
+    const date = new Date(y, 0, 1, 0, 0, 0, 0);
+    return isNaN(date.getTime()) ? null : date;
+  }
   const d = new Date(str);
   return isNaN(d.getTime()) ? null : d;
 };
@@ -74,12 +94,21 @@ const currentYear = now.getFullYear();
 const currentMonth = now.getMonth() + 1;
 const todayStr = formatDateToYMD(now);
 
+// 是否禁用未来 / 过去时间
+const isFutureDisabled = computed(() => {
+  return props.allowFuture === false || props.disableFuture === true;
+});
+
+const isPastDisabled = computed(() => {
+  return props.allowPast === false || props.disablePast === true;
+});
+
 const effectiveMinDate = computed<Date | null>(() => {
   if (props.min) {
     const d = parseToDate(props.min);
     if (d) return d;
   }
-  if (props.disablePast) {
+  if (isPastDisabled.value) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today;
@@ -92,7 +121,7 @@ const effectiveMaxDate = computed<Date | null>(() => {
     const d = parseToDate(props.max);
     if (d) return d;
   }
-  if (props.disableFuture) {
+  if (isFutureDisabled.value) {
     const today = new Date();
     today.setHours(23, 59, 59, 999);
     return today;
@@ -123,9 +152,24 @@ const startDateStr = ref<string | null>(null);
 const endDateStr = ref<string | null>(null);
 const hoverDateStr = ref<string | null>(null);
 
+// 左右双月份面板初始年月（若禁用未来且桌面端显示双月，初始左侧展示上个月，右侧展示当月）
+const getInitialLeftYear = () => {
+  if (isFutureDisabled.value && !mobile.value) {
+    return currentMonth === 1 ? currentYear - 1 : currentYear;
+  }
+  return currentYear;
+};
+
+const getInitialLeftMonth = () => {
+  if (isFutureDisabled.value && !mobile.value) {
+    return currentMonth === 1 ? 12 : currentMonth - 1;
+  }
+  return currentMonth;
+};
+
 // 左右双月份面板年份与月份状态
-const leftYear = ref<number>(currentYear);
-const leftMonth = ref<number>(currentMonth);
+const leftYear = ref<number>(getInitialLeftYear());
+const leftMonth = ref<number>(getInitialLeftMonth());
 
 const rightYear = computed<number>(() => {
   return leftMonth.value === 12 ? leftYear.value + 1 : leftYear.value;
@@ -135,7 +179,63 @@ const rightMonth = computed<number>(() => {
   return leftMonth.value === 12 ? 1 : leftMonth.value + 1;
 });
 
+// 前进/后退导航禁用状态
+const isNextMonthDisabled = computed(() => {
+  if (!effectiveMaxDate.value) return false;
+  const maxYear = effectiveMaxDate.value.getFullYear();
+  const maxMonth = effectiveMaxDate.value.getMonth() + 1;
+  if (mobile.value) {
+    return leftYear.value > maxYear || (leftYear.value === maxYear && leftMonth.value >= maxMonth);
+  }
+  return rightYear.value > maxYear || (rightYear.value === maxYear && rightMonth.value >= maxMonth);
+});
+
+const isNextYearDisabled = computed(() => {
+  if (!effectiveMaxDate.value) return false;
+  const maxYear = effectiveMaxDate.value.getFullYear();
+  const maxMonth = effectiveMaxDate.value.getMonth() + 1;
+  if (mobile.value) {
+    return leftYear.value > maxYear - 1 || (leftYear.value === maxYear - 1 && leftMonth.value > maxMonth);
+  }
+  return rightYear.value > maxYear - 1 || (rightYear.value === maxYear - 1 && rightMonth.value > maxMonth);
+});
+
+const isPrevMonthDisabled = computed(() => {
+  if (!effectiveMinDate.value) return false;
+  const minYear = effectiveMinDate.value.getFullYear();
+  const minMonth = effectiveMinDate.value.getMonth() + 1;
+  return leftYear.value < minYear || (leftYear.value === minYear && leftMonth.value <= minMonth);
+});
+
+const isPrevYearDisabled = computed(() => {
+  if (!effectiveMinDate.value) return false;
+  const minYear = effectiveMinDate.value.getFullYear();
+  const minMonth = effectiveMinDate.value.getMonth() + 1;
+  return leftYear.value < minYear + 1 || (leftYear.value === minYear + 1 && leftMonth.value < minMonth);
+});
+
+const isNextMonthYearDisabled = computed(() => {
+  if (!effectiveMaxDate.value) return false;
+  return monthPickerYear.value >= effectiveMaxDate.value.getFullYear();
+});
+
+const isPrevMonthYearDisabled = computed(() => {
+  if (!effectiveMinDate.value) return false;
+  return monthPickerYear.value <= effectiveMinDate.value.getFullYear();
+});
+
+const isNextDecadeDisabled = computed(() => {
+  if (!effectiveMaxDate.value) return false;
+  return yearDecadeStart.value + 10 > effectiveMaxDate.value.getFullYear();
+});
+
+const isPrevDecadeDisabled = computed(() => {
+  if (!effectiveMinDate.value) return false;
+  return yearDecadeStart.value - 1 < effectiveMinDate.value.getFullYear();
+});
+
 const prevMonthNav = () => {
+  if (isPrevMonthDisabled.value) return;
   if (leftMonth.value === 1) {
     leftMonth.value = 12;
     leftYear.value--;
@@ -145,6 +245,7 @@ const prevMonthNav = () => {
 };
 
 const nextMonthNav = () => {
+  if (isNextMonthDisabled.value) return;
   if (leftMonth.value === 12) {
     leftMonth.value = 1;
     leftYear.value++;
@@ -154,20 +255,19 @@ const nextMonthNav = () => {
 };
 
 const prevYearNav = () => {
+  if (isPrevYearDisabled.value) return;
   leftYear.value--;
 };
 
 const nextYearNav = () => {
+  if (isNextYearDisabled.value) return;
   leftYear.value++;
 };
 
 // 星期表头列表
+const weekdayKeys = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] as const;
 const weekdayHeaders = computed(() => {
-  const isEn = String(locale.value).toLowerCase().startsWith('en');
-  if (isEn) {
-    return ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
-  }
-  return ['一', '二', '三', '四', '五', '六', '日'];
+  return weekdayKeys.map(key => t(`basic.time.weekdays.${key}`));
 });
 
 const buildMonthCells = (year: number, month: number): CalendarCell[] => {
@@ -309,19 +409,19 @@ const hoverMonthStr = ref<string | null>(null);
 const monthPickerYear = ref<number>(currentYear);
 
 const prevMonthYearNav = () => {
+  if (isPrevMonthYearDisabled.value) return;
   monthPickerYear.value--;
 };
 
 const nextMonthYearNav = () => {
+  if (isNextMonthYearDisabled.value) return;
   monthPickerYear.value++;
 };
 
 const monthsList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 const getMonthName = (m: number) => {
-  const isEn = String(locale.value).toLowerCase().startsWith('en');
-  const enMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return isEn ? enMonths[m - 1] : `${m}月`;
+  return t(`basic.time.months.${m}`);
 };
 
 const monthCells = computed<MonthCell[]>(() => {
@@ -411,10 +511,12 @@ const hoverYearNum = ref<number | null>(null);
 const yearDecadeStart = ref<number>(Math.floor(currentYear / 10) * 10);
 
 const prevDecadeNav = () => {
+  if (isPrevDecadeDisabled.value) return;
   yearDecadeStart.value -= 10;
 };
 
 const nextDecadeNav = () => {
+  if (isNextDecadeDisabled.value) return;
   yearDecadeStart.value += 10;
 };
 
@@ -528,9 +630,14 @@ const parseIncomingValue = () => {
     startMonthStr.value = `${sDate.getFullYear()}-${pad(sDate.getMonth() + 1)}`;
     startYearNum.value = sDate.getFullYear();
 
-    // 自动切到开始日期所在的年月面板
-    leftYear.value = sDate.getFullYear();
-    leftMonth.value = sDate.getMonth() + 1;
+    // 自动切到开始日期所在的年月面板（若禁用未来且位于当月，左侧显示上个月，避免右侧溢出到未来禁用月份）
+    if (isFutureDisabled.value && !mobile.value && sDate.getFullYear() === currentYear && (sDate.getMonth() + 1) === currentMonth) {
+      leftYear.value = currentMonth === 1 ? currentYear - 1 : currentYear;
+      leftMonth.value = currentMonth === 1 ? 12 : currentMonth - 1;
+    } else {
+      leftYear.value = sDate.getFullYear();
+      leftMonth.value = sDate.getMonth() + 1;
+    }
     monthPickerYear.value = sDate.getFullYear();
     yearDecadeStart.value = Math.floor(sDate.getFullYear() / 10) * 10;
   }
@@ -553,15 +660,29 @@ watch(() => props.mode, (newMode) => {
 
 // 校验选择的范围是否有效
 const isDateModeValid = computed(() => {
-  return !!startDateStr.value && !!endDateStr.value && startDateStr.value <= endDateStr.value;
+  if (!startDateStr.value || !endDateStr.value || startDateStr.value > endDateStr.value) return false;
+  if (effectiveMaxYMD.value && endDateStr.value > effectiveMaxYMD.value) return false;
+  if (effectiveMinYMD.value && startDateStr.value < effectiveMinYMD.value) return false;
+  return true;
 });
 
 const isMonthModeValid = computed(() => {
-  return !!startMonthStr.value && !!endMonthStr.value && startMonthStr.value <= endMonthStr.value;
+  if (!startMonthStr.value || !endMonthStr.value || startMonthStr.value > endMonthStr.value) return false;
+  if (effectiveMaxDate.value) {
+    const maxM = `${effectiveMaxDate.value.getFullYear()}-${pad(effectiveMaxDate.value.getMonth() + 1)}`;
+    if (endMonthStr.value > maxM) return false;
+  }
+  if (effectiveMinDate.value) {
+    const minM = `${effectiveMinDate.value.getFullYear()}-${pad(effectiveMinDate.value.getMonth() + 1)}`;
+    if (startMonthStr.value < minM) return false;
+  }
+  return true;
 });
 
 const isYearModeValid = computed(() => {
-  return startYearNum.value !== null && endYearNum.value !== null && startYearNum.value <= endYearNum.value;
+  if (startYearNum.value === null || endYearNum.value === null || startYearNum.value > endYearNum.value) return false;
+  if (startYearNum.value < minSelectableYear.value || endYearNum.value > maxSelectableYear.value) return false;
+  return true;
 });
 
 const isRangeValid = computed(() => {
@@ -591,8 +712,8 @@ const displayText = computed(() => {
 
 // 常用快捷区间选项
 const presets = computed<PresetOption[]>(() => {
-  const isFutureRestricted = props.disableFuture;
-  const isPastRestricted = props.disablePast;
+  const isFutureRestricted = isFutureDisabled.value;
+  const isPastRestricted = isPastDisabled.value;
 
   if (activeMode.value === 'date') {
     return [
@@ -826,10 +947,10 @@ const confirmSelection = () => {
 
   if (activeMode.value === 'date' && startDateStr.value && endDateStr.value) {
     if (props.valueFormat === 'iso') {
-      const s = new Date(startDateStr.value);
-      s.setHours(0, 0, 0, 0);
-      const e = new Date(endDateStr.value);
-      e.setHours(23, 59, 59, 999);
+      const [sy, sm, sd] = startDateStr.value.split('-').map(Number);
+      const [ey, em, ed] = endDateStr.value.split('-').map(Number);
+      const s = new Date(sy, sm - 1, sd, 0, 0, 0, 0);
+      const e = new Date(ey, em - 1, ed, 23, 59, 59, 999);
       startRes = s.toISOString();
       endRes = e.toISOString();
     } else {
@@ -904,60 +1025,57 @@ defineOptions({
         class="date-range-trigger-input"
     />
 
-    <v-dialog v-model="dialog" max-width="780px" persistent>
-      <v-card class="date-range-dialog-card bg-surface">
-        <!-- 弹窗标题与模式切换 -->
-        <v-card-title class="d-flex justify-space-between align-center px-4 py-3 border-b">
-          <div class="d-flex align-center ga-2">
-            <v-icon icon="mdi-calendar-clock" color="amber"></v-icon>
-            <span class="text-subtitle-1 font-weight-bold">
-              {{ dialogTitle || t('basic.time.dateRangePicker') }}
-            </span>
-          </div>
-
-          <!-- 模式切换开关 -->
-          <div v-if="allowModeSwitch" class="d-flex align-center ga-1">
-            <v-btn-toggle
-                v-model="activeMode"
-                mandatory
-                density="compact"
-                color="amber"
-                variant="outlined"
-                class="rounded-lg">
-              <v-btn
-                  v-if="availableModes.includes('date')"
-                  value="date"
-                  size="small"
-                  @click="setMode('date')">
-                <v-icon icon="mdi-calendar-today" size="14" class="mr-1"></v-icon>
-                {{ t('basic.time.modes.date') }}
-              </v-btn>
-              <v-btn
-                  v-if="availableModes.includes('month')"
-                  value="month"
-                  size="small"
-                  @click="setMode('month')">
-                <v-icon icon="mdi-calendar-month" size="14" class="mr-1"></v-icon>
-                {{ t('basic.time.modes.month') }}
-              </v-btn>
-              <v-btn
-                  v-if="availableModes.includes('year')"
-                  value="year"
-                  size="small"
-                  @click="setMode('year')">
-                <v-icon icon="mdi-calendar" size="14" class="mr-1"></v-icon>
-                {{ t('basic.time.modes.year') }}
-              </v-btn>
-            </v-btn-toggle>
-          </div>
-
-          <v-btn icon="mdi-close" variant="text" size="small" @click="dialog = false"></v-btn>
+    <v-dialog v-model="dialog" max-width="780px">
+      <v-card border class="date-range-dialog-card bg-surface pa-2">
+        <!-- 弹窗标题 -->
+        <v-card-title class="py-10 text-center bg-black rounded-lg position-relative">
+          <v-btn
+              icon="mdi-close"
+              variant="text"
+              size="small"
+              class="position-absolute"
+              style="top: 12px; right: 12px;"
+              @click="dialog = false"
+          />
+          <v-icon size="80">mdi-calendar-range</v-icon>
+          <p class="text-subtitle-1 font-weight-bold mt-2">
+            {{ dialogTitle || t('basic.time.dateRangePicker') }}
+          </p>
         </v-card-title>
+
+        <!-- 模式切换 Tab -->
+        <v-card-item v-if="allowModeSwitch" class="mx-n2 pa-0 mb-2">
+          <v-tabs
+              v-model="activeMode"
+              color="amber"
+              align-tabs="center"
+              class="border-b"
+              @update:model-value="setMode($event as DateRangePickerMode)">
+            <v-tab
+                v-if="availableModes.includes('date')"
+                value="date">
+              <v-icon icon="mdi-calendar-today" size="16" class="mr-1"></v-icon>
+              {{ t('basic.time.modes.date') }}
+            </v-tab>
+            <v-tab
+                v-if="availableModes.includes('month')"
+                value="month">
+              <v-icon icon="mdi-calendar-month" size="16" class="mr-1"></v-icon>
+              {{ t('basic.time.modes.month') }}
+            </v-tab>
+            <v-tab
+                v-if="availableModes.includes('year')"
+                value="year">
+              <v-icon icon="mdi-calendar" size="16" class="mr-1"></v-icon>
+              {{ t('basic.time.modes.year') }}
+            </v-tab>
+          </v-tabs>
+        </v-card-item>
 
         <v-card-text class="pa-4">
           <!-- 快捷时间预设 -->
           <div v-if="presets.length > 0" class="mb-4 d-flex align-center flex-wrap ga-2">
-            <v-chip
+                 <v-chip
                 v-for="p in presets"
                 :key="p.key"
                 size="small"
@@ -977,15 +1095,15 @@ defineOptions({
                 <!-- 左侧面板头部导航 -->
                 <div class="panel-header d-flex align-center justify-space-between px-2 py-1 mb-2">
                   <div class="d-flex align-center ga-1">
-                    <v-btn icon="mdi-chevron-double-left" variant="text" size="x-small" @click="prevYearNav"></v-btn>
-                    <v-btn icon="mdi-chevron-left" variant="text" size="x-small" @click="prevMonthNav"></v-btn>
+                    <v-btn icon="mdi-chevron-double-left" variant="text" size="x-small" :disabled="isPrevYearDisabled" @click="prevYearNav"></v-btn>
+                    <v-btn icon="mdi-chevron-left" variant="text" size="x-small" :disabled="isPrevMonthDisabled" @click="prevMonthNav"></v-btn>
                   </div>
                   <div class="font-weight-bold font-mono text-subtitle-2">
-                    {{ leftYear }}年 {{ leftMonth }}月
+                    {{ t('basic.time.yearMonthHeader', { year: leftYear, month: getMonthName(leftMonth) }) }}
                   </div>
                   <div class="d-flex align-center ga-1" v-if="mobile">
-                    <v-btn icon="mdi-chevron-right" variant="text" size="x-small" @click="nextMonthNav"></v-btn>
-                    <v-btn icon="mdi-chevron-double-right" variant="text" size="x-small" @click="nextYearNav"></v-btn>
+                    <v-btn icon="mdi-chevron-right" variant="text" size="x-small" :disabled="isNextMonthDisabled" @click="nextMonthNav"></v-btn>
+                    <v-btn icon="mdi-chevron-double-right" variant="text" size="x-small" :disabled="isNextYearDisabled" @click="nextYearNav"></v-btn>
                   </div>
                   <div v-else style="width: 52px;"></div>
                 </div>
@@ -1046,11 +1164,11 @@ defineOptions({
                 <div class="panel-header d-flex align-center justify-space-between px-2 py-1 mb-2">
                   <div style="width: 52px;"></div>
                   <div class="font-weight-bold font-mono text-subtitle-2">
-                    {{ rightYear }}年 {{ rightMonth }}月
+                    {{ t('basic.time.yearMonthHeader', { year: rightYear, month: getMonthName(rightMonth) }) }}
                   </div>
                   <div class="d-flex align-center ga-1">
-                    <v-btn icon="mdi-chevron-right" variant="text" size="x-small" @click="nextMonthNav"></v-btn>
-                    <v-btn icon="mdi-chevron-double-right" variant="text" size="x-small" @click="nextYearNav"></v-btn>
+                    <v-btn icon="mdi-chevron-right" variant="text" size="x-small" :disabled="isNextMonthDisabled" @click="nextMonthNav"></v-btn>
+                    <v-btn icon="mdi-chevron-double-right" variant="text" size="x-small" :disabled="isNextYearDisabled" @click="nextYearNav"></v-btn>
                   </div>
                 </div>
 
@@ -1109,9 +1227,9 @@ defineOptions({
           <!-- 年月月份范围网格 -->
           <div v-else-if="activeMode === 'month'" class="month-range-wrapper" @mouseleave="hoverMonthStr = null">
             <div class="panel-header d-flex align-center justify-space-between px-4 py-2 mb-3">
-              <v-btn icon="mdi-chevron-double-left" variant="text" size="small" @click="prevMonthYearNav"></v-btn>
-              <span class="font-weight-bold font-mono text-h6">{{ monthPickerYear }}年</span>
-              <v-btn icon="mdi-chevron-double-right" variant="text" size="small" @click="nextMonthYearNav"></v-btn>
+              <v-btn icon="mdi-chevron-double-left" variant="text" size="small" :disabled="isPrevMonthYearDisabled" @click="prevMonthYearNav"></v-btn>
+              <span class="font-weight-bold font-mono text-h6">{{ t('basic.time.yearHeader', { year: monthPickerYear }) }}</span>
+              <v-btn icon="mdi-chevron-double-right" variant="text" size="small" :disabled="isNextMonthYearDisabled" @click="nextMonthYearNav"></v-btn>
             </div>
 
             <div class="month-selection-grid">
@@ -1150,9 +1268,9 @@ defineOptions({
           <!-- 年份范围网格 -->
           <div v-else-if="activeMode === 'year'" class="year-range-wrapper" @mouseleave="hoverYearNum = null">
             <div class="panel-header d-flex align-center justify-space-between px-4 py-2 mb-3">
-              <v-btn icon="mdi-chevron-double-left" variant="text" size="small" @click="prevDecadeNav"></v-btn>
+              <v-btn icon="mdi-chevron-double-left" variant="text" size="small" :disabled="isPrevDecadeDisabled" @click="prevDecadeNav"></v-btn>
               <span class="font-weight-bold font-mono text-h6">{{ yearDecadeStart }} - {{ yearDecadeStart + 9 }}</span>
-              <v-btn icon="mdi-chevron-double-right" variant="text" size="small" @click="nextDecadeNav"></v-btn>
+              <v-btn icon="mdi-chevron-double-right" variant="text" size="small" :disabled="isNextDecadeDisabled" @click="nextDecadeNav"></v-btn>
             </div>
 
             <div class="year-selection-grid">
@@ -1196,10 +1314,10 @@ defineOptions({
               density="compact"
               variant="tonal"
               class="mt-3">
-            <span v-if="props.disableFuture && (endDateStr && endDateStr > todayStr)">
+            <span v-if="isFutureDisabled && ((endDateStr && endDateStr > todayStr) || (endMonthStr && effectiveMaxDate && endMonthStr > `${effectiveMaxDate.getFullYear()}-${pad(effectiveMaxDate.getMonth() + 1)}`) || (endYearNum !== null && endYearNum > currentYear))">
               {{ t('basic.time.futureDateError') }}
             </span>
-            <span v-else-if="props.disablePast && (startDateStr && startDateStr < todayStr)">
+            <span v-else-if="isPastDisabled && ((startDateStr && startDateStr < todayStr) || (startMonthStr && effectiveMinDate && startMonthStr < `${effectiveMinDate.getFullYear()}-${pad(effectiveMinDate.getMonth() + 1)}`) || (startYearNum !== null && startYearNum < currentYear))">
               {{ t('basic.time.pastDateError') }}
             </span>
             <span v-else>
@@ -1208,15 +1326,13 @@ defineOptions({
           </v-alert>
         </v-card-text>
 
-        <v-divider></v-divider>
-
         <!-- 底部操作按钮 -->
-        <v-card-actions class="pa-4">
+        <v-card-actions>
           <v-btn variant="text" color="grey" @click="resetSelection">
             {{ t('basic.button.reset') }}
           </v-btn>
           <v-spacer></v-spacer>
-          <v-btn variant="outlined" @click="dialog = false">
+          <v-btn variant="plain" @click="dialog = false">
             {{ t('basic.button.cancel') }}
           </v-btn>
           <v-btn
@@ -1258,13 +1374,6 @@ defineOptions({
     grid-template-columns: 1fr;
     gap: 12px;
   }
-}
-
-.month-panel {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 12px;
 }
 
 .calendar-weekdays-row {
@@ -1377,15 +1486,6 @@ defineOptions({
       font-weight: 600;
     }
   }
-}
-
-/* 月份与年份区间网格样式 */
-.month-range-wrapper,
-.year-range-wrapper {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 16px;
 }
 
 .month-selection-grid,

@@ -237,6 +237,7 @@ defineOptions({
           :eager="true"
           persistent
           no-click-animation
+          :z-index="6000"
           width="100%"
           max-width="100%"
           content-class="notice-dialog-fullwidth"
@@ -412,7 +413,7 @@ defineOptions({
   margin: 0 !important;
   max-width: 100vw !important;
   width: 100vw !important;
-  z-index: 99999 !important;
+  z-index: var(--z-toast, 6000) !important;
 }
 
 .notice-card {
@@ -449,7 +450,7 @@ defineOptions({
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 99999;
+  z-index: var(--z-toast, 6000);
 
   .notice-minimal-toast {
     position: relative;

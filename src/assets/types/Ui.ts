@@ -13,7 +13,9 @@ export interface DateRangePickerProps {
   mode?: DateRangePickerMode;
   allowModeSwitch?: boolean;
   availableModes?: DateRangePickerMode[];
+  allowFuture?: boolean;
   disableFuture?: boolean;
+  allowPast?: boolean;
   disablePast?: boolean;
   min?: string | Date | number | null;
   max?: string | Date | number | null;

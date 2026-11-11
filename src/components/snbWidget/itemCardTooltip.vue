@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import {computed, inject, onBeforeUnmount, provide, ref, useAttrs} from "vue";
+import {computed, inject, onBeforeUnmount, provide, ref, useAttrs, watch} from "vue";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
 
 /**
  * 图标提示卡片容器
- * 负责悬浮定位、进入卡片与移出后的延迟关闭，并兼容触屏长按查看
+ * 负责悬浮跟随定位、固定锁点交互、进入卡片与离开后的关闭处理，并兼容触屏长按查看
  */
 const props = withDefaults(defineProps<{
   // 关闭提示卡片的显示
@@ -25,17 +25,14 @@ const props = withDefaults(defineProps<{
   contentClass: "pa-0 bg-transparent",
 });
 
-// 悬停超过该时长后，鼠标移出不会立即关闭
-const HOLD_THRESHOLD = 3000;
-// 移出后许可的移动距离，超出即正常关闭
-const ESCAPE_DISTANCE = 100;
-// 触屏长按打开卡片
+// 触屏长按打开卡片时长
 const LONG_PRESS_DELAY = 500;
+// 指针在图标与卡片之间切换的缓冲时长（毫秒）
+const CLOSE_BUFFER_DELAY = 200;
 
 const {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
 
-// 根节点是 v-if/v-else 片段，Vue 无法自动继承属性；
-// 这里关闭自动继承，改由激活元素承接，避免外层透传属性时出现 Extraneous non-props attributes 警告
+// 根节点是 v-if/v-else 片段，Vue 无法自动继承属性，由激活元素承接
 const attrs = useAttrs();
 
 // 卡片内容内嵌的元素不再触发新的悬浮卡片，避免无限嵌套
@@ -48,69 +45,81 @@ provide("itemCardTooltipActive", true);
 const isDisabled = computed(() => props.disabled || nestedInCard);
 
 const open = ref(false);
+const isPinned = ref(false);
 const contentRef = ref<HTMLElement | null>(null);
 
-// 本次悬停开始时间，用于判断是否满足延迟关闭条件
-let hoverStartAt = 0;
-// 是否处于移出后等待鼠标进入卡片的保持状态
-let holdOpen = false;
-// 移出时的坐标，作为移动距离判定基准
-let leavePoint = {x: 0, y: 0};
-// 触屏长按计时器
+// 记录指针是否处在激活图标或提示卡片内部
+let isInsideActivator = false;
+let isInsideContent = false;
+let closeTimer: number | null = null;
+
+// 触屏长按计时器与状态
 let pressTimer: number | null = null;
-// 本次触屏是否由长按打开
 let pressOpened = false;
+
+/**
+ * 清除关闭延迟计时器
+ */
+const clearCloseTimer = () => {
+  if (closeTimer !== null) {
+    window.clearTimeout(closeTimer);
+    closeTimer = null;
+  }
+};
 
 /**
  * 停止长按计时
  */
 const clearPressTimer = () => {
-  if (pressTimer === null) return;
-  window.clearTimeout(pressTimer);
-  pressTimer = null;
+  if (pressTimer !== null) {
+    window.clearTimeout(pressTimer);
+    pressTimer = null;
+  }
 };
 
 /**
- * 关闭卡片并清理全部交互状态
+ * 关闭卡片并重置锁定及交互状态
  */
 const onClose = () => {
-  open.value = false;
-  holdOpen = false;
+  clearCloseTimer();
   clearPressTimer();
-  window.removeEventListener("pointermove", onGlobalPointerMove);
+  if (open.value) {
+    open.value = false;
+  }
+  isPinned.value = false;
+  isInsideActivator = false;
+  isInsideContent = false;
   document.removeEventListener("pointerdown", onDocumentPointerDown, true);
 };
 
+// 监听外层浮层开合状态，关闭时重置锁定与指针标记
+watch(open, (val) => {
+  if (!val) {
+    onClose();
+  }
+});
+
 /**
- * 进入移出保持状态，允许鼠标向卡片移动
- * @param x 移出位置横坐标
- * @param y 移出位置纵坐标
+ * 切换卡片固定锁定状态：锁定后坐标不再跟随鼠标移动，保持位置直至完全移出
  */
-const onHoldOpen = (x: number, y: number) => {
-  holdOpen = true;
-  leavePoint = {x, y};
-  window.addEventListener("pointermove", onGlobalPointerMove, {passive: true});
+const togglePin = () => {
+  isPinned.value = !isPinned.value;
 };
 
 /**
- * 全局指针移动：进入卡片则保持，超出一百像素则关闭
- * @param e 指针事件
+ * 外部设置锁定状态
+ * @param val 是否锁定
  */
-const onGlobalPointerMove = (e: PointerEvent) => {
-  const el = contentRef.value;
-  if (el) {
-    const rect = el.getBoundingClientRect();
-    const inside = e.clientX >= rect.left && e.clientX <= rect.right
-        && e.clientY >= rect.top && e.clientY <= rect.bottom;
-    if (inside) {
-      holdOpen = false;
-      return;
-    }
-  }
-  if (Math.hypot(e.clientX - leavePoint.x, e.clientY - leavePoint.y) > ESCAPE_DISTANCE) {
-    onClose();
-  }
+const setPinned = (val: boolean) => {
+  isPinned.value = val;
 };
+
+// 注入给子级 CardDetail 等组件，绑定固定快捷键与按钮
+provide("itemCardTooltipContext", {
+  isPinned,
+  togglePin,
+  setPinned,
+});
 
 /**
  * 触屏打开卡片后，点击卡片以外的区域即关闭
@@ -123,28 +132,67 @@ const onDocumentPointerDown = (e: PointerEvent) => {
 };
 
 /**
- * 指针进入图标：开始计时并展开卡片
+ * 检查指针离开状态：当指针完全离开图标与卡片后执行关闭
+ */
+const checkLeaveAndClose = () => {
+  clearCloseTimer();
+  closeTimer = window.setTimeout(() => {
+    if (!isInsideActivator && !isInsideContent) {
+      onClose();
+    }
+  }, CLOSE_BUFFER_DELAY);
+};
+
+/**
+ * 指针进入图标
  * @param e 指针事件
  */
 const onActivatorEnter = (e: PointerEvent) => {
   if (e.pointerType === "touch") return;
-  onMouseEnter(e as unknown as MouseEvent);
-  hoverStartAt = Date.now();
-  holdOpen = false;
+  clearCloseTimer();
+  isInsideActivator = true;
+  if (!isPinned.value) {
+    onMouseEnter(e as unknown as MouseEvent);
+  }
   open.value = true;
 };
 
 /**
- * 指针离开图标：悬停已满三秒则保持展开，否则立即关闭
+ * 指针在图标内部移动：锁定后保持位置固定，未锁定时跟随鼠标
+ * @param e 指针事件
+ */
+const onActivatorMove = (e: PointerEvent) => {
+  if (e.pointerType === "touch") return;
+  isInsideActivator = true;
+  if (!isPinned.value) {
+    onMouseMove(e as unknown as MouseEvent);
+  }
+};
+
+/**
+ * 指针离开图标
  * @param e 指针事件
  */
 const onActivatorLeave = (e: PointerEvent) => {
   if (e.pointerType === "touch") return;
-  if (open.value && Date.now() - hoverStartAt >= HOLD_THRESHOLD) {
-    onHoldOpen(e.clientX, e.clientY);
-    return;
-  }
-  onClose();
+  isInsideActivator = false;
+  checkLeaveAndClose();
+};
+
+/**
+ * 指针移入提示卡片内容区
+ */
+const onContentEnter = () => {
+  clearCloseTimer();
+  isInsideContent = true;
+};
+
+/**
+ * 指针移出提示卡片内容区
+ */
+const onContentLeave = () => {
+  isInsideContent = false;
+  checkLeaveAndClose();
 };
 
 /**
@@ -172,21 +220,6 @@ const onTouchEnd = (e: TouchEvent) => {
 };
 
 /**
- * 卡片内容被移入时结束等待状态
- */
-const onContentEnter = () => {
-  holdOpen = false;
-};
-
-/**
- * 卡片内容被移出时正常关闭
- */
-const onContentLeave = () => {
-  if (holdOpen) return;
-  onClose();
-};
-
-/**
  * 组装激活器属性：接管悬浮与触摸事件，由本组件统一控制开合
  * @param base Vuetify 提供的原始激活器属性
  */
@@ -198,12 +231,12 @@ const onBuildActivatorProps = (base: Record<string, any>): Record<string, any> =
   Object.assign(merged, {
     onPointerenter: onActivatorEnter,
     onPointerleave: onActivatorLeave,
-    onPointermove: onMouseMove,
+    onPointermove: onActivatorMove,
     onFocus: () => {
       open.value = true;
     },
     onBlur: () => {
-      if (!holdOpen) onClose();
+      checkLeaveAndClose();
     },
     onTouchstart: onTouchStart,
     onTouchend: onTouchEnd,
@@ -216,7 +249,7 @@ onBeforeUnmount(onClose);
 
 defineOptions({
   name: "ItemCardTooltip",
-  inheritAttrs: false
+  inheritAttrs: false,
 });
 </script>
 
@@ -227,6 +260,7 @@ defineOptions({
   <v-tooltip
       v-else
       v-model="open"
+      :z-index="2500"
       :eager="false"
       :offset="props.offset"
       scroll-strategy="close"

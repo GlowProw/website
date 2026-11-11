@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed} from "vue";
+import {computed, inject, type Ref} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRouter} from "vue-router";
 import {EmpireSkills} from "glow-prow-data";
@@ -24,6 +24,13 @@ const props = withDefaults(defineProps<{
 
 const {t} = useI18nUtils();
 const router = useRouter();
+
+// 注入外层提示框固定上下文
+const cardTooltipContext = inject<{
+  isPinned: Ref<boolean>;
+  togglePin: () => void;
+  setPinned: (val: boolean) => void;
+} | null>('itemCardTooltipContext', null);
 
 const skill = computed(() => EmpireSkills[props.id]
     || Object.values(EmpireSkills).find(item => item.id === props.id)
@@ -69,9 +76,17 @@ defineOptions({
 
     <v-divider v-if="isShowOpenDetail" opacity=".06"></v-divider>
 
-    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto" v-if="isShowOpenDetail">
+    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto d-flex align-center ga-2" v-if="isShowOpenDetail">
       <BtnWidget hotkey-action="openItemDetail" @action-complete="router.push(`/codex/empireSkill/${props.id}`)">
         {{ t('codex.empireSkills.lookDetail') }}
+      </BtnWidget>
+      <BtnWidget
+          v-if="cardTooltipContext"
+          hotkey-action="pinCardTooltip"
+          :color="cardTooltipContext.isPinned.value ? 'var(--main-color)' : undefined"
+          :icon="cardTooltipContext.isPinned.value ? 'mdi-pin-off-outline' : 'mdi-pin-outline'"
+          @action-complete="cardTooltipContext.togglePin">
+        {{ cardTooltipContext.isPinned.value ? t('codex.item.unpinCard') : t('codex.item.pinCard') }}
       </BtnWidget>
     </v-card-actions>
   </v-card>

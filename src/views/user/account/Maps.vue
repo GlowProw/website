@@ -918,7 +918,7 @@ defineOptions({
 
 <template>
   <div class="position-relative">
-    <v-overlay :model-value="collectionLoading" contained class="d-flex align-center justify-center">
+    <v-overlay :model-value="collectionLoading" contained :z-index="10" class="d-flex align-center justify-center">
       <Loading size="50"></Loading>
     </v-overlay>
 

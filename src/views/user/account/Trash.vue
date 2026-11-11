@@ -382,7 +382,7 @@ defineOptions({
         </AffixBoxHasTitleView>
         <!-- 回收站管理列表 E -->
 
-        <v-overlay :model-value="loading" contained class="d-flex align-center justify-center">
+        <v-overlay :model-value="loading" contained :z-index="10" class="d-flex align-center justify-center">
           <Loading size="50"></Loading>
         </v-overlay>
       </v-col>

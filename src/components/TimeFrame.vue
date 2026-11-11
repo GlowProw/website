@@ -2,7 +2,16 @@
 import DateRangePicker from './DateRangePicker.vue';
 import type {DateRangePickerProps} from '@/assets/types/Ui';
 
-const props = defineProps<DateRangePickerProps>();
+const props = withDefaults(defineProps<DateRangePickerProps>(), {
+  allowModeSwitch: true,
+  allowFuture: true,
+  disableFuture: false,
+  allowPast: true,
+  disablePast: false,
+  clearable: true,
+  disabled: false,
+  readonly: false,
+});
 const emit = defineEmits<{
   (e: 'update:modelValue', val: string | string[] | null): void;
   (e: 'change', val: any): void;

@@ -28,7 +28,7 @@ onMounted(() => {
   md.renderer.rules.image = function (tokens, idx, options, env, self) {
     let token = tokens[idx],
         src = token.attrs.find(i => i[0] == 'src')[1];
-    return `<div class="img"><img src="${convertPath(src, api.blogBaseUrl)}" alt="${token.content}" /></div>`;
+    return `<div class="img img-wrap"><img src="${convertPath(src, api.blogBaseUrl)}" alt="${token.content}" /></div>`;
   };
 
   // 滚动进可视范围才发起请求
@@ -124,7 +124,7 @@ const getVersionData = async () => {
         <div class="content" v-html="md.render(versionData.latestPosts[showVersionIndex].content || '')"></div>
       </template>
       <EmptyView v-else></EmptyView>
-      <v-overlay v-model="loading" class="d-flex justify-center align-center" contained>
+      <v-overlay v-model="loading" class="d-flex justify-center align-center" contained :z-index="10">
         <Loading size="80px"></Loading>
       </v-overlay>
     </div>

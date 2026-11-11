@@ -240,6 +240,7 @@ const useBaseAssembly = (idx: number) => {
             <v-overlay
                 :model-value="entry.loading"
                 contained
+                :z-index="10"
                 scrim
                 class="align-center justify-center rounded-lg">
               <Loading size="60"></Loading>

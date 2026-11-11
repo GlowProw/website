@@ -226,7 +226,7 @@ defineOptions({
 <style scoped>
 .map-ctx-menu {
   position: fixed;
-  z-index: 9999;
+  z-index: var(--z-dropdown, 200);
   user-select: none;
   pointer-events: all;
 

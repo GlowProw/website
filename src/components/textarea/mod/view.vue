@@ -10,7 +10,7 @@ const props = defineProps(nodeViewProps)
 </script>
 
 <template>
-  <node-view-wrapper :as="'span'" class="mod-span-box">
+  <node-view-wrapper :as="'span'" class="mod-span-box mx-1">
     <ItemSlotBase size="30px"
                   :is-auto-size="false"
                   :is-auto-margin="false"

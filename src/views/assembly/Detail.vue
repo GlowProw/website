@@ -267,15 +267,10 @@ const onPenPassword = () => {
         </v-container>
       </v-breadcrumbs>
 
-      <v-container class="pt-5">
-        <v-overlay
-            :model-value="assemblyLoading"
-            transition
-            contained
-            scrim
-            class="align-center justify-center">
+      <v-container class="pt-5 position-relative">
+        <div v-if="assemblyLoading" class="d-flex align-center justify-center py-16">
           <Loading size="120"></Loading>
-        </v-overlay>
+        </div>
 
         <div v-show="!assemblyLoading">
           <div class="pl-2">

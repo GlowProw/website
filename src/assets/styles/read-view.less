@@ -4,7 +4,11 @@
 
   cursor: auto;
 
-  h1, h2, h3, h4, h5 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5 {
     display: inline-flex;
     margin-bottom: 12px;
     opacity: 1;
@@ -21,7 +25,9 @@
     font-size: 16px !important;
   }
 
-  h3, h4, h5 {
+  h3,
+  h4,
+  h5 {
     font-size: 15px !important;
   }
 
@@ -89,15 +95,17 @@
   }
 
   .img {
-    border: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent) !important;
+    display: flex;
     min-height: 100px;
+    border-radius: 8px;
+    overflow: hidden;
 
     img {
       position: relative;
       width: 100%;
       min-width: 100%;
       max-width: 100%;
+      border-radius: inherit;
     }
   }
 }
-

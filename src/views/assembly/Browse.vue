@@ -62,7 +62,7 @@ let browsePagination = ref({
  * 监听配装数据加载完成，批量触发每个 AssemblyWidget 的载入
  **/
 watch(browseData, (newList: ResultData) => {
-  if (newList && newList.data.length > 0) {
+  if (newList && newList.data && newList.data.length > 0) {
     nextTick(() => {
       const processBatch = (index = 0) => {
         if (index >= newList.data.length) return;
@@ -93,6 +93,22 @@ onMounted(() => {
 })
 
 /**
+ * 搜索并重置回第一页
+ */
+const onSearch = () => {
+  browsePagination.value.page = 1;
+  getBrowseList();
+};
+
+/**
+ * 清除搜索关键字并重新查询
+ */
+const onClearSearch = () => {
+  browseFilter.value.data.keyword = '';
+  onSearch();
+};
+
+/**
  * 获取配装列表
  */
 const getBrowseList = async () => {
@@ -111,7 +127,7 @@ const getBrowseList = async () => {
           ...route.query,
           page,
           pageSize,
-          keyword,
+          keyword: keyword?.trim() || undefined,
           sortField,
           sortOrder,
           isHasPassword,
@@ -122,7 +138,11 @@ const getBrowseList = async () => {
         } as any),
         d = result.data;
 
-    browseData.value = d.data;
+    const resData = d?.data || d;
+    browseData.value = {
+      data: resData?.data || (Array.isArray(resData) ? resData : []),
+      pagination: resData?.pagination || null,
+    };
   } catch (e) {
     if (e instanceof ApiError) {
       const errContent = e.message || e.code;
@@ -182,8 +202,9 @@ const getBrowseList = async () => {
         <v-text-field variant="plain"
                       v-model="browseFilter.data.keyword"
                       clearable
-                      @keydown.enter="getBrowseList"
-                      @click:prepend="getBrowseList"
+                      @keydown.enter="onSearch"
+                      @click:prepend="onSearch"
+                      @click:clear="onClearSearch"
                       :placeholder="t('assembly.browse.search')">
           <template v-slot:prepend>
             <v-icon icon="mdi-magnify"></v-icon>
@@ -224,13 +245,13 @@ const getBrowseList = async () => {
               <v-col cols="12" sm="6" md="6" lg="12">
                 <div class="mb-4">
                   <p class="mb-2 ">{{ t('assembly.browse.createdTimeRange') }}</p>
-                  <TimeFrame v-model="browseFilter.data.createdStartAndEnd"></TimeFrame>
+                  <TimeFrame v-model="browseFilter.data.createdStartAndEnd" :allow-future="false" :allow-mode-switch="false"></TimeFrame>
                 </div>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="12">
                 <div class="mb-4">
                   <p class="mb-2 ">{{ t('assembly.browse.updatedTimeRange') }}</p>
-                  <TimeFrame v-model="browseFilter.data.updatedStartAndEnd"></TimeFrame>
+                  <TimeFrame v-model="browseFilter.data.updatedStartAndEnd" :allow-future="false"></TimeFrame>
                 </div>
               </v-col>
               <!--            <v-col cols="12" sm="6" md="6" lg="12">-->
@@ -238,7 +259,7 @@ const getBrowseList = async () => {
               <!--            </v-col>-->
             </v-row>
 
-            <v-btn block class="mt-2" @click="getBrowseList">
+            <v-btn block class="mt-2" @click="onSearch">
               {{ t('basic.button.submit') }}
             </v-btn>
 
@@ -252,19 +273,17 @@ const getBrowseList = async () => {
 
         <AdsWidget class="my-10" id="assembly-sidebar-browse"></AdsWidget>
       </v-col>
-      <v-col cols="12" md="9" lg="9" class="position-relative">
+      <v-col cols="12" md="9" lg="9" class="position-relative" style="min-height: 400px;">
         <AdsWidget class="mb-5" id="assembly-browse-up"></AdsWidget>
 
-        <v-row>
-          <template v-if="browseData.data.length > 0">
-            <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
-                   :key="i.uuid || index">
-              <AssemblyTempCard :item="i" />
-            </v-col>
-          </template>
+        <v-row v-if="browseData.data && browseData.data.length > 0">
+          <v-col cols="12" md="6" lg="6" v-for="(i, index) in browseData.data"
+                 :key="i.uuid || index">
+            <AssemblyTempCard :item="i" />
+          </v-col>
         </v-row>
 
-        <div class="w-100" v-if="!browseData.data && !browseLoading">
+        <div class="w-100 py-10" v-else-if="!browseLoading">
           <EmptyView></EmptyView>
         </div>
 
@@ -272,12 +291,14 @@ const getBrowseList = async () => {
                    contained
                    opacity="0"
                    :transition="false"
+                   :z-index="10"
                    v-model="browseLoading">
           <Loading size="100"></Loading>
         </v-overlay>
 
         <!-- 分页 S -->
-        <PaginationBar v-model:page="browsePagination.page"
+        <PaginationBar v-if="browseData.data && browseData.data.length > 0"
+                       v-model:page="browsePagination.page"
                        :pagination="browseData.pagination"
                        class="mt-8"
                        @change="getBrowseList" />

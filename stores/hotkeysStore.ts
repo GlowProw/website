@@ -90,6 +90,18 @@ const DEFAULT_HOTKEYS: HotkeyItem[] = [
     defaultMode: 'hold',
   },
   {
+    id: 'pinCardTooltip',
+    nameKey: 'setting.hotkeys.pinCardTooltip',
+    descriptionKey: 'setting.hotkeys.pinCardTooltipDesc',
+    category: 'codex',
+    categoryKey: 'setting.hotkeys.categoryCodex',
+    locations: ['codexCard', 'quest'],
+    defaultKey: 'c',
+    currentKey: 'c',
+    mode: 'press',
+    defaultMode: 'press',
+  },
+  {
     id: 'quickSearch',
     nameKey: 'setting.hotkeys.quickSearch',
     descriptionKey: 'setting.hotkeys.quickSearchDesc',

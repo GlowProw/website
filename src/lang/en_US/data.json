@@ -1043,7 +1043,32 @@
         "lastYear": "Last Year",
         "last3Years": "Last 3 Years",
         "last5Years": "Last 5 Years"
-      }
+      },
+      "weekdays": {
+        "mon": "Mo",
+        "tue": "Tu",
+        "wed": "We",
+        "thu": "Th",
+        "fri": "Fr",
+        "sat": "Sa",
+        "sun": "Su"
+      },
+      "months": {
+        "1": "Jan",
+        "2": "Feb",
+        "3": "Mar",
+        "4": "Apr",
+        "5": "May",
+        "6": "Jun",
+        "7": "Jul",
+        "8": "Aug",
+        "9": "Sep",
+        "10": "Oct",
+        "11": "Nov",
+        "12": "Dec"
+      },
+      "yearHeader": "{year}",
+      "yearMonthHeader": "{month} {year}"
     },
     "all": "All",
     "delete": "Delete",
@@ -2749,7 +2774,9 @@
       "effect": "Effect",
       "damageMitigation": "Damage Mitigation",
       "damageMitigationTip": "Provides damage reduction against specific elements; the higher the elemental resistance, the less damage you take from that element.",
-      "lookDetail": "View Item Details (Hold)"
+      "lookDetail": "View Item Details (Hold)",
+      "pinCard": "Pin",
+      "unpinCard": "Unpin"
     },
     "commoditie": {
       "title": "Commodity Details",
@@ -5044,6 +5071,8 @@
       "modeUpdated": "Switched to {mode} trigger",
       "openItemDetail": "Open Item Detail",
       "openItemDetailDesc": "Hold to open the details page of the current item",
+      "pinCardTooltip": "Pin Tooltip Card",
+      "pinCardTooltipDesc": "Lock or unlock tooltip card position",
       "quickArchiveDesc": "Hold to quickly save workshop draft",
       "quickConfirmDesc": "Confirm weapon modification / submission",
       "quickSearch": "Global Search",

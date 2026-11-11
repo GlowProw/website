@@ -197,7 +197,7 @@ defineExpose({
         </div>
       </div>
 
-      <v-overlay :model-value="assemblyLoading" contained opacity="1" class="d-flex justify-center align-center">
+      <v-overlay :model-value="assemblyLoading" contained :z-index="10" opacity="1" class="d-flex justify-center align-center">
         <Loading size="120"></Loading>
       </v-overlay>
     </v-card>

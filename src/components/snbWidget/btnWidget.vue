@@ -1,6 +1,7 @@
 <template>
   <v-row
-      class="action-button"
+      class="action-button ma-0"
+      align="center"
       :class="{ 'hotkey-disabled': !hotkeysStore.enabled }"
       @click="onRowClick"
       @mousedown="startAction($event, 'mouse')"
@@ -163,8 +164,8 @@ const startAction = (event: any, source: string) => {
   progress.value = 0
   startTime.value = Date.now()
 
-  // 仅键盘触发且明确配置为按压模式时直接完成，鼠标或触摸长按均进入蓄力
-  if (source === 'keyboard' && activeMode.value === 'press') {
+  // 配置为按压模式时直接完成动作，长按模式下进入蓄力计时
+  if (activeMode.value === 'press') {
     completeAction()
     return
   }
@@ -202,10 +203,13 @@ const completeAction = () => {
   isHolding.value = false
   progress.value = 100
 
+  // 按压模式直接执行，长按模式等待蓄力完成动画
+  const delay = activeMode.value === 'press' ? 0 : props.completeAnimationDuration
+
   setTimeout(() => {
     emit('action-complete')
     resetAction()
-  }, props.completeAnimationDuration)
+  }, delay)
 }
 
 /**
@@ -321,7 +325,16 @@ defineOptions({
   transition: all 0.3s ease;
   user-select: none;
   display: inline-flex;
+  align-items: center;
   cursor: pointer !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+.action-button + .action-button,
+:deep(.v-row + .action-button) {
+  margin-top: 0 !important;
 }
 
 .action-button.active {

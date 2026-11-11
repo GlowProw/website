@@ -1031,6 +1031,7 @@ usePageHotkeys({
       :model-value="assemblyLoading"
       transition
       scrim
+      :z-index="2000"
       class="align-center justify-center background-flavor">
     <Loading size="120"></Loading>
   </v-overlay>
@@ -1246,24 +1247,6 @@ usePageHotkeys({
         </v-col>
       </v-row>
     </v-form>
-
-    <AffixContainerView :offset-bottom="0">
-      <v-divider class="my-5"></v-divider>
-      <v-row align="center" justify="end" no-gutters>
-        <v-btn v-if="isEditModel" class="mr-3" @click="cancelAndBack(router, route)">
-          {{ t('basic.button.cancel') }}
-        </v-btn>
-        <v-btn
-            :color="`var(--main-color)`"
-            :disabled="!isAssemblyByUser || verificationWorkshop.required > 0"
-            :loading="submitLoading"
-            class="text-black"
-            variant="elevated"
-            @click="onSubmit">
-          {{ isEditModel ? t('basic.button.save') : t('basic.button.commit') }}
-        </v-btn>
-      </v-row>
-    </AffixContainerView>
   </v-container>
   <!-- 配装发布与设置 E -->
 

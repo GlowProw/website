@@ -481,7 +481,7 @@ defineExpose({
       </div>
       <!-- 底部授权与二维码 E -->
 
-      <v-overlay :model-value="loading" contained opacity="0.9" class="d-flex justify-center align-center">
+      <v-overlay :model-value="loading" contained :z-index="10" opacity="0.9" class="d-flex justify-center align-center">
         <Loading size="100"></Loading>
       </v-overlay>
     </v-card>

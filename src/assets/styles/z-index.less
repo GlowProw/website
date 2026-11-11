@@ -1,0 +1,66 @@
+/**
+ * 全局 Z-Index 分层约束规范
+ * 统一管理各层级堆叠上下文，避免散乱的数值冲突与层级越界
+ */
+
+:root {
+  /* 基础文档流与卡片内部修饰 */
+  --z-base: 0;
+  --z-badge: 1;
+  --z-inner-content: 2;
+
+  /* 局域容器内遮罩与局部操作控件 */
+  --z-local-overlay: 10;
+  --z-local-control: 20;
+  --z-local-panel: 30;
+  --z-local-toolbar: 40;
+
+  /* 页面吸顶固定条与滚动辅助部件 */
+  --z-affix: 110;
+
+  /* 网站顶部固定导航与侧边抽屉 */
+  --z-header: 1000;
+  --z-drawer: 1900;
+
+  /* 上下文菜单与浮动气泡 */
+  --z-dropdown: 1200;
+  --z-popover: 1300;
+
+  /* 业务模态弹窗与页面浮层 */
+  --z-dialog: 2000;
+
+  /* 图标悬浮详情卡片（必须高于抽屉与常规弹窗，保证抽屉与弹窗内图标悬浮卡片清晰可见） */
+  --z-card-tooltip: 2500;
+
+  /* 全局支持引导弹窗 */
+  --z-global-prompt: 3000;
+
+  /* 全局系统级应用预加载遮罩 */
+  --z-global-overlay: 5000;
+
+  /* 顶层消息提示与系统通知 */
+  --z-toast: 6000;
+
+  /* 路由跳转顶部线性进度条 */
+  --z-top-progress: 7000;
+}
+
+/* Less 变量映射 */
+@z-base: var(--z-base, 0);
+@z-badge: var(--z-badge, 1);
+@z-inner-content: var(--z-inner-content, 2);
+@z-local-overlay: var(--z-local-overlay, 10);
+@z-local-control: var(--z-local-control, 20);
+@z-local-panel: var(--z-local-panel, 30);
+@z-local-toolbar: var(--z-local-toolbar, 40);
+@z-affix: var(--z-affix, 110);
+@z-header: var(--z-header, 1000);
+@z-drawer: var(--z-drawer, 1900);
+@z-dropdown: var(--z-dropdown, 1200);
+@z-popover: var(--z-popover, 1300);
+@z-dialog: var(--z-dialog, 2000);
+@z-card-tooltip: var(--z-card-tooltip, 2500);
+@z-global-prompt: var(--z-global-prompt, 3000);
+@z-global-overlay: var(--z-global-overlay, 5000);
+@z-toast: var(--z-toast, 6000);
+@z-top-progress: var(--z-top-progress, 7000);

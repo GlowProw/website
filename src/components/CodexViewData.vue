@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {Cosmetics, EmpireSkills, Enemies, Items, MapLocations, Materials, Modifications, Npcs, Sets, Ships, TreasureMaps, Masterys, Quests} from "glow-prow-data";
+import {Cosmetics, EmpireSkills, Enemies, Items, MapLocations, Masterys, Materials, Modifications, Npcs, Quests, Sets, Ships, TreasureMaps} from "glow-prow-data";
 import {Commodities} from "glow-prow-data/src/entity/Commodities";
 import {Ultimates} from "glow-prow-data/src/entity/Ultimates";
 import {computed, onBeforeUnmount, onMounted, ref, useSlots, watch} from "vue";
@@ -1330,8 +1330,12 @@ defineOptions({
       <v-row class="list" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in data" :key="i.id" :width="size" variant="text">
           <div class="position-relative d-flex justify-center">
-            <ItemSlotBase :size="`${baseSize}px`" class="position-relative" :collect-id="i.id"
-                          :collect-type="collectKinds[i._typeStringName]">
+            <ItemSlotBase
+                class="position-relative"
+                :size="`${baseSize}px`"
+                :id="i.id"
+                :collect-id="i.id"
+                :collect-type="collectKinds[i._typeStringName]">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>
               <CommoditieIconWidget :id="i.id" v-if="i._typeStringName == 'Commodity'"></CommoditieIconWidget>
@@ -1386,7 +1390,10 @@ defineOptions({
       <v-row class="list" no-gutters :style="`--grid-min-width: ${size}px`">
         <v-card v-for="i in onProcessedData" :key="i.id" :width="size" variant="text">
           <div class="position-relative d-flex justify-center">
-            <ItemSlotBase :size="`${baseSize}px`" class="position-relative" :collect-id="i.id"
+            <ItemSlotBase class="position-relative"
+                          :size="`${baseSize}px`"
+                          :id="i.id"
+                          :collect-id="i.id"
                           :collect-type="collectKinds[i._typeStringName]">
               <ShipIconWidget :id="i.id" v-if="i._typeStringName == 'Ship'"></ShipIconWidget>
               <ItemIconWidget :id="i.id" v-if="i._typeStringName == 'Item'"></ItemIconWidget>

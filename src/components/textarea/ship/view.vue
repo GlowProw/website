@@ -9,7 +9,7 @@ const props = defineProps(nodeViewProps)
 </script>
 
 <template>
-  <NodeViewWrapper ref="shipRoot" as="span" class="ship-span-box">
+  <NodeViewWrapper ref="shipRoot" as="span" class="ship-span-box mx-1">
     <ItemSlotBase size="30px"
                   :is-auto-size="false"
                   :is-auto-margin="false"

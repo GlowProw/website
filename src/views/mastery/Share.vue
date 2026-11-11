@@ -418,9 +418,10 @@ const onBackDetail = () => {
   </v-container>
 
   <v-overlay :model-value="generatedLoading" persistent
+             :z-index="2000"
              class="blur-load d-flex align-center justify-center" opacity=".92">
     <v-card variant="text" class="text-center">
-      <Loading size="120" class="mb-5">></Loading>
+      <Loading size="120" class="mb-5"></Loading>
       <div class="text-h5 text-amber font-weight-bold" style="text-shadow: 0 2px 10px rgba(0,0,0,0.5)">
         {{ t('mastery.share.generating') }}
       </div>

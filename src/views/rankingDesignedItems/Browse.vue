@@ -62,6 +62,22 @@ onMounted(() => {
 });
 
 /**
+ * 搜索并重置回第一页
+ */
+const onSearch = () => {
+  browsePagination.value.page = 1;
+  getBrowseList();
+};
+
+/**
+ * 清除搜索关键字并重新查询
+ */
+const onClearSearch = () => {
+  browseFilter.value.data.keyword = "";
+  onSearch();
+};
+
+/**
  * 分页拉取天梯榜单数据列表
  */
 const getBrowseList = async () => {
@@ -166,8 +182,9 @@ defineOptions({
             variant="plain"
             v-model="browseFilter.data.keyword"
             clearable
-            @keydown.enter="getBrowseList"
-            @click:prepend="getBrowseList"
+            @keydown.enter="onSearch"
+            @click:prepend="onSearch"
+            @click:clear="onClearSearch"
             :placeholder="t('rankingDesignedItems.browse.searchPlaceholder')">
           <template v-slot:prepend>
             <v-icon icon="mdi-magnify"></v-icon>
@@ -209,18 +226,18 @@ defineOptions({
               <v-col cols="12" sm="6" md="6" lg="12">
                 <div class="mb-4">
                   <p class="mb-2">{{ t('assembly.browse.createdTimeRange') }}</p>
-                  <TimeFrame v-model="browseFilter.data.createdStartAndEnd"></TimeFrame>
+                  <TimeFrame v-model="browseFilter.data.createdStartAndEnd" :allow-future="false"></TimeFrame>
                 </div>
               </v-col>
               <v-col cols="12" sm="6" md="6" lg="12">
                 <div class="mb-4">
                   <p class="mb-2">{{ t('assembly.browse.updatedTimeRange') }}</p>
-                  <TimeFrame v-model="browseFilter.data.updatedStartAndEnd"></TimeFrame>
+                  <TimeFrame v-model="browseFilter.data.updatedStartAndEnd" :allow-future="false"></TimeFrame>
                 </div>
               </v-col>
             </v-row>
 
-            <v-btn block class="mt-2" @click="getBrowseList">
+            <v-btn block class="mt-2" @click="onSearch">
               {{ t('basic.button.submit') }}
             </v-btn>
 
@@ -236,23 +253,21 @@ defineOptions({
       <!-- 左侧天梯筛选 E -->
 
       <!-- 右侧列表卡片展示 S -->
-      <v-col cols="12" md="9" lg="9" class="position-relative">
+      <v-col cols="12" md="9" lg="9" class="position-relative" style="min-height: 400px;">
         <AdsWidget class="mb-5" id="ranking-browse-up"></AdsWidget>
 
-        <v-row>
-          <template v-if="browseData.data && browseData.data.length > 0">
-            <v-col
-                cols="12"
-                md="6"
-                lg="6"
-                v-for="(i, index) in browseData.data"
-                :key="i.uuid || index">
-              <RankingDesignedTempCard :item="i" />
-            </v-col>
-          </template>
+        <v-row v-if="browseData.data && browseData.data.length > 0">
+          <v-col
+              cols="12"
+              md="6"
+              lg="6"
+              v-for="(i, index) in browseData.data"
+              :key="i.uuid || index">
+            <RankingDesignedTempCard :item="i" />
+          </v-col>
         </v-row>
 
-        <div class="w-100" v-if="(!browseData.data || browseData.data.length === 0) && !browseLoading">
+        <div class="w-100 py-10" v-else-if="!browseLoading">
           <EmptyView></EmptyView>
         </div>
 
@@ -261,12 +276,14 @@ defineOptions({
             contained
             opacity="0"
             :transition="false"
+            :z-index="10"
             v-model="browseLoading">
           <Loading size="100"></Loading>
         </v-overlay>
 
         <!-- 分页 S -->
         <PaginationBar
+            v-if="browseData.data && browseData.data.length > 0"
             v-model:page="browsePagination.page"
             :pagination="browseData.pagination"
             class="mt-8"

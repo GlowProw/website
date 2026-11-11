@@ -59,35 +59,34 @@ defineOptions({
 </script>
 
 <template>
-  <div class="card-enlargement-flavor rounded-lg"
+  <div class="card-enlargement-flavor rounded-lg img-wrap"
        :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`"
        :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
+
     <slot></slot>
-    <CollectionToggle v-if="props.collectType && props.collectId"
-                      type="corner"
-                      :target-type="props.collectType"
-                      :target-id="props.collectId"></CollectionToggle>
-    <div v-if="wishlistMatch">
-      <div class="wishlist-badge">
-        <v-icon icon="mdi-thumb-up" class="text-amber" :size="iconSize"></v-icon>
-      </div>
+
+    <div class="item-slot-base-top-view py-1 px-1 d-flex" v-if="wishlistMatch || (props.collectType && props.collectId)">
+      <v-btn
+          v-if="wishlistMatch"
+          class="wishlist-badge pointer-events-none"
+          icon
+          size="x-small"
+          variant="text">
+        <v-icon size="14" icon="mdi-thumb-up" class="text-amber"></v-icon>
+      </v-btn>
+
+      <v-spacer class="pointer-events-none"></v-spacer>
+
+      <CollectionToggle v-if="props.collectType && props.collectId"
+                        type="corner"
+                        :target-type="props.collectType"
+                        :target-id="props.collectId"></CollectionToggle>
     </div>
   </div>
 </template>
 
 <style scoped lang="less">
-.wishlist-badge {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  z-index: 10;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: none;
-}
-
+@import "@/assets/styles/img";
 
 .item-base-slot {
   display: flex;
@@ -95,5 +94,13 @@ defineOptions({
   overflow: hidden;
   background-color: color-mix(in srgb, var(--main-color) 2%, #000 98%) !important;
   background-image: url("@/assets/images/item-slot-bg.png");
+}
+
+.item-slot-base-top-view {
+  position: absolute;
+  top: 0px;
+  right: 0;
+  left: 0px;
+  z-index: 10;
 }
 </style>

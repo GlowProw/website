@@ -347,7 +347,7 @@ defineOptions({
 .sd-root {
   position: fixed;
   inset: 0;
-  z-index: 1900;
+  z-index: var(--z-drawer, 1900);
 }
 
 .sd-overlay {

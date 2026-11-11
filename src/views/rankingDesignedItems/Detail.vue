@@ -347,15 +347,10 @@ onMounted(async () => {
         </v-breadcrumbs>
       </v-container>
 
-      <v-container class="pt-5">
-        <v-overlay
-            :model-value="loading"
-            transition
-            contained
-            scrim
-            class="align-center justify-center">
+      <v-container class="pt-5 position-relative">
+        <div v-if="loading" class="d-flex align-center justify-center py-16">
           <Loading size="120"></Loading>
-        </v-overlay>
+        </div>
 
         <div v-show="!loading">
           <div class="pl-2">

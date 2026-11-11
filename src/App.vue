@@ -60,7 +60,7 @@ const head = computed(() => {
   const siteName = t('name');
   const titleStr = route.meta.title ? t(route.meta.title as string) : '';
   const fullTitle = titleStr && titleStr !== siteName ? `${titleStr} | ${siteName}` : siteName;
-  const descStr = t('apps.meta.description') || '《碧海黑帆 (Skull and Bones)》全能游戏助手与全收集交互地图。';
+  const descStr = t('apps.meta.description');
   const keywordsStr = route.meta.keywords ? t(route.meta.keywords as string) : t('home.meta.keywords');
   const origin = getAppOrigin();
 
@@ -177,14 +177,14 @@ onMounted(async () => {
   document.addEventListener('visibilitychange', handleVisibilityChange);
   preloadStore.registerTask({
     id: 'site-assets',
-    phase: t('basic.preload.siteAssets') || '等待站点资源加载完成...',
+    phase: t('basic.preload.siteAssets'),
     run: async () => {
       await waitForSiteAssets();
     }
   });
   preloadStore.registerTask({
     id: 'remote-i18n',
-    phase: t('basic.preload.remoteI18n') || '从远程加载文本数据...',
+    phase: t('basic.preload.remoteI18n'),
     run: async () => {
       if (typeof window === 'undefined') return;
       await loadRemoteLangMessages(appStore.cdnLangSource, locale.value);
@@ -192,7 +192,7 @@ onMounted(async () => {
   });
   preloadStore.registerTask({
     id: 'remote-wishlist',
-    phase: t('basic.preload.remoteWishlist') || '检查并同步预设愿望清单...',
+    phase: t('basic.preload.remoteWishlist'),
     run: async () => {
       if (typeof window === 'undefined') return;
       await wishlistStore.syncPresetWishlists(locale.value);
@@ -264,15 +264,13 @@ const handleVisibilityChange = () => {
 </script>
 
 <template>
-  <!-- 页面加载进度条 S -->
   <v-progress-linear
       :active="isPageNavigating"
       indeterminate
       color="amber"
       height="3"
       class="position-fixed top-0 left-0"
-      style="z-index: 99999;" />
-  <!-- 页面加载进度条 E -->
+      style="z-index: var(--z-top-progress, 7000);" />
 
   <GlobalPreloadOverlay/>
   <GlobalSupportPrompt/>

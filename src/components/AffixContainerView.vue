@@ -78,12 +78,12 @@ defineOptions({ name: 'AffixContainerView' })
   box-sizing: border-box;
   scrollbar-width: thin;
 
-  // 关键兼容：当内部嵌套滚动容器时，自动隐藏外层原生滚动条并提供明确视口高度，解决嵌套冲突
+  // 关键兼容：当内部嵌套滚动容器时，自动隐藏外层原生滚动条并限制视口最大高度，内容不足时自适应高度
   &:has(.scroll-container) {
     overflow: hidden !important;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - var(--affix-offset-top, 80px) - 16px);
+    height: fit-content;
     max-height: calc(100vh - var(--affix-offset-top, 80px) - 16px);
   }
 

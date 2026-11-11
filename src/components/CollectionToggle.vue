@@ -62,6 +62,7 @@ const onToggle = async () => {
 }
 
 onMounted(() => collectionStore.onLoadAccount())
+
 watch(() => [props.targetType, props.targetId], () => collectionStore.onLoadAccount())
 </script>
 
@@ -101,11 +102,4 @@ watch(() => [props.targetType, props.targetId], () => collectionStore.onLoadAcco
 </template>
 
 <style scoped lang="less">
-.collection-toggle-corner {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 12;
-  line-height: 1;
-}
 </style>

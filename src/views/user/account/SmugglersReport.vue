@@ -1556,7 +1556,7 @@ defineOptions({
         </AffixBoxHasTitleView>
         <!-- 周报规则与指南卡片 E -->
 
-        <v-overlay :model-value="checkPermissionLoading || smugglersReportListLoading" contained class="d-flex align-center justify-center">
+        <v-overlay :model-value="checkPermissionLoading || smugglersReportListLoading" contained :z-index="10" class="d-flex align-center justify-center">
           <Loading size="50"></Loading>
         </v-overlay>
       </v-col>

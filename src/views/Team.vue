@@ -710,7 +710,7 @@ usePageHotkeys({
       <AdsWidget id="none"></AdsWidget>
 
       <v-row>
-        <v-col cols="12" lg="4">
+        <v-col cols="12" lg="3">
           <AffixBoxHasTitleView>
             <template v-slot:title>{{ t('teamUp.filter.title') }}</template>
 
@@ -737,7 +737,7 @@ usePageHotkeys({
           </AffixBoxHasTitleView>
         </v-col>
 
-        <v-col cols="12" lg="8" class="fill-height">
+        <v-col cols="12" lg="9" class="fill-height">
           <template v-if="teams.length > 0">
             <v-list class="bg-transparent">
               <v-infinite-scroll :items="teams"

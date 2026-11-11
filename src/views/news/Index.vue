@@ -1,8 +1,6 @@
 <script setup lang="ts">
 /**
  * 新闻资讯页面
- * 参照 /drop 页面规范设计，提供顶部 Silk 横幅、统计指标、固定吸附工具栏（平台过滤与防抖搜索）
- * 内容流采用多列瀑布流（Masonry）：>=lg 4列，md 3列，<md 1列，支持大图预览、内容一键复制与分页浏览
  */
 import {computed, onMounted, ref, watch} from 'vue';
 import {useRoute, useRouter} from 'vue-router';
@@ -502,16 +500,14 @@ onMounted(() => {
                         </template>
                         <v-hover v-else v-slot="{ isHovering, props }">
                           <v-card
-                              border
                               v-bind="props"
                               variant="tonal"
-                              class="media-preview-card rounded-lg overflow-hidden cursor-pointer"
-                              @click="onPreviewImage(url)">
+                              class="media-preview-card rounded-lg overflow-hidden cursor-pointer">
                             <v-img
                                 :src="url"
                                 max-height="220"
                                 cover
-                                class="bg-grey-darken-4">
+                                class="bg-grey-darken-4 img-wrap">
                               <template v-slot:placeholder>
                                 <div class="d-flex align-center justify-center fill-height">
                                   <v-progress-circular indeterminate color="primary" size="20"></v-progress-circular>
@@ -589,6 +585,8 @@ onMounted(() => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/img";
+
 .news-page-root {
   .news-card {
     cursor: pointer;
@@ -617,9 +615,6 @@ onMounted(() => {
     }
   }
 
-  .media-preview-card {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-  }
 
   .news-masonry {
     column-count: 4;

@@ -252,10 +252,9 @@ watch(() => [props.modelValue, props.newsItem, props.newsId], ([visible, item, i
                 </template>
                 <v-hover v-else v-slot="{ isHovering, props }">
                   <v-card
-                      border
                       v-bind="props"
                       variant="tonal"
-                      class="media-item-card rounded-lg overflow-hidden cursor-pointer"
+                      class="media-item-card rounded-lg overflow-hidden cursor-pointer img-wrap"
                       @click="onPreviewImage(url)">
                     <v-img
                         :src="url"
@@ -334,6 +333,8 @@ watch(() => [props.modelValue, props.newsItem, props.newsId], ([visible, item, i
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/img";
+
 .news-detail-dialog {
   border-color: rgba(255, 255, 255, 0.12) !important;
 
@@ -368,9 +369,6 @@ watch(() => [props.modelValue, props.newsItem, props.newsId], ([visible, item, i
     }
   }
 
-  .media-item-card {
-    border-color: rgba(255, 255, 255, 0.1) !important;
-  }
 }
 </style>
 

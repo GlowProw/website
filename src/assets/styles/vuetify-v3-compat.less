@@ -1,47 +1,34 @@
 /**
- * Vuetify 3 样式兼容层（完全覆盖 Vuetify 4.x 的破坏性视觉变化，恢复 3.0 质感）
+ * Vuetify 样式兼容与外观定制
+ * 统一组件默认圆角、主题滤镜、激活对比度与局域浮层层级
  */
 
-/* ==========================================================================
-   1. 网格系统（Grid）破坏性重置
-   ========================================================================== */
-
-/* ==========================================================================
-   2. 卡片与表面（Cards & Sheets）恢复 3.0
-   ========================================================================== */
 .v-card,
 .v-sheet {
-  /* 消除 MD3 在深色模式下强制叠加的 surface-tint（紫色/有色滤镜） */
+  /* 移除深色模式下表面着色滤镜 */
   --v-card-surface-tint: transparent !important;
   --v-sheet-surface-tint: transparent !important;
   --v-theme-surface-tint: transparent !important;
 
-  /* 恢复 3.0 的经典 4px 紧凑圆角（除非显式指定 rounded-*） */
+  /* 统一卡片与表面组件的基础圆角 */
   &:not([class*="rounded-"]) {
     border-radius: 4px;
   }
 }
 
-// Vuetify 卡片默认 overflow: hidden 会让内部吸附标题的 sticky 失效，包含吸附标题的卡片需要放开裁剪
+// 包含吸附标题的卡片放开溢出裁剪，保证 sticky 正常吸附
 .v-card:has(.nail-widget) {
   overflow: visible;
 }
 
-/* ==========================================================================
-   3. 对话框（Dialogs）恢复 3.0
-   ========================================================================== */
-.v-dialog>.v-overlay__content>.v-card {
-
-  /* 消除 MD3 夸张的 28px 圆角，恢复 3.0 优雅的 8px 圆角 */
+.v-dialog > .v-overlay__content > .v-card {
+  /* 统一对话框卡片圆角 */
   &:not([class*="rounded-"]) {
     border-radius: 8px !important;
   }
 }
 
-/* ==========================================================================
-   4. 列表与导航（List & Navigation）高亮对比度恢复
-   ========================================================================== */
-/* 当列表项处于激活态且为浅色背景（如 amber、primary）时，文字和图标必须是纯黑色 */
+/* 浅色高亮背景下的列表项统一文字与图标为深色，确保对比度 */
 .v-list-item--active,
 .v-list-item.v-list-item--active {
 
@@ -63,17 +50,14 @@
   }
 }
 
-/* 恢复 3.0 的适中列表项紧凑度，防止 4.0 膨胀过高 */
+/* 紧凑列表项行高与内边距调整 */
 .v-list--density-compact .v-list-item {
   min-height: 32px !important;
   padding-top: 4px !important;
   padding-bottom: 4px !important;
 }
 
-/* ==========================================================================
-   5. 开关控件（Switch）紧凑化恢复 3.0
-   ========================================================================== */
-/* 抑制 MD3 巨型滑块与过粗轨道，恢复 3.0 适度大小 */
+/* 开关控件轨道透明度与圆角调整 */
 .v-switch {
   .v-switch__track {
     opacity: 0.6;
@@ -84,19 +68,16 @@
   }
 }
 
-/* ==========================================================================
-   6. 按钮与标签（Buttons & Chips）细节恢复
-   ========================================================================== */
 .v-btn {
-  /* 保证 3.0 标准字重与字符间距 */
+  /* 统一按钮字符间距 */
   letter-spacing: 0.0892857143em;
 
-  /* 消除 4.0 过于沉重的 elevation 突变 */
+  /* 默认扁平风格，显式声明 elevation 时保留阴影 */
   &:not([class*="elevation-"]) {
     box-shadow: none;
   }
 
-  /* 4.0 移除了反色计算，带有 bg-amber 的按钮一律强制黑字与黑色图标 */
+  /* 主题黄色与主色按钮强制黑字与黑色图标 */
   &.bg-amber,
   &.bg-primary {
     color: #000000 !important;
@@ -109,6 +90,33 @@
 }
 
 .v-chip {
-  /* 恢复 3.0 紧凑边距 */
+  /* 标签字重微调 */
   font-weight: 500;
+}
+
+/* 动作按钮重置网格行外边距，防止并列按钮触发 .v-row + .v-row 导致垂直错位偏下 */
+.v-row.action-button {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  flex: 0 0 auto !important;
+
+  & + .v-row.action-button,
+  & + .action-button {
+    margin-top: 0 !important;
+  }
+}
+
+/* 包含式局部遮罩约束在局域层级，杜绝穿透全局提示与系统预加载层 */
+.v-overlay.v-overlay--contained {
+  z-index: var(--z-local-overlay, 10) !important;
+
+  .v-overlay__scrim,
+  .v-overlay__content {
+    z-index: var(--z-local-overlay, 10) !important;
+  }
+}
+
+/* 图标悬浮提示卡片必须高于侧边滑动抽屉与业务弹窗，避免在抽屉内查看图标时被遮挡 */
+.v-overlay.item-card {
+  z-index: var(--z-card-tooltip, 2500) !important;
 }

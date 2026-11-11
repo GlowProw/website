@@ -322,15 +322,25 @@ onUnmounted(() => {
                     </div>
 
                     <!-- 卡片视觉封面或纯文本摘要展示 -->
-                    <div class="card-body-preview my-3 d-flex align-center justify-center overflow-hidden rounded">
+                    <div class="card-body-preview my-3 d-flex align-center justify-center overflow-hidden rounded img-wrap">
                       <v-img
                           v-if="getFirstImageUrl(item.mediaUrl || (item as any).media_url)"
                           :src="getFirstImageUrl(item.mediaUrl || (item as any).media_url)"
-                          height="150px"
+                          height="100%"
                           cover
-                          class="rounded bg-black w-100">
+                          class="bg-black w-100">
+                        <template v-slot:placeholder>
+                          <div class="d-flex align-center justify-center fill-height w-100 bg-black">
+                            <Loading size="30"></Loading>
+                          </div>
+                        </template>
+                        <template v-slot:error>
+                          <div class="d-flex flex-column align-center justify-center fill-height w-100 text-center bg-black">
+                            <v-icon icon="mdi-alert-circle-outline" color="error" size="36"></v-icon>
+                          </div>
+                        </template>
                       </v-img>
-                      <p v-else class="text-caption text-white opacity-80 line-clamp-2 mb-0 px-1 text-start">
+                      <p v-else class="text-white opacity-60 line-clamp-4 mb-0 px-6 text-start">
                         {{ getNewsSnippet(item) }}
                       </p>
                     </div>
@@ -361,6 +371,8 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/img";
+
 .news-carousel-widget {
   max-width: 100%;
 
@@ -398,12 +410,33 @@ onUnmounted(() => {
     }
   }
 
+  .carousel-body {
+    :deep(.v-row) {
+      align-items: stretch;
+    }
+
+    :deep(.v-col) {
+      display: flex;
+    }
+  }
+
   .news-overview-item {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
     text-decoration: none;
     color: inherit;
 
+    .card-enlargement-flavor {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+    }
+
     .card {
+      flex: 1 1 auto;
+      height: 100%;
       background-size: calc(100% - 12px) calc(100% - 8px);
       background-position: center;
       transition: background-color 0.25s ease, transform 0.25s ease;
@@ -413,9 +446,17 @@ onUnmounted(() => {
       background-color: var(--main-color, #e5a93c);
     }
 
+    .card-body-preview {
+      flex: 1 1 auto;
+      height: 150px;
+      min-height: 150px;
+      width: 100%;
+    }
+
     .name {
       color: #fff;
       transition: color 0.2s ease;
+      flex-shrink: 0;
     }
 
     &:hover .name {

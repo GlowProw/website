@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, type Ref, ref, watch} from "vue";
+import {computed, inject, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRouter} from "vue-router";
 import {Item, Items} from "glow-prow-data/src/entity/Items";
@@ -43,6 +43,13 @@ const {t} = useI18nUtils()
 const router = useRouter()
 const cdnStore = useCDNAssetsServiceStore()
 const wishlistStore = useWishlistStore()
+
+// 注入外层提示框固定上下文
+const cardTooltipContext = inject<{
+  isPinned: Ref<boolean>;
+  togglePin: () => void;
+  setPinned: (val: boolean) => void;
+} | null>('itemCardTooltipContext', null);
 
 const rarityColorConfig = rarity.color
 const items = Items
@@ -224,7 +231,7 @@ defineOptions({
           <ItemContentWidget :data="i" :size="40" :isOpenNewWindow="true" :isShowTitle="false" :isShowTooltip="false" :isCenter="false"></ItemContentWidget>
         </v-row>
       </template>
-      <v-expansion-panels class="mt-5" v-model="itemsCardData.panel" :multiple="isWidget">
+      <v-expansion-panels flat class="mt-5" v-model="itemsCardData.panel" :multiple="isWidget" static eager>
         <v-expansion-panel
             class="bg-transparent"
             color="transparent"
@@ -287,9 +294,17 @@ defineOptions({
       </v-expansion-panels>
     </div>
     <v-divider v-if="isShowOpenDetail" opacity=".06"></v-divider>
-    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto" v-if="isShowOpenDetail">
+    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto d-flex align-center ga-2" v-if="isShowOpenDetail">
       <BtnWidget hotkey-action="openItemDetail" @action-complete="router.push(`/codex/item/${i.id}`)">
         {{ t('codex.item.lookDetail') }}
+      </BtnWidget>
+      <BtnWidget
+          v-if="cardTooltipContext"
+          hotkey-action="pinCardTooltip"
+          :color="cardTooltipContext.isPinned.value ? 'var(--main-color)' : undefined"
+          :icon="cardTooltipContext.isPinned.value ? 'mdi-pin-off-outline' : 'mdi-pin-outline'"
+          @action-complete="cardTooltipContext.togglePin">
+        {{ cardTooltipContext.isPinned.value ? t('codex.item.unpinCard') : t('codex.item.pinCard') }}
       </BtnWidget>
     </v-card-actions>
   </v-card>

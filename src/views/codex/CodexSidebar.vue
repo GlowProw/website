@@ -21,6 +21,12 @@ watch(() => mobile.value, () => {
   isCollapsed.value = false
 })
 
+watch(() => route.fullPath, () => {
+  if (mobile.value) {
+    isCollapsed.value = true
+  }
+})
+
 defineOptions({
   name: "CodexSidebar"
 })
@@ -73,7 +79,8 @@ defineOptions({
 <style scoped lang="less">
 .codex-sidebar-container {
   overflow: hidden;
-  height: calc(100vh - 70px);
+  height: auto;
+  max-height: calc(100vh - 70px);
   padding-bottom: 10px;
 
   .collapse-header {

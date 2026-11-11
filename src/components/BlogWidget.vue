@@ -30,7 +30,7 @@ onMounted(() => {
     const token = tokens[idx],
         src = token.attrs.find(i => i[0] == 'src')[1];
     token.attrJoin('class', 'border');
-    return `<div class="img"><img src="${convertPath(src, api.blogBaseUrl)}" alt="${token.content}" /></div>`;
+    return `<div class="img img-wrap"><img src="${convertPath(src, api.blogBaseUrl)}" alt="${token.content}" /></div>`;
   };
 
   md.renderer.rules.link_open = function (tokens, idx) {
@@ -191,7 +191,7 @@ const onPage = (type) => {
         <div class="content" v-html="md.render(blogData.latestPosts[showBlogIndex].content || '')"></div>
       </template>
       <EmptyView v-else></EmptyView>
-      <v-overlay v-model="loading" class="d-flex justify-center align-center" contained>
+      <v-overlay v-model="loading" class="d-flex justify-center align-center" contained :z-index="10">
         <Loading size="80px"></Loading>
       </v-overlay>
     </div>
@@ -200,6 +200,7 @@ const onPage = (type) => {
 
 <style scoped lang="less">
 @import "@/assets/styles/read-view";
+@import "@/assets/styles/img";
 @import "@/assets/styles/link";
 
 .page-btn {

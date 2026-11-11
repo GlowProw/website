@@ -1,7 +1,7 @@
 <template>
   <v-avatar
       icon="ios-person"
-      class="user-avatar d-flex justify-center align-center bg-black"
+      class="user-avatar d-flex justify-center align-center bg-black img-wrap"
       :shape="shape"
       :rounded="tile ? 0 : ''"
       :size="size"
@@ -85,6 +85,8 @@ export default {
 </script>
 
 <style scoped lang="less">
+@import "@/assets/styles/img";
+
 .user-avatar {
 }
 </style>

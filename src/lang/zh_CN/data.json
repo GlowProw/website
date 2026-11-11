@@ -1042,7 +1042,32 @@
         "lastYear": "去年",
         "last3Years": "近3年",
         "last5Years": "近5年"
-      }
+      },
+      "weekdays": {
+        "mon": "一",
+        "tue": "二",
+        "wed": "三",
+        "thu": "四",
+        "fri": "五",
+        "sat": "六",
+        "sun": "日"
+      },
+      "months": {
+        "1": "1月",
+        "2": "2月",
+        "3": "3月",
+        "4": "4月",
+        "5": "5月",
+        "6": "6月",
+        "7": "7月",
+        "8": "8月",
+        "9": "9月",
+        "10": "10月",
+        "11": "11月",
+        "12": "12月"
+      },
+      "yearHeader": "{year}年",
+      "yearMonthHeader": "{year}年 {month}"
     },
     "all": "全部",
     "delete": "删除",
@@ -2753,7 +2778,9 @@
       "effect": "效果",
       "damageMitigation": "护甲和损害减免",
       "damageMitigationTip": "对特定属性伤害有减免，属性抗性越高，收到该属性伤害则越少",
-      "lookDetail": "查看物品详情(按住)"
+      "lookDetail": "查看物品详情(按住)",
+      "pinCard": "固定",
+      "unpinCard": "取消固定"
     },
     "commoditie": {
       "title": "杂货详情",
@@ -5049,6 +5076,8 @@
       "modeUpdated": "已切换为 {mode} 触发",
       "openItemDetail": "查看物品详情",
       "openItemDetailDesc": "按住打开当前物品的详情页面",
+      "pinCardTooltip": "固定提示卡片",
+      "pinCardTooltipDesc": "锁定或解锁悬浮提示卡片位置",
       "quickArchiveDesc": "工坊快速归档保存草稿",
       "quickConfirmDesc": "武器/部件改造确认与提交",
       "quickSearch": "全局搜索",
