@@ -36,7 +36,7 @@ const {
       toggleNodeActivation,
       resetPoints,
       selectNode,
-    } = useMasteryController({ defaultSeason: false });
+    } = useMasteryController();
 
 // 属性
 const attr = ref<MasteryAttr>({
@@ -44,12 +44,22 @@ const attr = ref<MasteryAttr>({
 });
 
 // 是否空方案
-const isEmpty = computed(() => !selectedSeasonId.value && selectedNodeIds.value.size === 0);
+const isEmpty = computed(() => !selectedSeasonId.value || selectedNodeIds.value.size === 0);
 
 // 数据变动时通知工作台（校验/保存联动）
-watch([selectedNodeIds, selectedSeasonId], () => {
+watch([selectedSeasonId, () => Array.from(selectedNodeIds.value), selectedSeasonalPerks], () => {
   emit('update:item-change', 'mastery');
 }, {deep: true});
+
+/**
+ * 重置加点并通知工作台动态重验
+ */
+const handleResetPoints = () => {
+  resetPoints();
+  nextTick(() => {
+    emit('update:item-change', 'mastery');
+  });
+};
 
 /**
  * 设置精通属性
@@ -110,7 +120,7 @@ const onLoad = (importDataRaw: any) => {
  * 导出
  */
 const onExport = () => {
-  if (!selectedSeasonId.value) return null;
+  if (!selectedSeasonId.value || selectedNodeIds.value.size === 0) return null;
   const raw: MasterySaveData = {
     season: selectedSeasonId.value,
     nodes: Array.from(selectedNodeIds.value),
@@ -121,7 +131,7 @@ const onExport = () => {
 }
 
 /**
- * 验证（精通必选为必须项，节点与点数为建议项）
+ * 验证（精通必选为必须项，节点未选阻断提交，技能点未满为建议项）
  */
 const verify = () => {
   const result: { required: number; verify: Array<{ required: boolean; message: string; title?: string }> } = {
@@ -142,8 +152,9 @@ const verify = () => {
   }
 
   if (selectedNodeIds.value.size === 0) {
+    result.required += 1;
     result.verify.push({
-      required: false,
+      required: true,
       message: 'masteryNodesEmpty',
       title: masteryTitle
     });
@@ -163,7 +174,7 @@ defineExpose({
   onLoad,
   setSetting,
   verify,
-  data: isEmpty ? null : selectedNodeIds.value
+  data: isEmpty.value ? null : selectedNodeIds.value
 })
 
 defineOptions({
@@ -183,11 +194,10 @@ defineOptions({
               item-title="title"
               item-value="id"
               :disabled="readonly"
-              clearable
               density="compact"
               variant="outlined"
               hide-details
-              :placeholder="t('mastery.selectSeason')"
+              :label="t('mastery.shareDialog.currentSeason')"
               class="mastery-season-select"
               @update:model-value="selectedSeasonId = $event || ''">
           </v-select>
@@ -201,7 +211,7 @@ defineOptions({
           </span>
         </v-col>
         <v-col cols="auto" v-if="!readonly">
-          <v-btn size="small" variant="tonal" density="compact" @click="resetPoints">
+          <v-btn size="small" variant="tonal" density="compact" @click="handleResetPoints">
             <v-icon start icon="mdi-refresh"></v-icon>
             {{ t('mastery.reset') }}
           </v-btn>

@@ -26,6 +26,7 @@ import {handleApiError} from "@/assets/sripts/error_handler";
 import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import {cancelAndBack} from "@/assets/sripts/navigation";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const {t, locale} = useI18n(),
     route = useRoute(),
@@ -291,6 +292,15 @@ const runWorkshopVerify = () => {
 const getVerifyMessage = (v: { required: boolean; message: string; title?: string }) => {
   if (v.message === 'nameRequired') {
     return t('basic.assembly.publish.nameRequired');
+  }
+  if (v.message === 'nameLengthInvalid') {
+    return t('basic.rules.assembly.nameLength');
+  }
+  if (v.message === 'tagsMaxCount') {
+    return t('basic.rules.assembly.tagsMaxCount');
+  }
+  if (v.message === 'tagMaxLength') {
+    return t('basic.rules.assembly.tagMaxLength');
   }
   const tipKey = `assembly.workshop.verifyTips.${v.message}`;
   const translated = t(tipKey);
@@ -1186,17 +1196,13 @@ usePageHotkeys({
               </v-text-field>
             </v-col>
             <v-col cols="12">
-              <div class="mt-4 mb-3 font-weight-bold">{{ t('basic.assembly.publish.description') }}</div>
-
-              <v-card :color="`hsl(from var(--main-color) h s calc(l * 0.01))`" border class="pl-3 pr-3">
-                  <Textarea v-model="publishData.description"
-                            :maxlength="10000"
-                            class="mt-3 mb-2"
-                            :placeholder="t('basic.assembly.publish.descriptionPlaceholder')"></Textarea>
-                <template v-if="appStore.isDebug">
-                  {{ publishData.description }}
-                </template>
-              </v-card>
+              <Textarea v-model="publishData.description"
+                          :maxlength="10000"
+                          class="mt-3 mb-2"
+                          :placeholder="t('basic.assembly.publish.descriptionPlaceholder')"></Textarea>
+              <template v-if="appStore.isDebug">
+                {{ publishData.description }}
+              </template>
             </v-col>
             <v-col cols="12">
               <v-divider class="my-4">{{ t('basic.assembly.publish.extra') }}</v-divider>
@@ -1206,33 +1212,37 @@ usePageHotkeys({
         </v-col>
 
         <v-col cols="12" lg="4" sm="12">
-          <div class="mb-5">
-            <v-combobox
-                v-model="publishData.assembly.tags"
-                :counter="100"
-                :rules="formRules.tags"
-                :hide-no-data="true"
-                hide-details="auto"
-                hide-selected
-                chips
-                clearable
-                item-title="label"
-                item-value="value"
-                :label="t('basic.assembly.publish.tags')"
-                multiple
-                :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
-                variant="underlined">
-              <template v-slot:prepend v-if="!publishData.assembly?.tags || publishData.assembly.tags.length <= 0">
-                <v-icon>mdi-tag-multiple</v-icon>
-              </template>
-              <template v-slot:chip="{item}">
-                <AssemblyTagChip color="var(--main-color)" :tag="item.raw ?? item" size="x-large"/>
-              </template>
-            </v-combobox>
-          </div>
+          <AffixContainerView>
+            <div class="mb-5">
+              <v-combobox
+                  v-model="publishData.assembly.tags"
+                  :counter="100"
+                  :rules="formRules.tags"
+                  :hide-no-data="true"
+                  hide-details="auto"
+                  hide-selected
+                  chips
+                  clearable
+                  item-title="label"
+                  item-value="value"
+                  :label="t('basic.assembly.publish.tags')"
+                  multiple
+                  :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
+                  variant="underlined">
+                <template v-slot:prepend v-if="!publishData.assembly?.tags || publishData.assembly.tags.length <= 0">
+                  <v-icon>mdi-tag-multiple</v-icon>
+                </template>
+                <template v-slot:chip="{item}">
+                  <AssemblyTagChip color="var(--main-color)" :tag="item.raw ?? item" size="x-large"/>
+                </template>
+              </v-combobox>
+            </div>
 
-          <AssemblyTagsWidget
+            <VerticalScrollList>
+              <AssemblyTagsWidget
               v-model="publishData.assembly.tags"></AssemblyTagsWidget>
+            </VerticalScrollList>
+          </AffixContainerView>
         </v-col>
       </v-row>
     </v-form>

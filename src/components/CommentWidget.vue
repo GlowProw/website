@@ -541,20 +541,19 @@ defineOptions({
 
 <template>
   <div class="comment-widget-wrapper" ref="commentWidgetWrapperRef">
-    <v-card variant="text" class="mb-5" v-if="authStore.isLogin">
-      <Textarea v-model="content"
+    <div class="mb-5" v-if="authStore.isLogin">
+      <v-row>
+        <v-col>
+           <Textarea v-model="content"
                 :disabled="!authStore.isLogin"
                 :maxlength="5000"
-                :min-height="'120px'"
+                :min-height="'60px'"
+                :max-height="'100px'"
                 :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate', 'lang']"
                 :placeholder="!authStore.isLogin ? t('comment.loginRequired') : props.placeholder"></Textarea>
-      <v-row no-gutters align="end">
-        <v-col>
-          <Captcha @getCaptchaData="onCaptchaData" class="captcha" ref="captchaRef" v-if="authStore.isLogin"></Captcha>
         </v-col>
-        <v-spacer></v-spacer>
-        <v-col>
-          <v-btn size="55" class="bg-amber text-black" :max-width="150" block
+        <v-col cols="auto" class="mb-2 d-flex align-end pt-13">
+          <v-btn size="75" class="bg-amber text-black h-100 " :max-width="150" block
                   :loading="commentPushLoading"
                   :disabled="!authStore.isLogin || (!content || !isCaptchaValid)"
                   @click="onPushComment">
@@ -562,7 +561,14 @@ defineOptions({
           </v-btn>
         </v-col>
       </v-row>
-    </v-card>
+
+      <v-row no-gutters v-if="authStore.isLogin">
+        <v-col cols="auto">
+          <Captcha @getCaptchaData="onCaptchaData" class="captcha" ref="captchaRef"></Captcha>
+        </v-col>
+        <v-spacer></v-spacer>
+      </v-row>
+    </div>
     <v-alert v-else class="mb-5 bg-surface" variant="text">
       {{ t('comment.loginRequired') }}
       <template v-slot:append>
@@ -691,7 +697,7 @@ defineOptions({
 
               <!-- 嵌套回复输入框 S -->
               <v-card v-if="i.showReplyInput" class="mt-3 pa-2 bg-grey-darken-4 rounded" border>
-                <Textarea v-model="i.replyContent" 
+                <Textarea v-model="i.replyContent"
                           :placeholder="`${t('comment.reply')} @${i.username} ${t('comment.replyPlaceholder')}`"
                           :min-height="'60px'" :maxlength="5000"
                           :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"></Textarea>

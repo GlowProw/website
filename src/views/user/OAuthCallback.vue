@@ -160,7 +160,7 @@ const onSubmit2FA = async () => {
     const d = res.data?.data || res.data;
     if (d?.trustToken) setTrustToken(d.trustToken);
     authStore.setAccountToken(d);
-    notice.success(t('basic.tips.signin.success'), {mode: 'minimal'});
+    notice.success(t('basic.tips.signin.ok'), {mode: 'minimal'});
 
     twoFAOpen.value = false;
     twoFASetupToken.value = '';
@@ -215,7 +215,7 @@ onMounted(async () => {
     // 已有绑定直接登录成功
     if (result.code === 'signin.ok') {
       authStore.setAccountToken(result.data);
-      notice.success(t('basic.tips.signin.success'), {mode: 'minimal'});
+      notice.success(t('basic.tips.signin.ok'), {mode: 'minimal'});
       const backUrl = (route.query.backUrl as string) || '/';
       // backUrl 可能是 MCP 授权页等站外绝对地址，需走安全回跳（整页跳转 + 域名白名单）
       goBackUrl(backUrl, router);

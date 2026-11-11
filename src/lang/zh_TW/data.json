@@ -931,7 +931,12 @@
         "descriptionPlaceholder": "輸入描述內容",
         "extra": "額外",
         "tags": "標籤",
-        "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤"
+        "tagsPlaceholder": "輸入標籤按下Enter鍵，即可建立新標籤",
+        "reward": {
+          "title": "配裝發布獎勵 +{points} 積分",
+          "detail": "基礎 {base} · 精通 +{mastery} · 輪盤 +{wheel} · 船倉 +{warehouse}",
+          "boost": "本月第 {count} 篇配裝享受 3 倍激勵"
+        }
       }
     },
     "privilege": {
@@ -1021,7 +1026,9 @@
     },
     "all": "全部",
     "delete": "刪除",
-    "empty": "暫無資料"
+    "empty": "暫無資料",
+    "networkError": "網路連線異常，請重試",
+    "like": "點讚"
   },
   "comment": {
     "title": "評論",
@@ -3780,9 +3787,6 @@
       "name": "榜單標題",
       "namePlaceholder": "輸入天梯榜單名稱",
       "nameRequired": "天梯標題不能為空",
-      "nameLength": "配置標題長度須在 2 到 100 個字元之間",
-      "tagsMaxCount": "最多添加 100 個標籤",
-      "tagMaxLength": "單個標籤長度不能超過 30 個字元",
       "description": "詳細說明",
       "descriptionPlaceholder": "新增對該分級方案的見解或搭配建議",
       "tags": "分類標籤",
@@ -3890,7 +3894,8 @@
       "startBtn": "開始定時重新整理",
       "stop": "停止重新整理",
       "stopped": "已停止定時重新整理"
-    }
+    },
+    "deleteConfirm": "確定要刪除該招募資訊嗎？"
   },
   "assembly": {
     "title": "配裝廠",
@@ -4216,10 +4221,7 @@
         "masteryNodesEmpty": "對應賽季精通節點缺少，至少點擊一個",
         "masteryPointsMissing": "對應賽季精通節點中賽季技能點缺少",
         "wheelEmpty": "缺少輪盤配置",
-        "warehouseEmpty": "缺少船艙攜帶物品建議",
-        "nameLengthInvalid": "配置標題長度須在 2 到 100 個字元之間",
-        "tagsMaxCount": "最多添加 100 個標籤",
-        "tagMaxLength": "單個標籤長度不能超過 30 個字元"
+        "warehouseEmpty": "缺少船艙攜帶物品建議"
       },
       "emptyShip": "尚未選擇船隻",
       "emptyShipDesc": "請在配裝工作站中選擇船隻並配置武器與裝備，以查看詳細計算屬性與統計數據",

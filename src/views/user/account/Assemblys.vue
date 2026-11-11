@@ -136,10 +136,10 @@ const getMyAssemblysData = async () => {
  */
 const onDeleteAssembly = async (item: any) => {
   try {
-    if (!confirm(t('assembly.deleteConfirm') || '确定要删除该配装吗？')) return
+    if (!confirm(t('assembly.setting.deleteWarning'))) return
     loading.value = true
     await apis.assemblyApi().deleteAssembly(item.uuid)
-    notice.success(t('assembly.deleteSuccess') || '删除成功')
+    notice.success(t('basic.tips.deleteSuccess'))
     await getMyAssemblysData()
   } catch (e) {
     handleApiError(e, notice, t, { component: 'MyAssemblys' })
@@ -155,12 +155,12 @@ const onBatchDeleteAssemblies = async () => {
   if (selectedAssemblies.value.length === 0) return
 
   try {
-    if (!confirm(t('assembly.deleteBatchConfirm') || `确定要删除选中的 ${selectedAssemblies.value.length} 个配装吗？`)) return
+    if (!confirm(t('assembly.setting.deleteWarning'))) return
     loading.value = true
     for (const item of selectedAssemblies.value) {
       await apis.assemblyApi().deleteAssembly(item.uuid)
     }
-    notice.success(t('assembly.deleteSuccess') || '删除成功')
+    notice.success(t('basic.tips.deleteSuccess'))
     selectedAssemblies.value = []
     await getMyAssemblysData()
   } catch (e) {

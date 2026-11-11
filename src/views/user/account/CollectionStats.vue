@@ -452,9 +452,9 @@ const onRemoveCollection = async (record: CollectionRecord) => {
 const copyText = (text: string) => {
   if (!text) return
   navigator.clipboard.writeText(text).then(() => {
-    noticeStore.success(t('basic.button.copied') || '已复制')
+    noticeStore.success(t('basic.button.copied'))
   }).catch(() => {
-    noticeStore.error(t('basic.copyFail') || '复制失败')
+    noticeStore.error(t('basic.tips.copyFailed'))
   })
 }
 

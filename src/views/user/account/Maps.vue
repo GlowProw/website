@@ -177,7 +177,7 @@ const onSaveCollection = async (): Promise<void> => {
     }
     await getMyCollectionsData()
     onResetCollectionForm()
-    notice.success(t('basic.tips.map.success'))
+    notice.success(t('basic.tips.map.updateSuccess'))
   } catch (e) {
     onApiError(e)
   } finally {
@@ -808,14 +808,14 @@ const executeBatchMove = async () => {
     if (batchMoveKind.value === 'points') {
       if (pointsState.selected.length === 0) return
       await api.batchMovePoints(pointsState.selected, batchMoveTarget.value)
-      notice.success(t('basic.tips.map.success'))
+      notice.success(t('basic.tips.map.updateSuccess'))
       pointsState.selected = []
       await loadPoints()
     } else {
       const state = shapeStateByType(batchMoveShapeType.value)
       if (state.selected.length === 0) return
       await api.batchMoveShapes(state.selected, batchMoveTarget.value)
-      notice.success(t('basic.tips.map.success'))
+      notice.success(t('basic.tips.map.updateSuccess'))
       state.selected = []
       await loadShapes(batchMoveShapeType.value)
     }

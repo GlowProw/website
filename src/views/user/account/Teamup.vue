@@ -112,10 +112,10 @@ const isItemSelected = (item: any) => {
  */
 const onDeleteTeamup = async (item: any) => {
   try {
-    if (!confirm(t('team.deleteConfirm') || '确定要删除该招募信息吗？')) return
+    if (!confirm(t('teamUp.deleteConfirm'))) return
     loading.value = true
     await apis.teamupApi().deleteTeamup(item.id)
-    notice.success(t('team.deleteSuccess') || '删除成功')
+    notice.success(t('basic.tips.deleteSuccess'))
     await getMyTeamUpsData()
   } catch (e) {
     handleApiError(e, notice, t, { component: 'MyTeamUps' })
@@ -131,12 +131,12 @@ const onBatchDeleteTeamups = async () => {
   if (selectedTeamups.value.length === 0) return
 
   try {
-    if (!confirm(t('team.deleteBatchConfirm') || `确定要删除选中的 ${selectedTeamups.value.length} 个招募吗？`)) return
+    if (!confirm(t('teamUp.deleteConfirm'))) return
     loading.value = true
     for (const item of selectedTeamups.value) {
       await apis.teamupApi().deleteTeamup(item.id)
     }
-    notice.success(t('team.deleteSuccess') || '删除成功')
+    notice.success(t('basic.tips.deleteSuccess'))
     selectedTeamups.value = []
     await getMyTeamUpsData()
   } catch (e) {

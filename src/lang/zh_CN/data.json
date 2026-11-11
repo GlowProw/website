@@ -951,7 +951,12 @@
         "descriptionPlaceholder": "输入描述内容",
         "extra": "额外",
         "tags": "标签",
-        "tagsPlaceholder": "输入标签敲下回车键，即可创建新标签"
+        "tagsPlaceholder": "输入标签敲下回车键，即可创建新标签",
+        "reward": {
+          "title": "配装发布奖励 +{points} 积分",
+          "detail": "基础 {base} · 精通 +{mastery} · 轮盘 +{wheel} · 船仓 +{warehouse}",
+          "boost": "本月第 {count} 篇配装享受 3 倍激励"
+        }
       }
     },
     "privilege": {
@@ -1041,7 +1046,9 @@
     },
     "all": "全部",
     "delete": "删除",
-    "empty": "暂无数据"
+    "empty": "暂无数据",
+    "networkError": "网络连接异常，请重试",
+    "like": "点赞"
   },
   "comment": {
     "title": "评论",
@@ -3843,9 +3850,6 @@
       "name": "榜单标题",
       "namePlaceholder": "输入天梯榜单名称",
       "nameRequired": "天梯标题不能为空",
-      "nameLength": "配置标题长度须在 2 到 100 个字符之间",
-      "tagsMaxCount": "最多添加 100 个标签",
-      "tagMaxLength": "单个标签长度不能超过 30 个字符",
       "description": "详细说明",
       "descriptionPlaceholder": "添加对该分级方案的见解或搭配建议",
       "tags": "分类标签",
@@ -3954,7 +3958,8 @@
       "startBtn": "开始定时刷新",
       "stop": "停止刷新",
       "stopped": "已停止定时刷新"
-    }
+    },
+    "deleteConfirm": "确定要删除该招募信息吗？"
   },
   "assembly": {
     "title": "配装厂",
@@ -4195,10 +4200,7 @@
         "masteryNodesEmpty": "对应赛季精通节点缺少，至少点击一个",
         "masteryPointsMissing": "对应赛季精通节点中赛季技能点缺少",
         "wheelEmpty": "缺少轮盘配置",
-        "warehouseEmpty": "缺少船仓携带物品建议",
-        "nameLengthInvalid": "配置标题长度须在 2 到 100 个字符之间",
-        "tagsMaxCount": "最多添加 100 个标签",
-        "tagMaxLength": "单个标签长度不能超过 30 个字符"
+        "warehouseEmpty": "缺少船仓携带物品建议"
       },
       "emptyShip": "尚未选择船只",
       "emptyShipDesc": "请在配装工作站中选择船只并配置武器和装备，以查看详细计算属性与统计数据",

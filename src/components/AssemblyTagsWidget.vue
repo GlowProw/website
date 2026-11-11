@@ -98,6 +98,8 @@ defineOptions({name: 'AssemblyTagsWidget'})
     <v-expansion-panels
         v-model="activePanels"
         multiple
+        static
+        :elevation="0"
         variant="accordion"
         gap="10">
       <!-- 适用模式 -->

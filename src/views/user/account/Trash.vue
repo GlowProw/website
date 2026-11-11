@@ -188,13 +188,13 @@ const getTypeLabel = (type: string) => {
     case 'assembly':
       return t('assembly.title')
     case 'wheel':
-      return t('account.wheel')
+      return t('assembly.additions.wheel')
     case 'warehouse':
-      return t('account.warehouse')
+      return t('assembly.additions.warehouse')
     case 'mastery':
-      return t('account.mastery')
+      return t('assembly.additions.mastery')
     case 'like':
-      return t('account.like')
+      return t('basic.like')
     case 'comment':
       return t('comment.title')
     case 'reply':
@@ -204,9 +204,9 @@ const getTypeLabel = (type: string) => {
     case 'smuggler_weekly_report_comment':
       return t('smugglersReport.account.reportComment')
     case 'map_collection':
-      return t('map.collection')
+      return t('map.tabCollections')
     case 'map_point':
-      return t('map.point')
+      return t('map.tabPoints')
     case 'map_path':
       return t('map.path')
     case 'map_region':

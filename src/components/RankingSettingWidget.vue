@@ -127,7 +127,7 @@ const onDeleteRanking = async () => {
     delRankingLoading.value = true;
     const res = await rankingApi.deleteRanking(uuid);
     if (res.data) {
-      notice.success(t("basic.tips.deleted") || "删除成功");
+      notice.success(t("basic.tips.deleteSuccess"));
       deleteDialog.value = false;
       await router.push("/ranking-designed-items/browse");
     }

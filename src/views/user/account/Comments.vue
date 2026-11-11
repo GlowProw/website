@@ -108,10 +108,10 @@ const isItemSelected = (item: any) => {
  */
 const onDeleteComment = async (item: any) => {
   try {
-    if (!confirm(t('comment.deleteConfirm') || '确定要删除该评论吗？')) return
+    if (!confirm(t('comment.deleteWarning'))) return
     loading.value = true
     await apis.commentApi().deleteComment(item.id)
-    notice.success(t('comment.deleteSuccess') || '删除成功')
+    notice.success(t('basic.tips.deleteSuccess'))
     await getMyCommentsData()
   } catch (e) {
     handleApiError(e, notice, t, {component: 'MyComments'})
@@ -127,12 +127,12 @@ const onBatchDeleteComments = async () => {
   if (selectedComments.value.length === 0) return
 
   try {
-    if (!confirm(t('comment.deleteBatchConfirm') || `确定要删除选中的 ${selectedComments.value.length} 条评论吗？`)) return
+    if (!confirm(t('comment.deleteWarning'))) return
     loading.value = true
     for (const item of selectedComments.value) {
       await apis.commentApi().deleteComment(item.id)
     }
-    notice.success(t('comment.deleteSuccess') || '删除成功')
+    notice.success(t('basic.tips.deleteSuccess'))
     selectedComments.value = []
     await getMyCommentsData()
   } catch (e) {

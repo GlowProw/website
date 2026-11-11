@@ -142,7 +142,7 @@ const getRankingDetail = async (force: boolean = false) => {
     const d = result.data?.data || result.data;
 
     if (!d) {
-      notice.error(t("rankingDesignedItems.notFound") || t("basic.tips.notFound") || "Ranking not found");
+      notice.error(t("rankingDesignedItems.notFound"));
       router.push("/ranking-designed-items/browse");
       return;
     }
@@ -282,7 +282,7 @@ const onRankingMainViewReady = () => {
  */
 const onCloneRanking = async () => {
   if (!authStore.isLogin) {
-    notice.info(t("account.loginTips") || "请先登录");
+    notice.info(t("account.needLogin"));
     return;
   }
   try {
@@ -290,7 +290,7 @@ const onCloneRanking = async () => {
     const result = await rankingApi.cloneRanking(detailData.value.uuid);
     const clonedItem = result.data?.data || result.data;
 
-    notice.success(t("rankingDesignedItems.cloneSuccess") || "已载入副本");
+    notice.success(t("rankingDesignedItems.cloneSuccess"));
     if (clonedItem?.uuid) {
       await router.push(`/ranking-designed-items/workshop/${clonedItem.uuid}/edit`);
     } else {

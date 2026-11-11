@@ -240,7 +240,7 @@ const formatDate = (dateStr?: string) => {
 
           <v-text-field
               v-model="inputName"
-              :label="t('basic.name') || '名称（选填）'"
+              :label="t('basic.assembly.publish.name')"
               :placeholder="categoryMeta.namePlaceholder"
               variant="outlined"
               density="comfortable"
@@ -256,7 +256,7 @@ const formatDate = (dateStr?: string) => {
                 prepend-icon="mdi-check"
                 :disabled="!inputUuid.trim()"
                 @click="onSubmitUuid">
-              {{ t('basic.button.confirm') || '确认添加' }}
+              {{ t('basic.button.submit') }}
             </v-btn>
           </div>
         </div>
@@ -268,10 +268,10 @@ const formatDate = (dateStr?: string) => {
           <div v-if="!authStore.isLogin" class="text-center py-8">
             <v-icon size="48" color="grey" class="mb-2">mdi-account-lock-outline</v-icon>
             <p class="text-body-2 text-medium-emphasis mb-4">
-              {{ t('rankingDesignedItems.workshop.loginRequired') || '请先登录以获取您账号下的数据' }}
+              {{ t('account.needLoginDesc') }}
             </p>
             <v-btn color="amber" variant="tonal" to="/user/signin">
-              {{ t('account.signIn') || '去登录' }}
+              {{ t('signin.title') }}
             </v-btn>
           </div>
 
@@ -309,7 +309,7 @@ const formatDate = (dateStr?: string) => {
                       variant="tonal"
                       prepend-icon="mdi-plus"
                       @click="onSelectMyItem(item)">
-                    {{ t('basic.button.add') || '选入' }}
+                    {{ t('basic.button.use') }}
                   </v-btn>
                 </template>
               </v-list-item>

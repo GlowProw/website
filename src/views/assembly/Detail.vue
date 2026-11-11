@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 import {useRoute, useRouter} from "vue-router";
 import {onMounted, Ref, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
@@ -7,7 +6,12 @@ import {useAuthStore} from "~/stores/userAccountStore";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useHead} from "@unhead/vue";
 import {useNoticeStore} from "~/stores/noticeStore";
+import {apis, getAppUrl} from "@/assets/sripts/index";
+import {handleApiError} from "@/assets/sripts/error_handler";
+import {useBrowseApi} from "@/assets/sripts/api/browse_service";
+import {useLikeStore} from "~/stores/likeStore";
 
+import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import Textarea from "@/components/textarea/index.vue";
 import Loading from "@/components/Loading.vue";
@@ -18,15 +22,11 @@ import AssemblySettingPanel from "@/components/AssemblySettingPanel.vue";
 import TimeView from "@/components/TimeView.vue";
 import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
-import AssemblyTagChip from "@/components/AssemblyTagChip.vue";
-import {apis, getAppUrl} from "@/assets/sripts/index";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
 import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
-import {handleApiError} from "@/assets/sripts/error_handler";
-import {useBrowseApi} from "@/assets/sripts/api/browse_service";
-import {useLikeStore} from "~/stores/likeStore";
 import AffixContainerView from "@/components/AffixContainerView.vue";
+import VerticalScrollList from "@/components/VerticalScrollList.vue"
 
 const route = useRoute(),
     router = useRouter(),
@@ -439,7 +439,7 @@ const onPenPassword = () => {
             </v-col>
           </v-row>
 
-          <v-row align="center">
+          <v-row align="center" class="mb-4">
             <v-col>
               <v-icon icon="mdi-calendar-range"></v-icon>
               {{ t('assembly.browse.filter.updatedTime') }}
@@ -451,10 +451,11 @@ const onPenPassword = () => {
           </v-row>
 
           <AffixContainerView>
-            <AssemblyTagsWidget
+            <VerticalScrollList>
+              <AssemblyTagsWidget
                 v-model="detailData.tags"
-                class="mt-4"
                 :readonly="true"></AssemblyTagsWidget>
+            </VerticalScrollList>
           </AffixContainerView>
         </v-col>
       </v-row>

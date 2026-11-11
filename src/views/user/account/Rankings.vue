@@ -151,7 +151,7 @@ const onDeleteRanking = async (item: any) => {
     loading.value = true;
 
     await rankingApi.deleteRanking(item.uuid);
-    notice.success(t("basic.tips.deleted"));
+    notice.success(t("basic.tips.deleteSuccess"));
 
     await getMyRankingsData();
   } catch (e) {
@@ -176,7 +176,7 @@ const onBatchDeleteRankings = async () => {
       await rankingApi.deleteRanking(item.uuid);
     }
 
-    notice.success(t("basic.tips.deleted"));
+    notice.success(t("basic.tips.deleteSuccess"));
 
     selectedRankings.value = [];
     await getMyRankingsData();

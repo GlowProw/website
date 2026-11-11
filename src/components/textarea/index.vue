@@ -30,7 +30,6 @@ import ImgView from "@/components/ImgView.vue";
 import VideoView from "@/components/VideoView.vue";
 import languagesConfig from '@/config/languages';
 import FullItemRightClickMenu from "@/components/FullItemRightClickMenu.vue";
-import RankingRightClickMenu from "@/components/RankingRightClickMenu.vue";
 import type {ToolbarItem} from '@/assets/types/Ui';
 
 const props = defineProps({
@@ -44,7 +43,11 @@ const props = defineProps({
   },
   minHeight: {
     type: String,
-    default: '200px'
+    default: '80px'
+  },
+  maxHeight: {
+    type: String,
+    default: null
   },
   height: {
     type: String,
@@ -137,7 +140,7 @@ watch(() => [props.placeholder, props.readonly, props.disabled], () => {
   if (tiptap.value && !tiptap.value.isDestroyed) {
     tiptap.value.setEditable(!props.readonly && !props.disabled);
     if (tiptap.value.view) {
-      const { state, view } = tiptap.value;
+      const {state, view} = tiptap.value;
       view.dispatch(state.tr);
     }
   }
@@ -645,11 +648,15 @@ defineOptions({
     </div>
 
     <slot></slot>
-    <EditorContent
-        class="editor pt-2 html-widget-size-default timeline-description"
-        ref="tiptapTextEditor"
-        :style="`min-height:${minHeight}`"
-        :editor="tiptap"/>
+
+    <v-card :border="!props.readonly" :variant="props.readonly ? 'text' : 'text'"
+            :class="{'my-2 px-3 py-2 bg-surface': !props.readonly}">
+      <EditorContent
+          class="editor html-widget-size-default timeline-description"
+          ref="tiptapTextEditor"
+          :style="`min-height:${minHeight};${maxHeight?`max-height:${maxHeight}`:''}`"
+          :editor="tiptap"/>
+    </v-card>
 
     <template v-if="!readonly">
       <LinkView ref="linkWidget" :editor="tiptap" @finish="onInsertLink" @close="() => isOpenLink = false"/>

@@ -164,7 +164,7 @@ const delRanking = async () => {
     const result = await rankingApi.deleteRanking(props.id);
    
     if (result.data) {
-      notice.success(t("basic.tips.deleted"));
+      notice.success(t("basic.tips.deleteSuccess"));
       deleteDialog.value = false;
       show.value = false;
       router.push("/ranking-designed-items/browse");

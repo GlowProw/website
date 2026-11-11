@@ -302,9 +302,9 @@ const onCancelOrder = async (order: any): Promise<void> => {
 const copyText = (text: string) => {
   if (!text) return
   navigator.clipboard.writeText(text).then(() => {
-    notice.success(t('basic.button.copied') || '已复制')
+    notice.success(t('basic.button.copied'))
   }).catch(() => {
-    notice.error(t('basic.copyFail') || '复制失败')
+    notice.error(t('basic.tips.copyFailed'))
   })
 }
 
