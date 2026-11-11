@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
-import {computed, onMounted, ref, toRaw} from "vue";
+import {computed, onMounted, ref, toRaw, watch} from "vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import AssemblyClassificationShowList from "@/components/AssemblyClassificationShowList.vue";
 import BtnWidget from "@/components/snbWidget/btnWidget.vue";
@@ -16,6 +16,7 @@ const props = withDefaults(defineProps<{
     }>(), {
       readonly: false,
     }),
+    emit = defineEmits(['update:item-change']),
     wheelDataProcessing = new WheelDataProcessing()
 
 let show = ref(false),
@@ -156,11 +157,29 @@ const onExport = () => {
   return wheelDataProcessing.export(toRaw(wheelTabs.value))
 }
 
+// 数据变动时通知工作台联动校验
+watch(wheelTabs, () => {
+  emit('update:item-change', 'wheel');
+}, {deep: true});
+
 /**
  * 验证
  */
 const verify = () => {
-  return wheelDataProcessing.verify(toRaw(wheelTabs.value), attr.value.wheelUseVersion)
+  const result: { required: number; verify: Array<{ required: boolean; message: string; title?: string }> } = {
+    required: 0,
+    verify: []
+  };
+
+  if (isEmpty.value) {
+    result.verify.push({
+      required: false,
+      message: 'wheelEmpty',
+      title: t('assembly.additions.wheel')
+    });
+  }
+
+  return result;
 }
 
 defineExpose({

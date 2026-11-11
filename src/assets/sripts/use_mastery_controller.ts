@@ -10,7 +10,7 @@ import {getAppOrigin, getCurrentSeasonId, storage} from '@/assets/sripts/index';
 import type {AggregatedEffect, EffectContributor, NodeRequirementItem} from '@/assets/types/Mastery';
 import {Mastery, type MasteryCategory, type MasteryRole, Masterys, type SeasonMasteryTree} from 'glow-prow-data';
 
-export function useMasteryController(props: { masterys?: Record<string, SeasonMasteryTree> }) {
+export function useMasteryController(props: { masterys?: Record<string, SeasonMasteryTree>, defaultSeason?: boolean } = {}) {
     const route = useRoute();
     const router = useRouter();
     const appStore = useAppStore();
@@ -72,9 +72,9 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
         svgScaleExtent.value[1]
     ]);
 
-    // 赛季状态 (默认选中当前赛季)
+    // 赛季状态 (默认选中当前赛季，若明确指定 defaultSeason === false 则默认空)
     const defaultSeasonId = getCurrentSeasonId('crimsonWaters');
-    const selectedSeasonId = ref<string>(defaultSeasonId);
+    const selectedSeasonId = ref<string>(props.defaultSeason === false ? '' : defaultSeasonId);
 
     function getSeasonTitle(id: string): string {
         const key = `snb.seasons.${id}.name`;
@@ -85,7 +85,8 @@ export function useMasteryController(props: { masterys?: Record<string, SeasonMa
     // 树数据 (直接加载专精数据)
     const allMasterys = computed(() => props.masterys || Masterys);
     const activeTree = computed<SeasonMasteryTree>(() => {
-        return allMasterys.value[selectedSeasonId.value] || allMasterys.value[defaultSeasonId] || allMasterys.value['crimsonWaters'] || allMasterys.value['shatteredSeas'];
+        if (!selectedSeasonId.value) return null as any;
+        return allMasterys.value[selectedSeasonId.value] || null as any;
     });
     // 最大节点点数直接从赛季配置中读取
     const maxPoints = computed(() => activeTree.value?.maxPoints || 80);

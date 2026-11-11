@@ -992,8 +992,10 @@
         "limitationLength": "密码长度需要{min}到{max}"
       },
       "assembly": {
-        "nameLength": "配装名称不能超过 140 个字符",
-        "descriptionLength": "配装描述不能超过 10000 个字符"
+        "nameLength": "配置标题长度须在 2 到 100 个字符之间",
+        "descriptionLength": "配装描述不能超过 10000 个字符",
+        "tagsMaxCount": "最多添加 100 个标签",
+        "tagMaxLength": "单个标签长度不能超过 30 个字符"
       },
       "captcha": {
         "notEmpty": "必须填写验证码",
@@ -3841,7 +3843,9 @@
       "name": "榜单标题",
       "namePlaceholder": "输入天梯榜单名称",
       "nameRequired": "天梯标题不能为空",
-      "nameLength": "天梯名称不能超过140个字符",
+      "nameLength": "配置标题长度须在 2 到 100 个字符之间",
+      "tagsMaxCount": "最多添加 100 个标签",
+      "tagMaxLength": "单个标签长度不能超过 30 个字符",
       "description": "详细说明",
       "descriptionPlaceholder": "添加对该分级方案的见解或搭配建议",
       "tags": "分类标签",
@@ -4184,7 +4188,17 @@
         "weaponDirectionsEmpty": "武器的方向你未设置, <u class='u'>它是必须</u>",
         "armorEmpty": "船甲是空的",
         "displayAllEmpty": "陈设都是空的",
-        "armorModificationEmpty": "副武器是空的"
+        "armorModificationEmpty": "副武器是空的",
+        "masteryEmpty": "精通必选",
+        "descriptionMinLength": "请添加描述内容，至少10字以上",
+        "tagsEmpty": "“标签”缺失，请添加预制标签或自定义标签",
+        "masteryNodesEmpty": "对应赛季精通节点缺少，至少点击一个",
+        "masteryPointsMissing": "对应赛季精通节点中赛季技能点缺少",
+        "wheelEmpty": "缺少轮盘配置",
+        "warehouseEmpty": "缺少船仓携带物品建议",
+        "nameLengthInvalid": "配置标题长度须在 2 到 100 个字符之间",
+        "tagsMaxCount": "最多添加 100 个标签",
+        "tagMaxLength": "单个标签长度不能超过 30 个字符"
       },
       "emptyShip": "尚未选择船只",
       "emptyShipDesc": "请在配装工作站中选择船只并配置武器和装备，以查看详细计算属性与统计数据",

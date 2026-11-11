@@ -12,6 +12,7 @@ import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
 import ImgView from "@/components/ImgView.vue";
 import languagesConfig from "@/config/languages";
+import VerticalScrollList from "./VerticalScrollList.vue";
 
 const {t, messages} = useI18n(),
     route = useRoute(),
@@ -176,8 +177,7 @@ defineOptions({
           v-model="tabValue"
           direction="vertical">
         <v-tab :text="t('assembly.setting.general')"
-               value="common"
-               prepend-icon="mdi-tune-variant">
+               value="common">
         </v-tab>
         <v-tab :text="t(`assembly.additions.${i}`)"
                :value="i"
@@ -187,308 +187,312 @@ defineOptions({
         </v-tab>
       </v-tabs>
     </v-col>
-    <v-divider vertical></v-divider>
+    <v-divider vertical opacity=".06"></v-divider>
     <v-col>
-      <v-card elevation="0" class="overflow-y-auto pa-5" max-height="70vh">
-        <v-tabs-window v-model="tabValue">
-          <v-tabs-window-item value="common">
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.usePassword') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.passwordDescription') }}</p>
-              </v-col>
-              <v-col class="d-flex align-center flex-wrap ga-2">
-                <template v-if="isDebug">
-                  {{ modelValue.assembly.attr.password }}
-                </template>
+      <v-card elevation="0" class="pa-5" variant="text">
+        <VerticalScrollList :is-mask="true">
+          <v-tabs-window v-model="tabValue">
+            <v-tabs-window-item value="common">
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.usePassword') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.passwordDescription') }}</p>
+                </v-col>
+                <v-col class="d-flex align-center flex-wrap ga-2">
+                  <template v-if="isDebug">
+                    {{ modelValue.assembly.attr.password }}
+                  </template>
 
-                <v-btn v-if="!hasPassword"
-                       variant="flat"
-                       class="bg-amber text-black"
-                       @click="openPasswordDialog('set')">
-                  {{ t('basic.button.setting') }}
-                </v-btn>
-
-                <template v-else>
-                  <v-btn variant="flat" class="bg-amber text-black" @click="openPasswordDialog('change')">
-                    {{ t('basic.button.change') }}
+                  <v-btn v-if="!hasPassword"
+                         variant="flat"
+                         class="bg-amber text-black"
+                         @click="openPasswordDialog('set')">
+                    {{ t('basic.button.setting') }}
                   </v-btn>
-                  <v-btn variant="flat" class="bg-red" @click="deletePassword">
+
+                  <template v-else>
+                    <v-btn variant="flat" class="bg-amber text-black" @click="openPasswordDialog('change')">
+                      {{ t('basic.button.change') }}
+                    </v-btn>
+                    <v-btn variant="flat" class="bg-red" @click="deletePassword">
+                      {{ t('basic.button.delete') }}
+                    </v-btn>
+                  </template>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.anonymous') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.anonymousDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-checkbox
+                      v-model="modelValue.assembly.attr.isAnonymous"
+                      density="compact"
+                      hide-details
+                      :label="t('assembly.setting.enable')"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.comments') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.commentsDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-checkbox
+                      v-model="modelValue.assembly.attr.isComment"
+                      density="compact"
+                      hide-details
+                      :label="t('assembly.setting.enable')"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.likes') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.likesDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-checkbox
+                      v-model="modelValue.assembly.attr.isLike"
+                      density="compact"
+                      hide-details
+                      :label="t('assembly.setting.enable')"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.allowClone') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.allowCloneDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-checkbox
+                      v-model="modelValue.assembly.attr.isAllowClone"
+                      density="compact"
+                      hide-details
+                      :label="t('assembly.setting.enable')"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.allowSearch') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.allowSearchDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-checkbox
+                      v-model="modelValue.assembly.attr.isAllowSearch"
+                      density="compact"
+                      hide-details
+                      :label="t('assembly.setting.enable')"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+            </v-tabs-window-item>
+
+            <v-tabs-window-item value="assembly">
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.visibility') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.visibilityDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-select
+                      item-title="label"
+                      v-model="modelValue.assembly.visibility"
+                      :items="settingConfig.visibilitys"
+                      :label="t('assembly.setting.selectVisibility')"
+                  ></v-select>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.language') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.languageDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-select
+                      item-title="label"
+                      item-value="value"
+                      v-model="modelValue.assembly.attr.language"
+                      multiple
+                      :items="languages"
+                      :label="t('assembly.setting.selectLanguage')">
+                    <template v-slot:selection="{ item }">
+                      <v-chip size="small" class="mr-1">
+                        {{ getLanguageLabel(item.value || item) }}
+                      </v-chip>
+                    </template>
+                  </v-select>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.backgroundImage') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.backgroundImageDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-card border class="pa-2">
+                    <div class="background-preview mb-2">
+                      <v-img
+                          v-if="modelValue.assembly.attr.backgroundPresentation"
+                          :src="modelValue.assembly.attr.backgroundPresentation"
+                          :alt="t('assembly.setting.backgroundImageAlt')"
+                          height="120"
+                          cover
+                          class="rounded"
+                      ></v-img>
+                      <div v-else class="d-flex align-center justify-center fill-height text-medium-emphasis">
+                        <v-icon icon="mdi-image-outline" size="40"></v-icon>
+                      </div>
+                    </div>
+
+                    <v-btn variant="flat" class="bg-amber text-black" @click="onBackgroundChange">
+                      {{ t('basic.button.change') }}
+                    </v-btn>
+                  </v-card>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.showItemName') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.showItemNameDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-checkbox
+                      v-model="modelValue.assembly.attr.isShowItemName"
+                      density="compact"
+                      hide-details
+                      :label="t('assembly.setting.enable')"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+
+              <v-row v-show="modelValue.assembly.attr.isShowItemName">
+                <v-col>
+                  <b>{{ t('assembly.setting.showFullName') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.showFullNameDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-checkbox
+                      v-model="modelValue.assembly.attr.isFullName"
+                      density="compact"
+                      hide-details
+                      :label="t('assembly.setting.enable')"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.showWeaponIconArray') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.showWeaponIconArrayDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-checkbox
+                      v-model="modelValue.assembly.attr.isShowWeaponIconArray"
+                      density="compact"
+                      hide-details
+                      :label="t('assembly.setting.enable')"
+                  ></v-checkbox>
+                </v-col>
+              </v-row>
+
+              <v-divider class="mt-10 mb-10">{{ t('assembly.setting.other') }}</v-divider>
+
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.rendererVersion') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.rendererVersionDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-select
+                      :placeholder="t('assembly.setting.selectVersion')"
+                      :items="AssemblyDataProcessing.versions"
+                      v-model="modelValue.assembly.attr.assemblyUseVersion"
+                      :label="t('assembly.setting.version')"
+                  ></v-select>
+                </v-col>
+              </v-row>
+
+              <v-row v-if="isShowDelete">
+                <v-col>
+                  <b>{{ t('basic.button.delete') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.deleteDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-btn
+                      class="bg-red"
+                      @click="deleteDialog = true"
+                      :loading="delAssemblyLoading">
                     {{ t('basic.button.delete') }}
                   </v-btn>
-                </template>
-              </v-col>
-            </v-row>
+                </v-col>
+              </v-row>
+            </v-tabs-window-item>
 
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.anonymous') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.anonymousDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isAnonymous"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
+            <v-tabs-window-item value="wheel">
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.wheelRendererVersion') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.wheelRendererVersionDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-select
+                      :placeholder="t('assembly.setting.selectVersion')"
+                      :items="WheelDataProcessing.versions"
+                      v-model="modelValue.wheel.attr.wheelUseVersion"
+                      :label="t('assembly.setting.version')"
+                  ></v-select>
+                </v-col>
+              </v-row>
+            </v-tabs-window-item>
 
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.comments') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.commentsDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isComment"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
+            <v-tabs-window-item value="warehouse">
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.warehouseRendererVersion') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.warehouseRendererVersionDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-select
+                      :placeholder="t('assembly.setting.selectVersion')"
+                      :items="WarehouseDataProcessing.versions"
+                      v-model="modelValue.warehouse.attr.warehouseUseVersion"
+                      :label="t('assembly.setting.version')"
+                  ></v-select>
+                </v-col>
+              </v-row>
+            </v-tabs-window-item>
 
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.likes') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.likesDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isLike"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.allowClone') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.allowCloneDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isAllowClone"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.allowSearch') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.allowSearchDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isAllowSearch"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-          </v-tabs-window-item>
-
-          <v-tabs-window-item value="assembly">
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.visibility') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.visibilityDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-select
-                    item-title="label"
-                    v-model="modelValue.assembly.visibility"
-                    :items="settingConfig.visibilitys"
-                    :label="t('assembly.setting.selectVisibility')"
-                ></v-select>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.language') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.languageDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-select
-                    item-title="label"
-                    item-value="value"
-                    v-model="modelValue.assembly.attr.language"
-                    multiple
-                    :items="languages"
-                    :label="t('assembly.setting.selectLanguage')">
-                  <template v-slot:selection="{ item }">
-                    <v-chip size="small" class="mr-1">
-                      {{ getLanguageLabel(item.value || item) }}
-                    </v-chip>
-                  </template>
-                </v-select>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.backgroundImage') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.backgroundImageDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-card border class="pa-2">
-                  <div class="background-preview mb-2">
-                    <v-img
-                        v-if="modelValue.assembly.attr.backgroundPresentation"
-                        :src="modelValue.assembly.attr.backgroundPresentation"
-                        :alt="t('assembly.setting.backgroundImageAlt')"
-                        height="120"
-                        cover
-                        class="rounded"
-                    ></v-img>
-                    <div v-else class="d-flex align-center justify-center fill-height text-medium-emphasis">
-                      <v-icon icon="mdi-image-outline" size="40"></v-icon>
-                    </div>
-                  </div>
-
-                  <v-btn variant="flat" class="bg-amber text-black" @click="onBackgroundChange">
-                    {{ t('basic.button.change') }}
-                  </v-btn>
-                </v-card>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.showItemName') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.showItemNameDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isShowItemName"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-
-            <v-row v-show="modelValue.assembly.attr.isShowItemName">
-              <v-col>
-                <b>{{ t('assembly.setting.showFullName') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.showFullNameDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isFullName"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.showWeaponIconArray') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.showWeaponIconArrayDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-checkbox
-                    v-model="modelValue.assembly.attr.isShowWeaponIconArray"
-                    density="compact"
-                    hide-details
-                    :label="t('assembly.setting.enable')"
-                ></v-checkbox>
-              </v-col>
-            </v-row>
-
-            <v-divider class="mt-10 mb-10">{{ t('assembly.setting.other') }}</v-divider>
-
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.rendererVersion') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.rendererVersionDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-select
-                    :placeholder="t('assembly.setting.selectVersion')"
-                    :items="AssemblyDataProcessing.versions"
-                    v-model="modelValue.assembly.attr.assemblyUseVersion"
-                    :label="t('assembly.setting.version')"
-                ></v-select>
-              </v-col>
-            </v-row>
-
-            <v-row v-if="isShowDelete">
-              <v-col>
-                <b>{{ t('basic.button.delete') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.deleteDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-btn
-                    class="bg-red"
-                    @click="deleteDialog = true"
-                    :loading="delAssemblyLoading">
-                  {{ t('basic.button.delete') }}
-                </v-btn>
-              </v-col>
-            </v-row>
-          </v-tabs-window-item>
-          <v-tabs-window-item value="wheel">
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.wheelRendererVersion') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.wheelRendererVersionDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-select
-                    :placeholder="t('assembly.setting.selectVersion')"
-                    :items="WheelDataProcessing.versions"
-                    v-model="modelValue.wheel.attr.wheelUseVersion"
-                    :label="t('assembly.setting.version')"
-                ></v-select>
-              </v-col>
-            </v-row>
-          </v-tabs-window-item>
-          <v-tabs-window-item value="warehouse">
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.warehouseRendererVersion') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.warehouseRendererVersionDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-select
-                    :placeholder="t('assembly.setting.selectVersion')"
-                    :items="WarehouseDataProcessing.versions"
-                    v-model="modelValue.warehouse.attr.warehouseUseVersion"
-                    :label="t('assembly.setting.version')"
-                ></v-select>
-              </v-col>
-            </v-row>
-          </v-tabs-window-item>
-          <v-tabs-window-item value="mastery">
-            <v-row>
-              <v-col>
-                <b>{{ t('assembly.setting.masteryRendererVersion') }}</b>
-                <p class="text-caption">{{ t('assembly.setting.masteryRendererVersionDescription') }}</p>
-              </v-col>
-              <v-col>
-                <v-select
-                    :placeholder="t('assembly.setting.selectVersion')"
-                    :items="MasteryDataProcessing.versions"
-                    v-model="modelValue.mastery.attr.masteryUseVersion"
-                    :label="t('assembly.setting.version')"
-                ></v-select>
-              </v-col>
-            </v-row>
-          </v-tabs-window-item>
-
-        </v-tabs-window>
+            <v-tabs-window-item value="mastery">
+              <v-row>
+                <v-col>
+                  <b>{{ t('assembly.setting.masteryRendererVersion') }}</b>
+                  <p class="text-caption">{{ t('assembly.setting.masteryRendererVersionDescription') }}</p>
+                </v-col>
+                <v-col>
+                  <v-select
+                      :placeholder="t('assembly.setting.selectVersion')"
+                      :items="MasteryDataProcessing.versions"
+                      v-model="modelValue.mastery.attr.masteryUseVersion"
+                      :label="t('assembly.setting.version')"
+                  ></v-select>
+                </v-col>
+              </v-row>
+            </v-tabs-window-item>
+          </v-tabs-window>
+        </VerticalScrollList>
       </v-card>
     </v-col>
   </v-row>

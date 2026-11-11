@@ -331,7 +331,8 @@ defineOptions({ name: 'AssemblySettingPanel' })
         </v-overlay>
 
         <v-divider></v-divider>
-        <div class="d-flex flex-row">
+
+        <v-card-text class="pa-0 d-flex flex-row"  style="max-height: 65vh">
           <v-tabs
               class="v-col-2 pa-0"
               v-model="tabValue"
@@ -407,7 +408,7 @@ defineOptions({ name: 'AssemblySettingPanel' })
               </v-tabs-window-item>
             </v-tabs-window>
           </v-card>
-        </div>
+        </v-card-text>
 
         <v-divider></v-divider>
         <v-card-actions class="pa-5">

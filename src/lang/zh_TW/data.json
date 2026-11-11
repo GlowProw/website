@@ -972,8 +972,10 @@
         "limitationLength": "密碼長度需要{min}到{max}"
       },
       "assembly": {
-        "nameLength": "配裝名稱不能超過 140 個字元",
-        "descriptionLength": "配裝描述不能超過 10000 個字元"
+        "nameLength": "配置標題長度須在 2 到 100 個字元之間",
+        "descriptionLength": "配裝描述不能超過 10000 個字元",
+        "tagsMaxCount": "最多添加 100 個標籤",
+        "tagMaxLength": "單個標籤長度不能超過 30 個字元"
       },
       "captcha": {
         "notEmpty": "必須填寫驗證碼",
@@ -3778,7 +3780,9 @@
       "name": "榜單標題",
       "namePlaceholder": "輸入天梯榜單名稱",
       "nameRequired": "天梯標題不能為空",
-      "nameLength": "天梯名稱不能超過140個字符",
+      "nameLength": "配置標題長度須在 2 到 100 個字元之間",
+      "tagsMaxCount": "最多添加 100 個標籤",
+      "tagMaxLength": "單個標籤長度不能超過 30 個字元",
       "description": "詳細說明",
       "descriptionPlaceholder": "新增對該分級方案的見解或搭配建議",
       "tags": "分類標籤",
@@ -4205,7 +4209,17 @@
         "weaponAllEmpty": "武器都是空的",
         "weaponDirectionsEmpty": "武器的方向你未设置, <u>它是必须</u>",
         "armorEmpty": "船甲是空的",
-        "displayAllEmpty": "陈设都是空的"
+        "displayAllEmpty": "陈设都是空的",
+        "masteryEmpty": "精通必選",
+        "descriptionMinLength": "請添加描述內容，至少10字以上",
+        "tagsEmpty": "“標籤”缺失，請添加預製標籤或自定義標籤",
+        "masteryNodesEmpty": "對應賽季精通節點缺少，至少點擊一個",
+        "masteryPointsMissing": "對應賽季精通節點中賽季技能點缺少",
+        "wheelEmpty": "缺少輪盤配置",
+        "warehouseEmpty": "缺少船艙攜帶物品建議",
+        "nameLengthInvalid": "配置標題長度須在 2 到 100 個字元之間",
+        "tagsMaxCount": "最多添加 100 個標籤",
+        "tagMaxLength": "單個標籤長度不能超過 30 個字元"
       },
       "emptyShip": "尚未選擇船隻",
       "emptyShipDesc": "請在配裝工作站中選擇船隻並配置武器與裝備，以查看詳細計算屬性與統計數據",

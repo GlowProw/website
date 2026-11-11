@@ -993,8 +993,10 @@
         "limitationLength": "Password length must be between {min} and {max}"
       },
       "assembly": {
-        "nameLength": "Assembly name cannot exceed 140 characters",
-        "descriptionLength": "Assembly description cannot exceed 10000 characters"
+        "nameLength": "Title must be between 2 and 100 characters",
+        "descriptionLength": "Assembly description cannot exceed 10000 characters",
+        "tagsMaxCount": "Tags cannot exceed 100",
+        "tagMaxLength": "Each tag cannot exceed 30 characters"
       },
       "captcha": {
         "notEmpty": "Captcha must be filled in",
@@ -3844,7 +3846,9 @@
       "name": "Title",
       "namePlaceholder": "Enter tier list title",
       "nameRequired": "Tier list title cannot be empty",
-      "nameLength": "Tier list title must not exceed 140 characters",
+      "nameLength": "Title must be between 2 and 100 characters",
+      "tagsMaxCount": "Tags cannot exceed 100",
+      "tagMaxLength": "Each tag cannot exceed 30 characters",
       "description": "Description",
       "descriptionPlaceholder": "Share tips or reasoning behind this tier list",
       "tags": "Tags",
@@ -4190,7 +4194,17 @@
         "weaponAllEmpty": "All weapons are empty",
         "weaponDirectionsEmpty": "Weapon direction is not set, <u>it is required</u>",
         "armorEmpty": "Ship armor is empty",
-        "displayAllEmpty": "All furniture is empty"
+        "displayAllEmpty": "All furniture is empty",
+        "masteryEmpty": "Mastery is required",
+        "descriptionMinLength": "Please add description, at least 10 characters",
+        "tagsEmpty": "Tags missing, please add preset or custom tags",
+        "masteryNodesEmpty": "Season mastery nodes missing, please select at least one",
+        "masteryPointsMissing": "Seasonal skill points missing in season mastery nodes",
+        "wheelEmpty": "Missing wheel configuration",
+        "warehouseEmpty": "Missing cargo item recommendation",
+        "nameLengthInvalid": "Title must be between 2 and 100 characters",
+        "tagsMaxCount": "Tags cannot exceed 100",
+        "tagMaxLength": "Each tag cannot exceed 30 characters"
       },
       "emptyShip": "No Ship Selected",
       "emptyShipDesc": "Please select a ship and equip weapons in the workshop to view calculation statistics.",

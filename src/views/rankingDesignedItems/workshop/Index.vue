@@ -79,10 +79,38 @@ const publishData = ref<any>({
   },
 });
 
+/**
+ * 提取标签纯文本字符串
+ */
+const extractTagString = (tag: any): string => {
+  if (typeof tag === 'string') return tag.trim();
+  if (tag && typeof tag === 'object') {
+    const val = tag.value ?? tag.raw ?? tag.label ?? tag.title ?? '';
+    return typeof val === 'string' ? val.trim() : String(val).trim();
+  }
+  return '';
+};
+
 const formRules = {
   name: [
     (v: string) => !!(v && v.trim()) || t("rankingDesignedItems.publish.nameRequired"),
-    (v: string) => !v || v.length <= 140 || t("rankingDesignedItems.publish.nameLength"),
+    (v: string) => (!v || (v.trim().length >= 2 && v.trim().length <= 100)) || t("rankingDesignedItems.publish.nameLength"),
+  ],
+  tags: [
+    (v: any) => {
+      if (!v || !Array.isArray(v)) return true;
+      const cleanTags = v.map(extractTagString).filter(Boolean);
+      return cleanTags.length <= 100 || t("rankingDesignedItems.publish.tagsMaxCount");
+    },
+    (v: any) => {
+      if (!v || !Array.isArray(v)) return true;
+      const hasExceeded = v.some((t: any) => {
+        const str = extractTagString(t);
+        if (!str) return false;
+        return str.length > 30;
+      });
+      return !hasExceeded || t("rankingDesignedItems.publish.tagMaxLength");
+    },
   ],
 };
 
@@ -92,7 +120,17 @@ const isEditModel = computed(() => {
 
 // 发布检查
 const isPushDisabled = computed(() => {
-  return !publishData.value?.name || publishData.value.name.trim() === "";
+  const name = publishData.value?.name?.trim();
+  if (!name || name.length < 2 || name.length > 100) {
+    return true;
+  }
+  const tags = publishData.value?.tags;
+  if (tags && Array.isArray(tags)) {
+    const cleanTags = tags.map(extractTagString).filter(Boolean);
+    if (cleanTags.length > 100) return true;
+    if (cleanTags.some((t: string) => t.length > 30)) return true;
+  }
+  return false;
 });
 
 /**
@@ -117,6 +155,10 @@ const toggleTag = (tag: string) => {
   if (idx > -1) {
     publishData.value.tags.splice(idx, 1);
   } else {
+    if (publishData.value.tags.length >= 100) {
+      notice.warning(t("rankingDesignedItems.publish.tagsMaxCount"));
+      return;
+    }
     publishData.value.tags.push(tag);
   }
 };
@@ -334,10 +376,33 @@ const loadExistingData = async () => {
 const onSubmit = async () => {
   if (!rankingDesignedView.value) return;
 
-  if (!publishData.value.name || !publishData.value.name.trim()) {
+  const nameTrimmed = publishData.value.name?.trim();
+  if (!nameTrimmed) {
     notice.error(t("rankingDesignedItems.publish.nameRequired"));
     await goto("#info", {duration: 1000, offset: -120});
     return;
+  }
+  if (nameTrimmed.length < 2 || nameTrimmed.length > 100) {
+    notice.error(t("rankingDesignedItems.publish.nameLength"));
+    await goto("#info", {duration: 1000, offset: -120});
+    return;
+  }
+
+  const tags = publishData.value.tags;
+  if (tags && Array.isArray(tags)) {
+    const cleanTags = tags.map(extractTagString).filter(Boolean);
+    if (cleanTags.length > 100) {
+      notice.error(t("rankingDesignedItems.publish.tagsMaxCount"));
+      await goto("#info", {duration: 1000, offset: -120});
+      return;
+    }
+    const hasInvalidTagLength = cleanTags.some((tagStr: string) => tagStr.length > 30);
+    if (hasInvalidTagLength) {
+      notice.error(t("rankingDesignedItems.publish.tagMaxLength"));
+      await goto("#info", {duration: 1000, offset: -120});
+      return;
+    }
+    publishData.value.tags = cleanTags;
   }
 
   const currentRankingData = rankingDesignedView.value.onExport();
@@ -524,7 +589,9 @@ onMounted(() => {
                   :label="t('rankingDesignedItems.publish.name')"
                   size="l-large"
                   hide-details="auto"
-                  maxlength="140"
+                  minlength="2"
+                  maxlength="100"
+                  :counter="100"
                   :placeholder="t('rankingDesignedItems.publish.namePlaceholder')"
                   variant="underlined">
               </v-text-field>
@@ -559,10 +626,10 @@ onMounted(() => {
             <v-combobox
                 v-model="publishData.tags"
                 :counter="100"
+                :rules="formRules.tags"
                 :hide-no-data="true"
-                hide-details
+                hide-details="auto"
                 hide-selected
-                :details="false"
                 chips
                 clearable
                 item-title="label"

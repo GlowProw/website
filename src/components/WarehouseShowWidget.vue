@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<{
       readonly: false,
       cargo: {}
     }),
+    emit = defineEmits(['update:item-change']),
     warehouseDataProcessing = new WarehouseDataProcessing()
 
 let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
@@ -192,11 +193,29 @@ const onExport = () => {
   return warehouseDataProcessing.export(data.value)
 }
 
+// 数据变动时通知工作台联动校验
+watch(data, () => {
+  emit('update:item-change', 'warehouse');
+}, {deep: true});
+
 /**
  * 验证
  */
 const verify = () => {
-  return warehouseDataProcessing.verify(data.value, attr.value.warehouseUseVersion)
+  const result: { required: number; verify: Array<{ required: boolean; message: string; title?: string }> } = {
+    required: 0,
+    verify: []
+  };
+
+  if (isEmpty.value) {
+    result.verify.push({
+      required: false,
+      message: 'warehouseEmpty',
+      title: t('assembly.additions.warehouse')
+    });
+  }
+
+  return result;
 }
 
 defineExpose({

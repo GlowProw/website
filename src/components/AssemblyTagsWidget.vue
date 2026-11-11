@@ -51,7 +51,7 @@ const internalTags = computed({
   get: () => poops.modelValue?.filter(isKnownTag) || [],
   set: (val) => {
     const others = poops.modelValue?.filter(tag => !isKnownTag(tag)) || [];
-    const newTags = [...others, ...val];
+    const newTags = [...others, ...val].slice(0, 100);
     emit('update:modelValue', newTags);
     emit('change', newTags);
   }

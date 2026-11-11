@@ -32,7 +32,8 @@ const {t, locale} = useI18n(),
     router = useRouter(),
     notice = useNoticeStore(),
     noticeStore = useNoticeStore(),
-    appStore = useAppStore();
+    appStore = useAppStore(),
+    assemblyDataProcessing = new AssemblyDataProcessing();
 
 let
     assemblyLoading = ref(false),
@@ -88,7 +89,23 @@ let
     formRules = {
       name: [
         (v: any) => !!(v && v.trim()) || t('basic.assembly.publish.nameRequired'),
-        (v: any) => !v || v.length <= 140 || t('basic.rules.assembly.nameLength')
+        (v: any) => (!v || (v.trim().length >= 2 && v.trim().length <= 100)) || t('basic.rules.assembly.nameLength')
+      ],
+      tags: [
+        (v: any) => {
+          if (!v || !Array.isArray(v)) return true;
+          const cleanTags = v.map(extractTagString).filter(Boolean);
+          return cleanTags.length <= 100 || t('basic.rules.assembly.tagsMaxCount');
+        },
+        (v: any) => {
+          if (!v || !Array.isArray(v)) return true;
+          const hasExceeded = v.some((t: any) => {
+            const str = extractTagString(t);
+            if (!str || isSystemTag(str)) return false;
+            return str.length > 30;
+          });
+          return !hasExceeded || t('basic.rules.assembly.tagMaxLength');
+        }
       ]
     },
 
@@ -106,15 +123,54 @@ let
           return Boolean(route.params.uid);
       }
     }),
-    isAssemblyByUser = computed(() => isEditModel.value ? (shareData.value.isOwner !== false) : true),
-    currentWorkshopAssembly = computed(() => {
-      const live = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.();
-      if (live) return live;
-      return shareData.value?.assembly?.data || shareData.value?.assembly || null;
-    }),
+    isAssemblyByUser = computed(() => isEditModel.value ? (shareData.value.isOwner !== false) : true);
 
-    requiredVerifyList = computed(() => verificationWorkshop.value.verify.filter((v: any) => v.required)),
-    optionalVerifyList = computed(() => verificationWorkshop.value.verify.filter((v: any) => !v.required));
+/**
+ * 提取标签纯文本字符串
+ */
+const extractTagString = (tag: any): string => {
+  if (typeof tag === 'string') return tag.trim();
+  if (tag && typeof tag === 'object') {
+    const val = tag.value ?? tag.raw ?? tag.label ?? tag.title ?? '';
+    return typeof val === 'string' ? val.trim() : String(val).trim();
+  }
+  return '';
+};
+
+/**
+ * 判断是否为系统预设标签（预设标签如 teamFormationMethod_singlePlayer 长度超过 30，属于预设 code，不纳入自定义标签长度限制）
+ */
+const isSystemTag = (tag: string): boolean => {
+  if (!tag) return false;
+  const knownPrefixes = [
+    'teamFormationMethod_',
+    'difficultyOfAcquisition_',
+    'season_',
+    'damageType_',
+    'archetype_'
+  ];
+  return ['pvp', 'pve'].includes(tag) || knownPrefixes.some(p => tag.startsWith(p));
+};
+
+const getSubjectRefs = () => {
+  const view = assemblyMainSubjectView.value;
+  if (!view) return null;
+  if (typeof view.getSubjectRefs === 'function') {
+    return view.getSubjectRefs();
+  }
+  const raw = view.refs;
+  if (!raw) return null;
+  return raw.value || raw;
+};
+
+const currentWorkshopAssembly = computed(() => {
+  const live = getSubjectRefs()?.assembly?.onExport?.();
+  if (live) return live;
+  return shareData.value?.assembly?.data || shareData.value?.assembly || null;
+});
+
+const requiredVerifyList = computed(() => verificationWorkshop.value.verify.filter((v: any) => v.required));
+const optionalVerifyList = computed(() => verificationWorkshop.value.verify.filter((v: any) => !v.required));
 
 /**
  * 校验工坊全部数据（包含名称与各子组件要求）
@@ -125,29 +181,106 @@ const runWorkshopVerify = () => {
     verify: []
   };
 
-  // 验证配置名称（必选项）
-  if (!publishData.value?.name || !publishData.value.name.trim()) {
+  // 验证配置名称（必选项，2 到 100 字符）
+  const nameTrimmed = publishData.value?.name?.trim();
+  if (!nameTrimmed) {
     verification.verify.push({
       required: true,
       message: 'nameRequired',
       title: t('basic.assembly.publish.name')
     });
     verification.required += 1;
+  } else if (nameTrimmed.length < 2 || nameTrimmed.length > 100) {
+    verification.verify.push({
+      required: true,
+      message: 'nameLengthInvalid',
+      title: t('basic.assembly.publish.name')
+    });
+    verification.required += 1;
+  }
+
+  // 建议完善项：请添加描述内容，至少10字以上
+  const descTrimmed = publishData.value?.description?.trim();
+  if (!descTrimmed || descTrimmed.length < 10) {
+    verification.verify.push({
+      required: false,
+      message: 'descriptionMinLength',
+      title: t('basic.assembly.publish.description')
+    });
+  }
+
+  // 建议完善项与标签限制：“标签”缺失，请添加预制标签或自定义标签
+  const rawTags = publishData.value?.assembly?.tags;
+  const cleanTags = Array.isArray(rawTags) ? rawTags.map(extractTagString).filter(Boolean) : [];
+
+  if (cleanTags.length === 0) {
+    verification.verify.push({
+      required: false,
+      message: 'tagsEmpty',
+      title: t('basic.assembly.publish.tags')
+    });
+  } else {
+    if (cleanTags.length > 100) {
+      verification.verify.push({
+        required: true,
+        message: 'tagsMaxCount',
+        title: t('basic.assembly.publish.tags')
+      });
+      verification.required += 1;
+    }
+    const hasInvalidTagLength = cleanTags.some((tagStr: string) => !isSystemTag(tagStr) && tagStr.length > 30);
+    if (hasInvalidTagLength) {
+      verification.verify.push({
+        required: true,
+        message: 'tagMaxLength',
+        title: t('basic.assembly.publish.tags')
+      });
+      verification.required += 1;
+    }
   }
 
   // 验证各个工坊组件 (assembly, wheel, warehouse, mastery)
-  const refs = assemblyMainSubjectView.value?.refs;
-  if (refs) {
-    const checkComponents = ['assembly', 'wheel', 'warehouse', 'mastery'];
-    for (const compName of checkComponents) {
-      const comp = refs[compName];
-      if (comp && typeof comp.verify === 'function') {
-        const compVerify = comp.verify();
-        if (compVerify && compVerify.verify && compVerify.verify.length > 0) {
-          verification.verify.push(...compVerify.verify);
-          verification.required += (compVerify.required || 0);
+  let subVerified = false;
+  const view = assemblyMainSubjectView.value;
+  if (view && typeof view.verify === 'function') {
+    const sv = view.verify();
+    if (sv && Array.isArray(sv.verify) && sv.verify.length > 0) {
+      verification.verify.push(...sv.verify);
+      verification.required += (sv.required || 0);
+      subVerified = true;
+    }
+  }
+
+  if (!subVerified) {
+    const refs = getSubjectRefs();
+    if (refs) {
+      const checkComponents = ['assembly', 'wheel', 'warehouse', 'mastery'];
+      for (const compName of checkComponents) {
+        const comp = refs[compName];
+        if (comp && typeof comp.verify === 'function') {
+          const compVerify = comp.verify();
+          if (compVerify && compVerify.verify && compVerify.verify.length > 0) {
+            verification.verify.push(...compVerify.verify);
+            verification.required += (compVerify.required || 0);
+          }
         }
       }
+    }
+  }
+
+  // 兜底保障：若未获取到 assembly 相关的校验项（例如初始化挂载瞬间），直接从当前配装数据运行校验，确保船只必选等规则绝不丢失
+  const assemblyVerifyKeys = [
+    'shipEmpty', 'weaponDirectionsEmpty', 'shipUpgradeEmpty', 'ultimateEmpty',
+    'weaponModificationsEmpty', 'secondaryWeaponModificationsEmpty',
+    'secondaryWeaponEmpty', 'weaponAllEmpty', 'armorEmpty', 'displayAllEmpty'
+  ];
+  const hasAssemblyVerify = verification.verify.some((v: any) => assemblyVerifyKeys.includes(v.message));
+  if (!hasAssemblyVerify) {
+    const assemblyData = currentWorkshopAssembly.value || publishData.value?.assembly?.data || shareData.value?.assembly?.data || shareData.value?.assembly || {};
+    const assemblyVer = assemblyDataProcessing.verify(assemblyData, publishData.value?.assembly?.attr?.assemblyUseVersion);
+    if (assemblyVer && assemblyVer.verify && assemblyVer.verify.length > 0) {
+      verification.verify.push(...assemblyVer.verify);
+      verification.required += (assemblyVer.required || 0);
     }
   }
 
@@ -187,7 +320,7 @@ watch(() => publishData.value, () => {
  * 监听配装属性变化，同步更新配装视图
  */
 watch(() => publishData.value.assembly?.attr, () => {
-  const comp = assemblyMainSubjectView.value?.refs?.assembly;
+  const comp = getSubjectRefs()?.assembly;
   if (comp && typeof comp.setSetting === 'function') {
     comp.setSetting({
       assemblyUseVersion: publishData.value.assembly.attr?.assemblyUseVersion || AssemblyDataProcessing.nowVersion,
@@ -198,11 +331,19 @@ watch(() => publishData.value.assembly?.attr, () => {
 }, {deep: true});
 
 /**
- * 监听名称变化，实时更新验证器
+ * 监听名称、描述与标签变化，实时更新验证器
  */
 watch(() => publishData.value.name, () => {
   runWorkshopVerify();
 });
+
+watch(() => publishData.value.description, () => {
+  runWorkshopVerify();
+});
+
+watch(() => publishData.value.assembly?.tags, () => {
+  runWorkshopVerify();
+}, {deep: true});
 
 /**
  * 监听共享数据变化，重新装载工坊视图
@@ -218,6 +359,9 @@ onMounted(async () => {
   if (isEditModel.value) {
     await getAssemblyDetail();
   }
+  nextTick(() => {
+    runWorkshopVerify();
+  });
 });
 
 /**
@@ -285,7 +429,7 @@ const getAssemblyDetail = async () => {
  */
 const loadAssemblyData = () => {
   const d = shareData.value;
-  const refs = assemblyMainSubjectView.value?.refs;
+  const refs = getSubjectRefs();
   if (!refs) return;
 
   if (refs.assembly && d.assembly) {
@@ -354,7 +498,7 @@ onBeforeUnmount(() => {
 const onSubmit = async () => {
   const verifyResult = runWorkshopVerify();
   if (verifyResult.required > 0) {
-    noticeStore.warning(t('assembly.workshop.missingRequiredFields') || '请先完善必选项');
+    noticeStore.warning(t('assembly.workshop.missingRequiredFields'));
     return;
   }
   if (!isAssemblyByUser.value) {
@@ -380,10 +524,11 @@ const onSubmit = async () => {
       return null;
     };
 
-    const rawAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
-    const rawWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
-    const rawWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
-    const rawMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
+    const refs = getSubjectRefs();
+    const rawAssembly = refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
+    const rawWheel = refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
+    const rawWarehouse = refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
+    const rawMastery = refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
 
     const exportAssembly = rawAssembly && typeof rawAssembly === 'object' ? rawAssembly : {};
     const exportWheel = normalizeArrayData(rawWheel);
@@ -396,6 +541,9 @@ const onSubmit = async () => {
       description: publishData.value.description,
       assembly: {
         ...publishData.value.assembly,
+        tags: Array.isArray(publishData.value.assembly?.tags)
+          ? publishData.value.assembly.tags.map(extractTagString).filter(Boolean)
+          : [],
         data: exportAssembly
       },
       wheel: {
@@ -422,13 +570,13 @@ const onSubmit = async () => {
           category: 'assembly'
         });
       }
-      notice.success(t(`basic.tips.${d.code}`) || '保存成功');
+      notice.success(t(`basic.tips.${d.code}`));
       await router.push(`/assembly/browse/${payload.uuid}/detail`);
     } else {
       const result = await apis.assemblyApi().publishAssembly(payload);
       const d = result.data;
       const newUuid = d.data?.['assembly.uuid'] || d.data?.uuid;
-      notice.success(t(`basic.tips.${d.code}`) || '发布成功');
+      notice.success(t(`basic.tips.${d.code}`));
       if (newUuid) {
         await router.push(`/assembly/browse/${newUuid}/detail`);
       } else {
@@ -455,10 +603,11 @@ const isInitialLoaded = ref(false);
  * 提取当前工坊配装与发布信息的完整草稿载荷
  */
 const getWorkshopDraftPayload = () => {
-  const currentAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
-  const currentWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
-  const currentWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
-  const currentMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
+  const refs = getSubjectRefs();
+  const currentAssembly = refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
+  const currentWheel = refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
+  const currentWarehouse = refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
+  const currentMastery = refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
 
   return {
     ...shareData.value,
@@ -581,10 +730,11 @@ const onSaveDraft = () => {
   let uid: string = uuidv6();
   draftSaveLoading.value = true;
 
-  const currentAssembly = assemblyMainSubjectView.value?.refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
-  const currentWheel = assemblyMainSubjectView.value?.refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
-  const currentWarehouse = assemblyMainSubjectView.value?.refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
-  const currentMastery = assemblyMainSubjectView.value?.refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
+  const refs = getSubjectRefs();
+  const currentAssembly = refs?.assembly?.onExport?.() || shareData.value?.assembly?.data || shareData.value?.assembly;
+  const currentWheel = refs?.wheel?.onExport?.() || shareData.value?.wheel?.data || shareData.value?.wheel;
+  const currentWarehouse = refs?.warehouse?.onExport?.() || shareData.value?.warehouse?.data || shareData.value?.warehouse;
+  const currentMastery = refs?.mastery?.onExport?.() || shareData.value?.mastery?.data || shareData.value?.mastery;
 
   const draftPayload = {
     ...shareData.value,
@@ -650,7 +800,7 @@ const onUseDraft = (item: any) => {
   }
 
   // 恢复子视图数据
-  const refs = assemblyMainSubjectView.value?.refs;
+  const refs = getSubjectRefs();
   if (refs?.assembly) {
     refs.assembly
         .setSetting({
@@ -750,7 +900,8 @@ const captureUndoSnapshot = (tab?: string): { tab: string; data: any } | null =>
   if (!view) return null;
 
   const name = tab || view.tab || 'assembly';
-  const data = view.refs?.[name]?.onExport?.();
+  const refs = getSubjectRefs();
+  const data = refs?.[name]?.onExport?.();
   if (!data) return null;
 
   return {tab: name, data: cloneUndoData(data)};
@@ -834,7 +985,7 @@ const onHotkeyUndo = () => {
   if (!snapshot) return;
 
   const view = assemblyMainSubjectView.value;
-  const widget = view?.refs?.[snapshot.tab];
+  const widget = getSubjectRefs()?.[snapshot.tab] || view?.refs?.[snapshot.tab];
   if (!widget?.onLoad) return;
 
   undoStack.pop();
@@ -956,7 +1107,7 @@ usePageHotkeys({
                           size="22">
                       </v-icon>
 
-                      {{ isEditModel ? (t('basic.button.save') || t('basic.button.commit')) : t('basic.button.commit') }}
+                      {{ isEditModel ? t('basic.button.save') : t('basic.button.commit') }}
 
                       <p class="ml-2 text-red" v-if="verificationWorkshop.required > 0">
                         <v-icon icon="mdi-alert-circle" size="22"></v-icon>
@@ -1027,7 +1178,9 @@ usePageHotkeys({
                   :label="t('basic.assembly.publish.name')"
                   size="l-large"
                   hide-details="auto"
-                  maxlength="140"
+                  minlength="2"
+                  maxlength="100"
+                  :counter="100"
                   :placeholder="t('basic.assembly.publish.namePlaceholder')"
                   variant="underlined">
               </v-text-field>
@@ -1057,10 +1210,10 @@ usePageHotkeys({
             <v-combobox
                 v-model="publishData.assembly.tags"
                 :counter="100"
+                :rules="formRules.tags"
                 :hide-no-data="true"
-                hide-details
+                hide-details="auto"
                 hide-selected
-                :details="false"
                 chips
                 clearable
                 item-title="label"
@@ -1069,7 +1222,7 @@ usePageHotkeys({
                 multiple
                 :placeholder="t('basic.assembly.publish.tagsPlaceholder')"
                 variant="underlined">
-              <template v-slot:prepend v-if="publishData.assembly.tags <= 0">
+              <template v-slot:prepend v-if="!publishData.assembly?.tags || publishData.assembly.tags.length <= 0">
                 <v-icon>mdi-tag-multiple</v-icon>
               </template>
               <template v-slot:chip="{item}">
@@ -1097,7 +1250,7 @@ usePageHotkeys({
             class="text-black"
             variant="elevated"
             @click="onSubmit">
-          {{ isEditModel ? (t('basic.button.save') || t('basic.button.commit')) : t('basic.button.commit') }}
+          {{ isEditModel ? t('basic.button.save') : t('basic.button.commit') }}
         </v-btn>
       </v-row>
     </AffixContainerView>

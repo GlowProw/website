@@ -105,31 +105,28 @@ watch(() => route?.query?.tag, (newTag) => {
   }
 });
 
+const updateSubjectRefs = () => {
+  refs.value = {
+    zoomableAreaRef: zoomableAreaRef.value,
+    assembly: assemblyWorkshopRef.value,
+    wheel: wheelWorkshopRef.value,
+    warehouse: warehouseWorkshopRef.value,
+    mastery: masteryWorkshopRef.value,
+    info: infoWorkshopRef.value
+  };
+};
+
 onMounted(() => {
-  nextTick(() => {
-    assemblyViewModel.value = storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: 'lock-window'})
+  assemblyViewModel.value = storage_account.getConfigurationItem('assembly', 'viewModel', {defaultValue: 'lock-window'});
 
-    refs.value = {
-      zoomableAreaRef: zoomableAreaRef.value,
-      assembly: assemblyWorkshopRef.value,
-      wheel: wheelWorkshopRef.value,
-      warehouse: warehouseWorkshopRef.value,
-      mastery: masteryWorkshopRef.value,
-      info: infoWorkshopRef.value
-    };
+  updateSubjectRefs();
 
-    if (hasReadyEvent) {
-      emit('ready', refs)
-    }
+  emit('ready', refs);
+  syncAssemblyData();
 
-    syncAssemblyData()
-
-    // 初始验证
-    if (hasItemChangeEvent) {
-      emit('update:item-change', 'assembly')
-    }
-  })
-})
+  // 初始验证
+  emit('update:item-change', 'assembly');
+});
 
 const syncShip = () => {
   if (assemblyWorkshopRef.value) {
@@ -158,8 +155,9 @@ const syncAssemblyData = () => {
 }
 
 const onUpdateEvent = (workshopName: string) => {
-  syncAssemblyData()
-  emit('update:item-change', workshopName)
+  updateSubjectRefs();
+  syncAssemblyData();
+  emit('update:item-change', workshopName);
 }
 
 /**
@@ -192,9 +190,51 @@ const hasData = (name: string): boolean => {
   return true;
 };
 
+/**
+ * 校验工坊主体及所有附件（配装、轮盘、船仓、精通）
+ */
+const verify = () => {
+  const verification: { required: number; verify: Array<{ required: boolean; message: string; title?: string }> } = {
+    required: 0,
+    verify: []
+  };
+
+  const comps = [
+    assemblyWorkshopRef.value,
+    wheelWorkshopRef.value,
+    warehouseWorkshopRef.value,
+    masteryWorkshopRef.value
+  ];
+
+  for (const comp of comps) {
+    if (comp && typeof comp.verify === 'function') {
+      const compVerify = comp.verify();
+      if (compVerify && compVerify.verify && compVerify.verify.length > 0) {
+        verification.verify.push(...compVerify.verify);
+        verification.required += (compVerify.required || 0);
+      }
+    }
+  }
+
+  return verification;
+};
+
 defineExpose({
   refs,
-  tab
+  tab,
+  verify,
+  assembly: assemblyWorkshopRef,
+  wheel: wheelWorkshopRef,
+  warehouse: warehouseWorkshopRef,
+  mastery: masteryWorkshopRef,
+  getSubjectRefs: () => ({
+    zoomableAreaRef: zoomableAreaRef.value,
+    assembly: assemblyWorkshopRef.value,
+    wheel: wheelWorkshopRef.value,
+    warehouse: warehouseWorkshopRef.value,
+    mastery: masteryWorkshopRef.value,
+    info: infoWorkshopRef.value
+  })
 })
 
 defineOptions({

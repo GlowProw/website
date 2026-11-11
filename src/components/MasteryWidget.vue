@@ -36,7 +36,7 @@ const {
       toggleNodeActivation,
       resetPoints,
       selectNode,
-    } = useMasteryController({});
+    } = useMasteryController({ defaultSeason: false });
 
 // 属性
 const attr = ref<MasteryAttr>({
@@ -44,7 +44,7 @@ const attr = ref<MasteryAttr>({
 });
 
 // 是否空方案
-const isEmpty = computed(() => selectedNodeIds.value.size === 0);
+const isEmpty = computed(() => !selectedSeasonId.value && selectedNodeIds.value.size === 0);
 
 // 数据变动时通知工作台（校验/保存联动）
 watch([selectedNodeIds, selectedSeasonId], () => {
@@ -110,6 +110,7 @@ const onLoad = (importDataRaw: any) => {
  * 导出
  */
 const onExport = () => {
+  if (!selectedSeasonId.value) return null;
   const raw: MasterySaveData = {
     season: selectedSeasonId.value,
     nodes: Array.from(selectedNodeIds.value),
@@ -120,10 +121,41 @@ const onExport = () => {
 }
 
 /**
- * 验证（精通为配装可选附加项，不阻断发布）
+ * 验证（精通必选为必须项，节点与点数为建议项）
  */
 const verify = () => {
-  return masteryDataProcessing.verify(toRaw(onExport()), attr.value.masteryUseVersion)
+  const result: { required: number; verify: Array<{ required: boolean; message: string; title?: string }> } = {
+    required: 0,
+    verify: []
+  };
+
+  const masteryTitle = t('assembly.additions.mastery');
+
+  if (!selectedSeasonId.value) {
+    result.required += 1;
+    result.verify.push({
+      required: true,
+      message: 'masteryEmpty',
+      title: masteryTitle
+    });
+    return result;
+  }
+
+  if (selectedNodeIds.value.size === 0) {
+    result.verify.push({
+      required: false,
+      message: 'masteryNodesEmpty',
+      title: masteryTitle
+    });
+  } else if (regularPointsSpent.value < maxPoints.value) {
+    result.verify.push({
+      required: false,
+      message: 'masteryPointsMissing',
+      title: masteryTitle
+    });
+  }
+
+  return result;
 }
 
 defineExpose({
@@ -146,16 +178,18 @@ defineOptions({
       <v-row align="center" justify="center">
         <v-col cols="auto">
           <v-select
-              :model-value="selectedSeasonId"
+              :model-value="selectedSeasonId || null"
               :items="seasonOptions"
               item-title="title"
               item-value="id"
               :disabled="readonly"
+              clearable
               density="compact"
               variant="outlined"
               hide-details
+              :placeholder="t('mastery.selectSeason')"
               class="mastery-season-select"
-              @update:model-value="selectedSeasonId = $event">
+              @update:model-value="selectedSeasonId = $event || ''">
           </v-select>
         </v-col>
         <v-col>
