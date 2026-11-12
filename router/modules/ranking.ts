@@ -4,6 +4,7 @@ import {initItemAssets, isLoginBeforeEnter} from '../guards';
 const RankingDesignedItemsPage = () => import('@/views/rankingDesignedItems/Index.vue');
 const RankingDesignedItemsBrowsePage = () => import('@/views/rankingDesignedItems/Browse.vue');
 const RankingDesignedItemsDetailPage = () => import('@/views/rankingDesignedItems/Detail.vue');
+const RankingDesignedItemsSharePage = () => import('@/views/rankingDesignedItems/Share.vue');
 const RankingDesignedItemsWorkshopPage = () => import('@/views/rankingDesignedItems/workshop/Index.vue');
 
 // 幻化与精选设计物品排行路由集合
@@ -28,6 +29,11 @@ export const rankingRoutes: RouteRecordRaw[] = [
                 path: 'browse/:uuid/detail',
                 name: 'RankingDesignedItemsDetail',
                 component: RankingDesignedItemsDetailPage,
+            },
+            {
+                path: 'browse/:uuid/share',
+                name: 'RankingDesignedItemsShare',
+                component: RankingDesignedItemsSharePage,
             },
             {
                 path: 'workshop',

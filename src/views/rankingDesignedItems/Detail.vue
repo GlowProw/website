@@ -78,7 +78,7 @@ const isOwner = computed(() => {
 
 // 页面元信息 (meta)
 const head: Ref<any> = ref({
-  title: t(route.meta.title as string) || "天梯详情",
+  title: t((route.meta.title as string) || "rankingDesignedItems.detail.title"),
   titleTemplate: `%s | ${t("name")}`,
   meta: [
     {name: "keywords", content: t(route.meta.keywords as string || "")},
@@ -309,7 +309,7 @@ const onCloneRanking = async () => {
 const onCopyShare = async () => {
   try {
     await navigator.clipboard.writeText(window.location.href);
-    notice.success(t("rankingDesignedItems.copySuccess") || t("basic.tips.copySuccess") || "分享链接已复制");
+    notice.success(t("rankingDesignedItems.copySuccess"));
   } catch {
     notice.error("Failed to copy link");
   }
@@ -392,14 +392,15 @@ onMounted(async () => {
                     detailData.attr?.isAllowClone !== false
                   "
                     :loading="cloneLoading"
-                    :title="t('rankingDesignedItems.clone') || t('assembly.clone')"
+                    :title="t('rankingDesignedItems.clone')"
                     @click="onCloneRanking"
                     icon="mdi-content-copy"></v-btn>
 
                 <v-btn
                     variant="text"
                     v-if="detailData.uuid"
-                    @click="onCopyShare"
+                    :to="`/ranking-designed-items/browse/${detailData.uuid}/share`"
+                    :title="t('rankingDesignedItems.share.title')"
                     icon="mdi-share-variant-outline"></v-btn>
 
                 <v-divider vertical inset></v-divider>
@@ -447,7 +448,7 @@ onMounted(async () => {
                     :to="`/ranking-designed-items/browse/${detailData.cloningUuid}/detail`"
                     target="_blank"
                     v-if="detailData.cloningUuid">
-                  {{ t("rankingDesignedItems.byCloningUuid") || t("assembly.byCloningUuid") }}: {{ detailData.cloningUuid }}
+                  {{ t("rankingDesignedItems.byCloningUuid") }}: {{ detailData.cloningUuid }}
                 </v-chip>
 
                 <AssemblyTagChip

@@ -6,16 +6,18 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import languagesConfig from "@/config/languages";
 
 const props = withDefaults(defineProps<{
-  type?: 'assembly' | 'mastery' | 'both';
+  type?: 'assembly' | 'mastery' | 'both' | 'ranking';
   hasMastery?: boolean;
   assemblyModelValue?: any;
   masteryModelValue?: any;
+  rankingModelValue?: any;
   generateImageConfig?: any;
 }>(), {
   type: 'assembly',
   hasMastery: false,
   assemblyModelValue: () => ({}),
   masteryModelValue: () => ({}),
+  rankingModelValue: () => ({}),
   generateImageConfig: () => ({
     widths: [1050, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 2048],
     formats: ['png', 'jpg', 'webp'],
@@ -28,6 +30,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
   'update:assemblyModelValue': [val: any];
   'update:masteryModelValue': [val: any];
+  'update:rankingModelValue': [val: any];
 }>();
 
 const {t} = useI18n();
@@ -38,6 +41,7 @@ const activeTab = ref<'assembly' | 'mastery'>('assembly');
 const isBothMode = computed(() => props.type === 'both' && props.hasMastery);
 const showMasteryOnly = computed(() => props.type === 'mastery');
 const showAssemblyOnly = computed(() => props.type === 'assembly' || (props.type === 'both' && !props.hasMastery));
+const showRankingOnly = computed(() => props.type === 'ranking');
 
 /**
  * 语言友好标签解析（兼容下划线和连字符格式）
@@ -60,7 +64,7 @@ const getLanguageLabel = (val: any) => {
       </div>
     </v-card-title>
 
-    <!-- 标签切换 -->
+    <!-- 标签切换 S -->
     <v-tabs
         v-if="isBothMode"
         v-model="activeTab"
@@ -74,11 +78,144 @@ const getLanguageLabel = (val: any) => {
         {{ t('mastery.share.title') }}
       </v-tab>
     </v-tabs>
-    <v-divider></v-divider>
+    <!-- 标签切换 E -->
+    <v-divider v-if="isBothMode"></v-divider>
 
-    <v-window class="mt-2 px-5" :model-value="showMasteryOnly ? 'mastery' : (showAssemblyOnly ? 'assembly' : activeTab)">
+    <v-window class="mt-2 px-5" :model-value="showRankingOnly ? 'ranking' : (showMasteryOnly ? 'mastery' : (showAssemblyOnly ? 'assembly' : activeTab))">
+      <!-- 排行海报设置页 S -->
+      <v-window-item value="ranking" v-if="showRankingOnly">
+        <v-row>
+          <v-col cols="12">
+            <div class="mb-2 text-caption opacity-80">{{ t('assembly.share.filename') }}</div>
+            <v-text-field
+                v-model="rankingModelValue.filename"
+                maxlength="100"
+                density="comfortable"
+                variant="filled"
+                hide-details></v-text-field>
+          </v-col>
+
+          <v-col cols="6">
+            <div class="mb-2 text-caption opacity-80">{{ t('assembly.share.width') }}</div>
+            <v-select
+                variant="filled"
+                density="comfortable"
+                v-model="rankingModelValue.width"
+                :items="generateImageConfig.widths"
+                hide-details>
+            </v-select>
+          </v-col>
+
+          <v-col cols="6">
+            <div class="mb-2 text-caption opacity-80">{{ t('assembly.share.format') }}</div>
+            <v-select
+                variant="filled"
+                density="comfortable"
+                v-model="rankingModelValue.format"
+                :items="generateImageConfig.formats"
+                hide-details>
+            </v-select>
+          </v-col>
+
+          <v-col cols="6">
+            <div class="mb-2 text-caption opacity-80">{{ t('assembly.share.quality') }}</div>
+            <v-select
+                variant="filled"
+                density="comfortable"
+                v-model="rankingModelValue.quality"
+                :items="generateImageConfig.qualitys"
+                hide-details>
+            </v-select>
+          </v-col>
+
+          <v-col cols="6">
+            <div class="mb-2 text-caption opacity-80">{{ t('assembly.share.language') }}</div>
+            <v-select
+                variant="filled"
+                item-value="value"
+                item-title="label"
+                density="comfortable"
+                v-model="rankingModelValue.language"
+                :items="generateImageConfig.languages"
+                hide-details>
+              <template v-slot:selection="{ item }">
+                {{ getLanguageLabel((item as any)?.value || rankingModelValue.language) }}
+              </template>
+            </v-select>
+          </v-col>
+
+          <v-col cols="12">
+            <v-divider>{{ t('assembly.share.imageStyleTitle') }}</v-divider>
+          </v-col>
+
+          <v-col cols="12">
+            <div class="mb-2 text-caption opacity-80">{{ t('assembly.share.backgroundColor') }}</div>
+            <v-select
+                variant="filled"
+                density="comfortable"
+                v-model="rankingModelValue.background"
+                :items="generateImageConfig.backgrounds"
+                hide-details>
+              <template v-slot:append>
+                <v-card border variant="text">
+                  <ItemSlotBase size="40px" :padding="0" :style="`background: ${rankingModelValue.background}`"></ItemSlotBase>
+                </v-card>
+              </template>
+              <template v-slot:item="{props: itemProps, item}">
+                <v-list-item v-bind="itemProps">
+                  <template v-slot:append>
+                    <ItemSlotBase size="30px" :padding="0" :style="`background: ${(item as any).raw ?? item}`"></ItemSlotBase>
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
+          </v-col>
+
+          <v-col cols="12">
+            <v-row>
+              <v-col cols="6">
+                <v-switch v-model="rankingModelValue.isShowItemName" inset hide-details density="compact">
+                  <template v-slot:append>
+                    <span class="text-caption">{{ t('assembly.share.showItemName') }}</span>
+                  </template>
+                </v-switch>
+              </v-col>
+              <v-col cols="6">
+                <v-switch v-model="rankingModelValue.isShowTitle" inset hide-details density="compact">
+                  <template v-slot:append>
+                    <span class="text-caption">{{ t('assembly.share.showTitle') }}</span>
+                  </template>
+                </v-switch>
+              </v-col>
+              <v-col cols="6">
+                <v-switch v-model="rankingModelValue.isShowHeader" inset hide-details density="compact">
+                  <template v-slot:append>
+                    <span class="text-caption">{{ t('assembly.share.showHeader') }}</span>
+                  </template>
+                </v-switch>
+              </v-col>
+              <v-col cols="6">
+                <v-switch v-model="rankingModelValue.isShowTabs" inset hide-details density="compact">
+                  <template v-slot:append>
+                    <span class="text-caption">{{ t('assembly.share.showTabs') }}</span>
+                  </template>
+                </v-switch>
+              </v-col>
+              <v-col cols="6">
+                <v-switch v-model="rankingModelValue.isShowDescription" inset hide-details density="compact">
+                  <template v-slot:append>
+                    <span class="text-caption">{{ t('assembly.share.showDescription') }}</span>
+                  </template>
+                </v-switch>
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+      </v-window-item>
+      <!-- 排行海报设置页 E -->
+
       <!-- 配装海报设置页 S -->
-      <v-window-item value="assembly" v-if="!showMasteryOnly">
+      <v-window-item value="assembly" v-if="!showMasteryOnly && !showRankingOnly">
         <v-row>
           <v-col cols="12">
             <div class="mb-2 text-caption opacity-80">{{ t('assembly.share.filename') }}</div>

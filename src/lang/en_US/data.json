@@ -3869,6 +3869,14 @@
       "noDescription": "No description provided for this tier list",
       "editBtn": "Edit Tier List"
     },
+    "share": {
+      "title": "Share Tier List",
+      "notMobile": "Due to display limitations, poster generation is not supported on small screens. Please switch to a desktop or tablet for the full experience.",
+      "createPoster": "Generate Tier List Poster",
+      "generating": "Generating Tier List Poster...",
+      "generatingHint": "Rendering high-resolution image, please wait...",
+      "configHint": "Configure poster generation properties such as layout, size, and format"
+    },
     "analysis": {
       "topLiked": "Top 10 Most Liked Tier Lists",
       "topViewed": "Top 10 Most Viewed Tier Lists"

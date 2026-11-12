@@ -3866,6 +3866,14 @@
       "noDescription": "这个人很懒，对此天梯什么都没说",
       "editBtn": "编辑天梯"
     },
+    "share": {
+      "title": "分享天梯",
+      "notMobile": "由于本地客户端的显示限制，小屏设备暂不支持海报生成功能。建议您切换到电脑或平板等宽屏设备上使用，以获得完整体验。",
+      "createPoster": "生成天梯海报",
+      "generating": "正在生成天梯海报...",
+      "generatingHint": "正在排版渲染高清晰度图像，请稍候...",
+      "configHint": "配置生成海报属性，决定海报样式以及格式等"
+    },
     "analysis": {
       "topLiked": "天梯前10点赞列表",
       "topViewed": "天梯前10游览列表"
