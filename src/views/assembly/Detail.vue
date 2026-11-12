@@ -414,12 +414,14 @@ const onPenPassword = () => {
               {{ t('assembly.browse.createdUser') }}
             </v-col>
             <v-col cols="auto">
-              <AccountCardWidget :id="detailData.userId">
-                <v-card v-if="detailData.userAvatar" class="mr-1">
-                  <UserAvatar size="25" :src="detailData.userAvatar"></UserAvatar>
-                </v-card>
-                <p class="u text-amber">{{ detailData.username || t('assembly.anonymous') }}</p>
-              </AccountCardWidget>
+              <router-link :to="{ name: 'AccountSpace', params: { id: detailData.userId } }" v-if="detailData.userId">
+                <AccountCardWidget :id="detailData.userId">
+                  <v-card v-if="detailData.userAvatar" class="mr-1">
+                    <UserAvatar size="25" :src="detailData.userAvatar"></UserAvatar>
+                  </v-card>
+                  <p class="u text-amber">{{ detailData.username || t('assembly.anonymous') }}</p>
+                </AccountCardWidget>
+              </router-link>
             </v-col>
           </v-row>
 

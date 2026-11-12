@@ -12,6 +12,7 @@ import type {NewsItem} from '@/assets/sripts/api/news_service';
 import {useNoticeStore} from '~/stores/noticeStore';
 import TimeView from '@/components/TimeView.vue';
 import Loading from '@/components/Loading.vue';
+import {useMediaViewerStore} from '~/stores/mediaViewerStore';
 
 const props = withDefaults(defineProps<{
   modelValue: boolean;
@@ -31,15 +32,12 @@ const emit = defineEmits<{
 const {t} = useI18n();
 const {mobile} = useDisplay();
 const notice = useNoticeStore();
+const mediaViewerStore = useMediaViewerStore();
 const newsApi = apis.newsApi();
 
 // 内部加载状态与条目数据
 const internalLoading = ref(false);
 const activeNews = ref<NewsItem | null>(null);
-
-// 大图预览弹窗状态
-const previewImageDialog = ref(false);
-const previewImageUrl = ref('');
 
 /**
  * 平台配置映射
@@ -95,12 +93,13 @@ const loadNewsById = async (id: string) => {
 };
 
 /**
- * 打开全尺寸大图预览
- * @param url 图片地址
+ * 打开全屏媒体查看器浏览新闻详情媒体画廊
+ *
+ * @param index 初始媒体索引
  */
-const onPreviewImage = (url: string) => {
-  previewImageUrl.value = url;
-  previewImageDialog.value = true;
+const onPreviewMedia = (index: number) => {
+  if (mediaUrls.value.length === 0) return;
+  mediaViewerStore.open(mediaUrls.value, index);
 };
 
 /**
@@ -255,7 +254,7 @@ watch(() => [props.modelValue, props.newsItem, props.newsId], ([visible, item, i
                       v-bind="props"
                       variant="tonal"
                       class="media-item-card rounded-lg overflow-hidden cursor-pointer img-wrap"
-                      @click="onPreviewImage(url)">
+                      @click="onPreviewMedia(idx)">
                     <v-img
                         :src="url"
                         :max-height="mediaUrls.length === 1 ? 460 : 260"
@@ -315,20 +314,6 @@ watch(() => [props.modelValue, props.newsItem, props.newsId], ([visible, item, i
       </v-card-actions>
       <!-- 弹窗底栏操作 E -->
     </v-card>
-
-    <!-- 弹窗内图片全屏预览 S -->
-    <v-dialog v-model="previewImageDialog" max-width="960" scrollable>
-      <v-card border class="overflow-hidden">
-        <v-card-title class="d-flex align-center justify-space-between px-4 py-2 border-b">
-          <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" variant="text" size="small" @click="previewImageDialog = false"></v-btn>
-        </v-card-title>
-        <v-card-text class="d-flex justify-center pa-0 bg-black">
-          <v-img :src="previewImageUrl" max-height="85vh" contain></v-img>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <!-- 弹窗内图片全屏预览 E -->
   </v-dialog>
 </template>
 

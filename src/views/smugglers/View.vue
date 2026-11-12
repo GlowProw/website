@@ -447,9 +447,11 @@ const masonryColumns = computed(() => {
               variant="text">
             <v-row no-gutters>
               <v-col cols="auto">
-                <AccountCardWidget :id="i.userId">
-                  <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
-                </AccountCardWidget>
+                <router-link :to="{ name: 'AccountSpace', params: { id: i.id } }">
+                  <AccountCardWidget :id="i.userId">
+                    <UserAvatar :src="i.userAvatar || ''" class="bg-black" size="50px"></UserAvatar>
+                  </AccountCardWidget>
+                </router-link>
               </v-col>
               <v-col class="ml-3 min-w-0">
                 <AccountCardWidget :id="i.userId">

@@ -40,7 +40,7 @@ const isUnknown = (i: any) => i?.isUnknown
 </script>
 
 <template>
-  <v-card max-width="420" min-width="420" class="pa-2 mb-2 background-flavor">
+  <v-card max-width="420" min-width="420" class="mb-2" variant="text">
     <v-card border color="hsl(from var(--main-color) h s calc(l * 0.3))">
       <template v-slot:image>
         <img class="pointer-events-none" src="@/assets/images/portal-banner-background.png">

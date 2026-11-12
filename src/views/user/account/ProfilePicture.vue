@@ -400,12 +400,7 @@ defineOptions({
           <v-row class="mb-2">
             <v-col cols="auto" style="min-width: 160px;">
               <div class="d-flex justify-center mb-2">
-                <v-card border class="pa-1 d-inline-flex">
-                  <UserAvatar v-if="avatarUrl" :src="avatarUrl" :size="160"/>
-                  <v-avatar v-else :size="160" rounded="lg">
-                    <v-icon icon="mdi-account" size="64" class="opacity-40"/>
-                  </v-avatar>
-                </v-card>
+                <UserAvatar v-if="avatarUrl" :src="avatarUrl" :size="160"/>
               </div>
 
               <div class="d-flex ga-2">
@@ -504,12 +499,7 @@ defineOptions({
           <v-row align="end" class="ga-3">
             <v-col cols="auto" v-for="size in [160, 120, 100 ,99 , 80, 56, 40, 28]" :key="size">
               <div class="text-center">
-                <v-card border class="pa-1 d-inline-block mb-2">
-                  <UserAvatar :src="avatarUrl" v-if="avatarUrl" :size="size"/>
-                  <v-avatar v-else :size="size">
-                    <v-icon icon="mdi-account" :size="size * 0.7" class="opacity-60"/>
-                  </v-avatar>
-                </v-card>
+                <UserAvatar :src="avatarUrl" v-if="avatarUrl" :size="size"/>
                 <div class="text-caption opacity-50 font-weight-bold">{{ size }}px</div>
               </div>
             </v-col>

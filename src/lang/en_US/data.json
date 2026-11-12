@@ -6085,5 +6085,17 @@
       "reupload": "Overwrites",
       "maxPerFile": "Single File ≤ 10 Times"
     }
+  },
+  "mediaViewer": {
+    "prev": "Previous",
+    "next": "Next",
+    "zoomIn": "Zoom In",
+    "zoomOut": "Zoom Out",
+    "reset": "Reset Size",
+    "rotate": "Rotate",
+    "close": "Close",
+    "original": "View Original",
+    "download": "Download Media",
+    "counter": "{current} / {total}"
   }
 }

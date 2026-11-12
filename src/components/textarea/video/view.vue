@@ -3,10 +3,12 @@ import {computed} from "vue";
 import {nodeViewProps, NodeViewWrapper} from "@tiptap/vue-3";
 import {useI18n} from "vue-i18n";
 import {normalizeVideoUrl} from "./index";
+import {useMediaViewerStore} from "~/stores/mediaViewerStore";
 
 const props = defineProps(nodeViewProps)
 
 const {t} = useI18n()
+const mediaViewerStore = useMediaViewerStore()
 
 const resolved = computed(() => normalizeVideoUrl(props.node.attrs.src || ''))
 const embedSrc = computed(() => resolved.value.ok && resolved.value.embed ? resolved.value.url || '' : '')
@@ -18,11 +20,65 @@ const externalHost = computed(() => {
         return ''
     }
 })
+
+/**
+ * 收集富文本内所有媒体资源并在全屏媒体查看器中浏览
+ */
+const onPreviewMedia = () => {
+  const currentSrc = props.node?.attrs?.src;
+  if (!currentSrc) return;
+
+  const mediaList: Array<{ src: string; type: 'image' | 'video' | 'iframe' }> = [];
+
+  if (props.editor) {
+    try {
+      props.editor.state.doc.descendants((node: any) => {
+        if (node.type.name === 'Img' && node.attrs?.src) {
+          mediaList.push({
+            src: node.attrs.src,
+            type: 'image',
+          });
+        } else if (node.type.name === 'Video' && node.attrs?.src) {
+          mediaList.push({
+            src: node.attrs.src,
+            type: 'video',
+          });
+        }
+      });
+    } catch {
+      // 容错降级
+    }
+  }
+
+  if (mediaList.length === 0) {
+    mediaList.push({
+      src: currentSrc,
+      type: embedSrc.value ? 'iframe' : 'video',
+    });
+  }
+
+  let initialIndex = mediaList.findIndex((m) => m.src === currentSrc);
+  if (initialIndex < 0) {
+    initialIndex = 0;
+  }
+
+  mediaViewerStore.open(mediaList, initialIndex);
+};
 </script>
 
 <template>
   <node-view-wrapper class="video-view-wrapper">
-    <v-card v-if="embedSrc" border class="my-1 bg-black video-card">
+    <!-- 嵌入式视频卡片 S -->
+    <v-card v-if="embedSrc" border class="my-1 bg-black video-card position-relative">
+      <v-btn
+          icon="mdi-fullscreen"
+          variant="tonal"
+          size="small"
+          color="white"
+          class="position-absolute top-0 right-0 ma-2 z-10"
+          :title="t('mediaViewer.original')"
+          @click="onPreviewMedia">
+      </v-btn>
       <!-- sandbox 不授予 allow-top-navigation，防止嵌入页劫持顶层跳转 -->
       <iframe :src="embedSrc" class="border-0 w-100 h-100"
               allow="fullscreen; picture-in-picture"
@@ -31,6 +87,7 @@ const externalHost = computed(() => {
               referrerpolicy="no-referrer-when-downgrade"
               style="min-height: 400px"></iframe>
     </v-card>
+    <!-- 嵌入式视频卡片 E -->
 
     <!-- 目标站点禁止被 iframe 内嵌（frame-ancestors 'self'），渲染为外链卡片 -->
     <a v-else-if="externalUrl" :href="externalUrl" target="_blank" rel="noopener noreferrer"

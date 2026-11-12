@@ -8,13 +8,15 @@ import EmptyView from "@/components/EmptyView.vue";
 import Loading from "@/components/Loading.vue";
 import {BlogData} from "@/assets/types/Blog";
 import HtmlLink from "@/components/HtmlLink.vue";
+import {useMediaViewerStore} from "~/stores/mediaViewerStore";
 
 const md = new MarkdownIt({
       html: true,
       linkify: true,
       typographer: true
     }),
-    api = useBlogApi()
+    api = useBlogApi(),
+    mediaViewerStore = useMediaViewerStore()
 
 let loading: Ref<boolean> = ref(true),
     showBlogIndex: Ref<number> = ref(0),
@@ -151,6 +153,37 @@ const onPage = (type) => {
       break;
   }
 }
+
+/**
+ * 监听博客正文内容区域的图片点击事件，收集该篇博客中所有插图并在媒体查看器中浏览
+ *
+ * @param event 鼠标点击事件
+ */
+const onContentClick = (event: MouseEvent) => {
+  const target = event.target as HTMLElement;
+  if (!target || target.tagName.toLowerCase() !== 'img') return;
+
+  const clickedImg = target as HTMLImageElement;
+  const currentSrc = clickedImg.currentSrc || clickedImg.src;
+  if (!currentSrc) return;
+
+  // 收集当前展示的博客内容中的所有图片
+  const contentEl = rootRef.value?.querySelector('.content');
+  const allImgs = Array.from(contentEl?.querySelectorAll('img') || []) as HTMLImageElement[];
+  const srcList = allImgs
+    .map((img) => img.currentSrc || img.src)
+    .filter(Boolean);
+
+  let targetIndex = allImgs.indexOf(clickedImg);
+  if (targetIndex < 0) {
+    targetIndex = srcList.indexOf(currentSrc);
+  }
+  if (targetIndex < 0) {
+    targetIndex = 0;
+  }
+
+  mediaViewerStore.open(srcList.length > 0 ? srcList : [currentSrc], targetIndex);
+};
 </script>
 
 <template>
@@ -188,7 +221,7 @@ const onPage = (type) => {
           </v-col>
         </v-row>
 
-        <div class="content" v-html="md.render(blogData.latestPosts[showBlogIndex].content || '')"></div>
+        <div class="content" @click="onContentClick" v-html="md.render(blogData.latestPosts[showBlogIndex].content || '')"></div>
       </template>
       <EmptyView v-else></EmptyView>
       <v-overlay v-model="loading" class="d-flex justify-center align-center" contained :z-index="10">
@@ -205,6 +238,15 @@ const onPage = (type) => {
 
 .page-btn {
   height: 30px !important;
+}
+
+.content :deep(img) {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.92;
+  }
 }
 </style>
 

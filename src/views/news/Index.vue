@@ -19,11 +19,13 @@ import PaginationBar from '@/components/PaginationBar.vue';
 import Loading from '@/components/Loading.vue';
 import TimeView from "@/components/TimeView.vue";
 import NewsDetailDialog from '@/components/NewsDetailDialog.vue';
+import {useMediaViewerStore} from '~/stores/mediaViewerStore';
 
 const {t} = useI18n();
 const route = useRoute();
 const router = useRouter();
 const notice = useNoticeStore();
+const mediaViewerStore = useMediaViewerStore();
 const newsApi = apis.newsApi();
 
 // SEO 元数据配置
@@ -58,10 +60,6 @@ let searchDebounceTimer: any = null;
 const detailDialog = ref(false);
 const selectedNews = ref<NewsItem | null>(null);
 const selectedNewsId = ref<string | null>(null);
-
-// 大图预览弹窗状态
-const previewImageDialog = ref(false);
-const previewImageUrl = ref('');
 
 // 平台筛选配置列表
 const platforms = computed(() => [
@@ -151,12 +149,19 @@ const isVideoUrl = (url?: string): boolean => {
 };
 
 /**
- * 打开图片预览弹窗
- * @param url 图片原始链接
+ * 打开全屏媒体查看器浏览新闻媒体
+ *
+ * @param item 新闻数据条目
+ * @param initialIndex 初始媒体索引
+ * @param event 鼠标点击事件
  */
-const onPreviewImage = (url: string) => {
-  previewImageUrl.value = url;
-  previewImageDialog.value = true;
+const onPreviewMedia = (item: NewsItem, initialIndex: number = 0, event?: Event) => {
+  if (event) {
+    event.stopPropagation();
+  }
+  const urls = parseMediaUrls(item.mediaUrl || (item as any).media_url);
+  if (urls.length === 0) return;
+  mediaViewerStore.open(urls, initialIndex);
 };
 
 /**
@@ -502,7 +507,8 @@ onMounted(() => {
                           <v-card
                               v-bind="props"
                               variant="tonal"
-                              class="media-preview-card rounded-lg overflow-hidden cursor-pointer">
+                              class="media-preview-card rounded-lg overflow-hidden cursor-pointer"
+                              @click.stop="onPreviewMedia(item, idx, $event)">
                             <v-img
                                 :src="url"
                                 max-height="220"
@@ -556,20 +562,6 @@ onMounted(() => {
       </v-container>
       <!-- 主体内容区域 E -->
     </v-main>
-
-    <!-- 图片大图预览弹窗 S -->
-    <v-dialog v-model="previewImageDialog" max-width="960" scrollable>
-      <v-card border class="overflow-hidden">
-        <v-card-title class="d-flex align-center justify-space-between px-4 py-2 border-b">
-          <v-spacer></v-spacer>
-          <v-btn icon="mdi-close" variant="text" size="small" @click="previewImageDialog = false"></v-btn>
-        </v-card-title>
-        <v-card-text class="d-flex justify-center pa-0">
-          <v-img :src="previewImageUrl" max-height="80vh" contain></v-img>
-        </v-card-text>
-      </v-card>
-    </v-dialog>
-    <!-- 图片大图预览弹窗 E -->
 
     <!-- 新闻详情弹窗 S -->
     <NewsDetailDialog

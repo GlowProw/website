@@ -1392,9 +1392,11 @@ defineOptions({
                             <v-icon size="14" class="mr-1">mdi-account</v-icon>
                             {{ t('smugglersReport.account.creator') }}
                           </span>
-                          <AccountCardWidget :id="i.createdBy">
-                            <UserAvatar :src="i.author_avatar || ''" size="20px" class="bg-black"></UserAvatar>
-                          </AccountCardWidget>
+                          <router-link :to="{ name: 'AccountSpace', params: { id: i.author_id } }">
+                            <AccountCardWidget :id="i.createdBy">
+                              <UserAvatar :src="i.author_avatar || ''" size="20px" class="bg-black"></UserAvatar>
+                            </AccountCardWidget>
+                          </router-link>
                         </div>
 
                         <div class="d-flex align-center ga-1" v-if="i.editors && i.editors.length > 0">
@@ -1403,9 +1405,11 @@ defineOptions({
                             {{ t('smugglersReport.account.editors') }}
                           </span>
 
-                          <AccountCardWidget v-for="u in i.editors" :key="`editor-${u.id}`" :id="u.id">
-                            <UserAvatar :src="u.avatar || ''" size="20px" class="bg-black"></UserAvatar>
-                          </AccountCardWidget>
+                          <router-link :to="{ name: 'AccountSpace', params: { id: u.id } }" v-for="u in i.editors" :key="`editor-${u.id}`" >
+                            <AccountCardWidget :id="u.avatar_id">
+                              <UserAvatar :src="u.avatar || ''" size="20px" class="bg-black"></UserAvatar>
+                            </AccountCardWidget>
+                          </router-link>
                         </div>
 
                         <div class="d-flex align-center ga-1" v-if="i.commentUsers && i.commentUsers.length > 0">
@@ -1415,11 +1419,11 @@ defineOptions({
                           </span>
 
                           <div class="d-flex ga-1">
-                            <template v-for="(u, index) in i.commentUsers" :key="`commenter-${u.id}`" :id="u.id" class="d-flex">
+                            <router-link v-for="(u, commenterIndex) in i.commentUsers" :key="`commenter-${u.id}`" :to="{ name: 'AccountSpace', params: { id: u.id } }">
                               <AccountCardWidget :id="u.id">
-                                <UserAvatar :src="u.avatar || ''" size="20px" class="elevation-24" :class="{'ml-n4': index > 0}"></UserAvatar>
+                                <UserAvatar :src="u.avatar || ''" size="20px" class="elevation-24" :class="{'ml-n4': Number(commenterIndex) > 0}"></UserAvatar>
                               </AccountCardWidget>
-                            </template>
+                            </router-link>
                           </div>
                         </div>
                       </div>

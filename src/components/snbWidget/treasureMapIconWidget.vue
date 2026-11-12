@@ -116,7 +116,7 @@ defineOptions({
           <v-img :src="raritysAssets[`treasureMap-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div class="d-flex align-center justify-center h-100 img-wrap pa-lg-10 pa-5">
+        <div class="d-flex align-center justify-center h-100">
           <v-img
               referrerpolicy="no-referrer"
               class="prohibit-drag"
@@ -143,7 +143,6 @@ defineOptions({
 </template>
 
 <style scoped lang="less">
-@import "@/assets/styles/img";
 @import "@/assets/styles/demo-reel";
 
 // 覆盖新藏宝图位置

@@ -187,7 +187,7 @@ defineOptions({
         <v-col cols="12" md="6" lg="3" v-for="season in data?.seasons || []" :key="season.season">
           <div class="season-card-wrapper">
             <v-card density="compact" variant="text">
-              <v-card variant="text" height="200">
+              <v-card variant="text" height="150">
                 <SeasonViewWidget :data="{id: season.season}"></SeasonViewWidget>
 
                 <!-- 悬浮查看入口 -->

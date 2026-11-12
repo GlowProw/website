@@ -102,9 +102,11 @@ watch(isVisible, (visible) => {
         <v-col cols="12" md="9">
           <div class="d-flex ga-5 gap-5 flex-wrap">
             <template v-for="d in donors" :key="d.id">
-              <AccountCardWidget :id="d.id" v-if="!d.isEmpty">
-                <UserAvatar :size="40" rounded="0" class="rounded-lg" :src="d.avatar || ''"></UserAvatar>
-              </AccountCardWidget>
+              <router-link :to="{ name: 'AccountSpace', params: { id: d.id } }" v-if="!d.isEmpty">
+                <AccountCardWidget :id="d.id" >
+                  <UserAvatar :size="40" rounded="0" class="rounded-lg" :src="d.avatar || ''"></UserAvatar>
+                </AccountCardWidget>
+              </router-link>
               <div v-else class="opacity-10 border rounded-lg overflow-hidden">
                 <v-avatar>
                   <v-icon>mdi-account</v-icon>

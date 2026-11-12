@@ -65,7 +65,7 @@ onUnmounted(() => {
       <div class="portal-banner-top"></div>
     </template>
     <template #right>
-      <BannerRightSeasonInfo :season="currentlySeason" />
+      <BannerRightSeasonInfo :season="currentlySeason" :top="50" />
     </template>
 
     <v-card class="portal-banner overflow-hidden position-relative">

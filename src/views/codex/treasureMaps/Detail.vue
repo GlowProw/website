@@ -255,7 +255,7 @@ const onCodexHistory = () => {
                     :scale="1.3"
                     position="top-right">
                   <TreasureMapIconWidget
-                      class="w-100"
+                      class="w-100 rounded-lg img-wrap pa-lg-10 pa-5"
                       :padding="4"
                       :id="mapDetailData.id"
                       :is-show-tooltip="false"
