@@ -8,7 +8,7 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ShipIconWidget from "@/components/snbWidget/shipIconWidget.vue";
 import PerksWidget from "@/components/snbWidget/perksWidget.vue";
 import {Ship} from "glow-prow-data/src/entity/Ships";
-import {number, storage, getAppOrigin, getAppUrl} from "@/assets/sripts";
+import {number, storage, getAppUrl} from "@/assets/sripts";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -36,8 +36,7 @@ import {useWishlistStore} from "~/stores/wishlistStore";
 import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import Banner from "@/components/Banner.vue";
-
-const shipImages = import.meta.glob('@glow-prow-assets/ships/*.png', {eager: true})
+import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
 const
     {t, messages} = useI18n(),
@@ -49,9 +48,14 @@ const
     calculatorStore = useCalculatorStore(),
     noticeStore = useNoticeStore(),
     wishlistStore = useWishlistStore(),
+    cdnStore = useCDNAssetsServiceStore(),
 
     // 船只数据
     shipsData: any = Ships
+
+const shipOgImageUrl = computed(() =>
+    cdnStore.currentService.url({ id: id.value, category: 'ships' })
+)
 
 const
     id = computed(() => (route.params.id as string) || 'dhow'),
@@ -60,14 +64,6 @@ const
       if (!shipDetailData.value?.id) return null
       return wishlistStore.getMatchForItem(shipDetailData.value.id) || wishlistStore.getMatchForMod(shipDetailData.value.id)
     }),
-    shipImg = computed(() => {
-      const imageKey = `/node_modules/glow-prow-assets/ships/${id.value}.png`;
-      return shipImages[imageKey] ? (shipImages[imageKey] as any).default : '';
-    }),
-    shipDetailPageData = computed(() => ({
-      img: shipImg.value,
-      loading: false
-    })),
 
     requiredRank = computed(() => {
       const r = sanitizeString(shipDetailData.value?.requiredRank)
@@ -109,9 +105,8 @@ useHead({
     const headData = i18nReadName.ship(id.value);
     const headName = headData.name();
     const desc = headData.description() || '';
-    const siteOrigin = getAppOrigin();
-    const imageUrl = shipImg.value ? `${siteOrigin}${shipImg.value}` : '';
     const currentUrl = typeof window !== 'undefined' ? window.location.href : getAppUrl(route.fullPath || route.path);
+    const imageUrl = shipOgImageUrl.value;
 
     return [
       {name: 'description', content: desc},
@@ -188,7 +183,7 @@ const onAddCalculator = () => {
   </v-breadcrumbs>
   <v-divider opacity=".01"></v-divider>
 
-  <div class="ships-detail" v-if="shipDetailData.id && !shipDetailPageData.loading">
+  <div class="ships-detail" v-if="shipDetailData.id">
     <Banner class="ships-detail-header">
       <v-container class="position-relative">
         <v-row class="mt-5">
@@ -236,10 +231,6 @@ const onAddCalculator = () => {
             </div>
           </v-col>
         </v-row>
-
-        <v-img :src="shipDetailPageData.img"
-               inline
-               class="cosmetic-detail-header-img pointer-events-none"></v-img>
       </v-container>
     </Banner>
     <div class="background-flavor">
@@ -456,15 +447,6 @@ const onAddCalculator = () => {
     position: relative;
     padding-bottom: 40px;
     min-height: 320px;
-
-    .cosmetic-detail-header-img {
-      position: absolute;
-      z-index: 1;
-      right: 20px;
-      bottom: -120px;
-      width: 300px;
-      min-height: 300px;
-    }
   }
 }
 </style>

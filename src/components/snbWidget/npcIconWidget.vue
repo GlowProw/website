@@ -22,7 +22,8 @@ const
     appStore = useAppStore(),
     {t} = useI18n(),
     {raritys: raritysAssets} = useAssetsStore(),
-    {currentService: currentImageService} = useCDNAssetsServiceStore(),
+    cdnStore = useCDNAssetsServiceStore(),
+    {currentService: currentImageService} = cdnStore,
     props = withDefaults(defineProps<{
       data?: Npc,
       id?: string,
@@ -68,6 +69,8 @@ onMounted(() => {
 const onReady = async () => {
   i.value = npcs[props?.data?.key || props?.id] || null
 
+  if (!i.value) return
+
   npcsCardData.value.icon = currentImageService.url({
     'glow-prow':{
       id: i.value.id,
@@ -81,8 +84,13 @@ const onReady = async () => {
       id: i.value.id,
       category: 'npcs',
     },
-  }, 'glow-prow')
+  })
 }
+
+// 切换图片服务后重新解析图标地址
+watch(() => cdnStore.selectedService, () => {
+  onReady()
+})
 
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,

@@ -25,7 +25,8 @@ const props = withDefaults(defineProps<{
 
 const {t} = useI18n()
 const router = useRouter()
-const {currentService: currentImageService} = useCDNAssetsServiceStore()
+const cdnStore = useCDNAssetsServiceStore()
+const {currentService: currentImageService} = cdnStore
 
 // 注入外层提示框固定上下文
 const cardTooltipContext = inject<{
@@ -65,9 +66,14 @@ const onReady = async () => {
         id: i.value.id,
         category: 'npcs',
       },
-    }, 'glow-prow')
+    })
   }
 }
+
+// 切换图片服务后重新解析图标地址
+watch(() => cdnStore.selectedService, () => {
+  onReady()
+})
 
 watch(() => props.id, () => {
   onReady()
@@ -128,12 +134,13 @@ defineOptions({
       </template>
     </Banner>
     <v-divider v-if="isShowOpenDetail" opacity=".06"></v-divider>
-    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto d-flex align-center ga-2" v-if="isShowOpenDetail">
+    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto d-flex align-center" v-if="isShowOpenDetail">
       <BtnWidget hotkey-action="openItemDetail" @action-complete="router.push(`/codex/npc/${i.key}`)">
         {{ t('codex.npc.lookDetail') }}
       </BtnWidget>
       <BtnWidget
           v-if="cardTooltipContext"
+          class="ml-4"
           hotkey-action="pinCardTooltip"
           :color="cardTooltipContext.isPinned.value ? 'var(--main-color)' : undefined"
           :icon="cardTooltipContext.isPinned.value ? 'mdi-pin-off-outline' : 'mdi-pin-outline'"

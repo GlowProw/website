@@ -7,12 +7,13 @@ const seasonId = (route.params.seasonId as string) || "";
 </script>
 
 <template>
-  <v-container class="daily-report-widget-container">
-    <DailyReportWidget
-        :season-id="seasonId"
-        :is-widget="true"
-    />
-  </v-container>
+  <v-defaults-provider :defaults="{ VImg: { eager: true } }">
+    <v-container class="daily-report-widget-container">
+      <DailyReportWidget
+          :season-id="seasonId"
+          :is-widget="true" />
+    </v-container>
+  </v-defaults-provider>
 </template>
 
 <style scoped lang="less">

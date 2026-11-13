@@ -357,7 +357,7 @@ defineOptions({name: 'LayerControl'});
   top: 0 !important;
   left: 0;
   padding-top: 136px;
-  height: calc(100vh - 100px) !important;
+  height: 100vh !important;
   overflow-y: auto;
   z-index: 30 !important;
 }

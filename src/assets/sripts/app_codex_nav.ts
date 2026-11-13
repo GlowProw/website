@@ -236,8 +236,7 @@ export default class AppCodexNav {
         {
             title: 'codex.mapLocations.title',
             to: `/${this.lang}/codex/mapLocations`,
-            prependIcon: 'mdi-format-list-bulleted-type',
-            badge: 'BETA'
+            prependIcon: 'mdi-format-list-bulleted-type'
         },
         {
             title: 'codex.npcs.title',
@@ -248,8 +247,7 @@ export default class AppCodexNav {
         {
             title: 'codex.enemies.title',
             to: `/${this.lang}/codex/enemies`,
-            prependIcon: 'mdi-skull-crossbones',
-            badge: 'BETA'
+            prependIcon: 'mdi-skull-crossbones'
         },
         {
             title: 'search.title',

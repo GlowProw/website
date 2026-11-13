@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed, nextTick, onMounted, ref, watch} from "vue";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 import {storeToRefs} from "pinia";
@@ -518,13 +518,17 @@ const refreshAll = async () => {
     fetchDropData(),
     fetchConnoisseurData(),
   ]);
+  await nextTick();
+  // 留出充分时间让周报及掉宝等动态子组件完成首次 DOM 挂载
+  await new Promise(resolve => setTimeout(resolve, 300));
   hasInitialLoaded.value = true;
 };
 </script>
 
 <template>
-  <div class="daily-report-wrapper" :class="{ 'is-widget': isWidget }" :data-ready="hasInitialLoaded ? 'true' : 'false'">
-    <v-card class="daily-report-card overflow-hidden" variant="text" tile>
+  <v-defaults-provider :defaults="{ VImg: { eager: true } }">
+    <div class="daily-report-wrapper" :class="{ 'is-widget': isWidget }" :data-ready="hasInitialLoaded ? 'true' : 'false'">
+      <v-card class="daily-report-card overflow-hidden" variant="text" tile>
 
       <!-- 赛季与日报总览 S -->
       <div class="daily-header position-relative mb-10 px-5 pa-sm-6">
@@ -917,8 +921,7 @@ const refreshAll = async () => {
                     v-for="campaign in activeCampaigns"
                     :key="campaign.id || campaign.campaignId"
                     :campaign="campaign"
-                    :is-active-card="true"
-                />
+                    :is-active-card="true" />
               </div>
             </AffixBoxHasTitleView>
           </v-col>
@@ -928,6 +931,7 @@ const refreshAll = async () => {
       <!-- 内容 E -->
     </v-card>
   </div>
+  </v-defaults-provider>
 </template>
 
 <style scoped lang="less">

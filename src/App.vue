@@ -3,6 +3,7 @@ import AppMessageWidget from '@/components/AppMessageWidget.vue'
 import GlobalSupportPrompt from '@/components/GlobalSupportPrompt.vue'
 import GlobalPreloadOverlay from '@/components/GlobalPreloadOverlay.vue'
 import MediaViewer from '@/components/MediaViewer.vue'
+import ScrollUpBtn from '@/components/ScrollUpBtn.vue'
 import {computed, onMounted, onUnmounted, ref, watch} from "vue";
 import {useI18n} from 'vue-i18n';
 import {useRoute, useRouter} from "vue-router";
@@ -276,6 +277,7 @@ const handleVisibilityChange = () => {
   <GlobalPreloadOverlay/>
   <GlobalSupportPrompt/>
   <MediaViewer/>
+  <ScrollUpBtn/>
 
   <AppMessageWidget></AppMessageWidget>
   <router-view></router-view>

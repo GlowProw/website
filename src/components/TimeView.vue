@@ -105,7 +105,7 @@ onMounted(() => {
 <template>
   <v-tooltip
       scroll-strategy="close"
-      transition="opacity 300ms ease-in"
+      :transition="false"
       location="right top"
       min-width="450"
       max-width="450"

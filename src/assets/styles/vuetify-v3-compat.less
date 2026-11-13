@@ -119,4 +119,19 @@
 /* 图标悬浮提示卡片必须高于侧边滑动抽屉与业务弹窗，避免在抽屉内查看图标时被遮挡 */
 .v-overlay.item-card {
   z-index: var(--z-card-tooltip, 2500) !important;
+
+  &:not(.v-overlay--active) {
+    display: none !important;
+
+    .v-overlay__content {
+      display: none !important;
+      opacity: 0 !important;
+      visibility: hidden !important;
+    }
+  }
+
+  .v-overlay__content {
+    transition: none !important;
+    animation: none !important;
+  }
 }

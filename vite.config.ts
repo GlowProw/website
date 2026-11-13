@@ -1,15 +1,15 @@
 import Vue from '@vitejs/plugin-vue'
-import Vuetify, {transformAssetUrls} from 'vite-plugin-vuetify'
-import {VitePWA} from 'vite-plugin-pwa'
-import {defineConfig, loadEnv} from 'vite'
+import Vuetify, { transformAssetUrls } from 'vite-plugin-vuetify'
+import { VitePWA } from 'vite-plugin-pwa'
+import { defineConfig, loadEnv } from 'vite'
 import Sitemap from 'vite-plugin-sitemap'
 import path from "path";
-import type {ViteSSGOptions} from 'vite-ssg'
+import type { ViteSSGOptions } from 'vite-ssg'
 
 import config from "./package.json"
 import fs from 'node:fs';
-import {DEFAULT_LANG, SUPPORTED_LANGS} from './src/config/languages';
-import {STRUCTURED_DATA_MAP} from './src/config/structuredData';
+import { DEFAULT_LANG, SUPPORTED_LANGS } from './src/config/languages';
+import { STRUCTURED_DATA_MAP } from './src/config/structuredData';
 
 /**
  * 同步生成公共语言重定向脚本，确保与 languages.ts 配置保持严格一致
@@ -20,7 +20,7 @@ function ensureLangRedirectScript() {
     const scriptContent = `(function(){var supported=${supportedStr};var defaultLang=${defaultLangStr};var path=window.location.pathname;var hasLang=supported.some(function(l){return path==='/'+l||path.indexOf('/'+l+'/')===0;});if(!hasLang&&(path==='/'||path==='')){var rawStored=localStorage.getItem('snb.production:lang')||localStorage.getItem('snb.development:lang')||localStorage.getItem('lang');var lang=defaultLang;if(rawStored){try{var p=JSON.parse(rawStored);var val=(p&&p.data&&p.data.value)?p.data.value:(p&&p.value?p.value:p);if(typeof val==='object'&&val!==null&&val.value)val=val.value;if(typeof val==='string'&&supported.includes(val))lang=val;}catch(e){}}else{var nav=navigator.language||navigator.userLanguage||defaultLang;if(nav.indexOf('TW')!==-1||nav.indexOf('HK')!==-1||nav.indexOf('Hant')!==-1)lang='zh-TW';else if(nav.indexOf('zh')!==-1)lang='zh-CN';else lang='en-US';}if(!supported.includes(lang))lang=defaultLang;window.location.replace('/'+lang+(path==='/'?'':path));}})();`;
     const targetPath = path.resolve(__dirname, 'public/assets/lang-redirect.js');
     try {
-        fs.mkdirSync(path.dirname(targetPath), {recursive: true});
+        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
         fs.writeFileSync(targetPath, scriptContent, 'utf8');
     } catch (e) {
     }
@@ -50,7 +50,7 @@ function loadSnbI18nData(): Record<string, any> {
 
         // items = items + items_ammunition（和 glow-prow-data-languages/src/index.ts 保持一致）
         if (out.items && out.items_ammunition) {
-            out.items = {...out.items, ...out.items_ammunition};
+            out.items = { ...out.items, ...out.items_ammunition };
             delete out.items_ammunition;
         }
         result[lang] = out;
@@ -61,7 +61,7 @@ function loadSnbI18nData(): Record<string, any> {
 // 写聚合缓存文件
 const snbAggCacheDir = path.resolve(__dirname, '.cache');
 const snbAggCacheFile = path.join(snbAggCacheDir, 'snb-i18n-agg.json');
-fs.mkdirSync(snbAggCacheDir, {recursive: true});
+fs.mkdirSync(snbAggCacheDir, { recursive: true });
 fs.writeFileSync(snbAggCacheFile, JSON.stringify(loadSnbI18nData()));
 
 const snbI18nPlugin = {
@@ -148,10 +148,10 @@ const appVersionPlugin = (() => {
         },
         closeBundle() {
             if (!enabled) return;
-            fs.mkdirSync(outDir, {recursive: true});
+            fs.mkdirSync(outDir, { recursive: true });
             fs.writeFileSync(
                 path.join(outDir, 'version.json'),
-                JSON.stringify({version: config.version, buildTime: new Date().toISOString()}, null, 2) + '\n'
+                JSON.stringify({ version: config.version, buildTime: new Date().toISOString() }, null, 2) + '\n'
             );
         },
     };
@@ -356,7 +356,7 @@ function collectVuetifyComponentDeps(): string[] {
     const deps = new Set<string>();
 
     const walk = (dir: string) => {
-        for (const entry of fs.readdirSync(dir, {withFileTypes: true})) {
+        for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
             const fullPath = path.join(dir, entry.name);
             if (entry.isDirectory()) {
                 walk(fullPath);
@@ -381,7 +381,7 @@ function collectVuetifyComponentDeps(): string[] {
     return [...deps].sort();
 }
 
-export default defineConfig(({mode}) => {
+export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, process.cwd(), '');
     const appHost = env.APP_HOST || '';
     const appHostname = appHost.startsWith('http') ? appHost : `https://${appHost}`;
@@ -400,9 +400,9 @@ export default defineConfig(({mode}) => {
             ssrBuildFlagPlugin,
             appVersionPlugin,
             Vue({
-                template: {transformAssetUrls},
+                template: { transformAssetUrls },
             }),
-            Vuetify({autoImport: true}),
+            Vuetify({ autoImport: true }),
             VitePWA({
                 registerType: 'prompt',
                 includeAssets: ['favicon.ico', 'favicon.svg'],
@@ -559,12 +559,12 @@ export default defineConfig(({mode}) => {
                     rewrite: (path: any) => path.replace(/^\/api/, ''),
                 },
                 "/assets-proxy": {
-                    target: 'http://localhost:8088',
+                    target: 'http://localhost:8089',
                     changeOrigin: true,
                     rewrite: (path: any) => path.replace(/^\/assets-proxy/, '/api'),
                 },
                 "/mode": {
-                    target: 'http://localhost:8088',
+                    target: 'http://localhost:8089',
                     changeOrigin: true,
                 },
                 // 远程游戏数据翻译 CDN 代理
@@ -593,7 +593,7 @@ export default defineConfig(({mode}) => {
                 const relativeRouteFile = `${(route.endsWith('/') ? `${route}index` : route).replace(/^\//g, '')}.html`;
                 const targetDir = path.resolve(__dirname, 'dist', path.dirname(relativeRouteFile));
                 if (!fs.existsSync(targetDir)) {
-                    fs.mkdirSync(targetDir, {recursive: true});
+                    fs.mkdirSync(targetDir, { recursive: true });
                 }
                 return undefined;
             },

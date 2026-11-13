@@ -30,8 +30,8 @@ defineOptions({
   <HorizontalScrollList :btn-size="30" :is-indicator="false" v-if="npcs && npcs.length > 0">
     <div class="d-inline-flex ga-4">
       <template v-for="(i, index) in npcs" :key="index">
-        <v-card class="bg-transparent" max-width="99" variant="text" :class="{'ml-5': index == 0, 'mr-5': index == npcs.length - 1}">
-          <ItemSlotBase size="99px" class="mx-auto">
+        <v-card class="bg-transparent" max-width="102px" variant="text" :class="{'ml-5': index == 0, 'mr-5': index == npcs.length - 1}">
+          <ItemSlotBase size="99px" :padding="0" :margin="0" class="mx-auto">
             <NpcIconWidget :data="i"></NpcIconWidget>
           </ItemSlotBase>
           <div class="mt-1 text-center singe-line">

@@ -10,7 +10,7 @@ import Storage from '@/assets/sripts/storage';
 import { useMapApi } from '@/assets/sripts/api/map_service';
 import { useI18nUtils } from "@/assets/sripts/i18n_util.js";
 import { useI18nReadName } from "@/assets/sripts/i18n_read_name";
-import { EnemyTypes, MapLocations } from "glow-prow-data";
+import { MapLocations } from "glow-prow-data";
 import { isCategoryVisibleAtZoom, getCategoryScale } from "@/assets/sripts/map_zoom_config";
 import type { DrawShapeMode, MapCollection, MapPoint, MapShape, MapShapeType, PointFormData, SharedCollectionInfo, ShapeFormData, ShapeGeometry, ShapeStyle, UseMapControllerOptions } from '@/assets/types/Map';
 import { parseShapeGeometry, parseShapeStyle, parseShapeTags } from '@/assets/types/Map';
@@ -43,11 +43,6 @@ import DragBox from 'ol/interaction/DragBox';
 import DragPan from 'ol/interaction/DragPan';
 import type { Feature as OLFeature } from 'ol';
 import type { Geometry, SimpleGeometry } from 'ol/geom';
-
-/**
- * 敌人目标的分类集合，这些分类的标记不绘制放大透明阴影
- */
-const ENEMY_CATEGORY_SET = new Set<string>(EnemyTypes);
 
 /**
  * 地图控制器
@@ -377,6 +372,101 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const lockedMarkerStyleCache: Record<string, Style[] | null> = {};
     let animFrameId: number | null = null;
 
+    // 图标以 200px 内容尺寸为基准，按实际不透明区域换算缩放，避免素材留白导致视觉大小不一致
+    const ICON_REFERENCE_SIZE = 200;
+    const iconContentSizeCache: Record<string, number> = {};
+    let iconSizeRefreshTimer: number | null = null;
+
+    /**
+     * 测量图标不透明内容的最长边，素材自带的透明留白不参与尺寸计算
+     * @param image 已加载的图标
+     */
+    const measureIconContentSize = (image: HTMLImageElement): number => {
+        const naturalSize = Math.max(image.naturalWidth, image.naturalHeight);
+        try {
+            const sample = 64;
+            const canvas = document.createElement('canvas');
+            canvas.width = sample;
+            canvas.height = sample;
+            const context = canvas.getContext('2d', { willReadFrequently: true });
+            if (!context) return naturalSize || ICON_REFERENCE_SIZE;
+            context.drawImage(image, 0, 0, sample, sample);
+            const { data } = context.getImageData(0, 0, sample, sample);
+            let minX = sample;
+            let minY = sample;
+            let maxX = -1;
+            let maxY = -1;
+            for (let y = 0; y < sample; y++) {
+                for (let x = 0; x < sample; x++) {
+                    if (data[(y * sample + x) * 4 + 3] > 16) {
+                        minX = Math.min(minX, x);
+                        minY = Math.min(minY, y);
+                        maxX = Math.max(maxX, x);
+                        maxY = Math.max(maxY, y);
+                    }
+                }
+            }
+            if (maxX < minX || maxY < minY) return naturalSize || ICON_REFERENCE_SIZE;
+            const contentSize = Math.max(maxX - minX + 1, maxY - minY + 1) * (naturalSize / sample);
+            return contentSize || naturalSize || ICON_REFERENCE_SIZE;
+        } catch {
+            return naturalSize || ICON_REFERENCE_SIZE;
+        }
+    };
+
+    /**
+     * 将按基准尺寸配置的缩放换算到图标实际内容尺寸
+     * @param scale 基准缩放
+     * @param iconSrc 图标地址
+     */
+    const normalizeIconScale = (scale: number, iconSrc: string): number => {
+        const contentSize = iconContentSizeCache[iconSrc];
+        // contentSize 尚未测量时，用一个合理的默认值，避免标记先按原始 scale 渲染（过大）
+        // 再在 preload 完成后缩小到正确尺寸造成"先大后正常"的闪烁
+        const effectiveContentSize = contentSize || 300;
+        return scale * (ICON_REFERENCE_SIZE / effectiveContentSize);
+    };
+
+    /**
+     * 预加载图标内容尺寸，全部加载完成后统一刷新标记样式
+     */
+    const preloadIconSizes = (): void => {
+        const sources = [...new Set(Object.values(icons.value || {}).filter(Boolean))];
+        if (sources.length === 0) return;
+        let pending = 0;
+        const onSettled = () => {
+            if (pending > 0) return;
+            if (iconSizeRefreshTimer !== null) clearTimeout(iconSizeRefreshTimer);
+            iconSizeRefreshTimer = window.setTimeout(() => {
+                iconSizeRefreshTimer = null;
+                Object.keys(categoryStyleCache).forEach(key => {
+                    delete categoryStyleCache[key];
+                    delete categoryTargetStyleCache[key];
+                    delete categoryDimmedStyleCache[key];
+                });
+                Object.keys(lockedMarkerStyleCache).forEach(key => delete lockedMarkerStyleCache[key]);
+                if (vectorLayerRef.value) {
+                    triggerTransitionAnimation(true);
+                }
+            }, 60);
+        };
+        sources.forEach(src => {
+            if (iconContentSizeCache[src]) return;
+            pending++;
+            const image = new Image();
+            image.onload = () => {
+                iconContentSizeCache[src] = measureIconContentSize(image);
+                pending--;
+                onSettled();
+            };
+            image.onerror = () => {
+                pending--;
+                onSettled();
+            };
+            image.src = src;
+        });
+    };
+
     /**
      * 读取本地持久化的锁定标记 ID 集合
      */
@@ -459,11 +549,6 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             return lockedMarkerStyleCache[cacheKey];
         }
 
-        const baseScale = getCategoryScale(category, currentZoom);
-        // 锁定的标记放大 1.8 倍，最低尺寸保证在低 zoom 下依然清晰可见
-        const lockedScale = Math.max(0.24, baseScale * 1.8);
-        const lockedBorderScale = lockedScale * 1.25;
-
         const isShare = styleKey === 'shareLocation' || category === 'shareLocation';
         const anchor: [number, number] = isShare ? [0.5, 1] : [0.5, 0.6];
         const iconSrc = isShare
@@ -472,27 +557,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         if (!iconSrc) return null;
 
-        const isEnemyCategory = ENEMY_CATEGORY_SET.has(category);
-        const styles: Style[] = [];
-
-        if (!isEnemyCategory) {
-            styles.push(
-                new Style({
-                    image: new Icon({
-                        src: iconSrc,
-                        color: '#000000',
-                        scale: lockedBorderScale,
-                        opacity: 0.5,
-                        anchor,
-                        anchorXUnits: 'fraction',
-                        anchorYUnits: 'fraction',
-                    }),
-                    zIndex: 600,
-                })
-            );
-        }
-
-        styles.push(
+        const baseScale = getCategoryScale(category, currentZoom);
+        // 锁定的标记放大 1.8 倍，最低尺寸保证在低 zoom 下依然清晰可见
+        const lockedScale = normalizeIconScale(Math.max(0.24, baseScale * 1.8), iconSrc);
+        const styles: Style[] = [
             new Style({
                 image: new Icon({
                     src: iconSrc,
@@ -503,8 +571,8 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     anchorYUnits: 'fraction',
                 }),
                 zIndex: 601,
-            })
-        );
+            }),
+        ];
 
         lockedMarkerStyleCache[cacheKey] = styles;
         return styles;
@@ -602,6 +670,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             cancelAnimationFrame(animFrameId);
             animFrameId = null;
         }
+        if (iconSizeRefreshTimer !== null) {
+            clearTimeout(iconSizeRefreshTimer);
+            iconSizeRefreshTimer = null;
+        }
         drawController.dispose();
     });
 
@@ -638,20 +710,6 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         // 缩放与图层可见性仍按分类计算
         const category = styleKeyCategory[styleKey] || styleKey;
-        const baseScale = getCategoryScale(category, zoom);
-        // 缩放弹性过渡动画：淡入时尺寸从 70% 放大到 100%，淡出时缩小到 70%
-        const scale = baseScale * (0.7 + 0.3 * opacity);
-        const borderScale = scale * 1.2;
-
-        // 目标高亮标记尺寸：放大 1.65 倍
-        const targetScale = scale * 1.65;
-        const targetBorderScale = targetScale * 1.22;
-
-        // 非目标标记半透明度 (0.28)
-        const dimmedOpacity = opacity * 0.28;
-        const dimmedScale = scale * 0.95;
-        const dimmedBorderScale = dimmedScale * 1.15;
-
         const isShare = styleKey === 'shareLocation';
         const anchor: [number, number] = isShare ? [0.5, 1] : [0.5, 0.6];
         const iconSrc = isShare
@@ -665,25 +723,16 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             return;
         }
 
-        // 敌人目标不做描边阴影，只保留图标本身
-        const isEnemyCategory = ENEMY_CATEGORY_SET.has(category);
-        const buildStyles = (shadowStyle: Style, iconStyle: Style) =>
-            isEnemyCategory ? [iconStyle] : [shadowStyle, iconStyle];
+        // 缩放弹性过渡动画：淡入时尺寸从 70% 放大到 100%，淡出时缩小到 70%
+        const scale = normalizeIconScale(getCategoryScale(category, zoom) * (0.7 + 0.3 * opacity), iconSrc);
+        // 目标高亮标记尺寸：放大 1.65 倍
+        const targetScale = scale * 1.65;
+        // 非目标标记半透明度 (0.28)
+        const dimmedOpacity = opacity * 0.28;
+        const dimmedScale = scale * 0.95;
 
         // 标准样式
-        categoryStyleCache[styleKey] = buildStyles(
-            new Style({
-                image: new Icon({
-                    src: iconSrc,
-                    color: '#000000',
-                    scale: borderScale,
-                    opacity: opacity * 0.2,
-                    anchor,
-                    anchorXUnits: 'fraction',
-                    anchorYUnits: 'fraction',
-                }),
-                zIndex: 1,
-            }),
+        categoryStyleCache[styleKey] = [
             new Style({
                 image: new Icon({
                     src: iconSrc,
@@ -694,50 +743,26 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     anchorYUnits: 'fraction',
                 }),
                 zIndex: 2,
-            })
-        );
+            }),
+        ];
 
         // 高亮样式
-        categoryTargetStyleCache[styleKey] = buildStyles(
-            new Style({
-                image: new Icon({
-                    src: iconSrc,
-                    color: '#000000',
-                    scale: targetBorderScale,
-                    opacity: opacity * 0.35,
-                    anchor,
-                    anchorXUnits: 'fraction',
-                    anchorYUnits: 'fraction',
-                }),
-                zIndex: 499,
-            }),
+        categoryTargetStyleCache[styleKey] = [
             new Style({
                 image: new Icon({
                     src: iconSrc,
                     scale: targetScale,
-                    opacity: Math.min(1.0, opacity * 1.0),
+                    opacity: Math.min(1.0, opacity),
                     anchor,
                     anchorXUnits: 'fraction',
                     anchorYUnits: 'fraction',
                 }),
                 zIndex: 500,
-            })
-        );
+            }),
+        ];
 
         // 其他透明样式
-        categoryDimmedStyleCache[styleKey] = buildStyles(
-            new Style({
-                image: new Icon({
-                    src: iconSrc,
-                    color: '#000000',
-                    scale: dimmedBorderScale,
-                    opacity: dimmedOpacity * 0.2,
-                    anchor,
-                    anchorXUnits: 'fraction',
-                    anchorYUnits: 'fraction',
-                }),
-                zIndex: 1,
-            }),
+        categoryDimmedStyleCache[styleKey] = [
             new Style({
                 image: new Icon({
                     src: iconSrc,
@@ -748,8 +773,8 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     anchorYUnits: 'fraction',
                 }),
                 zIndex: 2,
-            })
-        );
+            }),
+        ];
     };
 
     /**
@@ -904,6 +929,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         initializeLayerVisibility();
         icons.value = assetsStore.getMapImages();
+        preloadIconSizes();
 
         // debug 模式下添加边界编辑图层
         if (isDebug.value) {
@@ -3585,23 +3611,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     const onCreatePersonalMarkerStyle = (): Style[] | Style => {
         const currentZoom = getCurrentZoom();
-        const scale = getCategoryScale('shareLocation', currentZoom);
-        const borderScale = scale * 1.16;
         const iconSrc = getPersonalMarkerIcon();
+        const scale = normalizeIconScale(getCategoryScale('shareLocation', currentZoom), iconSrc);
 
-        const bgStyle = new Style({
-            image: new Icon({
-                src: iconSrc,
-                color: '#000000',
-                scale: borderScale,
-                opacity: 0.9,
-                anchor: [0.5, 1],
-                anchorXUnits: 'fraction',
-                anchorYUnits: 'fraction',
-            }),
-            zIndex: 1,
-        });
-        const fgStyle = new Style({
+        return new Style({
             image: new Icon({
                 src: iconSrc,
                 scale,
@@ -3611,7 +3624,6 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }),
             zIndex: 2,
         });
-        return [bgStyle, fgStyle];
     };
 
     const getPersonalMarkerIcon = (): string => icons.value['shareLocation'];
@@ -3634,6 +3646,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const getCategoryIcon = (category: string) => {
         if (!icons.value || Object.keys(icons.value).length === 0) {
             icons.value = assetsStore.getMapImages();
+            preloadIconSizes();
         }
         return icons.value[category] || icons.value['default'] || icons.value['miscellaneous'] || '';
     };
@@ -3800,22 +3813,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
 
         const currentZoom = getCurrentZoom();
-        const scale = getCategoryScale(category, currentZoom);
-        const borderScale = scale * 1.16;
+        const scale = normalizeIconScale(getCategoryScale(category, currentZoom), iconSrc);
 
-        const bgStyle = new Style({
-            image: new Icon({
-                src: iconSrc,
-                color: '#000000',
-                scale: borderScale,
-                opacity: 0.9,
-                anchor: [0.5, 0.6],
-                anchorXUnits: 'fraction',
-                anchorYUnits: 'fraction',
-            }),
-            zIndex: 1,
-        });
-        const fgStyle = new Style({
+        return new Style({
             image: new Icon({
                 src: iconSrc,
                 scale,
@@ -3825,7 +3825,6 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }),
             zIndex: 2,
         });
-        return [bgStyle, fgStyle];
     };
 
     const onCreateFeaturesFromLocations = (locations: any[]): OLFeature<Geometry>[] => {

@@ -3028,7 +3028,8 @@
         "factory": "Factory (Processable Items)",
         "mail": "Mailbox",
         "warehouse": "Warehouse",
-        "objective": "Objective"
+        "objective": "Objective",
+        "hts": "Smuggler"
       }
     },
     "npcs": {
@@ -3540,10 +3541,6 @@
       "shipwreck": {
         "name": "Shipwreck",
         "description": "Stranded shipwrecks in coastal or shallow waters. Salvage for wood, metal, and materials."
-      },
-      "archive": {
-        "name": "Investigation Archive",
-        "description": "Archive locations revealing hidden lore, clues, and history across the Indian Ocean."
       },
       "guardTower": {
         "name": "Guard Tower",
@@ -6052,7 +6049,8 @@
     "close": "Close",
     "confirm": "Confirm",
     "confirmDelete": "Confirm deletion",
-    "delete": "Delete"
+    "delete": "Delete",
+    "scrollToTop": "Scroll to top"
   },
   "team": {
     "title": "Team Up"

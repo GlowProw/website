@@ -2962,7 +2962,8 @@
         "factory": "工厂(可加工物品)",
         "mail": "邮箱",
         "warehouse": "仓库",
-        "objective": "悬赏"
+        "objective": "悬赏",
+        "hts": "走私者"
       }
     },
     "npcs": {
@@ -3474,10 +3475,6 @@
       "shipwreck": {
         "name": "失事船隻",
         "description": "在沿海或淺灘擱淺的失事船隻，打撈搜刮可獲得木材、金屬及各種物資。"
-      },
-      "archive": {
-        "name": "調查檔案",
-        "description": "記錄著印度洋歷史隱秘與傳聞線索的調查檔案點。"
       },
       "guardTower": {
         "name": "哨塔",
@@ -6056,7 +6053,8 @@
     "close": "關閉",
     "confirm": "確認",
     "confirmDelete": "確認刪除",
-    "delete": "刪除"
+    "delete": "刪除",
+    "scrollToTop": "回到頂部"
   },
   "team": {
     "title": "組隊招募"

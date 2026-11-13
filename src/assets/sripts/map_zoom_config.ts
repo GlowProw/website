@@ -12,112 +12,41 @@ const ENEMY_CATEGORY_ZOOM_RULE: CategoryZoomRule = {
 };
 
 /**
+ * 统一标记尺寸规则，保证各类图标在地图上的视觉大小一致
+ * @param minZoom 最小显示层级
+ */
+const STANDARD_MARKER_ZOOM_RULE = (minZoom: number): CategoryZoomRule => ({
+  ...ENEMY_CATEGORY_ZOOM_RULE,
+  minZoom,
+});
+
+/**
  * 各标记分类在地图上的默认 Zoom 显示范围与不同 ZOOM 下的图标尺寸
  */
 export const DEFAULT_CATEGORY_ZOOM_CONFIG: Record<string, CategoryZoomRule> = {
   // 海盗窝点与前哨站
-  den: {
-    minZoom: 12,
-    maxZoom: 15,
-    scales: { 12: 0.12, 13: 0.14, 14: 0.16, 15: 0.18 },
-    baseScale: 0.16,
-  },
-  outpost: {
-    minZoom: 12,
-    maxZoom: 15,
-    scales: { 12: 0.11, 13: 0.13, 14: 0.15, 15: 0.17 },
-    baseScale: 0.15,
-  },
+  den: STANDARD_MARKER_ZOOM_RULE(12),
+  outpost: STANDARD_MARKER_ZOOM_RULE(12),
 
   // 定居点与生产设施、军事据点：放大到 13 及以上可见 (13 - 15)
-  capitalSettlement: {
-    minZoom: 13,
-    maxZoom: 15,
-    scales: { 13: 0.11, 14: 0.13, 15: 0.15 },
-    baseScale: 0.13,
-  },
-  megafort: {
-    minZoom: 13,
-    maxZoom: 15,
-    scales: { 13: 0.11, 14: 0.13, 15: 0.15 },
-    baseScale: 0.13,
-  },
-  settlement: {
-    minZoom: 13,
-    maxZoom: 15,
-    scales: { 13: 0.10, 14: 0.12, 15: 0.14 },
-    baseScale: 0.12,
-  },
-  foundry: {
-    minZoom: 13,
-    maxZoom: 15,
-    scales: { 13: 0.10, 14: 0.12, 15: 0.14 },
-    baseScale: 0.12,
-  },
-  lumberyard: {
-    minZoom: 13,
-    maxZoom: 15,
-    scales: { 13: 0.10, 14: 0.12, 15: 0.14 },
-    baseScale: 0.12,
-  },
-  weaver: {
-    minZoom: 13,
-    maxZoom: 15,
-    scales: { 13: 0.10, 14: 0.12, 15: 0.14 },
-    baseScale: 0.12,
-  },
-  militaryBase: {
-    minZoom: 13,
-    maxZoom: 15,
-    scales: { 13: 0.10, 14: 0.12, 15: 0.14 },
-    baseScale: 0.12,
-  },
+  capitalSettlement: STANDARD_MARKER_ZOOM_RULE(13),
+  megafort: STANDARD_MARKER_ZOOM_RULE(13),
+  settlement: STANDARD_MARKER_ZOOM_RULE(13),
+  foundry: STANDARD_MARKER_ZOOM_RULE(13),
+  lumberyard: STANDARD_MARKER_ZOOM_RULE(13),
+  weaver: STANDARD_MARKER_ZOOM_RULE(13),
+  militaryBase: STANDARD_MARKER_ZOOM_RULE(13),
 
   // 调查、哨塔、沉船 (14 - 15)
-  guardTower: {
-    minZoom: 14,
-    maxZoom: 15,
-    scales: { 14: 0.11, 15: 0.13 },
-    baseScale: 0.12,
-  },
-  shipwreck: {
-    minZoom: 14,
-    maxZoom: 15,
-    scales: { 14: 0.11, 15: 0.13 },
-    baseScale: 0.12,
-  },
-  archive: {
-    minZoom: 14,
-    maxZoom: 15,
-    scales: { 14: 0.11, 15: 0.13 },
-    baseScale: 0.12,
-  },
-  treasureMap: {
-    minZoom: 14,
-    maxZoom: 15,
-    scales: { 14: 0.11, 15: 0.13 },
-    baseScale: 0.12,
-  },
+  guardTower: STANDARD_MARKER_ZOOM_RULE(14),
+  shipwreck: STANDARD_MARKER_ZOOM_RULE(14),
+  archive: STANDARD_MARKER_ZOOM_RULE(14),
+  treasureMap: STANDARD_MARKER_ZOOM_RULE(14),
 
   // 野生动物 (14 - 15)
-  crocodile: {
-    minZoom: 14,
-    maxZoom: 15,
-    scales: { 14: 0.11, 15: 0.13 },
-    baseScale: 0.12,
-  },
-  hippopotamus: {
-    minZoom: 14,
-    maxZoom: 15,
-    scales: { 14: 0.11, 15: 0.13 },
-    baseScale: 0.12,
-  },
-  shark: {
-    minZoom: 14,
-    maxZoom: 15,
-    scales: { 14: 0.11, 15: 0.13 },
-    baseScale: 0.12,
-  },
+  crocodile: STANDARD_MARKER_ZOOM_RULE(14),
+  hippopotamus: STANDARD_MARKER_ZOOM_RULE(14),
+  shark: STANDARD_MARKER_ZOOM_RULE(14),
 
   // 敌人：精英战舰、领域首领、战舰队、海怪、船队等活动目标
   eliteWarship: ENEMY_CATEGORY_ZOOM_RULE,
@@ -131,20 +60,10 @@ export const DEFAULT_CATEGORY_ZOOM_CONFIG: Record<string, CategoryZoomRule> = {
   helmActivity: ENEMY_CATEGORY_ZOOM_RULE,
 
   // 用户分享点位
-  shareLocation: {
-    minZoom: 12,
-    maxZoom: 15,
-    scales: { 12: 0.10, 13: 0.12, 14: 0.14, 15: 0.16 },
-    baseScale: 0.14,
-  },
+  shareLocation: STANDARD_MARKER_ZOOM_RULE(12),
 
   // 资源与标记默认范围 (14 - 15)
-  default: {
-    minZoom: 14,
-    maxZoom: 15,
-    scales: { 14: 0.11, 15: 0.13 },
-    baseScale: 0.12,
-  },
+  default: STANDARD_MARKER_ZOOM_RULE(14),
 };
 
 /**

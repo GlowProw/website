@@ -3,7 +3,7 @@
 import ItemName from "@/components/snbWidget/itemName.vue";
 import {computed, useSlots} from "vue";
 import {useRoute} from "vue-router";
-import {Commodity, Cosmetic, Cosmetics, Item, Items, MapLocation, Material, Npc, TreasureMap} from "glow-prow-data";
+import {Commodity, Cosmetic, Cosmetics, Item, Items, MapLocation, MapLocations, Material, Npc, TreasureMap} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import EmptyView from "@/components/EmptyView.vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
@@ -47,6 +47,25 @@ let obtainable = computed(() => {
     })
 
 /**
+ * 字符串类型的关联项：能匹配到地图地点时按地点处理（可跳转），否则当作未知类型
+ * @param id
+ */
+const toUnknownOrLocation = (id: string) => {
+  if (MapLocations[id as keyof typeof MapLocations]) {
+    return {
+      id,
+      type: 'MapLocation',
+      to: `/map/view?key=${id}`,
+    }
+  }
+
+  return {
+    id,
+    type: 'Unknown',
+  }
+}
+
+/**
  * 处理数据
  * @param d
  */
@@ -76,10 +95,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | TreasureMap | 
 
   // 兜底方案: 处理字符串类型的 obtainable
   else if (typeof obtainable === 'string') {
-    return [{
-      id: obtainable,
-      type: 'Unknown',
-    }];
+    return [toUnknownOrLocation(obtainable)];
   }
 
   // 处理数组类型的 obtainable
@@ -119,10 +135,7 @@ const filterByObtainable = (d: Item | Material | Cosmetic | Npc | TreasureMap | 
       }
       // 兜底
       else if (typeof element === 'string') {
-        acc.push({
-          id: element,
-          type: 'Unknown',
-        })
+        acc.push(toUnknownOrLocation(element))
       }
 
       return acc;

@@ -152,12 +152,13 @@ defineOptions({
       </v-expansion-panels>
     </div>
     <v-divider v-if="isShowOpenDetail" opacity=".06"></v-divider>
-    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto d-flex align-center ga-2" v-if="isShowOpenDetail">
+    <v-card-actions class="demo-reel-content px-10 py-5 overflow-auto d-flex align-center" v-if="isShowOpenDetail">
       <BtnWidget hotkey-action="openItemDetail" @action-complete="router.push(`/codex/mapLocation/${i.id}`)">
         {{ t('codex.mapLocation.lookDetail') }}
       </BtnWidget>
       <BtnWidget
           v-if="cardTooltipContext"
+          class="ml-4"
           hotkey-action="pinCardTooltip"
           :color="cardTooltipContext.isPinned.value ? 'var(--main-color)' : undefined"
           :icon="cardTooltipContext.isPinned.value ? 'mdi-pin-off-outline' : 'mdi-pin-outline'"

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import {computed, ref, watch} from "vue";
+import {computed, onBeforeUnmount, ref, watch} from "vue";
 import {apis, sessionUserInfo} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
+import {itemCardTooltipManager} from "@/components/snbWidget/itemCardTooltipManager";
 
 import Silk from "@/components/Silk.vue";
 import RolesTagWidget from "@/components/RolesTagWidget.vue";
@@ -56,11 +57,25 @@ const getUserInfo = async () => {
   }
 }
 
+// 组件唯一标识，用于全局卡片激活调度
+const instanceId = Symbol("AccountCardWidget");
+
 // 仅当用户 hover 展开气泡卡片且未拉取过时，才请求用户信息
 watch(() => model.value, (value) => {
-  if (value && userInfoData.value.id == null) {
-    getUserInfo();
+  if (value) {
+    itemCardTooltipManager.openTooltip(instanceId, () => {
+      model.value = false;
+    });
+    if (userInfoData.value.id == null) {
+      getUserInfo();
+    }
+  } else {
+    itemCardTooltipManager.closeTooltip(instanceId);
   }
+});
+
+onBeforeUnmount(() => {
+  itemCardTooltipManager.closeTooltip(instanceId);
 });
 
 const userInfo = computed(() => userInfoData.value as any);
@@ -73,7 +88,7 @@ defineOptions({
 <template>
   <v-tooltip v-model="model"
              scroll-strategy="close"
-             transition="opacity 300ms ease-in"
+             :transition="false"
              location="right top"
              min-width="450"
              max-width="450"

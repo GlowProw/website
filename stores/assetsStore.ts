@@ -56,9 +56,11 @@ function getEnemyImagesMap(): Record<string, string> {
         return imageMap;
     }
 
-    // 切换 CDN 服务后需要重新生成 URL，因此按服务名缓存
+    // 切换 CDN 服务后需要重新生成 URL，因此按服务名 + 敌人总数缓存
     const service = String(cdnStore.selectedService || '');
-    if (cachedEnemyImagesMap && cachedEnemyImagesService === service) {
+    const enemyCount = Object.keys(Enemies).length;
+    const enemiesCacheKey = `${service}|${enemyCount}`;
+    if (cachedEnemyImagesMap && cachedEnemyImagesService === enemiesCacheKey) {
         return cachedEnemyImagesMap;
     }
 
@@ -83,7 +85,7 @@ function getEnemyImagesMap(): Record<string, string> {
         });
     }
 
-    cachedEnemyImagesService = service;
+    cachedEnemyImagesService = enemiesCacheKey;
     cachedEnemyImagesMap = imageMap;
     return imageMap;
 }
@@ -106,12 +108,17 @@ function getMapImagesMap(): Record<string, string> {
         // 无激活的 pinia 实例时使用静态图标缓存
     }
 
-    if (cachedMergedMapImagesMap && cachedMergedMapImagesService === service) {
+    // 合并缓存 key 与敌人图标缓存保持一致（服务名 + 敌人总数 + 地图坐标总数），
+    // 避免新增敌人/坐标后缓存不失效导致图标缺失
+    const enemyCount = Object.keys(Enemies).length;
+    const locationCount = Object.keys(MapLocations).length;
+    const mergedCacheKey = `${service}|${enemyCount}|${locationCount}`;
+    if (cachedMergedMapImagesMap && cachedMergedMapImagesService === mergedCacheKey) {
         return cachedMergedMapImagesMap;
     }
 
     cachedMergedMapImagesMap = {...cachedMapImagesMap, ...getEnemyImagesMap()};
-    cachedMergedMapImagesService = service;
+    cachedMergedMapImagesService = mergedCacheKey;
     return cachedMergedMapImagesMap;
 }
 

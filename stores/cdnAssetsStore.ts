@@ -371,6 +371,9 @@ export const useCDNAssetsServiceStore = defineStore('cdnService', () => {
                 if (name && services.value.some(s => s.name === name)) {
                     selectedService.value = name;
                 }
+            } else if (import.meta.env.DEV) {
+                // 本地开发默认走本地资源代理，新增/修改的图片无需部署即可预览
+                selectedService.value = 'local-test'
             } else {
                 // 没有设置图片服务，初始前
                 // 如果本地语言，图片服务使用中国站镜像资源

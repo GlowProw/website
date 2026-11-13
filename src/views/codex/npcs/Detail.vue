@@ -88,7 +88,7 @@ const imageUrl = computed(() => {
   return cdnStore.currentService.image.url({
     id: npcDetailData.value.id,
     category: 'npcs'
-  }, 'glow-prow');
+  });
 });
 
 useHead(() => {
@@ -306,7 +306,7 @@ const onCodexHistory = () => {
                 </template>
                 <template v-if="npcDetailData.obtainable || npcDetailData.location">
                   <ByObtainableWidget :data="npcDetailData" byType="item">
-                    {{ t('codex.item.obtainable') }}
+                    {{ t('map.locations') }}
                   </ByObtainableWidget>
                 </template>
                 <template v-if="npcDetailData.faction">

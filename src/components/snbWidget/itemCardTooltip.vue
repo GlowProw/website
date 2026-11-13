@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, inject, onBeforeUnmount, provide, ref, useAttrs, watch} from "vue";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
+import {itemCardTooltipManager} from "@/components/snbWidget/itemCardTooltipManager";
 
 /**
  * 图标提示卡片容器
@@ -31,6 +32,9 @@ const LONG_PRESS_DELAY = 500;
 const CLOSE_BUFFER_DELAY = 200;
 
 const {tooltipPos, onMouseMove, onMouseEnter} = useTooltipFollow();
+
+// 组件实例唯一标识，用于全局卡片激活调度
+const instanceId = Symbol("ItemCardTooltip");
 
 // 根节点是 v-if/v-else 片段，Vue 无法自动继承属性，由激活元素承接
 const attrs = useAttrs();
@@ -89,12 +93,25 @@ const onClose = () => {
   isPinned.value = false;
   isInsideActivator = false;
   isInsideContent = false;
+  itemCardTooltipManager.closeTooltip(instanceId);
   document.removeEventListener("pointerdown", onDocumentPointerDown, true);
+};
+
+/**
+ * 打开提示卡片并向管理器注册，保证全局同一时间仅存在单个激活卡片
+ */
+const openTooltip = () => {
+  itemCardTooltipManager.openTooltip(instanceId, onClose);
+  if (!open.value) {
+    open.value = true;
+  }
 };
 
 // 监听外层浮层开合状态，关闭时重置锁定与指针标记
 watch(open, (val) => {
-  if (!val) {
+  if (val) {
+    openTooltip();
+  } else {
     onClose();
   }
 });
@@ -147,23 +164,26 @@ const checkLeaveAndClose = () => {
  * 指针进入图标
  * @param e 指针事件
  */
-const onActivatorEnter = (e: PointerEvent) => {
-  if (e.pointerType === "touch") return;
+const onActivatorEnter = (e: PointerEvent | MouseEvent) => {
+  if ('pointerType' in e && e.pointerType === "touch") return;
   clearCloseTimer();
   isInsideActivator = true;
   if (!isPinned.value) {
     onMouseEnter(e as unknown as MouseEvent);
   }
-  open.value = true;
+  openTooltip();
 };
 
 /**
  * 指针在图标内部移动：锁定后保持位置固定，未锁定时跟随鼠标
  * @param e 指针事件
  */
-const onActivatorMove = (e: PointerEvent) => {
-  if (e.pointerType === "touch") return;
+const onActivatorMove = (e: PointerEvent | MouseEvent) => {
+  if ('pointerType' in e && e.pointerType === "touch") return;
   isInsideActivator = true;
+  if (!open.value) {
+    openTooltip();
+  }
   if (!isPinned.value) {
     onMouseMove(e as unknown as MouseEvent);
   }
@@ -173,8 +193,8 @@ const onActivatorMove = (e: PointerEvent) => {
  * 指针离开图标
  * @param e 指针事件
  */
-const onActivatorLeave = (e: PointerEvent) => {
-  if (e.pointerType === "touch") return;
+const onActivatorLeave = (e: PointerEvent | MouseEvent) => {
+  if ('pointerType' in e && e.pointerType === "touch") return;
   isInsideActivator = false;
   checkLeaveAndClose();
 };
@@ -203,7 +223,7 @@ const onTouchStart = () => {
   pressOpened = false;
   pressTimer = window.setTimeout(() => {
     pressOpened = true;
-    open.value = true;
+    openTooltip();
     document.addEventListener("pointerdown", onDocumentPointerDown, true);
   }, LONG_PRESS_DELAY);
 };
@@ -230,10 +250,13 @@ const onBuildActivatorProps = (base: Record<string, any>): Record<string, any> =
   }
   Object.assign(merged, {
     onPointerenter: onActivatorEnter,
+    onMouseenter: onActivatorEnter,
     onPointerleave: onActivatorLeave,
+    onMouseleave: onActivatorLeave,
     onPointermove: onActivatorMove,
+    onMousemove: onActivatorMove,
     onFocus: () => {
-      open.value = true;
+      openTooltip();
     },
     onBlur: () => {
       checkLeaveAndClose();
@@ -264,7 +287,7 @@ defineOptions({
       :eager="false"
       :offset="props.offset"
       scroll-strategy="close"
-      transition="opacity 300ms ease-in"
+      :transition="false"
       location="right top"
       :min-width="props.minWidth"
       :max-width="props.maxWidth"
@@ -275,7 +298,7 @@ defineOptions({
     <template v-slot:activator="{ props: activatorProps }">
       <slot name="activator" :props="onBuildActivatorProps({...attrs, ...activatorProps})"></slot>
     </template>
-    <div ref="contentRef" @pointerleave="onContentLeave" @pointerenter="onContentEnter">
+    <div v-if="open" ref="contentRef" @pointerleave="onContentLeave" @pointerenter="onContentEnter">
       <slot></slot>
     </div>
   </v-tooltip>

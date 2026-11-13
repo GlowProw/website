@@ -151,6 +151,7 @@ let data: any = ref([]),
         text: asString([
           `snb.quests.${tag}.name`,
           `codex.categorys.${tag}`,
+          `codex.npc.categorys.${tag}`,
           `map.types.${tag}.name`,
           `codex.treasureMap.categorys.${tag}`
         ], {backRawKey: true, variable: tag})
@@ -308,7 +309,8 @@ const onProcessedData = computed(() => {
 
         // 检查类别匹配
         const categoryMatch = filterItemCategorys.length === 0 ||
-            (i.category && filterItemCategorys.includes(i.category)) ||
+            (Array.isArray(i.category) && i.category.some((c: string) => filterItemCategorys.includes(c))) ||
+            (typeof i.category === 'string' && filterItemCategorys.includes(i.category)) ||
             (!i.category && filterItemCategorys.includes('none'))
 
         // 检查稀有度匹配
@@ -582,7 +584,19 @@ const onInitTypeLoad = () => {
  */
 const onInitCategoryLoad = () => {
   let d = originalData.value
-  filterData.value.categoryTags = [...new Set(d.map(i => i.category || 'none'))]
+  const allCategories = new Set<string>()
+  d.forEach(i => {
+    if (Array.isArray(i.category)) {
+      i.category.forEach((c: string) => {
+        if (typeof c === 'string' && c.length > 0) allCategories.add(c)
+      })
+    } else if (typeof i.category === 'string' && i.category.length > 0) {
+      allCategories.add(i.category)
+    } else {
+      allCategories.add('none')
+    }
+  })
+  filterData.value.categoryTags = [...allCategories].sort()
 }
 
 /**
