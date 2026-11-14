@@ -2464,7 +2464,12 @@
       "dateAdded": "添加时间",
       "lastUpdated": "更新时间",
       "descending": "正序",
-      "ascending": "反序"
+      "ascending": "反序",
+      "showUnobtainable": {
+        "label": "显示失效物品",
+        "no": "否",
+        "yes": "是"
+      }
     },
     "size": {
       "extraSmall": "超小型",
@@ -6054,7 +6059,6 @@
     "close": "关闭",
     "confirm": "确认",
     "confirmDelete": "确认删除",
-    "delete": "删除",
     "scrollToTop": "回到顶部"
   },
   "team": {

@@ -12,6 +12,8 @@ import GlobalSearchDrawer from "@/components/GlobalSearchDrawer.vue";
 import CodexHistoryDrawer from "@/components/CodexHistoryDrawer.vue";
 import MessagesDrawer from "@/components/messages/MessagesDrawer.vue";
 import SwipeDrawer from "@/components/SwipeDrawer.vue";
+import AffixContainerView from "./AffixContainerView.vue";
+import VerticalScrollList from "./VerticalScrollList.vue";
 
 const {t} = useI18n(),
     route = useRoute(),
@@ -78,43 +80,47 @@ defineOptions({
 
         <v-row class="flex-grow-1 overflow-y-auto" no-gutters>
           <v-col cols="12" sm="12" md="2" lg="2" class="d-flex justify-center">
-            <div class="mt-16">
-              <v-icon icon="mdi-apps" size="70" class="mx-auto"></v-icon>
-              <p class="text-center text-h6">{{ t('header.menu') }}</p>
-            </div>
+            <AffixContainerView :offset-top="0">
+              <div class="mt-16">
+                <v-icon icon="mdi-apps" size="70" class="mx-auto"></v-icon>
+                <p class="text-center text-h6">{{ t('header.menu') }}</p>
+              </div>
+            </AffixContainerView>
           </v-col>
-          <v-divider vertical></v-divider>
           <v-col cols="12" sm="12" md="5" lg="3">
-            <v-list rounded nav class="bg-transparent">
-              <v-list-item link :to="nav.to" :href="nav.href" target="_blank"
-                           @click="drawer = false"
-                           v-for="(nav, navIndex) in appFuns.list" :key="navIndex">
-                {{ t(nav.title) }}
-                <template v-slot:prepend>
-                  <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
-                    <v-icon :icon="nav.icon"></v-icon>
-                  </ItemSlotBase>
-                </template>
-              </v-list-item>
-            </v-list>
+            <VerticalScrollList :is-mask="true">
+              <v-list rounded="lg" nav class="bg-transparent">
+                <v-list-item link rounded="lg" :to="nav.to" :href="nav.href" target="_blank"
+                            @click="drawer = false"
+                            v-for="(nav, navIndex) in appFuns.list" :key="navIndex">
+                  {{ t(nav.title) }}
+                  <template v-slot:prepend>
+                    <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
+                      <v-icon :icon="nav.icon"></v-icon>
+                    </ItemSlotBase>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </VerticalScrollList>
           </v-col>
-          <v-divider vertical></v-divider>
           <v-col cols="12" sm="12" md="5" lg="3">
-            <v-list rounded nav class="bg-transparent">
-              <HeaderAccount type="header-drawer"></HeaderAccount>
+            <AffixContainerView :offset-top="0">
+              <v-list rounded="lg" nav class="bg-transparent">
+                <HeaderAccount type="header-drawer"></HeaderAccount>
 
-              <v-divider class="my-1"></v-divider>
+                <v-divider class="my-1" opacity=".06"></v-divider>
 
-              <v-list-item link :href="nav.href" target="_blank"
-                           v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
-                {{ t(nav.title) }}
-                <template v-slot:prepend>
-                  <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
-                    <v-icon icon="mdi-open-in-new" size="25"></v-icon>
-                  </ItemSlotBase>
-                </template>
-              </v-list-item>
-            </v-list>
+                <v-list-item link rounded="lg" :href="nav.href" target="_blank"
+                            v-for="(nav, navIndex) in appNavs.list" :key="navIndex">
+                  {{ t(nav.title) }}
+                  <template v-slot:prepend>
+                    <ItemSlotBase size="40px" class="mr-2 d-flex align-center justify-center">
+                      <v-icon icon="mdi-open-in-new" size="25"></v-icon>
+                    </ItemSlotBase>
+                  </template>
+                </v-list-item>
+              </v-list>
+            </AffixContainerView>
           </v-col>
         </v-row>
       </div>

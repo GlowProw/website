@@ -456,13 +456,11 @@ defineOptions({
                 <label class="text-caption font-weight-bold opacity-80 mb-1 d-block">
                   {{ t('account.information.form.introduction.name') }}
                 </label>
-                <v-card border variant="text" class="pa-2">
-                  <Textarea
-                      v-model="userAccountData.attr.introduction"
-                      :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
-                      :placeholder="t('account.information.form.introduction.placeholder')">
+                <Textarea
+                    v-model="userAccountData.attr.introduction"
+                    :toolbar="['emote', 'item', 'ship', 'mod', 'ultimate']"
+                    :placeholder="t('account.information.form.introduction.placeholder')">
                   </Textarea>
-                </v-card>
               </v-col>
 
               <!-- 隐私与通知开关 -->

@@ -1,23 +1,27 @@
 <script setup lang="ts">
 import {computed, nextTick, onMounted, ref, watch} from "vue";
-import {Modifications} from "glow-prow-data";
+import {Items, Modifications} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
 import ItemSlotBase from "./ItemSlotBase.vue";
 import router from "~/router";
 import {useRoute} from "vue-router";
-import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import ModName from "@/components/snbWidget/modName.vue";
 import ModDescription from "@/components/snbWidget/modDescription.vue";
 import ModIconWidget from "@/components/snbWidget/modIconWidget.vue";
 import HtmlLink from "@/components/HtmlLink.vue";
 import {useDisplay} from "vuetify/framework";
-import HorizontalScrollList from "@/components/HorizontalScrollList.vue";
 import {useAppStore} from "~/stores/appStore";
+import {filterAvailableModifications, getWeaponExpectedSlotTypes} from "@/assets/sripts/modification_util";
+import AffixContainerView from "@/components/AffixContainerView.vue";
+import RhombusWidget from "@/components/snbWidget/rhombusWidget.vue";
+import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
+import type {ModRarity} from "@/assets/types/Codex";
 
 const modImages = import.meta.glob('@/assets/images/snb/modTypeIcons/*.*', {eager: true})
-const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
+const props = withDefaults(defineProps<{ id: string, type: string | null, data?: any }>(), {
       id: null,
-      type: null
+      type: null,
+      data: null,
     }),
     appStore = useAppStore(),
     route = useRoute(),
@@ -26,15 +30,24 @@ const props = withDefaults(defineProps<{ id: string, type: string | null }>(), {
     modSlotBackgroundColor = {'basic': '#101e06', 'advanced': 'rgb(7 27 53)', 'special': '#231536', 'mythic': 'rgb(68 44 13)'},
     modIndex = {'basic': 1, 'advanced': 2, 'special': 3, 'mythic': 4}
 
-let modData = ref({}),
+let modData = ref<Record<string, any[]>>({}),
     // 模组图标
-    modIcons = ref({}),
+    modIcons = ref<Record<string, string>>({}),
     // 模式显示类型
     displayMode = ref(0),
     // 搜索关键词
     searchKeyword = ref(''),
     // 筛选等级
-    filterGrades = ref([]),
+    filterGrades = ref<string[]>([]),
+    // 筛选伤害类型
+    filterDamageType = ref<string>(''),
+    // 目标物品引用
+    itemTarget = computed(() => {
+      return props.data || (props.id ? (Items as any)[props.id] : null) || {
+        id: props.id,
+        type: props.type,
+      };
+    }),
     // 是否含模组
     isHasMod = computed(() => {
       return Object.keys(modData.value).length > 0
@@ -42,15 +55,40 @@ let modData = ref({}),
     // 所有可用等级 (按 modIndex 排序)
     availableGrades = computed(() => {
       return Object.keys(modData.value).sort(
-        (a, b) => (modIndex[a] || 99) - (modIndex[b] || 99)
+          (a, b) => (modIndex[a] || 99) - (modIndex[b] || 99)
       )
+    }),
+    // 武器支持的改装卡槽列表
+    weaponSlots = computed(() => {
+      const rarity = itemTarget.value?.rarity || 'common';
+      const slotTypes = getWeaponExpectedSlotTypes(rarity);
+      return slotTypes.map((grade, index) => ({
+        index: index + 1,
+        grade: grade as ModRarity,
+        name: t(`assembly.tags.grade.${grade}`),
+      }));
+    }),
+    // 可用模组中包含的所有伤害类型
+    availableDamageTypes = computed(() => {
+      const types = new Set<string>();
+      Object.values(modData.value).forEach((mods: any) => {
+        (mods || []).forEach((m: any) => {
+          if (m.damageType && m.damageType !== 'base' && m.damageType !== 'overall') {
+            types.add(m.damageType);
+          }
+          if (m.requiredDamageType) {
+            types.add(m.requiredDamageType);
+          }
+        });
+      });
+      return Array.from(types).sort();
     }),
     // 筛选后的模组数据 (按 modIndex 排序)
     filteredModData = computed(() => {
-      const result = {};
+      const result: Record<string, any[]> = {};
 
       const sortedGrades = Object.keys(modData.value).sort(
-        (a, b) => (modIndex[a] || 99) - (modIndex[b] || 99)
+          (a, b) => (modIndex[a] || 99) - (modIndex[b] || 99)
       );
 
       sortedGrades.forEach(grade => {
@@ -63,6 +101,13 @@ let modData = ref({}),
         }
 
         const filteredMods = (mods as any[]).filter(mod => {
+          // 伤害类型筛选
+          if (filterDamageType.value) {
+            const matchesDamage = mod.damageType === filterDamageType.value ||
+                mod.requiredDamageType === filterDamageType.value;
+            if (!matchesDamage) return false;
+          }
+
           // 关键词搜索
           if (searchKeyword.value) {
             const keyword = searchKeyword.value.toLowerCase()
@@ -82,15 +127,28 @@ let modData = ref({}),
 
       return result;
     }),
+    // 模组总数
+    totalModsCount = computed(() => {
+      return Object.values(modData.value).reduce((acc: number, list: any) => acc + (list?.length || 0), 0);
+    }),
+    // 过滤后的模组总数
+    totalFilteredCount = computed(() => {
+      return Object.values(filteredModData.value).reduce((acc: number, list: any) => acc + (list?.length || 0), 0);
+    }),
     // 是否有筛选条件
     hasActiveFilters = computed(() => {
-      return searchKeyword.value || filterGrades.value.length > 0;
+      return !!searchKeyword.value || filterGrades.value.length > 0 || !!filterDamageType.value;
     })
 
 watch(() => locale.value, () => {
   modData.value = onCategorizeByGrade(Modifications)
   onReady()
 })
+
+watch(() => [props.id, props.type, props.data], () => {
+  modData.value = onCategorizeByGrade(Modifications)
+  onReady()
+}, {deep: true})
 
 onMounted(() => {
   modData.value = onCategorizeByGrade(Modifications)
@@ -129,43 +187,32 @@ const onReady = () => {
 }
 
 /**
- * 初始化分类表
- * 以grade创建，并根据 modIndex 排序
- * @param data
+ * 根据武器稀有度与效果规则初始化分类模组表
+ *
+ * @param data 全部模组数据
  */
-const onCategorizeByGrade = (data): {} => {
-  const result = {};
+const onCategorizeByGrade = (data: any): Record<string, any[]> => {
+  const itemTarget = props.data || (props.id ? (Items as any)[props.id] : null) || {
+    id: props.id,
+    type: props.type,
+  };
 
-  // 首先收集所有匹配的模组
-  const allMods = [];
-  Object.values(data).forEach((item: any) => {
-    if (props.type) {
-      const hasMatchingVariant = item.variants?.some((variant: any) =>
-          variant.itemType?.includes(props.type))
+  const filtered = filterAvailableModifications(itemTarget, data, {
+    filterByAllowedGrades: true,
+  });
 
+  const sortedResult: Record<string, any[]> = {};
+  const grades = Object.keys(filtered).sort(
+      (a, b) => (modIndex[a] || 99) - (modIndex[b] || 99)
+  );
 
-      if (!hasMatchingVariant) return; // 不匹配则跳过
+  grades.forEach((grade) => {
+    const list = filtered[grade as keyof typeof filtered];
+    if (list && list.length > 0) {
+      list.sort((a, b) => a.id.localeCompare(b.id));
+      sortedResult[grade] = list;
     }
-    allMods.push(item)
-  })
-
-  // 排序 a-z
-  allMods.sort((a, b) => a.id[0].localeCompare(b.id[0]))
-
-  allMods.forEach(item => {
-    if (!result[item.grade]) {
-      result[item.grade] = [];
-    }
-    result[item.grade].push(item)
-  })
-
-  // 按 modIndex 建立有顺序的 result 对象
-  const sortedResult = {};
-  Object.keys(result)
-    .sort((a, b) => (modIndex[a] || 99) - (modIndex[b] || 99))
-    .forEach(grade => {
-      sortedResult[grade] = result[grade];
-    });
+  });
 
   return sortedResult;
 }
@@ -173,13 +220,41 @@ const onCategorizeByGrade = (data): {} => {
 const getModGrade = (mod: any) => mod.grade
 const getModId = (mod: any) => mod.id
 const getModVariants = (mod: any) => mod.variants
+
+/**
+ * 切换卡槽对应品质的筛选
+ *
+ * @param slotGrade 品质标识
+ */
+const onSlotClick = (slotGrade: string) => {
+  if (filterGrades.value.length === 1 && filterGrades.value[0] === slotGrade) {
+    filterGrades.value = [];
+  } else {
+    filterGrades.value = [slotGrade];
+  }
+};
+
+/**
+ * 切换伤害类型筛选
+ *
+ * @param dtype 伤害类型标识
+ */
+const onDamageTypeClick = (dtype: string) => {
+  if (filterDamageType.value === dtype) {
+    filterDamageType.value = '';
+  } else {
+    filterDamageType.value = dtype;
+  }
+};
+
 /**
  * 重置所有筛选条件
  */
 const resetFilters = () => {
   searchKeyword.value = '';
   filterGrades.value = [];
-}
+  filterDamageType.value = '';
+};
 
 defineOptions({
   name: 'itemModificationWidget',
@@ -188,14 +263,29 @@ defineOptions({
 
 <template>
   <template v-if="isHasMod">
-    <!-- 搜索和筛选栏 S -->
-    <v-row class="pb-2" align="end">
+    <v-row align="end">
       <v-col>
         <slot name="title" v-if="isHasMod"></slot>
       </v-col>
-      <v-col>
-        <v-row align="center">
-          <v-col>
+    </v-row>
+
+    <v-row class="mt-lg-2">
+      <v-col cols="12" md lg xl>
+        <AffixContainerView>
+          <!-- 筛选控制面板 S -->
+          <div class="d-flex flex-column ga-4 filter-container">
+            <!-- 标题栏与数量 S -->
+            <div class="d-flex align-center justify-space-between">
+              <span class="text-caption font-weight-bold text-medium-emphasis">
+                {{ t('assembly.weaponModification.title') }}
+              </span>
+              <v-chip size="x-small" variant="tonal" color="amber">
+                {{ totalFilteredCount }} / {{ totalModsCount }}
+              </v-chip>
+            </div>
+            <!-- 标题栏与数量 E -->
+
+            <!-- 搜索框 S -->
             <v-text-field
                 :placeholder="t('basic.button.search')"
                 variant="filled"
@@ -203,144 +293,223 @@ defineOptions({
                 hide-details
                 clearable
                 v-model="searchKeyword"
-                prepend-inner-icon="mdi-magnify"
-            ></v-text-field>
-          </v-col>
-          <v-col cols="auto">
-            <v-menu open-on-click :close-on-content-click="false">
-              <template v-slot:activator="{ props }">
-                <div v-bind="props">
-                  <v-icon>{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
-                  <v-icon>mdi-dots-vertical</v-icon>
+                prepend-inner-icon="mdi-magnify"></v-text-field>
+            <!-- 搜索框 E -->
+
+            <!-- 卡槽列表 S -->
+            <div v-if="weaponSlots.length > 0">
+              <div class="d-flex align-center justify-space-between mb-2">
+                <span class="text-caption font-weight-bold text-medium-emphasis">
+                  {{ t('assembly.weaponModification.title') }}
+                </span>
+                <span class="text-caption text-disabled">{{ weaponSlots.length }}</span>
+              </div>
+
+              <div class="d-flex flex-column ga-2">
+                <div
+                    v-for="slot in weaponSlots"
+                    :key="slot.index"
+                    class="slot-item-card cursor-pointer transition-swing"
+                    :class="{
+                      'slot-item-active': filterGrades.includes(slot.grade),
+                      [`grade-border-${slot.grade}`]: true
+                    }"
+                    @click="onSlotClick(slot.grade)">
+                  <v-row class="d-flex align-center justify-space-between w-100">
+                    <!-- 左边：RhombusWidget -->
+                    <v-col cols="auto" class="d-flex align-center ga-3">
+                      <RhombusWidget
+                          :size="26"
+                          :border="true"
+                          :border-activate="filterGrades.includes(slot.grade)"
+                          :slot="true"
+                          :slot-activate="filterGrades.includes(slot.grade)"
+                          :glow="filterGrades.includes(slot.grade)"
+                          :type="filterGrades.includes(slot.grade) ? 'normal' : 'none'"></RhombusWidget>
+                      <div class="d-flex flex-column">
+                        <span class="text-body-2 font-weight-bold">{{ slot.name }}</span>
+                      </div>
+                    </v-col>
+
+                    <v-col>
+                      <v-divider></v-divider>
+                    </v-col>
+
+                    <!-- 右边：模组品质图标与可用数量 -->
+                    <v-col cols="auto" class="d-flex align-center ga-2">
+                      <v-chip
+                          size="x-small"
+                          density="compact"
+                          variant="tonal"
+                          :color="filterGrades.includes(slot.grade) ? 'amber' : undefined">
+                        {{ modData[slot.grade]?.length || 0 }}
+                      </v-chip>
+                      <v-img :src="modIcons[slot.grade]" width="34px" height="34px"></v-img>
+                    </v-col>
+                  </v-row>
                 </div>
-              </template>
+              </div>
+            </div>
+            <!-- 卡槽列表 E -->
 
-              <v-card border class="pa-5" :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
-                <v-card-title class="py-10 text-center bg-black mb-4 mx-n5 mt-n5">
-                  <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
-                </v-card-title>
+            <!-- 伤害类型筛选 S -->
+            <div v-if="availableDamageTypes.length > 0">
+              <div class="d-flex align-center justify-space-between mb-2">
+                <span class="text-caption font-weight-bold text-medium-emphasis">
+                  {{ t('assembly.tags.titles.damageTypes') }}
+                </span>
+                <v-btn
+                    v-if="filterDamageType"
+                    variant="text"
+                    size="small"
+                    color="amber"
+                    @click="filterDamageType = ''">
+                  {{ t('basic.button.reset') }}
+                </v-btn>
+              </div>
+              <div class="d-flex flex-wrap ga-2 gap-2">
+                <v-chip
+                    v-for="dtype in availableDamageTypes"
+                    :key="dtype"
+                    size="small"
+                    filter
+                    :variant="filterDamageType === dtype ? 'flat' : 'tonal'"
+                    :color="filterDamageType === dtype ? 'amber' : undefined"
+                    @click="onDamageTypeClick(dtype)">
+                  <template v-slot:prepend>
+                    <DamageIconWidget :id="dtype" :size="16" class="mr-1"></DamageIconWidget>
+                  </template>
+                  {{ t(`assembly.tags.damageTypes.${dtype}`) }}
+                </v-chip>
+              </div>
+            </div>
+            <!-- 伤害类型筛选 E -->
 
-                <v-row>
-                  <v-col cols="12">
-                    <v-select
-                        variant="filled"
-                        density="compact"
-                        hide-details
-                        multiple
-                        chips
-                        clearable
-                        v-model="filterGrades"
-                        item-title="text"
-                        :items="availableGrades.map(grade => ({
-              value: grade,
-              text: t(`assembly.tags.grade.${grade}`)
-            }))"
-                    ></v-select>
-                  </v-col>
+            <!-- 品质筛选多选 S -->
+            <div>
+              <div class="d-flex align-center justify-space-between mb-2">
+                <span class="text-caption font-weight-bold text-medium-emphasis">
+                  {{ t('assembly.weaponModification.available') }}
+                </span>
+              </div>
+              <div class="d-flex flex-wrap ga-1">
+                <v-chip
+                    v-for="grade in availableGrades"
+                    :key="grade"
+                    size="small"
+                    filter
+                    :variant="filterGrades.includes(grade) ? 'flat' : 'tonal'"
+                    :color="filterGrades.includes(grade) ? 'amber' : undefined"
+                    @click="onSlotClick(grade)">
+                  <template v-slot:prepend>
+                    <v-img :src="modIcons[grade]" width="16px" height="16px" class="mr-1"></v-img>
+                  </template>
+                  {{ t(`assembly.tags.grade.${grade}`) }}
+                  <span class="ml-1 opacity-70">({{ modData[grade]?.length || 0 }})</span>
+                </v-chip>
+              </div>
+            </div>
+            <!-- 品质筛选多选 E -->
 
-                  <v-col cols="12">
-                    <v-btn
-                        variant="text"
-                        block
-                        color="error"
-                        :disabled="!hasActiveFilters"
-                        @click="resetFilters"
-                        prepend-icon="mdi-refresh">
-                      {{ t('basic.button.reset') }}
-                    </v-btn>
-                  </v-col>
-                </v-row>
-              </v-card>
-            </v-menu>
-          </v-col>
+            <!-- 重置按钮 S -->
+            <v-btn
+                v-if="hasActiveFilters"
+                block
+                variant="tonal"
+                class="mt-4"
+                prepend-icon="mdi-refresh"
+                @click="resetFilters">
+              {{ t('basic.button.reset') }}
+            </v-btn>
+            <!-- 重置按钮 E -->
+          </div>
+          <!-- 筛选控制面板 E -->
+        </AffixContainerView>
+      </v-col>
+      <v-col cols="12" lg>
+        <v-row class="mod justify-sm-end justify-center mt-n10">
+          <template v-if="Object.keys(filteredModData).length > 0">
+            <template v-for="(mods, grade) in filteredModData" :key="grade">
+              <v-col cols="auto" class="pl-6 border-l">
+                <AffixContainerView class="px-4 py-4 title-long-flavor" align="center">
+                  <div>
+                    <v-img :src="modIcons[grade]" width="40px" height="40px"></v-img>
+                  </div>
+                </AffixContainerView>
+
+                <div class="mod-list d-flex flex-column align-center ga-2 mt-2 pb-5">
+                  <div
+                      v-for="(mod, modIdx) in mods"
+                      class="mod-item d-flex justify-center align-center"
+                      :class="`grade-${getModGrade(mod)}`"
+                      :key="modIdx">
+                    <template v-if="appStore.isDebug">{{ mod }}</template>
+                    <template v-else-if="displayMode == 0">
+                      <ItemSlotBase size="60px">
+                        <ModIconWidget :id="getModId(mod)" :padding="0" :margin="0"></ModIconWidget>
+                      </ItemSlotBase>
+                    </template>
+                  </div>
+                </div>
+              </v-col>
+            </template>
+          </template>
+
+          <!-- 无结果提示 S -->
+          <template v-else>
+            <v-row class="px-5 py-10">
+              <v-col cols="12" class="text-center">
+                <v-icon size="64" class="mb-4">mdi-magnify-close</v-icon>
+                <h4 class="text-h6">{{ t('empty.title') }}</h4>
+                <p class="text-body-2 text-medium-emphasis mt-2">
+                  {{ t('empty.description') }}
+                </p>
+                <v-btn
+                    variant="tonal"
+                    class="mt-4"
+                    @click="resetFilters"
+                    prepend-icon="mdi-refresh">
+                  {{ t('basic.button.reset') }}
+                </v-btn>
+              </v-col>
+            </v-row>
+          </template>
+          <!-- 无结果提示 E -->
         </v-row>
       </v-col>
     </v-row>
-    <!-- 搜索和筛选栏 E -->
-
-    <HorizontalScrollList>
-      <v-row class="mod d-flex flex-nowrap mod-list-flex">
-        <template v-if="Object.keys(filteredModData).length > 0">
-          <template v-for="(mods, grade) in filteredModData" :key="grade">
-            <v-col style="min-width: 180px; display: flex; flex-direction: column">
-              <v-row no-gutters class="px-4 py-2 title-long-flavor" style="min-height:50px; max-height: 50px;" :style="`background: ${modSlotBackgroundColor[grade]}`" align="center">
-                <v-col cols="auto">
-                  <v-img :src="modIcons[grade]" class="mt-1" width="25px" height="25px"/>
-                </v-col>
-                <v-col class="ml-2">
-                  {{ t(`assembly.tags.grade.${grade}`) }}
-                </v-col>
-              </v-row>
-
-              <v-row class="pb-5 mod-list">
-                <v-col v-for="(mod, itemIdx) in mods"
-                       class="mod-item"
-                       :class="`grade-${getModGrade(mod)}`"
-                       :key="itemIdx"
-                       :cols="{0: '12', 1: '1'}[displayMode]">
-                  <template v-if="appStore.isDebug">{{ mod }}</template>
-                  <template v-else-if="displayMode == 0">
-                    <v-row align="center" no-gutters>
-                      <v-col cols="auto">
-                        <ItemSlotBase size="40px">
-                          <ModIconWidget :id="getModId(mod)" :padding="0" :margin="0">
-                            <template v-slot:description>
-                              <ModDescription :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModDescription>
-                            </template>
-                          </ModIconWidget>
-                        </ItemSlotBase>
-                      </v-col>
-                      <v-col class="pl-2">
-                        <HtmlLink :href="`/codex/modification/${getModId(mod)}`" :is-icon="false" :is-iframe-show="false">
-                          <ModName :id="getModId(mod)" :variants="getModVariants(mod)" :grade="getModGrade(mod)" :type="type"></ModName>
-                        </HtmlLink>
-                      </v-col>
-                    </v-row>
-                  </template>
-                </v-col>
-              </v-row>
-            </v-col>
-            <v-divider vertical class="mt-15 m-10"></v-divider>
-          </template>
-        </template>
-
-        <!-- 无结果提示 -->
-        <template v-else>
-          <v-row class="px-5 py-10">
-            <v-col cols="12" class="text-center">
-              <v-icon size="64" class="mb-4">mdi-magnify-close</v-icon>
-              <h4 class="text-h6">{{ t('empty.title') }}</h4>
-              <p class="text-body-2 text-medium-emphasis mt-2">
-                {{ t('empty.description') }}
-              </p>
-              <v-btn
-                  variant="tonal"
-                  class="mt-4"
-                  @click="resetFilters"
-                  prepend-icon="mdi-refresh">
-                {{ t('basic.button.reset') }}
-              </v-btn>
-            </v-col>
-          </v-row>
-        </template>
-      </v-row>
-    </HorizontalScrollList>
   </template>
 </template>
 
 <style scoped lang="less">
-.mod {
-  .mod-list {
-    max-height: 500px;
-    overflow-y: auto;
-    mask-image: linear-gradient(to bottom, black 96%, transparent 100%);
 
-    .mod-item:last-child {
-      margin-bottom: 50px;
-    }
+.slot-item-card {
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
   }
 
+  &.slot-item-active {
+  }
 
+  &.grade-border-basic:hover {
+    border-color: rgba(208, 255, 208, 0.4) !important;
+  }
+
+  &.grade-border-advanced:hover {
+    border-color: rgba(187, 220, 255, 0.4) !important;
+  }
+
+  &.grade-border-special:hover {
+    border-color: rgba(249, 235, 255, 0.4) !important;
+  }
+
+  &.grade-border-mythic:hover {
+    border-color: rgba(255, 183, 77, 0.4) !important;
+  }
+}
+
+.mod {
   .description {
     font-size: .9rem;
   }

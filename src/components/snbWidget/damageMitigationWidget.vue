@@ -1,6 +1,5 @@
 <script setup lang="ts">
 
-import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import {Item} from "glow-prow-data";
 import {useI18n} from "vue-i18n";
@@ -127,6 +126,7 @@ defineOptions({
         </v-card>
       </template>
     </v-text-field>
+
   </template>
 
   <!-- 属性 横向 -->
@@ -158,6 +158,7 @@ defineOptions({
           </v-card>
         </v-col>
       </template>
+
     </v-row>
   </template>
 </template>

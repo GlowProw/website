@@ -128,7 +128,8 @@ let data: any = ref([]),
       page: 1,
       limit: 50,
       sortField: 'dateAdded' as SortField,
-      sortOrder: 'desc' as SortOrder
+      sortOrder: 'desc' as SortOrder,
+      showUnobtainable: 'no' as 'no' | 'yes'
     }),
     // 类型 筛选器可选选项
     typeFilterAvailableOptions = computed(() => [
@@ -215,6 +216,7 @@ let data: any = ref([]),
           filterData.value.locations.length > 0 ||
           filterData.value.sortField !== 'dateAdded' ||
           filterData.value.sortOrder !== 'desc' ||
+          filterData.value.showUnobtainable !== 'no' ||
           filterData.value.keyValue !== '' ||
           filterData.value.inputWidgetKeyValue !== '';
     }),
@@ -361,6 +363,11 @@ const onProcessedData = computed(() => {
               worldEventMatch = filterWorldEvents.includes(i.worldEvent.id);
             }
           }
+        }
+
+        // 默认隐藏 unobtainable 物品
+        if (filterData.value.showUnobtainable !== 'yes' && i.unobtainable) {
+          return false;
         }
 
         // 关键词匹配是基础条件，其他筛选条件可选
@@ -553,6 +560,9 @@ watch(() => route.query, (newQuery) => {
   if (newQuery.sortOrder) {
     filterData.value.sortOrder = newQuery.sortOrder as SortOrder;
   }
+  if (newQuery.showUnobtainable === 'yes' || newQuery.showUnobtainable === 'no') {
+    filterData.value.showUnobtainable = newQuery.showUnobtainable;
+  }
 }, {immediate: true})
 
 onMounted(() => {
@@ -726,6 +736,9 @@ const updateQueryParams = () => {
   if (filterData.value.sortOrder !== 'desc') {
     query.sortOrder = filterData.value.sortOrder;
   }
+  if (filterData.value.showUnobtainable !== 'no') {
+    query.showUnobtainable = filterData.value.showUnobtainable;
+  }
 
   router.replace({
     query: Object.keys(query).length > 0 ? query : undefined
@@ -746,6 +759,7 @@ const resetAllFilters = () => {
   filterData.value.sets = [];
   filterData.value.sortField = 'dateAdded';
   filterData.value.sortOrder = 'desc';
+  filterData.value.showUnobtainable = 'no';
   filterData.value.keyValue = '';
   filterData.value.inputWidgetKeyValue = '';
 
@@ -1303,6 +1317,26 @@ defineOptions({
                           { value: 'asc', text: t('codex.filter.ascending') }
                         ]"
                         hide-details
+                    ></v-select>
+                  </v-col>
+                </v-row>
+
+                <v-row>
+                  <v-col cols="6">
+                    <v-select
+                        variant="filled"
+                        item-value="value"
+                        item-title="text"
+                        density="comfortable"
+                        v-model="filterData.showUnobtainable"
+                        @update:model-value="updateQueryParams"
+                        :items="[
+                          { value: 'no', text: t('codex.filter.showUnobtainable.no') },
+                          { value: 'yes', text: t('codex.filter.showUnobtainable.yes') }
+                        ]"
+                        hide-details
+                        :label="t('codex.filter.showUnobtainable.label')"
+                        persistent-hint
                     ></v-select>
                   </v-col>
                 </v-row>

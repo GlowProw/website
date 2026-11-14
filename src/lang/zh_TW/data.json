@@ -2437,7 +2437,12 @@
       "dateAdded": "添加时间",
       "lastUpdated": "更新时间",
       "descending": "正序",
-      "ascending": "反序"
+      "ascending": "反序",
+      "showUnobtainable": {
+        "label": "顯示失效物品",
+        "no": "否",
+        "yes": "是"
+      }
     },
     "size": {
       "extraSmall": "超小型",
@@ -6053,8 +6058,7 @@
     "close": "關閉",
     "confirm": "確認",
     "confirmDelete": "確認刪除",
-    "delete": "刪除",
-    "scrollToTop": "回到頂部"
+    "delete": "刪除"
   },
   "team": {
     "title": "組隊招募"

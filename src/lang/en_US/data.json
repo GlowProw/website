@@ -2463,7 +2463,12 @@
       "dateAdded": "Date Added",
       "lastUpdated": "Last Updated",
       "descending": "Descending",
-      "ascending": "Ascending"
+      "ascending": "Ascending",
+      "showUnobtainable": {
+        "label": "Show Unobtainable",
+        "no": "No",
+        "yes": "Yes"
+      }
     },
     "size": {
       "extraSmall": "Extra Small",
@@ -6049,8 +6054,7 @@
     "close": "Close",
     "confirm": "Confirm",
     "confirmDelete": "Confirm deletion",
-    "delete": "Delete",
-    "scrollToTop": "Scroll to top"
+    "delete": "Delete"
   },
   "team": {
     "title": "Team Up"

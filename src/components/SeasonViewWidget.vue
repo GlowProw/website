@@ -9,7 +9,9 @@ const seasonVideos = import.meta.glob('@/assets/videos/*.*', {eager: true}),
     seasonImages = import.meta.glob('@/assets/images/snb/season/*.*', {eager: true})
 
 const {serializationMap} = useAssetsStore(),
-    props = defineProps<{ data: Season | unknown }>()
+    props = withDefaults(defineProps<{ data: Season | unknown, isFlavor?: boolean }>(), {
+        isFlavor: true
+    })
 
 let images = ref({}),
     currentSeasonBannerAddress = ref('release'),
@@ -51,7 +53,7 @@ defineOptions({ name: 'SeasonViewWidget' })
 </script>
 
 <template>
-  <div class="card-enlargement-mask-flavor w-100">
+  <div class=" w-100" :class="{'card-enlargement-mask-flavor': isFlavor}">
     <template v-if="currentSeasonBannerAddress">
       <template v-if="currentSeasonFormat == 'mp4'">
         <video autoplay playsinline

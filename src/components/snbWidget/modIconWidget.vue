@@ -135,7 +135,7 @@ const computedMargin = useIconImageMargin(props.margin);
         :id="props.id"
         :is-show-description="props.isShowDescription"
         :is-show-open-detail="props.isShowOpenDetail">
-      <template v-slot:description>
+      <template v-slot:description v-if="$slots.description">
         <slot name="description"></slot>
       </template>
     </ModCardDetail>

@@ -73,12 +73,10 @@ defineOptions({
     </Banner>
     <div class="demo-reel-content background-flavor overflow-auto">
       <template v-if="isShowDescription">
-        <div class="mb-5 px-6">
+        <div class="mb-5 px-6" v-if="$slots.description">
           <slot name="description"></slot>
         </div>
-      </template>
-      <template v-if="isShowDescription && i && i.id">
-        <div class="mb-5 px-6 description">
+        <div class="mb-5 px-6 description" v-else-if="i && i.id">
           <ModDescription :id="props.id" :grade="i.grade" :variants="i.variants"></ModDescription>
         </div>
       </template>

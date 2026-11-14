@@ -15,28 +15,19 @@ import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import ItemName from "@/components/snbWidget/itemName.vue";
 import type {ModCategory, ModItem, ModRarity, ModSlot} from "@/assets/types/Codex";
+import {
+  WEAPON_MOD_SLOT_CONFIG,
+  getWeaponExpectedSlotTypes,
+  filterAvailableModifications,
+  getWeaponAllowedGrades,
+} from "@/assets/sripts/modification_util";
 
 const WEAPON_MOD_CONFIG: Record<Rarity, { slotType: ModRarity[] }> = {
-  // 白
-  common: {
-    slotType: ['basic', 'basic', 'advanced', 'special']
-  },
-  // 绿
-  uncommon: {
-    slotType: ['basic', 'advanced', 'special']
-  },
-  // 蓝
-  rare: {
-    slotType: ['basic', 'advanced', 'special']
-  },
-  // 紫
-  epic: {
-    slotType: ['basic', 'advanced', 'advanced', 'mythic']
-  },
-  // 黄 (预设)
-  legendary: {
-    slotType: ['basic', 'advanced', 'mythic', 'mythic']
-  }
+  common: { slotType: WEAPON_MOD_SLOT_CONFIG.common },
+  uncommon: { slotType: WEAPON_MOD_SLOT_CONFIG.uncommon },
+  rare: { slotType: WEAPON_MOD_SLOT_CONFIG.rare },
+  epic: { slotType: WEAPON_MOD_SLOT_CONFIG.epic },
+  legendary: { slotType: WEAPON_MOD_SLOT_CONFIG.legendary }
 };
 
 const MOD_STYLE_CONFIG: Record<ModRarity, string> = {
@@ -52,11 +43,28 @@ const props = withDefaults(defineProps<{
   data: Item | any,
   disabled?: boolean,
   type?: string,
-  modelValue?: ModSlot[]
+  modelValue?: ModSlot[],
+  block?: boolean,
+  variant?: any,
+  btnVariant?: any,
+  btnSize?: string | number,
+  btnClass?: any,
+  isClickOpen?: boolean,
+  isChip?: boolean,
+  chipSize?: string | number,
+  chipVariant?: any,
 }>(), {
   readonly: false,
   size: 14,
   disabled: false,
+  block: true,
+  variant: 'text',
+  btnSize: 'x-small',
+  btnClass: 'px-1',
+  isClickOpen: true,
+  isChip: false,
+  chipSize: 'default',
+  chipVariant: 'tonal',
 })
 
 const emit = defineEmits<{
@@ -66,13 +74,18 @@ const emit = defineEmits<{
 const {t} = useI18n()
 const {sanitizeString} = useI18nUtils()
 
-const MOD_CATEGORIES = computed<{ value: ModCategory; label: string }[]>(() => [
-  {value: 'all', label: t('assembly.weaponModification.categories.all')},
-  {value: 'basic', label: t('assembly.weaponModification.categories.basic')},
-  {value: 'advanced', label: t('assembly.weaponModification.categories.advanced')},
-  {value: 'special', label: t('assembly.weaponModification.categories.special')},
-  {value: 'mythic', label: t('assembly.weaponModification.categories.mythic')}
-])
+const allowedGrades = computed(() => getWeaponAllowedGrades(props.data?.rarity));
+
+const MOD_CATEGORIES = computed<{ value: ModCategory; label: string }[]>(() => {
+  const allCategories: { value: ModCategory; label: string }[] = [
+    {value: 'all', label: t('assembly.weaponModification.categories.all')},
+    {value: 'basic', label: t('assembly.weaponModification.categories.basic')},
+    {value: 'advanced', label: t('assembly.weaponModification.categories.advanced')},
+    {value: 'special', label: t('assembly.weaponModification.categories.special')},
+    {value: 'mythic', label: t('assembly.weaponModification.categories.mythic')}
+  ];
+  return allCategories.filter(cat => cat.value === 'all' || allowedGrades.value.has(cat.value as ModRarity));
+});
 
 const show = ref(false)
 const modIconImages = ref<Record<string, string>>({})
@@ -114,7 +127,19 @@ const getExpectedSlotTypes = (): ModRarity[] => {
   return WEAPON_MOD_CONFIG[rarity]?.slotType || WEAPON_MOD_CONFIG.common.slotType;
 };
 
+const displaySlots = computed(() => {
+  if (props.modelValue && props.modelValue.length > 0) {
+    return props.modelValue;
+  }
+  return getExpectedSlotTypes().map((type: ModRarity) => ({
+    type,
+    rarity: 'none' as const,
+    value: null
+  }));
+});
+
 const syncSlots = (forceReset = false) => {
+  if (props.readonly) return;
   const slotTypes = getExpectedSlotTypes();
   const currentSlots = props.modelValue || [];
 
@@ -196,50 +221,20 @@ const matchesSearchQuery = (mod: ModItem, query: string): boolean => {
 };
 
 const categorizeModificationsByGrade = (modificationsRaw: any): Record<ModRarity, ModItem[]> => {
-  const result: Record<ModRarity, ModItem[]> = {
-    basic: [],
-    advanced: [],
-    special: [],
-    mythic: []
-  };
+  if (!props.data?.type) {
+    return {
+      basic: [],
+      advanced: [],
+      special: [],
+      mythic: [],
+    };
+  }
 
-  if (!props.data?.type) return result;
-
-  // 获取已安装模组的damageType集合
-  const installedDamageTypes = new Set(
-      props.modelValue
-          ?.filter((mod: ModSlot) => mod.value?.damageType)
-          .map((mod: ModSlot) => mod.value.damageType))
-
-
-  // 获取武器的perks
-  const weaponPerks = props.data.perks?.map((i: any) => sanitizeString(i).cleaned) || [];
-  weaponPerks.forEach(perk => installedDamageTypes.add(perk))
-
-  Object.values(modificationsRaw).forEach((mod: any) => {
-    // 模组约束开关
-    if (!isIgnoreConditions.value) {
-      // 检查武器类型是否匹配
-      const hasMatchingVariant = mod.variants?.some((variant: any) =>
-          variant.itemType?.includes(props.data.type))
-
-      if (!hasMatchingVariant) return;
-
-      // 当 requiredDamageType 字段存在时才进行检查
-      if (mod?.requiredDamageType && !installedDamageTypes.has(mod.requiredDamageType)) {
-        return; // 有要求但不满足，跳过
-      }
-      // 如果没有 requiredDamageType 字段，就不检查，直接通过
-    }
-
-    // 按grade分类
-    const grade = mod.grade as ModRarity;
-    if (grade && result[grade]) {
-      result[grade].push(mod)
-    }
-  })
-
-  return result;
+  return filterAvailableModifications(props.data, modificationsRaw, {
+    installedMods: props.modelValue,
+    ignoreConditions: isIgnoreConditions.value,
+    filterByAllowedGrades: true,
+  });
 };
 
 const updateFilteredMods = () => {
@@ -460,45 +455,84 @@ const getSlotDisplayName = (type: ModRarity): string => {
   return t(`assembly.modification.${type}`)
 };
 
+const onOpenDialog = (e?: Event) => {
+  if (e) {
+    e.stopPropagation();
+    e.preventDefault();
+  }
+  if (!props.isClickOpen || props.disabled) return;
+  show.value = true;
+};
+
 defineExpose({
   weaponModConfig: WEAPON_MOD_CONFIG,
   modStyleConfig: MOD_STYLE_CONFIG,
   isSlotLocked,
+  onOpenDialog,
 })
 
 defineOptions({
-  name: 'WeaponModificationWidget'
+  name: 'WeaponModificationWidget',
+  inheritAttrs: false
 })
 </script>
 
 <template>
-  <!-- 武器扩展模组插槽 -->
-  <v-btn
-      block
-      variant="text"
-      size="x-small"
+  <!-- 武器扩展模组插槽 S -->
+  <v-chip
+      v-if="isChip"
+      :size="chipSize"
+      :variant="chipVariant"
       :disabled="disabled"
-      @click="show = true">
-    <div v-for="(i, index) in props.modelValue"
-              :key="index">
+      :class="btnClass"
+      :link="isClickOpen && !disabled"
+      v-bind="$attrs"
+      @click="onOpenDialog">
+    <div class="d-inline-flex align-center ga-1">
+      <div
+          v-for="(i, index) in displaySlots"
+          :key="index"
+          class="d-inline-flex align-center">
+        <RhombusWidget
+            :size="size"
+            :type="i?.rarity || (i?.value ? 'normal' : 'none')"></RhombusWidget>
+      </div>
+    </div>
+  </v-chip>
+
+  <v-btn
+      v-else
+      :block="block"
+      :variant="btnVariant || variant"
+      :size="btnSize"
+      :disabled="disabled"
+      :class="btnClass"
+      :ripple="isClickOpen"
+      v-bind="$attrs"
+      @click="onOpenDialog">
+    <div
+        v-for="(i, index) in displaySlots"
+        :key="index"
+        class="d-inline-flex align-center">
       <RhombusWidget
           :size="size"
           :type="i?.rarity || (i?.value ? 'normal' : 'none')"></RhombusWidget>
     </div>
   </v-btn>
+  <!-- 武器扩展模组插槽 E -->
 
-  <v-dialog v-model="show" scrollable>
+  <v-dialog v-if="isClickOpen" v-model="show" scrollable :max-width="readonly ? 700 : 1200" :z-index="3000">
     <v-container class="pa-0">
       <v-card border class="bg-black py-2 px-4 modification-dialog">
         <v-card-title class="d-flex align-center">
-          <ItemSlotBase size="80px" class="mr-4" :padding="0" v-if="data.id">
+          <ItemSlotBase size="80px" class="mr-4" :padding="0" v-if="data?.id">
             <ItemIconWidget :id="data.id" :margin="0" :padding="0" :is-open-detail="false" :is-show-open-detail="false"></ItemIconWidget>
           </ItemSlotBase>
           <div>
             <h1 class="text-amber">
               {{ t('assembly.weaponModification.title') }}
             </h1>
-            <p class="text-caption mt-n2" v-if="data.id">
+            <p class="text-caption mt-n2" v-if="data?.id">
               <ItemName :id="data.id"></ItemName>
             </p>
           </div>
@@ -509,14 +543,14 @@ defineOptions({
         </v-card-title>
 
         <v-row class="pa-4">
-          <!-- 已安装模组 -->
-          <v-col cols="12" md="6" lg="6">
+          <!-- 已安装模组 S -->
+          <v-col cols="12" :md="readonly ? 12 : 6" :lg="readonly ? 12 : 6">
             <div class="font-weight-bold mb-3 d-flex align-center">
               <span>{{ t('assembly.weaponModification.installed') }}</span>
             </div>
 
             <v-card
-                v-for="(mod, modIndex) in modelValue"
+                v-for="(mod, modIndex) in displaySlots"
                 :key="modIndex"
                 variant="flat"
                 class="mb-3 mod-slot"
@@ -631,8 +665,9 @@ defineOptions({
               </v-row>
             </v-card>
           </v-col>
+          <!-- 已安装模组 E -->
 
-          <!-- 可选择模组 -->
+          <!-- 可选择模组 S -->
           <v-col cols="12" md="6" lg="6" v-if="!readonly">
             <div class="d-flex align-center mb-2">
               <p class="font-weight-bold ma-0">{{ t('assembly.weaponModification.available') }}</p>
@@ -743,6 +778,7 @@ defineOptions({
               </v-expansion-panels>
             </v-card>
           </v-col>
+          <!-- 可选择模组 E -->
         </v-row>
 
         <v-card-actions v-if="!readonly">

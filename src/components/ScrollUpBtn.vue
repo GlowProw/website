@@ -22,7 +22,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  threshold: 4000,
+  threshold: 400,
   right: '28px',
   bottom: '28px',
   zIndex: 'var(--z-scroll-up, 800)'

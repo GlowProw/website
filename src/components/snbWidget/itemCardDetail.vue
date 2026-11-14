@@ -25,6 +25,8 @@ import HtmlLink from "@/components/HtmlLink.vue";
 import {useWishlistStore} from "~/stores/wishlistStore";
 import PerksName from "@/components/snbWidget/perksName.vue";
 import WishlistMatchWidget from "@/components/snbWidget/wishlistMatchWidget.vue";
+import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
+import {isItemSupportsModification} from "@/assets/sripts/modification_util";
 
 const props = withDefaults(defineProps<{
   id: string,
@@ -32,6 +34,7 @@ const props = withDefaults(defineProps<{
   isShowDescription?: boolean,
   isWidget?: boolean,
   data?: any,
+  modifications?: any[],
 }>(), {
   id: 'culverin1',
   isShowOpenDetail: true,
@@ -153,7 +156,7 @@ defineOptions({
       </h1>
       <p class="mb-1 mt-2">{{ i.id }}</p>
 
-      <div class="d-flex ga-2 align-center mt-3">
+      <div class="d-flex ga-2 align-center mt-3 flex-wrap">
         <v-chip inline
                 :to="`/codex/items?type=${i.type}`"
                 class="badge-flavor text-center text-black" v-if="i.type">{{ t(`codex.types.${i.type}`) }}
@@ -166,6 +169,16 @@ defineOptions({
                 :to="`/codex/items?rarity=${i.rarity}`"
                 v-if="i.rarity">{{ t(`codex.raritys.${i.rarity}`) }}
         </v-chip>
+        <WeaponModificationWidget
+            v-if="isItemSupportsModification(i)"
+            btn-class="px-2 bg-transparent"
+            :is-chip="true"
+            :is-click-open="true"
+            :data="i"
+            :size="16"
+            :readonly="true"
+            :block="false"
+            :model-value="props.modifications"></WeaponModificationWidget>
       </div>
       <div class="right-show-image pointer-events-none position-absolute w-33" v-if="isWidget">
         <v-img :src="itemsCardData.icon" class="material-mirror-image"></v-img>

@@ -44,27 +44,28 @@ defineOptions({
 </script>
 
 <template>
-  <v-card border variant="text" class="d-flex mt-2" v-if="wishlistMatch"
+  <v-row>
+
+  <v-col cols="12" lg="12" class="d-flex mt-2" v-if="wishlistMatch"
           v-for="(rule, index) in wishlistMatch.rules" :key="index">
-    <v-card width="50" class="bg-black d-flex align-center justify-center">
-      <v-icon icon="mdi-playlist-star"></v-icon>
-    </v-card>
-    <v-divider vertical></v-divider>
-    <v-card class="pa-3" variant="text">
-      <div class="d-flex flex-wrap text-amber text-amber font-weight-bold mb-1">
+    <div class="">
+      <div class="border-l d-flex flex-wrap text-amber text-amber font-weight-bold pl-2">
+        <v-icon icon="mdi-playlist-star"></v-icon>
+
         <span v-for="name in wishlistMatch.wishlistNames" :key="name" :title="name">
           {{ name }}
         </span>
       </div>
 
-      <div v-if="rule.notes" class="opacity-60 text-pre-wrap">
+      <div class="border-l pl-4 pt-3">
+        <div v-if="rule.notes" class="opacity-60 text-pre-wrap">
         {{ t('setting.wishlist.notes') }}: {{ rule.notes }}
       </div>
 
       <div v-if="rule.tags" class="text-caption opacity-60 text-pre-wrap">
         <span class="mr-2">tag:</span>
         <div class="d-inline-flex ga-2">
-          <span v-for="(tag, tagIndex) in rule.tags" :key="tagIndex">{{ tag }}</span>
+          <v-chip size="x-smail" class="px-2" v-for="(tag, tagIndex) in rule.tags" :key="tagIndex">{{ tag }}</v-chip>
         </div>
       </div>
 
@@ -92,8 +93,10 @@ defineOptions({
           </div>
         </div>
       </div>
-    </v-card>
-  </v-card>
+      </div>
+    </div>
+  </v-col>
+  </v-row>
 </template>
 
 <style scoped lang="less">

@@ -13,21 +13,30 @@ const props = withDefaults(
     emit = defineEmits(['read-end']),
     {serializationMap} = useAssetsStore(),
 
-    // 属性字典
-    damageDictionaries = {
-      "fire": "burning"
+    // 伤害属性别名字典映射
+    damageDictionaries: Record<string, string> = {
+      "fire": "burning",
+      "blast": "explosive",
+      "combustion": "explosive",
     }
 
-let icons = ref({}),
+// 缓存解析后的图标路径字典
+let icons = ref<Record<string, string>>({}),
     images = ref({}),
-    getIcon = computed(() => icons.value[damageDictionaries[props.id] || props.id]),
+    normalizedKey = computed(() => {
+      const base = props.id.replace(/\d+$/, '');
+      return damageDictionaries[props.id] || damageDictionaries[base] || base || props.id;
+    }),
+    getIcon = computed(() => icons.value[normalizedKey.value]),
     isHasIcon = computed(() => !!getIcon.value)
 
 onMounted(() => {
   onReady()
 })
 
-
+/**
+ * 初始化伤害类型图标并通知父组件加载状态
+ */
 const onReady = () => {
   switch (props.iconType) {
     case "aggressivity":
@@ -59,12 +68,15 @@ defineOptions({
 </script>
 
 <template>
-  <v-card elevation="0"
-          class="w-100 h-100 d-flex justify-center align-center bg-transparent prohibit-drag"
-          variant="text"
-          :border="isBorder">
+  <!-- 伤害图标卡片 S -->
+  <v-card
+      elevation="0"
+      class="w-100 h-100 d-flex justify-center align-center bg-transparent prohibit-drag"
+      variant="text"
+      :border="isBorder">
     <v-img :src="getIcon" :width="size" :height="size"></v-img>
   </v-card>
+  <!-- 伤害图标卡片 E -->
 </template>
 
 <style scoped lang="less">

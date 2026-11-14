@@ -436,6 +436,18 @@ const onAddCalculator = () => {
                   </v-text-field>
                 </template>
               </v-col>
+              <v-col cols="12" lg="12" sm="12" xl="12">
+                <template v-if="itemDetailData && itemDetailData.id">
+                  <ItemModificationWidget
+                      :id="itemDetailData.id"
+                      :type="itemDetailData.type"
+                      :data="itemDetailData">
+                    <template v-slot:title>
+                      <p class="mt-5 mb-3 font-weight-bold">{{ t('codex.item.modifications') }}</p>
+                    </template>
+                  </ItemModificationWidget>
+                </template>
+              </v-col>
               <v-col cols="12" lg="12" sm="12" xl="12" v-if="wishlistMatch">
                 <!-- 愿望清单栏目 S -->
                 <v-divider>
@@ -458,15 +470,6 @@ const onAddCalculator = () => {
                 <ItemMaterials :data="itemDetailData">
                   <v-divider>{{ t('codex.item.materialsTitle') }}</v-divider>
                 </ItemMaterials>
-              </v-col>
-              <v-col cols="12 mb-3">
-                <template v-if="itemDetailData && itemDetailData.id">
-                  <ItemModificationWidget :id="itemDetailData.id" :type="itemDetailData.type">
-                    <template v-slot:title>
-                      <p class="mt-5 mb-3 font-weight-bold">{{ t('codex.item.modifications') }}</p>
-                    </template>
-                  </ItemModificationWidget>
-                </template>
               </v-col>
             </v-row>
 

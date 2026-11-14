@@ -116,10 +116,10 @@ defineOptions({
                               :is-auto-size="false"
                               :is-auto-margin="false"
                               :is-auto-padding="false"
-                              :padding="1"
+                              :padding="0"
                               :margin="0"
                               v-if="materials[i.id].faction">
-                  <FactionIconWidget :name="materials[i.id].faction.id"></FactionIconWidget>
+                  <FactionIconWidget :name="materials[i.id].faction.id" size="30px"></FactionIconWidget>
                 </ItemSlotBase>
               </div>
             </template>
@@ -181,10 +181,10 @@ defineOptions({
                               :is-auto-size="false"
                               :is-auto-margin="false"
                               :is-auto-padding="false"
-                              :padding="1"
+                              :padding="0"
                               :margin="0"
                               v-if="materials[key] && materials[key].faction">
-                  <FactionIconWidget :name="materials[key].faction.id"></FactionIconWidget>
+                  <FactionIconWidget :name="materials[key].faction.id" size="30px"></FactionIconWidget>
                 </ItemSlotBase>
               </div>
             </template>
@@ -225,10 +225,10 @@ defineOptions({
                                   :is-auto-size="false"
                                   :is-auto-margin="false"
                                   :is-auto-padding="false"
-                                  :padding="1"
+                                  :padding="0"
                                   :margin="0"
                                   v-if="materials[key] && materials[raw.id].faction">
-                      <FactionIconWidget :name="materials[raw.id].faction.id"></FactionIconWidget>
+                      <FactionIconWidget :name="materials[raw.id].faction.id" size="30px"></FactionIconWidget>
                     </ItemSlotBase>
                   </div>
                 </template>
