@@ -430,7 +430,7 @@ defineOptions({
         <v-row class="mod justify-sm-end justify-center mt-n10">
           <template v-if="Object.keys(filteredModData).length > 0">
             <template v-for="(mods, grade) in filteredModData" :key="grade">
-              <v-col cols="auto" class="pl-6 border-l">
+              <v-col cols="auto" class="pl-5 border-l">
                 <AffixContainerView class="px-4 py-4 title-long-flavor" align="center">
                   <div>
                     <v-img :src="modIcons[grade]" width="40px" height="40px"></v-img>
