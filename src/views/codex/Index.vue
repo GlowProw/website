@@ -74,7 +74,7 @@ let isDetailPage = computed(() => [
       <v-container class="pa-0" :class="{'ma-0': isDetailPage}" :style="isDetailPage ? 'max-width:100% !important': ''" :min-width="mobile ? '100%' : ''">
         <v-row>
           <v-col cols="12" order-sm="1" order-lg="1" lg="3" class="pa-0" v-if="!isDetailPage">
-            <AffixContainerView :offsetTop="55">
+            <AffixContainerView :offsetTop="0">
               <CodexSidebar></CodexSidebar>
             </AffixContainerView>
           </v-col>

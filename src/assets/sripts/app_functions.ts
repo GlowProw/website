@@ -36,6 +36,12 @@ export default class AppFuns {
                 to: `/${lang}/assembly/browse`
             },
             {
+                title: 'header.functions.assemblyCompare.title',
+                icon: 'mdi-scale-balance',
+                description: 'header.functions.assemblyCompare.description',
+                to: `/${lang}/assembly/compare`
+            },
+            {
                 title: 'header.functions.maps.title',
                 icon: 'mdi-map',
                 description: 'header.functions.maps.description',

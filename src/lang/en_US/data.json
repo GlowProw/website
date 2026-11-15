@@ -4006,6 +4006,8 @@
     "hasPassword": "Has Password",
     "byCloningUuid": "Clone",
     "clone": "Clone to my account",
+    "cloneConfirmTitle": "Clone Assembly Confirmation",
+    "cloneConfirmContent": "Are you sure you want to clone this assembly to your account? A new editable copy will be created for you.",
     "editAssemblyBtn": "Edit this Assembly",
     "editInfoBtn": "Edit Information",
     "editWorkshopBtn": "Workshop",
@@ -4019,6 +4021,7 @@
     "copyShipyardUuid": "Copy Associated Shipyard UUID",
     "compare": {
       "title": "Assembly Comparison",
+      "subtitle": "Comprehensive multi-dimensional comparison of assembly attributes and performance gains",
       "button": "Compare Assembly",
       "shortBtn": "Compare",
       "left": "Base Assembly (A)",
@@ -4233,8 +4236,10 @@
         "weaponModificationsEmpty": "Weapon modifications are empty",
         "secondaryWeaponModificationsEmpty": "Secondary weapon modifications are empty",
         "secondaryWeaponEmpty": "Secondary weapon is empty",
-        "weaponAllEmpty": "All weapons are empty",
+        "weaponAllEmpty": "All weapons are empty, at least one weapon is required, <u>it is required</u>",
         "weaponDirectionsEmpty": "Weapon direction is not set, <u>it is required</u>",
+        "weaponDirectionMissingWeapon": "A weapon must be selected for direction-configured slots, <u>it is required</u>",
+        "weaponModificationMissing": "\"{name}\" perks / modifications are missing",
         "armorEmpty": "Ship armor is empty",
         "displayAllEmpty": "All furniture is empty",
         "masteryEmpty": "Mastery is required",
@@ -4912,6 +4917,7 @@
       "dragHint": "Drag to reorder",
       "activeFunctionsCount": "Active Features ({count})",
       "allActivated": "All features activated",
+      "resetToDefault": "Restore Defaults",
       "itemConfigTitle": "Item Configuration",
       "storageReportDesc": "Shining Prow uses local cache to store data, including user configurations/action records, etc.",
       "clearStorage": "Clear Cache",
@@ -5427,6 +5433,10 @@
       "assembly": {
         "title": "Ship Assembly Workshop",
         "description": "Forge and fine-tune your warship to lethal limits, and display your fearsome build to the four seas"
+      },
+      "assemblyCompare": {
+        "title": "Assembly Comparison",
+        "description": "Multi-dimensional comparison of assembly attributes and combat gains to find the optimal setup"
       },
       "captain-signature": {
         "title": "Pirate Signature (Under Development)",

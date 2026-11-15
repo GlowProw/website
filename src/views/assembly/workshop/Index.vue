@@ -26,9 +26,11 @@ import {handleApiError} from "@/assets/sripts/error_handler";
 import {usePageHotkeys} from "@/assets/sripts/page_hotkeys";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import {cancelAndBack} from "@/assets/sripts/navigation";
+import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
 
 const {t, locale} = useI18n(),
+    {asString, sanitizeString} = useI18nUtils(),
     route = useRoute(),
     router = useRouter(),
     notice = useNoticeStore(),
@@ -271,9 +273,9 @@ const runWorkshopVerify = () => {
 
   // 兜底保障：若未获取到 assembly 相关的校验项（例如初始化挂载瞬间），直接从当前配装数据运行校验，确保船只必选等规则绝不丢失
   const assemblyVerifyKeys = [
-    'shipEmpty', 'weaponDirectionsEmpty', 'shipUpgradeEmpty', 'ultimateEmpty',
-    'weaponModificationsEmpty', 'secondaryWeaponModificationsEmpty',
-    'secondaryWeaponEmpty', 'weaponAllEmpty', 'armorEmpty', 'displayAllEmpty'
+    'shipEmpty', 'weaponDirectionsEmpty', 'weaponDirectionMissingWeapon', 'weaponSlotMissingDirection',
+    'shipUpgradeEmpty', 'ultimateEmpty', 'weaponModificationsEmpty', 'weaponModificationMissing',
+    'secondaryWeaponModificationsEmpty', 'secondaryWeaponEmpty', 'weaponAllEmpty', 'armorEmpty', 'displayAllEmpty'
   ];
   const hasAssemblyVerify = verification.verify.some((v: any) => assemblyVerifyKeys.includes(v.message));
   if (!hasAssemblyVerify) {
@@ -289,7 +291,7 @@ const runWorkshopVerify = () => {
   return verification;
 };
 
-const getVerifyMessage = (v: { required: boolean; message: string; title?: string }) => {
+const getVerifyMessage = (v: { required: boolean; message: string; title?: string; params?: any; targetId?: string }) => {
   if (v.message === 'nameRequired') {
     return t('basic.assembly.publish.nameRequired');
   }
@@ -302,12 +304,35 @@ const getVerifyMessage = (v: { required: boolean; message: string; title?: strin
   if (v.message === 'tagMaxLength') {
     return t('basic.rules.assembly.tagMaxLength');
   }
+
+  // 针对特定武器词条缺失，进行物品名称多语言解析
+  if (v.message === 'weaponModificationMissing') {
+    let weaponName = v.params?.name || '';
+    if (v.targetId) {
+      const cleanId = sanitizeString(v.targetId).cleaned;
+      weaponName = asString([`snb.items.${v.targetId}.name`, `snb.items.${cleanId}.name`]) || weaponName;
+    }
+    const tipKey = 'assembly.workshop.verifyTips.weaponModificationMissing';
+    const translated = t(tipKey, { name: weaponName || v.targetId });
+    if (translated && translated !== tipKey) {
+      return translated;
+    }
+    return `“${weaponName || v.targetId}”物品词条缺失`;
+  }
+
   const tipKey = `assembly.workshop.verifyTips.${v.message}`;
-  const translated = t(tipKey);
+  const translated = t(tipKey, v.params || {});
   if (translated && translated !== tipKey) {
     return translated;
   }
   return v.message;
+};
+
+/**
+ * 取消并安全回退
+ */
+const onCancel = () => {
+  cancelAndBack(router, route);
 };
 
 /**
@@ -1155,7 +1180,7 @@ usePageHotkeys({
                 </v-card>
               </v-tooltip>
 
-              <v-btn size="large" @click="router.go(-1)" v-if="isEditModel">
+              <v-btn size="large" @click="onCancel" v-if="isEditModel">
                 {{ t('basic.button.cancel') }}
               </v-btn>
             </div>

@@ -12,7 +12,7 @@ export type AffixBoxHasTitleSlotProps = {
 const props = withDefaults(defineProps<AffixBoxHasTitleViewProps>(), {
   disabled: false,
   disabledTitle: false,
-  offsetTop: 80,
+  offsetTop: 10,
   offsetBottom: 0,
 });
 
@@ -62,10 +62,10 @@ defineOptions({
     </template>
 
     <template #nail="{ isAffix: innerAffix }">
-      <v-card width="30" variant="text">
+      <v-card width="30" variant="text" rounded="0">
         <v-divider thickness="3" class="mb-3"></v-divider>
 
-        <span class="affix-title mb-3 text-amber text-center">
+        <span class="affix-title mb-3 text-amber text-center d-flex align-end">
           <slot
               name="title"
               :prop="props"

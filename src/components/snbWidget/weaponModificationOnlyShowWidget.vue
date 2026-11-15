@@ -44,35 +44,35 @@ defineOptions({name: 'WeaponModificationOnlyShowWidget'})
 </script>
 
 <template>
-  <div v-for="(mod, modIndex) in (modData || [])"
-       v-show="mod.value && mod.value.id != null"
-       :key="modIndex">
-    <v-row no-gutters density="compact" align="start">
-      <v-col cols="auto" class="d-flex justify-center align-center">
-        <ItemSlotBase size="45px"
-                      class="pa-1"
-                      :margin="0"
-                      :is-auto-size="false">
-          <v-card
-              class="pa-1 w-100 h-100"
-              :color="`color-mix(in srgb, ${modStyleConfig[mod.type]} 5%, #000 95%)`">
-            <v-img :src="modIconImages[mod.type]"/>
-          </v-card>
-        </ItemSlotBase>
-        <ItemSlotBase size="45px"
-                      :margin="0"
-                      :is-auto-size="false">
-          <ModIconWidget :id="mod.value.id"></ModIconWidget>
-        </ItemSlotBase>
-      </v-col>
-      <v-col v-if="mod.value">
-        <div class="w-100 text-caption">
-          <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
-          <ModDescription class="opacity-50" :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData?.type"></ModDescription>
-        </div>
-      </v-col>
-    </v-row>
-  </div>
+  <template v-for="(mod, modIndex) in (modData || [])" :key="modIndex">
+    <div v-if="mod && mod.value && mod.value.id != null">
+      <v-row no-gutters density="compact" align="start">
+        <v-col cols="auto" class="d-flex justify-center align-center">
+          <ItemSlotBase size="45px"
+                        class="pa-1"
+                        :margin="0"
+                        :is-auto-size="false">
+            <v-card
+                class="pa-1 w-100 h-100"
+                :color="`color-mix(in srgb, ${modStyleConfig[mod.type]} 5%, #000 95%)`">
+              <v-img :src="modIconImages[mod.type]"/>
+            </v-card>
+          </ItemSlotBase>
+          <ItemSlotBase size="45px"
+                        :margin="0"
+                        :is-auto-size="false">
+            <ModIconWidget :id="mod.value.id"></ModIconWidget>
+          </ItemSlotBase>
+        </v-col>
+        <v-col v-if="mod.value">
+          <div class="w-100 text-caption">
+            <ModName :id="mod.value.id" :grade="mod.value.grade"></ModName>
+            <ModDescription class="opacity-50" :id="mod.value.id" :variants="mod.value.variants" :grade="mod.value.grade" :type="itemData?.type"></ModDescription>
+          </div>
+        </v-col>
+      </v-row>
+    </div>
+  </template>
 </template>
 
 <style scoped lang="less">

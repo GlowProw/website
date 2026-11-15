@@ -6,6 +6,7 @@ const AssembleWorkshopPage = () => import('@/views/assembly/workshop/Index.vue')
 const AssemblyBrowsePage = () => import('@/views/assembly/Browse.vue');
 const AssemblyDetailPage = () => import('@/views/assembly/Detail.vue');
 const AssemblySharePage = () => import('@/views/assembly/Share.vue');
+const AssemblyComparePage = () => import('@/views/assembly/Compare.vue');
 
 // 舰船配装系统路由集合
 export const assemblyRoutes: RouteRecordRaw[] = [
@@ -56,6 +57,16 @@ export const assemblyRoutes: RouteRecordRaw[] = [
                 path: 'browse/:uuid/share',
                 name: 'AssemblyShare',
                 component: AssemblySharePage
+            },
+            {
+                path: 'compare',
+                name: 'AssemblyCompare',
+                component: AssemblyComparePage
+            },
+            {
+                path: 'browse/:uuid/compare',
+                name: 'AssemblyDetailCompare',
+                component: AssemblyComparePage
             }
         ]
     }

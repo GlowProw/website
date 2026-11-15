@@ -195,10 +195,10 @@ const performSearch = (query: string) => {
  * 获取搜索配置
  */
 const getConfig = () => {
-  const headerSearchSwitch = storage_account.getConfigurationItem('search', 'header.switch')
-  const searchIsLogs = storage_account.getConfigurationItem('search', 'log.switch')
-  const searchHotkey = storage_account.getConfigurationItem('search', 'hotkey.switch')
-  const searchHint = storage_account.getConfigurationItem('search', 'hint.switch')
+  const headerSearchSwitch = storage_account.getConfigurationItem('search', 'header.switch', {defaultValue: true})
+  const searchIsLogs = storage_account.getConfigurationItem('search', 'log.switch', {defaultValue: true})
+  const searchHotkey = storage_account.getConfigurationItem('search', 'hotkey.switch', {defaultValue: true})
+  const searchHint = storage_account.getConfigurationItem('search', 'hint.switch', {defaultValue: true})
 
   // 加载搜索配置
   const savedConfig = storage_account.getConfigurationItem('search', 'filter.config')

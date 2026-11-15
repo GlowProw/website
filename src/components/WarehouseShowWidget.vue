@@ -58,21 +58,23 @@ let data = ref<{ id: number | null, count: number, timestamp?: number }[]>([]),
     }),
     // 已经使用的卡槽数量
     usedSlotCount = computed(() => {
-      return Array.from(data.value).filter(i => i.id).length || 0
+      return Array.isArray(data.value) ? data.value.filter(i => i && i.id).length : 0
     }),
     // 是否空
     isEmpty = computed(() => {
       const warehouseSlotCount = maxSlot.value
       let szatistical = 0
 
-      data.value.forEach(i => i.id == null ? szatistical++ : null)
+      if (!Array.isArray(data.value) || data.value.length === 0) return true
+
+      data.value.forEach(i => (i && i.id != null) ? null : szatistical++)
 
       return szatistical == warehouseSlotCount
     })
 
 watch(data, (newVal) => {
   // 重新赋值回 data.value，确保响应式更新
-  if (newVal)
+  if (Array.isArray(newVal))
     newVal.sort((a, b) => {
       const aHasData = hasDataChecker(a)
       const bHasData = hasDataChecker(b)
@@ -170,9 +172,13 @@ const setSetting = (attrData: WarehouseAttr) => {
  * 导入
  */
 const onLoad = (importDataRaw) => {
-  const importData = toRaw(importDataRaw)
+  let importData = toRaw(importDataRaw)
 
   if (!importData) return;
+
+  if (importData && typeof importData === 'object' && Array.isArray((importData as any).data)) {
+    importData = (importData as any).data;
+  }
 
   // 空数组表示清空船仓，撤销回退到空状态时需要
   if (Array.isArray(importData) && importData.length <= 0) {
@@ -183,7 +189,8 @@ const onLoad = (importDataRaw) => {
   if (typeof importData === 'string' && importData.length <= 0)
     return;
 
-  data.value = warehouseDataProcessing.import(importData, attr.value.warehouseUseVersion)
+  const result = warehouseDataProcessing.import(importData, attr.value.warehouseUseVersion)
+  data.value = Array.isArray(result) ? result : []
 }
 
 /**

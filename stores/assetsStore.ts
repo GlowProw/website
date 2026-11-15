@@ -160,7 +160,9 @@ function getMapImagesMap(): Record<string, string> {
         return cachedMergedMapImagesMap;
     }
 
-    cachedMergedMapImagesMap = {...cachedMapImagesMap, ...getEnemyImagesMap(), ...getNpcsMap()};
+    // 优先级：本地地图静态图标 > 敌人/领域首领图标 > NPC图标
+    // 确保同名（如 liTianNing 既是领域首领又是NPC）时首领图标优先，且 default 地图默认图标不被 NPC 占位图篡改
+    cachedMergedMapImagesMap = {...getNpcsMap(), ...getEnemyImagesMap(), ...cachedMapImagesMap};
     cachedMergedMapImagesService = mergedCacheKey;
     return cachedMergedMapImagesMap;
 }

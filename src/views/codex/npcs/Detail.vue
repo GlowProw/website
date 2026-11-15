@@ -12,7 +12,6 @@ import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
 import Time from "@/components/Time.vue"
 import {rarity, storage, getAppUrl} from "@/assets/sripts";
-import WeaponModificationWidget from "@/components/snbWidget/weaponModificationWidget.vue";
 import CommentWidget from "@/components/CommentWidget.vue";
 import LikeWidget from "@/components/LikeWidget.vue";
 import {useAuthStore} from "~/stores/userAccountStore";
@@ -228,7 +227,6 @@ const onCodexHistory = () => {
                 <ItemSlotBase size="130px">
                   <NpcIconWidget :data="npcDetailData" :isOpenDetail="false" :isShowOpenDetail="false"></NpcIconWidget>
                 </ItemSlotBase>
-                <WeaponModificationWidget :data="npcDetailData"></WeaponModificationWidget>
               </div>
               <v-col>
                 <p class="text-pre-wrap mb-4">

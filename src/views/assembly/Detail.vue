@@ -24,7 +24,6 @@ import UserAvatar from "@/components/UserAvatar.vue";
 import AssemblyMainSubjectView from "@/components/AssemblyMainSubjectView.vue";
 import AdsWidget from "@/components/ads/google/index.vue";
 import AccountCardWidget from "@/components/AccountCardWidget.vue";
-import AssemblyCompareDialog from "@/components/AssemblyCompareDialog.vue";
 import AffixContainerView from "@/components/AffixContainerView.vue";
 import VerticalScrollList from "@/components/VerticalScrollList.vue"
 
@@ -215,24 +214,45 @@ const onImportFrontendData = ({ type, data }: { type: string; data: any }) => {
   assemblyMainSubjectView.value.refs[type].onLoad(data);
 }
 
+// 克隆二次确认弹窗可见性
+const cloneConfirmDialog = ref(false);
+
+/**
+ * 打开克隆配装确认弹窗
+ */
+const onOpenCloneConfirm = () => {
+  cloneConfirmDialog.value = true;
+};
+
+/**
+ * 确认执行克隆操作
+ */
+const onConfirmClone = async () => {
+  cloneConfirmDialog.value = false;
+  await onCloneAssembly();
+};
+
 /**
  * 克隆当前配装并打开副本的编辑页
  */
 const onCloneAssembly = async () => {
   try {
-    cloneLoading.value = true
+    cloneLoading.value = true;
 
-    const result = await apis.assemblyApi().cloneAssembly(detailData.value.uuid),
-        d = result.data;
+    const result = await apis.assemblyApi().cloneAssembly(detailData.value.uuid);
+    const d = result.data;
+    const cloneUuid = d?.data?.uuid || d?.uuid;
 
-    notice.success(t(`basic.tips.${d.code}`))
-    await router.push(`/assembly/workshop/${d.data.uuid}/edit`)
+    notice.success(t(`basic.tips.${d?.code || 'assembly.clone.ok'}`));
+    if (cloneUuid) {
+      await router.push(`/assembly/workshop/${cloneUuid}/edit`);
+    }
   } catch (e) {
-    handleApiError(e, notice, t, {component: 'AssemblyDetail'})
+    handleApiError(e, notice, t, {component: 'AssemblyDetail'});
   } finally {
-    cloneLoading.value = false
+    cloneLoading.value = false;
   }
-}
+};
 
 /**
  * 直访，无密码重输
@@ -300,16 +320,16 @@ const onPenPassword = () => {
                        v-if="authStore.isLogin && detailData.isVisibility && detailData.assembly?.attr?.isAllowClone !== false"
                        :loading="cloneLoading"
                        :title="t('assembly.clone')"
-                       @click="onCloneAssembly"
+                       @click="onOpenCloneConfirm"
                        icon="mdi-content-copy"></v-btn>
 
                 <v-btn variant="text" v-if="detailData.uuid" :to="`/assembly/browse/${detailData.uuid}/share`" icon="mdi-share-variant-outline"></v-btn>
 
-                <AssemblyCompareDialog v-if="detailData.uuid" :base-assembly="detailData" :base-title="detailData.name">
-                  <template #activator="{ props }">
-                    <v-btn variant="text" v-bind="props" icon="mdi-scale-balance" :title="t('assembly.compare.title')"></v-btn>
-                  </template>
-                </AssemblyCompareDialog>
+                <v-btn variant="text"
+                       v-if="detailData.uuid"
+                       :to="`/assembly/browse/${detailData.uuid}/compare`"
+                       icon="mdi-scale-balance"
+                       :title="t('assembly.compare.title')"></v-btn>
 
                 <v-divider vertical inset></v-divider>
 
@@ -486,6 +506,30 @@ const onPenPassword = () => {
       </div>
     </v-card>
   </v-container>
+
+  <!-- 克隆配装确认弹窗 S -->
+  <v-dialog v-model="cloneConfirmDialog" max-width="440">
+    <v-card border rounded="lg">
+      <v-card-title class="d-flex align-center ga-2 pt-4 px-4 pb-2">
+        <v-icon color="amber" icon="mdi-content-copy"></v-icon>
+        <span class="text-subtitle-1 font-weight-bold">{{ t('assembly.cloneConfirmTitle', '克隆配装确认') }}</span>
+      </v-card-title>
+      <v-card-text class="text-body-2 pt-2 px-4 pb-4 text-medium-emphasis">
+        {{ t('assembly.cloneConfirmContent', '确定要将此配装克隆到您的账户吗？克隆后将为您创建一个可独立编辑的配装副本。') }}
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions class="px-4 py-3">
+        <v-spacer></v-spacer>
+        <v-btn variant="text" @click="cloneConfirmDialog = false">
+          {{ t('basic.button.cancel') }}
+        </v-btn>
+        <v-btn color="amber" variant="tonal" :loading="cloneLoading" @click="onConfirmClone">
+          {{ t('basic.button.submit') }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+  <!-- 克隆配装确认弹窗 E -->
 </template>
 
 <style scoped lang="less">

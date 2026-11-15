@@ -29,7 +29,7 @@ export type AffixContainerSlotProps = {
 };
 
 const props = withDefaults(defineProps<AffixContainerViewProps>(), {
-  offsetTop: 80,
+  offsetTop: 10,
   offsetBottom: 0,
   disabled: false,
   affixBottom: false,

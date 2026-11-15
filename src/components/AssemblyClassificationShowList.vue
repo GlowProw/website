@@ -458,9 +458,9 @@ defineOptions({
 
     <v-divider class="mb-n1" color="#000" thickness="1"></v-divider>
 
-    <v-expansion-panels class="w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
+    <div class="w-100 overflow-y-auto overflow-x-hidden" style="max-height: 70vh">
       <!-- 我的最爱 S -->
-      <v-expansion-panel v-if="isStar && processedStarData.length > 0" class="w-100 pb-3">
+      <div v-if="isStar && processedStarData.length > 0" class="w-100 pb-3">
         <div class="text-center text-amber font-weight-bold bg-surface pl-4 lr-4 py-4 mb-4">
           {{ t('assembly.workshop.myFavorites') }} ({{ processedStarData.length }})
         </div>
@@ -500,11 +500,11 @@ defineOptions({
             </div>
           </v-col>
         </v-row>
-      </v-expansion-panel>
+      </div>
       <!-- 我的最爱 E -->
 
       <!-- 可选物品 S -->
-      <v-expansion-panel>
+      <div class="w-100">
         <!-- 物品展示 -->
         <div v-if="resultData.length > 0">
           <div
@@ -842,9 +842,9 @@ defineOptions({
             <EmptyView></EmptyView>
           </div>
         </div>
-      </v-expansion-panel>
+      </div>
       <!-- 可选物品 E -->
-    </v-expansion-panels>
+    </div>
   </div>
 </template>
 

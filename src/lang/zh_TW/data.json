@@ -3940,6 +3940,8 @@
     "hasPassword": "包含密碼",
     "byCloningUuid": "克隆",
     "clone": "複製到我的帳戶",
+    "cloneConfirmTitle": "複製配裝確認",
+    "cloneConfirmContent": "確定要將此配裝複製到您的帳戶嗎？複製後將為您創建一個可獨立編輯的配裝副本。",
     "editAssemblyBtn": "編輯此配裝",
     "editInfoBtn": "編輯信息",
     "editWorkshopBtn": "配裝",
@@ -3953,6 +3955,7 @@
     "copyShipyardUuid": "複製關聯船廠UUID",
     "compare": {
       "title": "配裝對比",
+      "subtitle": "全方位多維對比多套配裝屬性與收益差距",
       "button": "對比配裝",
       "shortBtn": "對比",
       "left": "基準配裝 (A)",
@@ -4248,8 +4251,10 @@
         "weaponModificationsEmpty": "武器模组是空的",
         "secondaryWeaponModificationsEmpty": "副武器的模组是空的",
         "secondaryWeaponEmpty": "副武器是空的",
-        "weaponAllEmpty": "武器都是空的",
-        "weaponDirectionsEmpty": "武器的方向你未设置, <u>它是必须</u>",
+        "weaponAllEmpty": "武器都是空的，至少需要添加一個武器, <u>它是必須</u>",
+        "weaponDirectionsEmpty": "武器的方向你未設置, <u>它是必須</u>",
+        "weaponDirectionMissingWeapon": "已設置方向的武器卡槽未選擇武器, <u>它是必須</u>",
+        "weaponModificationMissing": "“{name}”物品詞條缺失",
         "armorEmpty": "船甲是空的",
         "displayAllEmpty": "陈设都是空的",
         "masteryEmpty": "精通必選",
@@ -4919,6 +4924,7 @@
       "dragHint": "可拖拽上下排序",
       "activeFunctionsCount": "已激活功能 ({count})",
       "allActivated": "已激活全部功能",
+      "resetToDefault": "還原預設",
       "itemConfigTitle": "物品配置",
       "storageReportDesc": "閃耀船首使用本地緩存存儲數據，包含用戶配置/操作記錄等",
       "clearStorage": "清空緩存",
@@ -5429,6 +5435,10 @@
       "assembly": {
         "title": "船隻配裝廠",
         "description": "定制與改良你的戰艦裝配，榨乾火炮與船甲的極限性能，向四海炫耀你的海上霸主"
+      },
+      "assemblyCompare": {
+        "title": "配裝對比",
+        "description": "全方位多維對比多套配裝屬性與實戰收益差距，挑選最適合出海的終極方案"
       },
       "captain-signature": {
         "title": "海盜簽名(開發中)",

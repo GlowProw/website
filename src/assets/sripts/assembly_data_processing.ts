@@ -10,6 +10,128 @@ const ships = Ships,
     modifications = Modifications,
     ultimates = Ultimates
 
+/**
+ * 执行配装数据规则校验
+ * 1. 必选规则：船只、武器至少添加一个、武器方向设置、设置了方向必须选择安装武器
+ * 2. 非必选建议：各部位（副武器、装甲、陈设等）留空提示、武器词条卡槽未满/缺失提示
+ *
+ * @param data 配装数据
+ * @param isArmorModSupported 是否包含装甲模组校验（0.0.2+）
+ */
+function verifyAssemblyData(data: AssemblyData, isArmorModSupported: boolean = true) {
+    const rules: ValidationRule[] = [
+        // 船只必选
+        { condition: () => data.shipSlot == null, required: true, message: 'shipEmpty' },
+        { condition: () => data.shipUpgradeSlot == null, required: false, message: 'shipUpgradeEmpty' },
+        { condition: () => data.ultimateSlot == null, required: false, message: 'ultimateEmpty' },
+        { condition: () => (data.weaponModifications || []).length <= 0, required: false, message: 'weaponModificationsEmpty' },
+        { condition: () => (data.secondaryWeaponModifications || []).length <= 0, required: false, message: 'secondaryWeaponModificationsEmpty' },
+        {
+            condition: () => {
+                let length = data.secondaryWeaponSlots?.length || 0;
+                if (length <= 0) return false;
+                return (data.secondaryWeaponSlots as any[]).filter((i: { id: any; }) => !i?.id).length != length;
+            },
+            required: false,
+            message: 'secondaryWeaponEmpty'
+        },
+        // 至少添加一个武器（必选）
+        {
+            condition: () => {
+                let length = data.weaponSlots?.length || 0;
+                return length <= 0 || (data.weaponSlots as any[]).filter((i: { id: any; }) => Boolean(i?.id)).length === 0;
+            },
+            required: true,
+            message: 'weaponAllEmpty'
+        },
+        // 武器方向必须设置（必选）
+        {
+            condition: () => {
+                let weaponDirections = data.weaponDirections || [];
+                return weaponDirections.length <= 0 || !weaponDirections.some(Boolean);
+            },
+            required: true,
+            message: 'weaponDirectionsEmpty'
+        },
+        // 武器设置了方向，则该方向下的武器必选（必选）
+        {
+            condition: () => {
+                let weaponDirections = data.weaponDirections || [];
+                let weaponSlots = data.weaponSlots || [];
+                for (let i = 0; i < weaponDirections.length; i++) {
+                    if (weaponDirections[i] && (!weaponSlots[i] || !weaponSlots[i]?.id)) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            required: true,
+            message: 'weaponDirectionMissingWeapon'
+        },
+
+        { condition: () => data.armorSlot == null, required: false, message: 'armorEmpty' },
+        ...(isArmorModSupported ? [
+            { condition: () => (data.armorModification || []).length <= 0, required: false, message: 'armorModificationEmpty' }
+        ] : []),
+        {
+            condition: () => {
+                let length = data.displaySlots?.length || 0;
+                return length <= 0 || (data.displaySlots as any[]).filter(i => !i?.id).length == length;
+            },
+            required: false,
+            message: 'displayAllEmpty'
+        }
+    ];
+
+    const resultVerify: Array<{ required: boolean; message: string; params?: Record<string, any>; targetId?: string }> = rules
+        .filter(rule => rule.condition())
+        .map(({ required, message, params, targetId }) => ({ required, message, params, targetId }));
+
+    // 检查武器列表中，任意方向内武器下面词条卡槽如果空，给予“xxx”物品词条缺失，不是必选
+    const weaponSlots = data.weaponSlots || [];
+    const weaponModifications = data.weaponModifications || [];
+    const notifiedWeaponIds = new Set<string>();
+
+    for (let i = 0; i < weaponSlots.length; i++) {
+        const weapon = weaponSlots[i];
+        if (!weapon || !weapon.id) continue;
+        if (notifiedWeaponIds.has(weapon.id)) continue;
+
+        const mods = weaponModifications[i];
+        let isModMissing = false;
+
+        if (!mods || !Array.isArray(mods) || mods.length === 0) {
+            isModMissing = true;
+        } else {
+            // 任意卡槽为空（value 为空）
+            isModMissing = mods.some((m: any) => {
+                if (!m) return true;
+                const val = m.value;
+                if (!val) return true;
+                if (typeof val === 'object' && !val.id) return true;
+                return false;
+            });
+        }
+
+        if (isModMissing) {
+            notifiedWeaponIds.add(weapon.id);
+            resultVerify.push({
+                required: false,
+                message: 'weaponModificationMissing',
+                targetId: weapon.id,
+                params: { name: weapon.id },
+            });
+        }
+    }
+
+    const requiredCount = resultVerify.filter(item => item.required).length;
+
+    return {
+        required: requiredCount,
+        verify: resultVerify,
+    };
+}
+
 export default class AssemblyDataProcessing {
     static versions: string[] = ['0.0.1', '0.0.2', '0.0.3'];
     static nowVersion: string = AssemblyDataProcessing.versions[AssemblyDataProcessing.versions.length - 1];
@@ -147,59 +269,7 @@ export default class AssemblyDataProcessing {
                 return data;
             },
             verify: (data: AssemblyData) => {
-                const rules: ValidationRule[] = [
-                    { condition: () => data.shipSlot == null, required: true, message: 'shipEmpty' },
-                    { condition: () => data.shipUpgradeSlot == null, required: false, message: 'shipUpgradeEmpty' },
-                    { condition: () => data.ultimateSlot == null, required: false, message: 'ultimateEmpty' },
-                    { condition: () => (data.weaponModifications || []).length <= 0, required: false, message: 'weaponModificationsEmpty' },
-                    { condition: () => (data.secondaryWeaponModifications || []).length <= 0, required: false, message: 'secondaryWeaponModificationsEmpty' },
-                    {
-                        condition: () => {
-                            let length = (data.secondaryWeaponSlots || []).length
-                            return length <= 0 || (data.secondaryWeaponSlots as any[]).filter(i => !i?.id).length != length
-                        }, required: false, message: 'secondaryWeaponEmpty'
-                    },
-                    {
-                        condition: () => {
-                            let length = (data.weaponSlots || []).length
-                            return length <= 0 || (data.weaponSlots as any[]).filter(i => !i?.id).length == length
-                        }, required: false, message: 'weaponAllEmpty'
-                    },
-                    {
-                        condition: () => {
-                            let weaponDirections = data.weaponDirections || [],
-                                weaponSlots = data.weaponSlots || [],
-                                result = true
-                            for (let i = 0; i < weaponSlots.length; i++) {
-                                if (weaponDirections[i]) {
-                                    result = false
-                                }
-                            }
-                            return result
-                        }, required: true, message: 'weaponDirectionsEmpty'
-                    },
-
-                    { condition: () => data.armorSlot == null, required: false, message: 'armorEmpty' },
-                    {
-                        condition: () => {
-                            let length = (data.displaySlots || []).length
-                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i?.id).length == length
-                        }, required: false, message: 'displayAllEmpty'
-                    }
-                ];
-
-                const resultVerify = rules
-                    .filter(rule => rule.condition())
-                    .map(({ required, message }) => ({ required, message }))
-
-                const requiredCount = resultVerify
-                    .filter(item => item.required)
-                    .length;
-
-                return {
-                    required: requiredCount,
-                    verify: resultVerify,
-                };
+                return verifyAssemblyData(data, false);
             }
         },
         '0.0.2': {
@@ -366,61 +436,7 @@ export default class AssemblyDataProcessing {
                 return data;
             },
             verify: (data) => {
-                const rules: ValidationRule[] = [
-                    { condition: () => data.shipSlot == null, required: true, message: 'shipEmpty' },
-                    { condition: () => data.shipUpgradeSlot == null, required: false, message: 'shipUpgradeEmpty' },
-                    { condition: () => data.ultimateSlot == null, required: false, message: 'ultimateEmpty' },
-                    { condition: () => data.weaponModifications?.length <= 0, required: false, message: 'weaponModificationsEmpty' },
-                    { condition: () => data.secondaryWeaponModifications?.length <= 0, required: false, message: 'secondaryWeaponModificationsEmpty' },
-                    {
-                        condition: () => {
-                            let length = data.secondaryWeaponSlots?.length || 0
-                            if (length <= 0) return false;
-                            return (data.secondaryWeaponSlots as any[]).filter((i: { id: any; }) => !i?.id).length != length
-                        }, required: false, message: 'secondaryWeaponEmpty'
-                    },
-                    {
-                        condition: () => {
-                            let length = data.weaponSlots?.length
-                            return length <= 0 || (data.weaponSlots as any[]).filter((i: { id: any; }) => !i?.id).length == length
-                        }, required: false, message: 'weaponAllEmpty'
-                    },
-                    {
-                        condition: () => {
-                            let weaponDirections = data.weaponDirections,
-                                weaponSlots = data.weaponSlots,
-                                result = true
-                            for (let i = 0; i < weaponSlots.length; i++) {
-                                if (weaponDirections[i]) {
-                                    result = false
-                                }
-                            }
-                            return result
-                        }, required: true, message: 'weaponDirectionsEmpty'
-                    },
-
-                    { condition: () => data.armorSlot == null, required: false, message: 'armorEmpty' },
-                    { condition: () => data.armorModification?.length <= 0, required: false, message: 'armorModificationEmpty' },
-                    {
-                        condition: () => {
-                            let length = data.displaySlots?.length
-                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i?.id).length == length
-                        }, required: false, message: 'displayAllEmpty'
-                    }
-                ];
-
-                const resultVerify = rules
-                    .filter(rule => rule.condition())
-                    .map(({ required, message }) => ({ required, message }))
-
-                const requiredCount = resultVerify
-                    .filter(item => item.required)
-                    .length;
-
-                return {
-                    required: requiredCount,
-                    verify: resultVerify,
-                };
+                return verifyAssemblyData(data, true);
             }
         },
         '0.0.3': {
@@ -446,61 +462,7 @@ export default class AssemblyDataProcessing {
                 return this.processing['0.0.2'] ? this.processing['0.0.2'].set(data) : data;
             },
             verify: (data) => {
-                const rules: ValidationRule[] = [
-                    { condition: () => data.shipSlot == null, required: true, message: 'shipEmpty' },
-                    { condition: () => data.shipUpgradeSlot == null, required: false, message: 'shipUpgradeEmpty' },
-                    { condition: () => data.ultimateSlot == null, required: false, message: 'ultimateEmpty' },
-                    { condition: () => data.weaponModifications?.length <= 0, required: false, message: 'weaponModificationsEmpty' },
-                    { condition: () => data.secondaryWeaponModifications?.length <= 0, required: false, message: 'secondaryWeaponModificationsEmpty' },
-                    {
-                        condition: () => {
-                            let length = data.secondaryWeaponSlots?.length || 0
-                            if (length <= 0) return false;
-                            return (data.secondaryWeaponSlots as any[]).filter((i: { id: any; }) => !i?.id).length != length
-                        }, required: false, message: 'secondaryWeaponEmpty'
-                    },
-                    {
-                        condition: () => {
-                            let length = data.weaponSlots?.length
-                            return length <= 0 || (data.weaponSlots as any[]).filter((i: { id: any; }) => !i?.id).length == length
-                        }, required: false, message: 'weaponAllEmpty'
-                    },
-                    {
-                        condition: () => {
-                            let weaponDirections = data.weaponDirections,
-                                weaponSlots = data.weaponSlots,
-                                result = true
-                            for (let i = 0; i < weaponSlots.length; i++) {
-                                if (weaponDirections[i]) {
-                                    result = false
-                                }
-                            }
-                            return result
-                        }, required: true, message: 'weaponDirectionsEmpty'
-                    },
-
-                    { condition: () => data.armorSlot == null, required: false, message: 'armorEmpty' },
-                    { condition: () => data.armorModification?.length <= 0, required: false, message: 'armorModificationEmpty' },
-                    {
-                        condition: () => {
-                            let length = data.displaySlots?.length
-                            return length <= 0 || (data.displaySlots as any[]).filter(i => !i?.id).length == length
-                        }, required: false, message: 'displayAllEmpty'
-                    }
-                ];
-
-                const resultVerify = rules
-                    .filter(rule => rule.condition())
-                    .map(({ required, message }) => ({ required, message }))
-
-                const requiredCount = resultVerify
-                    .filter(item => item.required)
-                    .length;
-
-                return {
-                    required: requiredCount,
-                    verify: resultVerify,
-                };
+                return verifyAssemblyData(data, true);
             }
         },
     };

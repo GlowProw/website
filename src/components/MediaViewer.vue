@@ -667,7 +667,7 @@ onBeforeUnmount(() => {
             @wheel="onWheel">
           <!-- 图片加载中状态 S -->
           <div v-if="isImageLoading && currentItem?.type === 'image'" class="media-viewer-loading">
-            <v-progress-circular indeterminate color="amber" size="48"></v-progress-circular>
+            <Loading size="48"></Loading>
           </div>
           <!-- 图片加载中状态 E -->
 

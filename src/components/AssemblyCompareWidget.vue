@@ -96,7 +96,7 @@ const useBaseAssembly = (idx: number) => {
 </script>
 
 <template>
-  <div class="w-100 bg-black pa-4">
+  <div class="w-100">
     <HorizontalScrollList
         :is-indicator="false"
         :is-mask="false"

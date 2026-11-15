@@ -275,6 +275,8 @@ export interface ValidationRule {
     condition: () => boolean;
     required: boolean;
     message: string;
+    params?: Record<string, any>;
+    targetId?: string;
 }
 
 export type AssemblyDataProcessingMap<T = any> = {

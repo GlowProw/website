@@ -12,6 +12,7 @@ import { useI18nUtils } from "@/assets/sripts/i18n_util.js";
 import { useI18nReadName } from "@/assets/sripts/i18n_read_name";
 import { MapLocations } from "glow-prow-data";
 import { isCategoryVisibleAtZoom, getCategoryScale } from "@/assets/sripts/map_zoom_config";
+import { getPrecomputedIconContentSize } from "@/assets/sripts/map_icon_content_sizes";
 import type { DrawShapeMode, MapCollection, MapPoint, MapShape, MapShapeType, PointFormData, SharedCollectionInfo, ShapeFormData, ShapeGeometry, ShapeStyle, UseMapControllerOptions } from '@/assets/types/Map';
 import { parseShapeGeometry, parseShapeStyle, parseShapeTags } from '@/assets/types/Map';
 import {
@@ -416,24 +417,41 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     /**
      * 将按基准尺寸配置的缩放换算到图标实际内容尺寸
+     * 优先采用预计算内容尺寸字典，实现初始化第 0 毫秒即拥有准确缩放，消除大小不一和几秒后的突变
      * @param scale 基准缩放
      * @param iconSrc 图标地址
      */
     const normalizeIconScale = (scale: number, iconSrc: string): number => {
-        const contentSize = iconContentSizeCache[iconSrc];
-        // contentSize 尚未测量时，用一个合理的默认值，避免标记先按原始 scale 渲染（过大）
-        // 再在 preload 完成后缩小到正确尺寸造成"先大后正常"的闪烁
-        const effectiveContentSize = contentSize || 300;
+        let contentSize = iconContentSizeCache[iconSrc];
+        if (!contentSize) {
+            const precomputed = getPrecomputedIconContentSize(iconSrc);
+            if (precomputed) {
+                contentSize = precomputed;
+                iconContentSizeCache[iconSrc] = precomputed;
+            }
+        }
+        const effectiveContentSize = contentSize || ICON_REFERENCE_SIZE;
         return scale * (ICON_REFERENCE_SIZE / effectiveContentSize);
     };
 
     /**
-     * 预加载图标内容尺寸，全部加载完成后统一刷新标记样式
+     * 针对未预置尺寸的未知或自定义图标执行预加载与测量
      */
     const preloadIconSizes = (): void => {
         const sources = [...new Set(Object.values(icons.value || {}).filter(Boolean))];
         if (sources.length === 0) return;
-        let pending = 0;
+        const needMeasureSources = sources.filter(src => {
+            if (iconContentSizeCache[src]) return false;
+            const pre = getPrecomputedIconContentSize(src);
+            if (pre) {
+                iconContentSizeCache[src] = pre;
+                return false;
+            }
+            return true;
+        });
+        if (needMeasureSources.length === 0) return;
+
+        let pending = needMeasureSources.length;
         const onSettled = () => {
             if (pending > 0) return;
             if (iconSizeRefreshTimer !== null) clearTimeout(iconSizeRefreshTimer);
@@ -450,9 +468,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 }
             }, 60);
         };
-        sources.forEach(src => {
-            if (iconContentSizeCache[src]) return;
-            pending++;
+        needMeasureSources.forEach(src => {
             const image = new Image();
             image.onload = () => {
                 iconContentSizeCache[src] = measureIconContentSize(image);

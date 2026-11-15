@@ -246,7 +246,7 @@ defineOptions({
   <v-card class="card-image-border-flavor mt-n3 mb-5 ml-n10 mr-n10 overflow-visible position-relative mb-n2"
           min-height="500"
           :class="props.class">
-    <AffixContainerView :offsetTop="55">
+    <AffixContainerView :offsetTop="0">
       <div class="bg-black">
         <v-tabs
             v-model="tab"

@@ -232,7 +232,7 @@ let // 获取陈设
     }),
     // 主陈设上限
     hasMajorDisplayUpperLimit = computed(() => {
-      return workshopData.value.data.displaySlots.filter(i => i.type == 'majorFurniture').length >= maxMajorDisplayCount
+      return (workshopData.value?.data?.displaySlots || []).filter(i => i && i.type === 'majorFurniture').length >= maxMajorDisplayCount
     }),
     // 获取船只武器方向
     getShipWeaponDirection = computed(() => {
@@ -241,7 +241,12 @@ let // 获取陈设
       if (cache.value.shipWeaponDirectionList.length > 0)
         return cache.value.shipWeaponDirectionList
 
-      const d = Object.entries(workshopData.value.data.shipSlot.slots).filter((i) => {
+      const shipSlot = workshopData.value?.data?.shipSlot;
+      const shipDef = shipSlot?.id ? (ships as any)?.[shipSlot.id] : null;
+      const slots = shipSlot?.slots || shipDef?.slots;
+      if (!slots) return [];
+
+      const d = Object.entries(slots).filter((i) => {
         return tag.indexOf(i[0]) >= 0;
       })
       cache.value.shipWeaponDirectionList = d;
@@ -396,7 +401,8 @@ const getExpectedFurnitureSlotCount = (): number => {
     return 0;
   }
 
-  const baseCount = shipSlot.slots?.furniture?.[0] || 0;
+  const shipDef = (ships as any)?.[shipSlot.id] || shipSlot;
+  const baseCount = shipSlot.slots?.furniture?.[0] ?? shipDef?.slots?.furniture?.[0] ?? 0;
   const upgradeSlot = workshopData.value?.data?.shipUpgradeSlot;
 
   if (!upgradeSlot) {
@@ -584,6 +590,13 @@ const onLoad = (data) => {
 
   if (!d || JSON.stringify(d) === '{}') return;
 
+  if (d.shipSlot?.id && (ships as any)[d.shipSlot.id]) {
+    d.shipSlot = {
+      ...(ships as any)[d.shipSlot.id],
+      ...d.shipSlot,
+    };
+  }
+
   workshopData.value.data = reactive({
     ...toRaw(workshopData.value.data),
     ...d
@@ -642,11 +655,15 @@ defineOptions({name: 'AssemblyWidget'})
           <v-row no-gutters align="end">
             <v-col cols="auto" id="ship_select">
               <!-- 船只 视图卡槽 S -->
-              <ItemSlotBase size="110px" v-if="!workshopData.data.shipSlot"
+              <ItemSlotBase size="110px" v-if="!readonly && !workshopData.data.shipSlot"
                             @click="workshopData.shipModel = true">
-                <v-card class="w-100 d-flex align-center justify-center"
-                        :disabled="readonly">
+                <v-card class="w-100 d-flex align-center justify-center">
                   <v-icon icon="mdi-plus" size="50"></v-icon>
+                </v-card>
+              </ItemSlotBase>
+              <ItemSlotBase size="110px" v-else-if="readonly && isShowEmpty && !workshopData.data.shipSlot">
+                <v-card variant="text" class="w-100 d-flex align-center justify-center">
+                  <AssemblySvgIcon name="blockHelper" class="opacity-30" size="50"></AssemblySvgIcon>
                 </v-card>
               </ItemSlotBase>
 
@@ -721,10 +738,15 @@ defineOptions({name: 'AssemblyWidget'})
 
               <ItemSlotBase size="80px" :padding="1"
                             @click="workshopData.frigateUpgradeModel = true"
-                            v-if="!workshopData.data.shipUpgradeSlot && (currentShipFrigateUpgradeList.length > 0 || workshopData.shipFrigateUpgradeList?.length > 0)">
-                <v-card class="w-100 d-flex align-center justify-center"
-                        :disabled="readonly">
+                            v-if="!readonly && !workshopData.data.shipUpgradeSlot && (currentShipFrigateUpgradeList.length > 0 || workshopData.shipFrigateUpgradeList?.length > 0)">
+                <v-card class="w-100 d-flex align-center justify-center">
                   <v-icon icon="mdi-plus" size="20"></v-icon>
+                </v-card>
+              </ItemSlotBase>
+              <ItemSlotBase size="80px" :padding="1"
+                            v-else-if="readonly && isShowEmpty && !workshopData.data.shipUpgradeSlot && (currentShipFrigateUpgradeList.length > 0 || workshopData.shipFrigateUpgradeList?.length > 0)">
+                <v-card variant="text" class="w-100 d-flex align-center justify-center">
+                  <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                 </v-card>
               </ItemSlotBase>
               <!-- 升级部件 视图卡槽 E -->
@@ -774,7 +796,7 @@ defineOptions({name: 'AssemblyWidget'})
                       lg="12">
                     <v-row :justify="mobile ? 'center' : 'start'"
                            style="  display: flex;flex-wrap: nowrap;"
-                           v-if="isShowEmpty || workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex]?.id != null">
+                           v-if="!readonly || isShowEmpty || (display && display.id != null)">
                       <v-col cols="auto">
                         <v-card variant="text" class="bg-transparent text-center pt-1" min-height="40" min-width="30">
                           <span class="text-amber-lighten-5">{{ number.intToRoman(displayIndex + 1) }}</span>
@@ -786,7 +808,7 @@ defineOptions({name: 'AssemblyWidget'})
                       <v-col cols="auto">
                         <div>
                           <ItemSlotBase size="80px" class="pa-2"
-                                        v-if="!readonly && workshopData.data.displaySlots[displayIndex] && workshopData.data.displaySlots[displayIndex].id == null">
+                                        v-if="!readonly && (!display || display.id == null)">
                             <v-card class="w-100 d-flex align-center justify-center"
                                     variant="text"
                                     :disabled="readonly"
@@ -794,18 +816,18 @@ defineOptions({name: 'AssemblyWidget'})
                               <v-icon icon="mdi-plus"></v-icon>
                             </v-card>
                           </ItemSlotBase>
-                          <ItemSlotBase size="80px" v-if="readonly && isShowEmpty && workshopData.data.displaySlots[displayIndex]?.id == null">
+                          <ItemSlotBase size="80px" v-else-if="readonly && isShowEmpty && (!display || display.id == null)">
                             <v-card variant="text" class="w-100 d-flex align-center justify-center">
-                              <v-icon icon="mdi-block-helper" class="opacity-30" size="20"></v-icon>
+                              <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
                             </v-card>
                           </ItemSlotBase>
 
-                          <v-hover v-slot="{ isHovering, props : propsHoverClose }">
+                          <v-hover v-slot="{ isHovering, props : propsHoverClose }" v-if="display && display.id">
                             <v-card variant="text" v-bind="propsHoverClose">
-                              <ItemSlotBase size="80px" class="pa-1" v-if="display && display.id" :id="display.id">
+                              <ItemSlotBase size="80px" class="pa-1" :id="display.id">
                                 <ItemIconWidget :id="display.id" :is-open-detail="false" :is-show-tooltip="readonly"></ItemIconWidget>
                               </ItemSlotBase>
-                              <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName && display && display.id">
+                              <div class="text-center text-caption text-grey w-100" :class="{'singe-line': !(isFullName || attr.isFullName)}" v-if="attr.isShowItemName">
                                 <ItemName :data="castToAny(display)" :locale="poops.locale"></ItemName>
                               </div>
 
@@ -926,6 +948,11 @@ defineOptions({name: 'AssemblyWidget'})
                                 </v-overlay>
                               </v-card>
                             </v-hover>
+                            <ItemSlotBase size="80px" v-else-if="readonly">
+                              <v-card variant="text" class="w-100 d-flex align-center justify-center">
+                                <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
+                              </v-card>
+                            </ItemSlotBase>
                             <ItemSlotBase size="80px" v-else-if="!workshopData.data.weaponDirections[index]">
                               <v-card variant="text" class="w-100 d-flex align-center justify-center">
                                 <AssemblySvgIcon name="blockHelper" class="opacity-30" size="20"></AssemblySvgIcon>
@@ -934,7 +961,6 @@ defineOptions({name: 'AssemblyWidget'})
                             <ItemSlotBase size="80px" v-else>
                               <v-card class="w-100 d-flex align-center justify-center"
                                       variant="text"
-                                      :disabled="readonly"
                                       @click="workshopData.weaponModel = true;workshopData.weaponInsertIndex = index">
                                 <v-icon icon="mdi-plus"></v-icon>
                               </v-card>
@@ -1265,12 +1291,14 @@ defineOptions({name: 'AssemblyWidget'})
               </v-col>
             </v-row>
           </v-card-title>
-          <v-row>
-            <AssemblyClassificationShowList
-                v-model="workshopData.data.shipSlot"
-                @clickSelectItem="workshopData.shipModel = false"
-                loadDataType="ship"
-                :tags="getShipList"></AssemblyClassificationShowList>
+          <v-row no-gutters>
+            <v-col cols="12">
+              <AssemblyClassificationShowList
+                  v-model="workshopData.data.shipSlot"
+                  @clickSelectItem="workshopData.shipModel = false"
+                  loadDataType="ship"
+                  :tags="getShipList"></AssemblyClassificationShowList>
+            </v-col>
           </v-row>
         </v-card>
       </v-container>
@@ -1293,14 +1321,16 @@ defineOptions({name: 'AssemblyWidget'})
               </v-col>
             </v-row>
           </v-card-title>
-          <v-row>
-            <AssemblyClassificationShowList
-                ref="frigateUpgradeRef"
-                v-model="workshopData.data.shipUpgradeSlot"
-                @clickSelectItem="workshopData.frigateUpgradeModel = false"
-                loadDataType="item"
-                :filterFun="getShipUpgradeFilterList"
-                :tags="getShipUpgradeList"></AssemblyClassificationShowList>
+          <v-row no-gutters>
+            <v-col cols="12">
+              <AssemblyClassificationShowList
+                  ref="frigateUpgradeRef"
+                  v-model="workshopData.data.shipUpgradeSlot"
+                  @clickSelectItem="workshopData.frigateUpgradeModel = false"
+                  loadDataType="item"
+                  :filterFun="getShipUpgradeFilterList"
+                  :tags="getShipUpgradeList"></AssemblyClassificationShowList>
+            </v-col>
           </v-row>
         </v-card>
       </v-container>
@@ -1323,11 +1353,13 @@ defineOptions({name: 'AssemblyWidget'})
               </v-col>
             </v-row>
           </v-card-title>
-          <v-row>
-            <AssemblyClassificationShowList
-                v-model="workshopData.data.weaponSlots[workshopData.weaponInsertIndex]"
-                @clickSelectItem="workshopData.weaponModel = false"
-                :tags="getShipWeaponList"></AssemblyClassificationShowList>
+          <v-row no-gutters>
+            <v-col cols="12">
+              <AssemblyClassificationShowList
+                  v-model="workshopData.data.weaponSlots[workshopData.weaponInsertIndex]"
+                  @clickSelectItem="workshopData.weaponModel = false"
+                  :tags="getShipWeaponList"></AssemblyClassificationShowList>
+            </v-col>
           </v-row>
         </v-card>
       </v-container>
@@ -1351,11 +1383,13 @@ defineOptions({name: 'AssemblyWidget'})
               </v-col>
             </v-row>
           </v-card-title>
-          <v-row>
-            <AssemblyClassificationShowList
-                v-model="workshopData.data.secondaryWeaponSlots[workshopData.secondaryWeaponInsertIndex]"
-                @clickSelectItem="workshopData.secondaryWeaponModel = false"
-                :tags="getSecondaryWeapon"></AssemblyClassificationShowList>
+          <v-row no-gutters>
+            <v-col cols="12">
+              <AssemblyClassificationShowList
+                  v-model="workshopData.data.secondaryWeaponSlots[workshopData.secondaryWeaponInsertIndex]"
+                  @clickSelectItem="workshopData.secondaryWeaponModel = false"
+                  :tags="getSecondaryWeapon"></AssemblyClassificationShowList>
+            </v-col>
           </v-row>
         </v-card>
       </v-container>
@@ -1378,11 +1412,14 @@ defineOptions({name: 'AssemblyWidget'})
               </v-col>
             </v-row>
           </v-card-title>
-          <v-row>
-            <AssemblyClassificationShowList
-                v-model="workshopData.data.displaySlots[workshopData.displayInsertIndex]"
-                @clickSelectItem="workshopData.displayModel = false"
-                :tags="getShipDisplayList"></AssemblyClassificationShowList>
+          <v-row no-gutters>
+            <v-col cols="12">
+              <AssemblyClassificationShowList
+                  v-model="workshopData.data.displaySlots[workshopData.displayInsertIndex]"
+                  @clickSelectItem="workshopData.displayModel = false"
+                  loadDataType="item"
+                  :tags="getShipDisplayList"></AssemblyClassificationShowList>
+            </v-col>
           </v-row>
         </v-card>
       </v-container>
@@ -1405,11 +1442,13 @@ defineOptions({name: 'AssemblyWidget'})
               </v-col>
             </v-row>
           </v-card-title>
-          <v-row>
-            <AssemblyClassificationShowList
-                v-model="workshopData.data.armorSlot"
-                @clickSelectItem="workshopData.armorModel = false"
-                :tags="getShipArmorList"></AssemblyClassificationShowList>
+          <v-row no-gutters>
+            <v-col cols="12">
+              <AssemblyClassificationShowList
+                  v-model="workshopData.data.armorSlot"
+                  @clickSelectItem="workshopData.armorModel = false"
+                  :tags="getShipArmorList"></AssemblyClassificationShowList>
+            </v-col>
           </v-row>
         </v-card>
       </v-container>
@@ -1432,12 +1471,14 @@ defineOptions({name: 'AssemblyWidget'})
               </v-col>
             </v-row>
           </v-card-title>
-          <v-row>
-            <AssemblyClassificationShowList
-                v-model="workshopData.data.ultimateSlot"
-                @clickSelectItem="workshopData.ultimateModel = false"
-                load-data-type="ultimate"
-                :tags="getUltimateList"></AssemblyClassificationShowList>
+          <v-row no-gutters>
+            <v-col cols="12">
+              <AssemblyClassificationShowList
+                  v-model="workshopData.data.ultimateSlot"
+                  @clickSelectItem="workshopData.ultimateModel = false"
+                  load-data-type="ultimate"
+                  :tags="getUltimateList"></AssemblyClassificationShowList>
+            </v-col>
           </v-row>
         </v-card>
       </v-container>

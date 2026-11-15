@@ -33,6 +33,14 @@
           <div class="text-caption opacity-80">
             <span>{{ t('setting.routine.activeFunctionsCount', {count: activeFunctions.length}) }}</span>
           </div>
+          <v-btn
+              variant="text"
+              size="x-small"
+              color="amber"
+              prepend-icon="mdi-restore"
+              @click.stop="onResetAppFunConfig">
+            {{ t('setting.routine.resetToDefault') }}
+          </v-btn>
         </div>
 
         <!-- 激活列表预览 -->
@@ -144,7 +152,7 @@
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.posterAutoSave') }}</v-col>
           <v-col cols="auto">
-            <v-switch hide-details inset v-model="posterSwitch" @update:modelValue="onPosterSwitch"></v-switch>
+            <v-switch hide-details inset color="amber" v-model="posterSwitch" @update:modelValue="onPosterSwitch"></v-switch>
           </v-col>
         </v-row>
 
@@ -161,28 +169,28 @@
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.searchHeaderSwitch') }}</v-col>
           <v-col cols="auto">
-            <v-switch hide-details inset density="compact" v-model="headerSearchSwitch" @update:modelValue="onHeaderSearchSwitch"></v-switch>
+            <v-switch hide-details inset color="amber" density="compact" v-model="headerSearchSwitch" @update:modelValue="onHeaderSearchSwitch"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.searchIsLogs') }}</v-col>
           <v-col cols="auto">
-            <v-switch hide-details inset density="compact" v-model="searchIsLogs" @update:modelValue="onSearchIsLogs"></v-switch>
+            <v-switch hide-details inset color="amber" density="compact" v-model="searchIsLogs" @update:modelValue="onSearchIsLogs"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.searchHotkey') }}</v-col>
           <v-col cols="auto">
-            <v-switch hide-details inset density="compact" v-model="searchHotkey" @update:modelValue="onSearchHotkey"></v-switch>
+            <v-switch hide-details inset color="amber" density="compact" v-model="searchHotkey" @update:modelValue="onSearchHotkey"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.searchHint') }}</v-col>
           <v-col cols="auto">
-            <v-switch hide-details inset density="compact" v-model="searchHint" @update:modelValue="onSearchHint"></v-switch>
+            <v-switch hide-details inset color="amber" density="compact" v-model="searchHint" @update:modelValue="onSearchHint"></v-switch>
           </v-col>
         </v-row>
 
@@ -216,7 +224,7 @@
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.commentGlobalSwitch') }}</v-col>
           <v-col cols="auto">
-            <v-switch hide-details inset density="compact" v-model="commentGlobalSwitch" @update:modelValue="onCommentGlobalSwitch"></v-switch>
+            <v-switch hide-details inset color="amber" density="compact" v-model="commentGlobalSwitch" @update:modelValue="onCommentGlobalSwitch"></v-switch>
           </v-col>
         </v-row>
 
@@ -225,14 +233,14 @@
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.commentCodexSwitch') }}</v-col>
           <v-col cols="auto">
-            <v-switch hide-details inset density="compact" v-model="commentCodexSwitch" :disabled="!commentGlobalSwitch" @update:modelValue="onCommentCodexSwitch"></v-switch>
+            <v-switch hide-details inset color="amber" density="compact" v-model="commentCodexSwitch" :disabled="!commentGlobalSwitch" @update:modelValue="onCommentCodexSwitch"></v-switch>
           </v-col>
         </v-row>
 
         <v-row align="center" no-gutters>
           <v-col>{{ t('setting.routine.commentAssemblySwitch') }}</v-col>
           <v-col cols="auto">
-            <v-switch hide-details inset density="compact" v-model="commentAssemblySwitch" :disabled="!commentGlobalSwitch" @update:modelValue="onCommentAssemblySwitch"></v-switch>
+            <v-switch hide-details inset color="amber" density="compact" v-model="commentAssemblySwitch" :disabled="!commentGlobalSwitch" @update:modelValue="onCommentAssemblySwitch"></v-switch>
           </v-col>
         </v-row>
 
@@ -386,6 +394,14 @@
       </v-card-text>
 
       <v-card-actions class="px-4 pb-4">
+        <v-btn
+            variant="text"
+            color="grey-lighten-1"
+            size="small"
+            prepend-icon="mdi-restore"
+            @click="onResetAppFunConfig">
+          {{ t('setting.routine.resetToDefault') }}
+        </v-btn>
         <v-spacer></v-spacer>
         <v-btn variant="tonal" color="amber" @click="isManageFunctionsOpen = false">
           {{ t('basic.button.close') || '关闭' }}
@@ -435,11 +451,11 @@ let estimateCapacity: Ref<any> = ref({}),
     selectedToActivate = ref<string[]>([]),
 
     clearLoading = ref(false),
-    headerSearchSwitch = ref(false),
+    headerSearchSwitch = ref(true),
 
-    searchIsLogs = ref(false),
-    searchHotkey = ref(false),
-    searchHint = ref(false),
+    searchIsLogs = ref(true),
+    searchHotkey = ref(true),
+    searchHint = ref(true),
     searchOpenNewWindow = ref(true),
 
     commentGlobalSwitch = ref(true),
@@ -720,11 +736,11 @@ const getConfig = () => {
   estimateCapacity.value = storage_capacity_monitor.estimateCapacity()
 
   appFunConfig.value = storage_account.getConfigurationItem('appFun', 'config', {defaultValue: appFunFormatting()})
-  headerSearchSwitch.value = storage_account.getConfigurationItem('search', 'header.switch')
+  headerSearchSwitch.value = storage_account.getConfigurationItem('search', 'header.switch', {defaultValue: true})
 
-  searchIsLogs.value = storage_account.getConfigurationItem('search', 'log.switch')
-  searchHotkey.value = storage_account.getConfigurationItem('search', 'hotkey.switch')
-  searchHint.value = storage_account.getConfigurationItem('search', 'hint.switch')
+  searchIsLogs.value = storage_account.getConfigurationItem('search', 'log.switch', {defaultValue: true})
+  searchHotkey.value = storage_account.getConfigurationItem('search', 'hotkey.switch', {defaultValue: true})
+  searchHint.value = storage_account.getConfigurationItem('search', 'hint.switch', {defaultValue: true})
   searchOpenNewWindow.value = storage_account.getConfigurationItem('search', 'open.newWindow', {defaultValue: true})
 
   commentGlobalSwitch.value = storage_account.getConfigurationItem('comment', 'global.switch', {defaultValue: true})
@@ -738,6 +754,14 @@ const getConfig = () => {
 
 const onUpdateAppFunConfig = () => {
   storage_account.updateConfiguration('appFun', 'config', appFunConfig.value)
+}
+
+/**
+ * 还原功能为默认配置
+ */
+const onResetAppFunConfig = () => {
+  appFunConfig.value = appFunFormatting()
+  onUpdateAppFunConfig()
 }
 
 /**
