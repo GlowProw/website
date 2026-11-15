@@ -1,6 +1,6 @@
 export default class Rarity {
     color = {
-        "": "#b0b0b0",
+        "": "#8e8e8eff",
         "common": "#8f8f8f",
         "uncommon": "#2ecc71",
         "rare": "#3498db",

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Enemy, Enemies} from "glow-prow-data";
+import {rarity} from "@/assets/sripts/index";
 import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useAppStore} from "~/stores/appStore";
@@ -11,6 +12,9 @@ import EnemiesCardDetail from "@/components/snbWidget/enemiesCardDetail.vue";
 const appStore = useAppStore(),
     cdnStore = useCDNAssetsServiceStore(),
     enemies: any = Enemies,
+
+    // 稀有度
+    rarityColorConfig = rarity.color,
     props = withDefaults(defineProps<{
       data?: Enemy,
       id?: string,
@@ -105,9 +109,12 @@ defineOptions({
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           width="100%"
+          variant="text"
+          class="border"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/enemy/${i.key}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[(i as any)?.rarity || '']} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,

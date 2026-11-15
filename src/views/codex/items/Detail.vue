@@ -537,7 +537,7 @@ const onAddCalculator = () => {
                       <p class="text-no-wrap">{{ t('codex.item.gearScore') }}</p>
                     </template>
                     <template v-slot:prepend>
-                      <img alt="gear-score" height="25px" src="@/assets/images/snb/icon-gearScore.png" width="25px">
+                      <img alt="gear-score" height="25px" src="@/assets/images/snb/icon-gearScore.webp" width="25px">
                     </template>
                   </v-text-field>
                 </template>

@@ -106,10 +106,12 @@ defineOptions({
       <v-card
           ref="targetElement"
           width="100%"
+          variant="text"
+          class="border"
           v-bind="activatorProps"
-          :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/codex/commoditie/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,

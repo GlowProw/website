@@ -390,16 +390,38 @@ const onProcessedData = computed(() => {
         if (field === 'dateAdded' || field === 'lastUpdated') {
           aValue = aValue ? new Date(aValue).getTime() : 0;
           bValue = bValue ? new Date(bValue).getTime() : 0;
+          if (isNaN(aValue)) aValue = 0;
+          if (isNaN(bValue)) bValue = 0;
         }
 
-        // 处理空值
-        if (!aValue && !bValue) return 0;
-        if (!aValue) return order === 'asc' ? -1 : 1;
-        if (!bValue) return order === 'asc' ? 1 : -1;
+        // 处理空值：有日期的条目排在无日期条目之前
+        if (!aValue && !bValue) {
+          return String(a.id || '').localeCompare(String(b.id || ''));
+        }
+        if (!aValue) return 1;
+        if (!bValue) return -1;
 
-        if (aValue < bValue) return order === 'asc' ? -1 : 1;
-        if (aValue > bValue) return order === 'asc' ? 1 : -1;
-        return 0;
+        if (aValue !== bValue) {
+          if (aValue < bValue) return order === 'asc' ? -1 : 1;
+          if (aValue > bValue) return order === 'asc' ? 1 : -1;
+        }
+
+        // 主排序列相同时的次要排序字段，保证排序稳定与最新优先
+        if (field === 'dateAdded') {
+          let aUpdated = a.lastUpdated ? new Date(a.lastUpdated).getTime() : 0;
+          let bUpdated = b.lastUpdated ? new Date(b.lastUpdated).getTime() : 0;
+          if (!isNaN(aUpdated) && !isNaN(bUpdated) && aUpdated !== bUpdated) {
+            return order === 'asc' ? aUpdated - bUpdated : bUpdated - aUpdated;
+          }
+        } else if (field === 'lastUpdated') {
+          let aAdded = a.dateAdded ? new Date(a.dateAdded).getTime() : 0;
+          let bAdded = b.dateAdded ? new Date(b.dateAdded).getTime() : 0;
+          if (!isNaN(aAdded) && !isNaN(bAdded) && aAdded !== bAdded) {
+            return order === 'asc' ? aAdded - bAdded : bAdded - aAdded;
+          }
+        }
+
+        return String(a.id || '').localeCompare(String(b.id || ''));
       })
 
       if (isSearching.value)
@@ -489,7 +511,15 @@ const onProcessedData = computed(() => {
           }
         }
       })
-      return Object.values(d)
+      // 预先默认按添加日期倒序排序，保证任何场景下初始数据都将新添加排在最前面
+      return Object.values(d).sort((a: any, b: any) => {
+        const aTime = a.dateAdded ? new Date(a.dateAdded).getTime() : 0;
+        const bTime = b.dateAdded ? new Date(b.dateAdded).getTime() : 0;
+        if (!isNaN(aTime) && !isNaN(bTime) && aTime !== bTime) {
+          return bTime - aTime;
+        }
+        return String(a.id || '').localeCompare(String(b.id || ''));
+      })
     }),
     isSearching = computed(() => !!(filterData.value.keyValue)),
     isType = computed(() => filterData.value.types.length > 0),
@@ -516,11 +546,22 @@ const onProcessedData = computed(() => {
         !isSet.value &&
         !isLocation.value)
 
+const refreshInfiniteData = () => {
+  filterData.value.page = 1;
+  const allData = onProcessedData.value;
+  data.value = allData.slice(0, filterData.value.limit);
+  filterData.value.page = 2;
+}
+
 watch(isShouldShowInfiniteScroll, (shouldShow) => {
-  if (shouldShow && data.value.length === 0) {
-    const allData = originalData.value;
-    data.value = allData.slice(0, filterData.value.limit);
-    filterData.value.page = 2;
+  if (shouldShow) {
+    refreshInfiniteData();
+  }
+})
+
+watch([() => filterData.value.sortField, () => filterData.value.sortOrder], () => {
+  if (isShouldShowInfiniteScroll.value) {
+    refreshInfiniteData();
   }
 })
 
@@ -574,6 +615,9 @@ onMounted(() => {
   onInitWorldEventLoad()
   onInitSetLoad()
   onInitLocationLoad()
+  if (isShouldShowInfiniteScroll.value && data.value.length === 0) {
+    refreshInfiniteData()
+  }
   window.addEventListener('keydown', onNumberFilterKeydown)
 })
 
@@ -764,9 +808,7 @@ const resetAllFilters = () => {
   filterData.value.inputWidgetKeyValue = '';
 
   // 重置并装载第一页数据
-  const allData = originalData.value;
-  data.value = allData.slice(0, filterData.value.limit);
-  filterData.value.page = 2;
+  refreshInfiniteData()
 
   // 更新URL
   updateQueryParams()
@@ -776,16 +818,14 @@ const resetAllFilters = () => {
  * 加载数据
  * @param done
  */
-const onLoad = ({done}) => {
-  // 如果正在搜索或筛选类型、类别、稀有度、tier、赛季或世界事件，直接返回空
-  if (isSearching.value || isType.value || isCategory.value ||
-      isRarity.value || isTier.value || isSeason.value ||
-      isWorldEvent.value || isSet.value || isLocation.value) {  // 添加 worldEvent 判断
+const onLoad = ({done}: any) => {
+  // 如果非无限滚动模式（例如处于搜索或激活了其他筛选），直接结束
+  if (!isShouldShowInfiniteScroll.value) {
     done('empty')
     return
   }
 
-  const allData = originalData.value;
+  const allData = onProcessedData.value;
   const startIndex = (filterData.value.page - 1) * filterData.value.limit;
   const endIndex = startIndex + filterData.value.limit;
 
@@ -929,6 +969,9 @@ const onFilterLocation = (value) => {
 const onSort = (field: SortField, order: SortOrder) => {
   filterData.value.sortField = field;
   filterData.value.sortOrder = order;
+  if (isShouldShowInfiniteScroll.value) {
+    refreshInfiniteData()
+  }
   updateQueryParams()
 }
 
@@ -1027,12 +1070,14 @@ defineOptions({
           </div>
         </template>
 
-        <v-card border :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580">
-          <v-card-title class="py-10 text-center bg-black mb-4">
+        <v-card border :min-width="mobile ? '100%' : 350" :width="mobile ? '100%' : 580" class="pa-2" rounded="lg">
+          <v-card-title class="py-10 text-center bg-black mb-4 rounded-lg">
             <v-icon size="80">{{ hasActiveFilters ? 'mdi-filter' : 'mdi-filter-outline' }}</v-icon>
           </v-card-title>
-          <div class="pa-5">
-            <v-row>
+
+          <v-card-text class="px-5 overflow-y-auto" style="height: 65vh; ">
+           <VerticalScrollList :is-indicator="false">
+             <v-row>
               <v-col cols="12">
                 <v-text-field :placeholder="t('basic.button.search')" hide-details
                               variant="filled"
@@ -1342,26 +1387,26 @@ defineOptions({
                 </v-row>
               </v-col>
             </v-row>
+           </VerticalScrollList>
+          </v-card-text>
 
-            <v-card-actions class="mx-n4 mt-4 px-4">
-              <v-row>
-                <v-spacer></v-spacer>
-                <v-col cols="auto" class="text-right d-flex ga-2">
-                  <v-btn @click="menuModel = false">
-                    {{ t('basic.button.cancel') }}
-                  </v-btn>
-                  <v-btn
-                      @click="resetAllFilters"
-                      variant="outlined"
-                      color="error"
-                      :disabled="!hasActiveFilters"
-                      prepend-icon="mdi-refresh">
-                    {{ t('basic.button.reset') }}
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-card-actions>
-          </div>
+          <v-card-actions class="px-4">
+            <v-row>
+              <v-spacer></v-spacer>
+              <v-col cols="auto" class="text-right d-flex ga-2">
+                <v-btn @click="menuModel = false">
+                  {{ t('basic.button.cancel') }}
+                </v-btn>
+                <v-btn
+                    @click="resetAllFilters"
+                    color="error"
+                    :disabled="!hasActiveFilters"
+                    prepend-icon="mdi-refresh">
+                  {{ t('basic.button.reset') }}
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-actions>
         </v-card>
       </v-menu>
     </v-col>

@@ -2,10 +2,11 @@
 import {useI18n} from "vue-i18n";
 import {useAppStore} from "~/stores/appStore";
 import {useNoticeStore} from "~/stores/noticeStore";
-import {CDN_LANG_SOURCES, clearRemoteLangCache} from "@/assets/sripts/remote_i18n";
+import {CDN_LANG_SOURCES, clearRemoteLangCache, loadRemoteLangMessages} from "@/assets/sripts/remote_i18n";
 
-const {t} = useI18n();
+const {t, locale} = useI18n();
 const appStore = useAppStore();
+const noticeStore = useNoticeStore();
 
 const cdnLangOptions = CDN_LANG_SOURCES.map((s, idx) => ({
   name: s.label,
@@ -14,7 +15,7 @@ const cdnLangOptions = CDN_LANG_SOURCES.map((s, idx) => ({
   idx
 }));
 
-const onUpdateLangCdn = (value: any) => {
+const onUpdateLangCdn = async (value: any) => {
   const key = typeof value === 'string' ? value : value?.value;
   if (!key) return;
 
@@ -22,6 +23,16 @@ const onUpdateLangCdn = (value: any) => {
   appStore.setCdnLangSource(key);
 
   clearRemoteLangCache(oldSource);
+  clearRemoteLangCache(key);
+
+  try {
+    const res = await loadRemoteLangMessages(key, locale.value, { forceRefresh: true });
+    if (res.ok) {
+      noticeStore.success(t('basic.msg.updateSuccess') || '语言数据源已更新');
+    }
+  } catch (e) {
+    console.error('切换远程语言源失败:', e);
+  }
 };
 </script>
 

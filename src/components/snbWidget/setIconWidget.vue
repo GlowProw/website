@@ -4,6 +4,7 @@ import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
 import {useAssetsStore} from "~/stores/assetsStore";
+import {rarity} from "@/assets/sripts/index";
 import {Sets, Set} from "glow-prow-data";
 
 import Loading from "../Loading.vue";
@@ -35,7 +36,10 @@ const
       margin: 1,
     }),
     appStore = useAppStore(),
-    sets = Sets;
+    sets = Sets,
+
+    // 稀有度
+    rarityColorConfig = rarity.color;
 
 const {targetElement, isVisible} = useIntersectionObserver({
   threshold: .7,
@@ -99,9 +103,12 @@ defineOptions({
       <v-card
           ref="targetElement"
           width="100%"
+          variant="text"
+          class="border"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/set/${i.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[i?.rarity || '']} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,

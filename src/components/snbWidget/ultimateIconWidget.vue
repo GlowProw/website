@@ -91,7 +91,10 @@ const computedMargin = useIconImageMargin(props.margin);
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/ultimate/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .2))`"
           width="100%"
+          variant="text"
+          class="border"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,

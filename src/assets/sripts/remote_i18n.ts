@@ -11,7 +11,7 @@ export const CDN_LANG_SOURCES: CDNLangSource[] = [
     {
         key: 'local-test',
         label: 'local-test',
-        baseUrl: 'http://localhost:8088/src/data',
+        baseUrl: import.meta.env.DEV ? '/snb-lang-data' : 'http://localhost:8088/src/data',
         isDev: true
     },
     {
@@ -103,6 +103,10 @@ async function fetchCategory(url: string, timeoutMs: number): Promise<Record<str
             clearTimeout(timer);
         }
         if (!resp.ok) return null;
+        const contentType = resp.headers.get('content-type') || '';
+        if (contentType && !contentType.includes('application/json') && !contentType.includes('text/plain')) {
+            return null;
+        }
         const json = await resp.json();
         return (json && typeof json === 'object') ? json : null;
     } catch {

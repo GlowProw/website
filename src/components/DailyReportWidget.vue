@@ -616,7 +616,7 @@ const refreshAll = async () => {
                   <!-- VS 标识 -->
                   <v-col cols="2" class="text-center position-relative">
                     <div class="vs-badge">
-                      <img src="@/assets/images/icon-stateOfWar-vs.png" alt="VS" class="vs-img"/>
+                      <img src="@/assets/images/icon-stateOfWar-vs.webp" alt="VS" class="vs-img"/>
                     </div>
                   </v-col>
 

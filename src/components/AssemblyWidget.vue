@@ -837,7 +837,7 @@ defineOptions({name: 'AssemblyWidget'})
 
                 <v-row class="font-weight-bold" align="center">
                   <v-col cols="auto">
-                    <img src="../assets/images/icon-weapon.png" height="28" width="28"/>
+                    <img src="../assets/images/icon-weapon.webp" height="28" width="28"/>
                   </v-col>
                   <v-col>
                     <v-divider opacity=".2" thickness="2"></v-divider>
@@ -1015,7 +1015,7 @@ defineOptions({name: 'AssemblyWidget'})
                 <!-- 副 -->
                 <v-row class="font-weight-bold" align="center">
                   <v-col cols="auto">
-                    <img src="../assets/images/icon-weapon.png" height="28" width="28"/>
+                    <img src="../assets/images/icon-weapon.webp" height="28" width="28"/>
                   </v-col>
                   <v-col>
                     <v-divider opacity=".2" thickness="2"></v-divider>

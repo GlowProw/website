@@ -2462,8 +2462,8 @@
       "sortBy": "Sort by",
       "dateAdded": "Date Added",
       "lastUpdated": "Last Updated",
-      "descending": "Descending",
-      "ascending": "Ascending",
+      "descending": "Descending (Newest first)",
+      "ascending": "Ascending (Oldest first)",
       "showUnobtainable": {
         "label": "Show Unobtainable",
         "no": "No",

@@ -56,7 +56,7 @@ const twoFAUsername = ref('')
 const twoFACode = ref('')
 const twoFALoading = ref(false)
 // 勾选后本机 7 天内免二次验证
-const twoFATrustDevice = ref(true)
+const twoFATrustDevice = ref(false)
 
 /**
  * 校验人机验证是否已完成

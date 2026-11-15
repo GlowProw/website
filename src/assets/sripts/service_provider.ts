@@ -5,7 +5,7 @@ export class Service_provider {
         {
             type: 'openSource',
             name: 'edgeone',
-            icon: 'edgeone.png',
+            icon: 'edgeone.webp',
             src: 'https://edgeone.ai'
         },
         {
@@ -23,13 +23,13 @@ export class Service_provider {
         {
             type: 'openSource',
             name: 'crowdin',
-            icon: 'crowdin.png',
+            icon: 'crowdin.webp',
             src: 'https://crowdin.com/?utm_term=click-badge-add-on'
         },
         {
             type: 'openSource',
             name: 'datadoghq',
-            icon: 'datadoghq.png',
+            icon: 'datadoghq.webp',
             src: 'https://www.datadoghq.com'
         },
         {

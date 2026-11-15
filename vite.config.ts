@@ -450,7 +450,7 @@ export default defineConfig(({ mode }) => {
                     // 页面始终走网络获取，发版后用户看到的永远是最新 HTML；
                     // 只缓存带哈希的静态资源，旧资源由版本更新流程统一清理
                     globPatterns: ['manifest*.webmanifest', '**/*.{js,css,ico,png,svg,webp,avif,woff2}'],
-                    maximumFileSizeToCacheInBytes: 8 * 1024 * 1024, // 8MB
+                    maximumFileSizeToCacheInBytes: 15 * 1024 * 1024, // 15MB 提高兜底上限，防止大图阻断构建
                     // 关闭导航回落：离线/刷新时不用缓存 HTML 兜底，避免停留在旧页面
                     navigateFallback: null as any,
                 }

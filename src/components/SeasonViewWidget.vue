@@ -55,13 +55,13 @@ defineOptions({ name: 'SeasonViewWidget' })
 <template>
   <div class=" w-100" :class="{'card-enlargement-mask-flavor': isFlavor}">
     <template v-if="currentSeasonBannerAddress">
-      <template v-if="currentSeasonFormat == 'mp4'">
+      <template v-if="currentSeasonFormat == 'mp4' || currentSeasonFormat == 'webm'">
         <video autoplay playsinline
                class="w-100 by-season-content"
-               muted loop type="video/mp4"
+               muted loop :type="`video/${currentSeasonFormat}`"
                :src="currentSeasonBannerAddress"></video>
       </template>
-      <template v-else-if="currentSeasonFormat == 'png'">
+      <template v-else-if="currentSeasonFormat">
         <v-img
             cover
             class="w-100 by-season-content"
@@ -73,7 +73,7 @@ defineOptions({ name: 'SeasonViewWidget' })
            class="w-100 h-100 d-block by-season-content"
            min-width="400"
            min-height="250"
-           src="@/assets/images/snb/season/release.png"></v-img>
+           src="@/assets/images/snb/season/release.webp"></v-img>
   </div>
 </template>
 

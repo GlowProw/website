@@ -42,7 +42,10 @@ const
       padding: 0,
       margin: 1
     }),
-    npcs: any = Npcs;
+    npcs: any = Npcs,
+
+    // 稀有度
+    rarityColorConfig = rarity.color;
 
 let npcsCardData = ref({
       icon: '',
@@ -119,8 +122,11 @@ defineOptions({
           ]"
           :to="isOpenDetail ? `/codex/npc/${i.key}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[(i as any)?.rarity || '']} h s calc(l * .2))`"
           v-bind="activatorProps"
-          width="100%">
+          width="100%"
+          variant="text"
+          class="border">
         <div class="d-flex align-center justify-center h-100">
           <v-img
               :src="npcsCardData.icon"

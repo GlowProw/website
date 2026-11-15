@@ -5,7 +5,7 @@
       "name": "emoji",
       "byImageUrl": "https://unpkg.com/emoji-datasource-emojione@4.0.4/img/emojione/sheets-256/64.png",
       "by": "https://quill-emoji-mart-picker.netlify.app",
-      "imageUrl": "/images/emote/emoji-one/sheets-256.png",
+      "imageUrl": "/images/emote/emoji-one/sheets-256.webp",
       "titleEmoteName": "emoji|grinning",
       "child": [
         {
@@ -853,7 +853,7 @@
     {
       "name": "gesture",
       "titleEmoteName": "gesture|v",
-      "imageUrl": "/images/emote/emoji-one/sheets-256.png",
+      "imageUrl": "/images/emote/emoji-one/sheets-256.webp",
       "child": [
         {
           "name": "muscle",
@@ -1112,30 +1112,30 @@
         {
           "name": "blob-cheer",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_cheer.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_cheer.webp"
         },
         {
           "name": "blobcat-cookie",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blobcat_cookie.png"
+          "imageUrl": "/images/emote/hangouts-blob/blobcat_cookie.webp"
         },
         {
           "name": "blob-awkward",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_awkward.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_awkward.webp"
         },
         {
           "name": "blob-amused",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_amused.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_amused.webp"
         },
         {
           "name": "blob-dance",
@@ -1154,9 +1154,9 @@
         {
           "name": "blob-aww",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_aww.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_aww.webp"
         },
         {
           "name": "allo-happy",
@@ -1175,9 +1175,9 @@
         {
           "name": "blob-ban",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob-ban.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob-ban.webp"
         },
         {
           "name": "blob-crazy-happy",
@@ -1203,9 +1203,9 @@
         {
           "name": "blob-angry",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_angry.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_angry.webp"
         },
         {
           "name": "blob-bear-dance",
@@ -1217,9 +1217,9 @@
         {
           "name": "blob-eating-chocolate",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob-eating-chocolate.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob-eating-chocolate.webp"
         },
         {
           "name": "blob-drool",
@@ -1231,16 +1231,16 @@
         {
           "name": "blob-bandage",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_bandage.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_bandage.webp"
         },
         {
           "name": "blob-confounded",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_confounded.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_confounded.webp"
         },
         {
           "name": "allo-drool",
@@ -1252,9 +1252,9 @@
         {
           "name": "blob-cheeky",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_cheeky.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_cheeky.webp"
         },
         {
           "name": "blob-cool",
@@ -1266,9 +1266,9 @@
         {
           "name": "blob-confused",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_confused.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_confused.webp"
         },
         {
           "name": "partyblob",
@@ -1280,9 +1280,9 @@
         {
           "name": "blob-cool",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_cool.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_cool.webp"
         },
         {
           "name": "blob-birthdaycake",
@@ -1308,37 +1308,37 @@
         {
           "name": "blob-excited",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/hangouts-blob/blob_excited.gif"
         },
         {
           "name": "blob-angery",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_angery.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_angery.webp"
         },
         {
           "name": "blob-rainbow",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_rainbow.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_rainbow.webp"
         },
         {
           "name": "blob-astonished",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_astonished.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_astonished.webp"
         },
         {
           "name": "blankblob",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blankblob.png"
+          "imageUrl": "/images/emote/hangouts-blob/blankblob.webp"
         },
         {
           "name": "blob-beers",
@@ -1350,37 +1350,37 @@
         {
           "name": "blob-expressionless",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_expressionless.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_expressionless.webp"
         },
         {
           "name": "blob-bowing",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_bowing.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_bowing.webp"
         },
         {
           "name": "blob-blush",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_blush.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_blush.webp"
         },
         {
           "name": "blob-0w0",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_0w0.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_0w0.webp"
         },
         {
           "name": "blob-angel",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_angel.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_angel.webp"
         },
         {
           "name": "allo-kissing",
@@ -1420,9 +1420,9 @@
         {
           "name": "blob-drool",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
-          "imageUrl": "/images/emote/hangouts-blob/blob_drool.png"
+          "imageUrl": "/images/emote/hangouts-blob/blob_drool.webp"
         }
       ]
     },
@@ -1443,7 +1443,7 @@
           "config": {
             "type": "gif"
           },
-          "imageUrl": "/images/emote/party-parrot/3d_parrot.png"
+          "imageUrl": "/images/emote/party-parrot/3d_parrot.webp"
         },
         {
           "name": "60fps-parrot",
@@ -1609,175 +1609,175 @@
         {
           "name": "outcast",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/outcast.webp"
         },
         {
           "name": "scoundrel",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/scoundrel.webp"
         },
         {
           "name": "rover",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/rover.webp"
         },
         {
           "name": "freebooter",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/freebooter.webp"
         },
         {
           "name": "buccaneer",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/buccaneer.webp"
         },
         {
           "name": "brigand",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/brigand.webp"
         },
         {
           "name": "marauder",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/marauder.webp"
         },
         {
           "name": "corsair",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/corsair.webp"
         },
         {
           "name": "cutthroat",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/cutthroat.webp"
         },
         {
           "name": "kingpin",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin.webp"
         },
         {
           "name": "kingpin-copper-100",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin copper-100.webp"
         },
         {
           "name": "kingpin-copper-200",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin copper-200.webp"
         },
         {
           "name": "kingpin-copper-300",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin copper-300.webp"
         },
         {
           "name": "kingpin-copper-400",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin copper-400.webp"
         },
         {
           "name": "kingpin-copper-500",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin copper-500.webp"
         },
         {
           "name": "kingpin-silver-600",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin silver-600.webp"
         },
         {
           "name": "kingpin-silver-700",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin silver-700.webp"
         },
         {
           "name": "kingpin-silver-800",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin silver-800.webp"
         },
         {
           "name": "kingpin-silver-900",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin silver-900.webp"
         },
         {
           "name": "kingpin-silver-1000",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin silver-1000.webp"
         },
         {
           "name": "kingpin-gold-1100",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1100.webp"
         },
         {
           "name": "kingpin-gold-1200",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1200.webp"
         },
         {
           "name": "kingpin-gold-1300",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1300.webp"
         },
         {
           "name": "kingpin-gold-1400",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1400.webp"
         },
         {
           "name": "kingpin-gold-1500",
           "config": {
-            "type": "png"
+            "type": "webp"
           },
           "imageUrl": "/images/emote/snb-Infamy/kingpin gold-1500.webp"
         }

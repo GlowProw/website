@@ -101,6 +101,7 @@ defineOptions({
           ref="targetElement"
           width="100%"
           variant="text"
+          class="border"
           translate
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/material/${i?.id}` : ''"

@@ -5,6 +5,7 @@ import {useI18n} from "vue-i18n";
 import Loading from "../Loading.vue";
 import {computed, onMounted, type Ref, ref, UnwrapRef, watch} from "vue";
 import {useIntersectionObserver} from "@/assets/sripts/intersection_observer";
+import {rarity} from "@/assets/sripts/index";
 import {useAssetsStore} from "~/stores/assetsStore";
 import {Cosmetic, Cosmetics} from "glow-prow-data";
 import {useAppStore} from "~/stores/appStore";
@@ -37,7 +38,10 @@ const {raritys} = useAssetsStore(),
       margin: 1,
     }),
     appStore = useAppStore(),
-    cosmetics = Cosmetics;
+    cosmetics = Cosmetics,
+
+    // 稀有度
+    rarityColorConfig = rarity.color;
 
 
 
@@ -134,9 +138,12 @@ defineOptions({
       <v-card
           ref="targetElement"
           width="100%"
+          variant="text"
+          class="border"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/cosmetic/${i.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[i?.rarity || '']} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,

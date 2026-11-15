@@ -93,7 +93,7 @@ defineOptions({
   position: relative;
   overflow: hidden;
   background-color: color-mix(in srgb, var(--main-color) 2%, #000 98%) !important;
-  background-image: url("@/assets/images/item-slot-bg.png");
+  background-image: url("@/assets/images/item-slot-bg.webp");
 }
 
 .item-slot-base-top-view {

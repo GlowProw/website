@@ -8,6 +8,7 @@ import ModCardDetail from "@/components/snbWidget/modCardDetail.vue";
 import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
 import {useAppStore} from "~/stores/appStore";
 import {Modifications} from "glow-prow-data";
+import {rarity} from "@/assets/sripts/index";
 
 const props = withDefaults(defineProps<{
       id: string,
@@ -32,7 +33,10 @@ const props = withDefaults(defineProps<{
 
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
 
-    mods = Modifications
+    mods = Modifications,
+
+    // 稀有度
+    rarityColorConfig = rarity.color;
 
 
 let i = ref(null),
@@ -92,7 +96,10 @@ const computedMargin = useIconImageMargin(props.margin);
       <v-card
           :to="isOpenDetail ? `/codex/modification/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[(i as any)?.rarity || '']} h s calc(l * .2))`"
           width="100%"
+          variant="text"
+          class="border"
           v-bind="activatorProps"
           :class="[
           'prohibit-drag',

@@ -334,7 +334,7 @@ usePageHotkeys({
     width: 100%;
     height: 0;
     padding: 6% 0 0;
-    background: url(@/assets/images/portal-banner-background.png) 50% 0 no-repeat;
+    background: url(@/assets/images/portal-banner-background.webp) 50% 0 no-repeat;
     background-size: cover;
   }
 }

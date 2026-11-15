@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {useIconGlobalStyle} from "@/assets/sripts/use_icon_global_style";
 import {EmpireSkills} from "glow-prow-data";
+import {rarity} from "@/assets/sripts/index";
 import {computed} from "vue";
 import {useAppStore} from "~/stores/appStore";
 import EmpireSkillCardDetail from "@/components/snbWidget/empireSkillCardDetail.vue";
@@ -26,7 +27,10 @@ const props = withDefaults(defineProps<{
       padding: 1
     }),
     appStore = useAppStore(),
-    skillsMap = EmpireSkills;
+    skillsMap = EmpireSkills,
+
+    // 稀有度
+    rarityColorConfig = rarity.color;
 
 /**
  * 技能唯一键，同一技能在不同阵营共享同一 id，需要按键定位
@@ -62,7 +66,10 @@ const computedMargin = useIconImageMargin(props.margin);
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/empireSkill/${skillKey}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[(skill as any)?.rarity || '']} h s calc(l * .2))`"
           width="100%"
+          variant="text"
+          class="border"
           :class="[
               'prohibit-drag',
               'd-flex align-center justify-center',
@@ -70,8 +77,8 @@ const computedMargin = useIconImageMargin(props.margin);
               `pa-${computedPadding}`,
           ]">
         <div class="d-flex align-center justify-center w-100 h-100 overflow-hidden">
-          <FactionIconWidget v-if="skill.type" :name="skill.type" />
-          <v-icon v-else color="amber" class="w-100 h-100">mdi-school</v-icon>
+          <FactionIconWidget v-if="skill.type" :name="skill.type" size="2.5rem" />
+          <v-icon v-else color="amber" class="w-100 h-100" size="2.5rem">mdi-school</v-icon>
         </div>
       </v-card>
     </template>

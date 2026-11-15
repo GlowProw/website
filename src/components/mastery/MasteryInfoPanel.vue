@@ -158,14 +158,15 @@ defineOptions({name: 'MasteryInfoPanel'});
         <v-card
             tile
             elevation="0"
-            class="bg-transparent"
+            variant="text"
             width="100%">
           <v-card-text class="pa-0 pb-6">
             <v-expansion-panels
                 variant="default"
                 class="bg-transparent"
                 multiple
-                :hide-actions="true"
+                static
+                flat
                 :tile="true"
                 :model-value="panelExpanded"
                 @update:model-value="emit('update:panelExpanded', $event as string[])">
@@ -271,7 +272,7 @@ defineOptions({name: 'MasteryInfoPanel'});
                       <div
                           v-for="eff in filteredAggregatedEffects"
                           :key="eff.id"
-                          class="mb-2 rounded border border-opacity-10 overflow-hidden">
+                          class="mb-2 rounded-lg overflow-hidden">
                         <!-- 汇总行 -->
                         <div
                             class="d-flex align-center justify-space-between px-3 py-2 cursor-pointer effect-header-row"
@@ -289,20 +290,19 @@ defineOptions({name: 'MasteryInfoPanel'});
 
                         <!-- 贡献明细展开行 -->
                         <v-expand-transition>
-                          <div v-if="expandedEffectIds.has(eff.id)" class="px-3 py-2 bg-surface-darken-1 border-t border-opacity-10">
+                          <div v-if="expandedEffectIds.has(eff.id)" class="px-3 py-2 effect-header-row">
                             <div class="text-caption opacity-50 mb-1 font-weight-bold">{{ t('mastery.sourcesTitle') }}</div>
                             <v-divider class="mb-2"></v-divider>
                             <template v-for="c in eff.contributors"
                                       :key="c.skillKey">
                               <v-row>
                                 <v-col cols="auto">
-                                  <ItemSlotBase size="80px">
+                                  <ItemSlotBase size="48px">
                                     <MasteryIconWidget
                                         :id="c.skillKey"
                                         :category="c.skillCategory"
                                         :with-background="true"
                                         :size="40"
-                                        class="mr-2"
                                     ></MasteryIconWidget>
                                   </ItemSlotBase>
                                 </v-col>
@@ -329,7 +329,6 @@ defineOptions({name: 'MasteryInfoPanel'});
                 </v-expansion-panel-text>
               </v-expansion-panel>
               <!-- 聚合效果统计 E -->
-
             </v-expansion-panels>
           </v-card-text>
         </v-card>
@@ -346,7 +345,7 @@ defineOptions({name: 'MasteryInfoPanel'});
   top: 0 !important;
   left: 0;
   padding-top: 136px;
-  height: calc(100vh - 20px) !important;
+  height: 100vh !important;
   overflow-y: auto;
   z-index: 30 !important;
 

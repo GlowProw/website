@@ -54,7 +54,7 @@ defineOptions({
     right: 0;
     transform: translateY(50px);
     height: 140px;
-    background: url(@/assets/images/portal-banner-background.png) 50% 0 repeat-x;
+    background: url(@/assets/images/portal-banner-background.webp) 50% 0 repeat-x;
     background-clip: revert-layer;
     background-size: 1000px;
     -webkit-mask-image: linear-gradient(to top, transparent 0%, black 40%);

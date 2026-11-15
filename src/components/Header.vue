@@ -45,7 +45,7 @@ defineOptions({
 
           <img
               height="34"
-              src="@/assets/images/logo-snb.png"/>
+              src="@/assets/images/logo-snb.webp"/>
         </template>
       </div>
 

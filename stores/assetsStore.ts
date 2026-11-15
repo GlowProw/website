@@ -1,11 +1,13 @@
 import {defineStore} from "pinia";
-import {Enemies, EnemyTypes, MapLocations} from "glow-prow-data";
+import {Enemies, EnemyTypes, MapLocations, Npcs} from "glow-prow-data";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 
-let cachedNpcsMap: any = null;
 let cachedRaritysMap: any = null;
 // 地图图标静态资源缓存
 let cachedMapImagesMap: Record<string, string> | null = null;
+// NPC 图标依赖当前 CDN 服务，按服务名缓存
+let cachedNpcsMap: Record<string, string> | null = null;
+let cachedNpcsService: string | null = null;
 // 敌人图标依赖当前 CDN 服务，按服务名缓存
 let cachedEnemyImagesMap: Record<string, string> | null = null;
 let cachedEnemyImagesService: string | null = null;
@@ -24,19 +26,59 @@ function serializationMap(assetsRaw: any) {
     return imageMap;
 }
 
-function getNpcsMap() {
-    if (!cachedNpcsMap) {
-        // @ts-ignore
-        const npcImages = import.meta.glob('@glow-prow-assets/npcs/*', { eager: true });
-        cachedNpcsMap = serializationMap(npcImages);
+/**
+ * NPC 图标统一使用 CDN 资源服务加载，使用 glow-prow-data 包中的 Npcs 实体定义
+ * 同时映射 key 与 id，兼容不同组件的查找方式
+ */
+function getNpcsMap(): Record<string, string> {
+    const imageMap: Record<string, string> = {};
+    let cdnStore;
+    try {
+        cdnStore = useCDNAssetsServiceStore();
+    } catch (e) {
+        // 无激活的 pinia 实例时（例如纯工具脚本）直接跳过
+        return imageMap;
     }
-    return cachedNpcsMap;
+
+    // 切换 CDN 服务后需要重新生成 URL，因此按服务名 + NPC 总数缓存
+    const service = String(cdnStore.selectedService || '');
+    const npcCount = Object.keys(Npcs).length;
+    const npcsCacheKey = `${service}|${npcCount}`;
+    if (cachedNpcsMap && cachedNpcsService === npcsCacheKey) {
+        return cachedNpcsMap;
+    }
+
+    for (const [key, npc] of Object.entries(Npcs)) {
+        const iconId = (npc as any)?.id || key;
+        const url = cdnStore.currentService.image.url({
+            'glow-prow': {id: iconId, category: 'npcs'},
+            'glow-prow-zh-cn': {id: iconId, category: 'npcs'},
+            'local-test': {id: iconId, category: 'npcs'},
+        });
+        imageMap[key] = url;
+        if (iconId && iconId !== key) {
+            imageMap[iconId] = url;
+        }
+    }
+
+    // 注册默认兜底占位图
+    const placeholderUrl = cdnStore.currentService.image.url({
+        'glow-prow': {id: 'npcPlaceholder', category: 'npcs'},
+        'glow-prow-zh-cn': {id: 'npcPlaceholder', category: 'npcs'},
+        'local-test': {id: 'npcPlaceholder', category: 'npcs'},
+    });
+    imageMap['default'] = placeholderUrl;
+    imageMap['npcPlaceholder'] = placeholderUrl;
+
+    cachedNpcsService = npcsCacheKey;
+    cachedNpcsMap = imageMap;
+    return imageMap;
 }
 
 function getRaritysMap() {
     if (!cachedRaritysMap) {
         // @ts-ignore
-        const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.png', { eager: true });
+        const rarityImages = import.meta.glob('@/assets/images/item-rarity-*.webp', { eager: true });
         cachedRaritysMap = serializationMap(rarityImages);
     }
     return cachedRaritysMap;
@@ -70,7 +112,7 @@ function getEnemyImagesMap(): Record<string, string> {
     }
     // 地图坐标回退到类型图标时，也把它们纳入映射
     // 注意：图层面板按 category（如 eliteWarship）取图，这里必须同时登记分类名，
-    // 否则 icons[category] 为空会回退到 default.png（叶子占位图）
+    // 否则 icons[category] 为空会回退到 default.webp（叶子占位图）
     const enemyTypes = EnemyTypes as readonly string[];
     for (const location of Object.values(MapLocations)) {
         if (location.icon && enemyTypes.includes(location.icon)) iconKeys.add(location.icon);
@@ -108,16 +150,17 @@ function getMapImagesMap(): Record<string, string> {
         // 无激活的 pinia 实例时使用静态图标缓存
     }
 
-    // 合并缓存 key 与敌人图标缓存保持一致（服务名 + 敌人总数 + 地图坐标总数），
-    // 避免新增敌人/坐标后缓存不失效导致图标缺失
+    // 合并缓存 key 与敌人/NPC 图标缓存保持一致（服务名 + 敌人总数 + 地图坐标总数 + NPC总数），
+    // 避免新增敌人/坐标/NPC 后缓存不失效导致图标缺失
     const enemyCount = Object.keys(Enemies).length;
     const locationCount = Object.keys(MapLocations).length;
-    const mergedCacheKey = `${service}|${enemyCount}|${locationCount}`;
+    const npcCount = Object.keys(Npcs).length;
+    const mergedCacheKey = `${service}|${enemyCount}|${locationCount}|${npcCount}`;
     if (cachedMergedMapImagesMap && cachedMergedMapImagesService === mergedCacheKey) {
         return cachedMergedMapImagesMap;
     }
 
-    cachedMergedMapImagesMap = {...cachedMapImagesMap, ...getEnemyImagesMap()};
+    cachedMergedMapImagesMap = {...cachedMapImagesMap, ...getEnemyImagesMap(), ...getNpcsMap()};
     cachedMergedMapImagesService = mergedCacheKey;
     return cachedMergedMapImagesMap;
 }

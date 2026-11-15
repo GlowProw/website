@@ -108,7 +108,7 @@ defineOptions({name: "QQBotBannerWidget"});
                 </v-col>
                 <v-col cols="12" sm="4" class="text-center">
                   <v-card border class="mx-auto pa-1 bg-white d-inline-flex">
-                    <v-img src="@/assets/images/app-qq-bot-qr.png" width="100"/>
+                    <v-img src="@/assets/images/app-qq-bot-qr.webp" width="100"/>
                   </v-card>
                   <p class="mt-2 text-caption font-weight-bold mb-0">{{ t('apps.qqBot.dialog.qrCode') }}</p>
                 </v-col>

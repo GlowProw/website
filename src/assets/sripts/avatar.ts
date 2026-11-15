@@ -1,6 +1,6 @@
 // 预设头像路径映射表
 export const PRESET_AVATARS_MAP: Record<string, string> = {
-  kraken: '/images/avatars/kraken.png',
+  kraken: '/images/avatars/kraken.webp',
   vikramRajan: '/images/avatars/vikramRajan.webp',
   hubacTwins: '/images/avatars/hubacTwins.webp',
   long: '/images/avatars/long.webp',
@@ -49,7 +49,7 @@ export function isPresetAvatar(avatar?: string | null): boolean {
 
 /**
  * 从预设头像标识符或路径解析出预设 ID
- * 例如 "preset:kraken" -> "kraken"、"/images/avatars/kraken.png" -> "kraken"
+ * 例如 "preset:kraken" -> "kraken"、"/images/avatars/kraken.webp" -> "kraken"
  *
  * @param {string | null | undefined} avatar 头像地址或预设ID
  * @returns {string} 预设 ID，非预设头像时返回空串

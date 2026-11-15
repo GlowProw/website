@@ -10,8 +10,16 @@
       "description": "production"
     },
     {
+      "url": "https://assets.glow-prow.org.cn",
+      "description": "domestic"
+    },
+    {
+      "url": "http://localhost:8089",
+      "description": "development (port 8089)"
+    },
+    {
       "url": "http://localhost:8088",
-      "description": "development"
+      "description": "development (port 8088)"
     }
   ],
   "paths": {

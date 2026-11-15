@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<{
   size: 32
 });
 
-const blueprintIcons = import.meta.glob('../../assets/images/snb/blueprint/*.png', { eager: true, import: 'default' });
+const blueprintIcons = import.meta.glob('../../assets/images/snb/blueprint/*.webp', { eager: true, import: 'default' });
 
 const dic: Record<string, string[]> = {
   'bombard': ['bombard'],
@@ -28,7 +28,7 @@ const iconUrl = computed(() => {
   const iconKey = Object.keys(dic).find(key => dic[key].includes(props.data));
   if (!iconKey) return null;
 
-  const path = Object.keys(blueprintIcons).find(p => p.includes(`${iconKey}.png`));
+  const path = Object.keys(blueprintIcons).find(p => p.includes(`${iconKey}.webp`));
   return path ? (blueprintIcons[path] as string) : null;
 });
 

@@ -3,6 +3,7 @@ import { useIconGlobalStyle } from "@/assets/sripts/use_icon_global_style";
 
 import {computed, onMounted, type Ref, ref, watch} from "vue";
 import {Ship, Ships} from "glow-prow-data";
+import {rarity} from "@/assets/sripts/index";
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import {useRouter} from "vue-router";
 
@@ -33,7 +34,10 @@ const props = withDefaults(defineProps<{
     appStore = useAppStore(),
     {currentService: currentImageService} = useCDNAssetsServiceStore(),
     {t} = useI18nUtils(),
-    ships = Ships
+    ships = Ships,
+
+    // 稀有度
+    rarityColorConfig = rarity.color;
 
 
 let i = ref(null),
@@ -97,8 +101,11 @@ const computedMargin = useIconImageMargin(props.margin);
       <v-card
           v-bind="activatorProps"
           width="100%"
+          variant="text"
+          class="border"
           :to="isOpenDetail ? `/codex/ship/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[(i as any)?.rarity || '']} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,

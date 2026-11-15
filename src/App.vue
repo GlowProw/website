@@ -220,6 +220,19 @@ onMounted(async () => {
       }
   );
 
+  watch(
+      () => appStore.cdnLangSource,
+      async (newSource, oldSource) => {
+        if (newSource === oldSource) return;
+        try {
+          await loadRemoteLangMessages(newSource, locale.value, { forceRefresh: true });
+          await wishlistStore.syncPresetWishlists(locale.value);
+        } catch (err) {
+          console.warn('[remote_i18n] CDN 源切换加载失败:', newSource, err);
+        }
+      }
+  );
+
   document.dispatchEvent(new Event('render-event'));
   reminderStore.init();
 

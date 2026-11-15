@@ -101,11 +101,12 @@ defineOptions({
       <v-card
           ref="targetElement"
           width="100%"
-          v-bind="activatorProps"
           variant="text"
-          :color="`hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .15))`"
+          class="border"
+          v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/treasureMap/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,

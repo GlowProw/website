@@ -1,31 +1,31 @@
 <script setup lang="ts">
 // 伤害类型图标 (Damage Types)
-import imgFire from "@/assets/images/snb/damageTypes/fire.png";
-import imgExplosive from "@/assets/images/snb/damageTypes/explosive.png";
-import imgFlooding from "@/assets/images/snb/damageTypes/flooding.png";
-import imgPiercing from "@/assets/images/snb/damageTypes/piercing.png";
-import imgElectric from "@/assets/images/snb/damageTypes/electric.png";
-import imgToxic from "@/assets/images/snb/damageTypes/toxic.png";
+import imgFire from "@/assets/images/snb/damageTypes/fire.webp";
+import imgExplosive from "@/assets/images/snb/damageTypes/explosive.webp";
+import imgFlooding from "@/assets/images/snb/damageTypes/flooding.webp";
+import imgPiercing from "@/assets/images/snb/damageTypes/piercing.webp";
+import imgElectric from "@/assets/images/snb/damageTypes/electric.webp";
+import imgToxic from "@/assets/images/snb/damageTypes/toxic.webp";
 
 // 状态效果图标 (Status Effects & Season Modifiers)
-import imgPicture1 from "@/assets/images/snb/statusEffects/Picture1.png";
-import imgPicture2 from "@/assets/images/snb/statusEffects/Picture2.png";
-import imgPicture3 from "@/assets/images/snb/statusEffects/Picture3.png";
-import imgPicture4 from "@/assets/images/snb/statusEffects/Picture4.png";
-import imgPicture5 from "@/assets/images/snb/statusEffects/Picture5.png";
-import imgPicture6 from "@/assets/images/snb/statusEffects/Picture6.png";
-import imgPicture7 from "@/assets/images/snb/statusEffects/Picture7.png";
-import imgPicture8 from "@/assets/images/snb/statusEffects/Picture8.png";
-import imgPicture9 from "@/assets/images/snb/statusEffects/Picture9.png";
-import imgPicture10 from "@/assets/images/snb/statusEffects/Picture10.png";
-import imgPicture11 from "@/assets/images/snb/statusEffects/Picture11.png";
-import imgPicture12 from "@/assets/images/snb/statusEffects/Picture12.png";
-import imgPicture13 from "@/assets/images/snb/statusEffects/Picture13.png";
-import imgPicture14 from "@/assets/images/snb/statusEffects/Picture14.png";
-import imgPicture15 from "@/assets/images/snb/statusEffects/Picture15.png";
-import imgPicture16 from "@/assets/images/snb/statusEffects/Picture16.png";
-import imgPicture17 from "@/assets/images/snb/statusEffects/Picture17.png";
-import imgPicture18 from "@/assets/images/snb/statusEffects/Picture18.png";
+import imgPicture1 from "@/assets/images/snb/statusEffects/Picture1.webp";
+import imgPicture2 from "@/assets/images/snb/statusEffects/Picture2.webp";
+import imgPicture3 from "@/assets/images/snb/statusEffects/Picture3.webp";
+import imgPicture4 from "@/assets/images/snb/statusEffects/Picture4.webp";
+import imgPicture5 from "@/assets/images/snb/statusEffects/Picture5.webp";
+import imgPicture6 from "@/assets/images/snb/statusEffects/Picture6.webp";
+import imgPicture7 from "@/assets/images/snb/statusEffects/Picture7.webp";
+import imgPicture8 from "@/assets/images/snb/statusEffects/Picture8.webp";
+import imgPicture9 from "@/assets/images/snb/statusEffects/Picture9.webp";
+import imgPicture10 from "@/assets/images/snb/statusEffects/Picture10.webp";
+import imgPicture11 from "@/assets/images/snb/statusEffects/Picture11.webp";
+import imgPicture12 from "@/assets/images/snb/statusEffects/Picture12.webp";
+import imgPicture13 from "@/assets/images/snb/statusEffects/Picture13.webp";
+import imgPicture14 from "@/assets/images/snb/statusEffects/Picture14.webp";
+import imgPicture15 from "@/assets/images/snb/statusEffects/Picture15.webp";
+import imgPicture16 from "@/assets/images/snb/statusEffects/Picture16.webp";
+import imgPicture17 from "@/assets/images/snb/statusEffects/Picture17.webp";
+import imgPicture18 from "@/assets/images/snb/statusEffects/Picture18.webp";
 
 const damageTypes = [
   {

@@ -448,7 +448,7 @@ const getZoneData = (zoneName: string) => {
                   </LightRays>
                 </v-col>
                 <v-col cols="auto" class="mx-n15 mx-lg-n15 mb-n1 pa-0 position-relative text-center" style="z-index: 50;">
-                  <img src="@/assets/images/icon-stateOfWar-vs.png" height="88"/>
+                  <img src="@/assets/images/icon-stateOfWar-vs.webp" height="88"/>
                 </v-col>
                 <v-col cols="6" class="position-relative d-flex align-center justify-end">
                   <div>
@@ -796,7 +796,7 @@ const getZoneData = (zoneName: string) => {
                         </template>
                       </v-chip>
                       <div class="text-medium-emphasis d-flex align-center ga-1">
-                        <img src="@/assets/images/icon-stateOfWar-assets.png" width="30" height="30"/> <span class="font-weight-bold text-high-emphasis">{{ formatCompactNumber(region.total) }}</span>
+                        <img src="@/assets/images/icon-stateOfWar-assets.webp" width="30" height="30"/> <span class="font-weight-bold text-high-emphasis">{{ formatCompactNumber(region.total) }}</span>
                       </div>
                     </div>
                   </div>

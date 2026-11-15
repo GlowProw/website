@@ -7,8 +7,12 @@
   },
   "servers": [
     {
-      "url": "https://assets.glow-prow.top",
+      "url": "https://lang.glow-prow.top",
       "description": "production"
+    },
+    {
+      "url": "https://lang.glow-prow.org.cn",
+      "description": "domestic"
     },
     {
       "url": "http://localhost:8088",

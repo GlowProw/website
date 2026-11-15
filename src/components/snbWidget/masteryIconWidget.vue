@@ -163,13 +163,17 @@ const categoryColor = computed(() => {
 });
 
 // 图标卡背景色，沿用物品图标按稀有度压暗的取色方式
-const cardColor = computed(() => `hsl(from ${categoryColor.value} h s calc(l * .15))`);
+const cardColor = computed(() => `hsl(from ${categoryColor.value} h s calc(l * .2))`);
 
 const containerStyle = computed(() => {
+  const base: Record<string, string> = {
+    background: cardColor.value,
+  };
   if (props.size !== undefined && props.size !== null && props.size !== '') {
     const s = String(props.size).trim();
     const sizeVal = isNaN(Number(s)) ? s : `${s}px`;
     return {
+      ...base,
       width: sizeVal,
       height: sizeVal,
       minWidth: sizeVal,
@@ -178,6 +182,7 @@ const containerStyle = computed(() => {
   }
   // 未指定尺寸时铺满外层容器并保持正方形，与 ItemSlotBase 完美贴合
   return {
+    ...base,
     width: '100%',
     aspectRatio: '1 / 1',
   };
@@ -223,6 +228,8 @@ defineOptions({
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           ref="targetElement"
+          variant="text"
+          class="border"
           v-bind="activatorProps"
           :color="cardColor"
           :to="isOpenDetail && effectiveId ? `/codex/mastery/${effectiveId}` : undefined"

@@ -131,10 +131,12 @@ defineOptions({
     <template v-slot:activator="{ props: activatorProps }">
       <v-card
           width="100%"
+          variant="text"
+          class="border"
           v-bind="activatorProps"
-          :color="`hsl(from ${rarityColorConfig[itemRarity]} h s calc(l * .15))`"
           :to="isOpenDetail ? `/codex/item/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
+          :style="`background: hsl(from ${rarityColorConfig[itemRarity]} h s calc(l * .2))`"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,

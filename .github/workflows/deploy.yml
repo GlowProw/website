@@ -58,7 +58,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.17.0'
+          node-version: '22.19.0'
 
       - name: Install Dependencies
         run: npm install
@@ -118,7 +118,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.17.0'
+          node-version: '22.19.0'
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4
@@ -149,7 +149,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22.17.0'
+          node-version: '22.19.0'
 
       - name: Download Build Artifacts
         uses: actions/download-artifact@v4

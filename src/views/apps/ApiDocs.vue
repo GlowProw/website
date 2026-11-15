@@ -138,7 +138,18 @@ const loading = ref(true);
 const error = ref<string | null>(null);
 const scalarContainerRef = ref<HTMLElement | null>(null);
 const validTabs: ApiTab[] = ['backend', 'assets', 'lang'];
-const activeTab = ref<ApiTab>();
+
+const getTabFromRoute = (): ApiTab => {
+  const queryTab = route.query.tab;
+
+  if (typeof queryTab === 'string' && validTabs.includes(queryTab as ApiTab)) {
+    return queryTab as ApiTab;
+  }
+
+  return 'backend';
+};
+
+const activeTab = ref<ApiTab>(getTabFromRoute());
 const specUrl = computed(() => {
   const base = http.globalUrl?.location || '/api/';
   return `${base.replace(/\/+$/, '')}/openapi.json`;
@@ -202,16 +213,6 @@ onUnmounted(() => {
     scalarInstance = null;
   }
 });
-
-const getTabFromRoute = (): ApiTab => {
-  const queryTab = route.query.tab;
-
-  if (typeof queryTab === 'string' && validTabs.includes(queryTab as ApiTab)) {
-    return queryTab as ApiTab;
-  }
-
-  return 'backend';
-};
 
 /**
  * 初始化实例
@@ -369,6 +370,8 @@ const initScalar = async () => {
           }
         }
       };
+    } else {
+      scalarConfig.servers = specification.servers || [];
     }
 
     scalarInstance = createApiReference(container, scalarConfig);

@@ -2436,8 +2436,8 @@
       "sortBy": "排序",
       "dateAdded": "添加时间",
       "lastUpdated": "更新时间",
-      "descending": "正序",
-      "ascending": "反序",
+      "descending": "降序 (最新優先)",
+      "ascending": "升序 (最早優先)",
       "showUnobtainable": {
         "label": "顯示失效物品",
         "no": "否",
