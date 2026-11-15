@@ -4,7 +4,7 @@ import {apis, sessionUserInfo} from "@/assets/sripts/index";
 import {useI18n} from "vue-i18n";
 import {useNoticeStore} from "~/stores/noticeStore";
 import {handleApiError} from "@/assets/sripts/error_handler";
-import {itemCardTooltipManager} from "@/components/snbWidget/itemCardTooltipManager";
+import {item_card_tooltip_manager} from "@/assets/sripts/item_card_tooltip_manager";
 
 import Silk from "@/components/Silk.vue";
 import RolesTagWidget from "@/components/RolesTagWidget.vue";
@@ -63,19 +63,19 @@ const instanceId = Symbol("AccountCardWidget");
 // 仅当用户 hover 展开气泡卡片且未拉取过时，才请求用户信息
 watch(() => model.value, (value) => {
   if (value) {
-    itemCardTooltipManager.openTooltip(instanceId, () => {
+    item_card_tooltip_manager.openTooltip(instanceId, () => {
       model.value = false;
     });
     if (userInfoData.value.id == null) {
       getUserInfo();
     }
   } else {
-    itemCardTooltipManager.closeTooltip(instanceId);
+    item_card_tooltip_manager.closeTooltip(instanceId);
   }
 });
 
 onBeforeUnmount(() => {
-  itemCardTooltipManager.closeTooltip(instanceId);
+  item_card_tooltip_manager.closeTooltip(instanceId);
 });
 
 const userInfo = computed(() => userInfoData.value as any);

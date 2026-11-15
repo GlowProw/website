@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import {computed, inject, onBeforeUnmount, provide, ref, useAttrs, watch} from "vue";
 import {useTooltipFollow} from "@/assets/sripts/use_tooltip_follow";
-import {itemCardTooltipManager} from "@/components/snbWidget/itemCardTooltipManager";
+import {item_card_tooltip_manager} from "@/assets/sripts/item_card_tooltip_manager";
 
 /**
  * 图标提示卡片容器
@@ -93,7 +93,7 @@ const onClose = () => {
   isPinned.value = false;
   isInsideActivator = false;
   isInsideContent = false;
-  itemCardTooltipManager.closeTooltip(instanceId);
+  item_card_tooltip_manager.closeTooltip(instanceId);
   document.removeEventListener("pointerdown", onDocumentPointerDown, true);
 };
 
@@ -101,7 +101,7 @@ const onClose = () => {
  * 打开提示卡片并向管理器注册，保证全局同一时间仅存在单个激活卡片
  */
 const openTooltip = () => {
-  itemCardTooltipManager.openTooltip(instanceId, onClose);
+  item_card_tooltip_manager.openTooltip(instanceId, onClose);
   if (!open.value) {
     open.value = true;
   }

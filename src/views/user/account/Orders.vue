@@ -321,67 +321,102 @@ defineOptions({
 
     <!-- 操作头 S -->
     <AffixContainerView>
-      <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">
-        <div class="d-flex align-center flex-wrap ga-2">
-          <!-- 搜索框 -->
-          <v-text-field
-              v-model="searchQuery"
-              prepend-inner-icon="mdi-magnify"
-              :placeholder="t('account.orders.searchPlaceholder')"
-              density="compact"
-              variant="outlined"
-              hide-details
-              clearable
-              style="width: 220px;"
-              class="flex-shrink-0"
-              @keydown.enter="onFilterChange"
-              @click:clear="onFilterChange">
-          </v-text-field>
+      <template #default="{ isAffix }">
+        <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2"
+                :class="{'img img-wrap': isAffix}"
+                :variant="isAffix ? 'flat' : 'text'">
+          <div class="d-flex align-center flex-wrap ga-2">
+            <!-- 搜索框 -->
+            <v-text-field
+                v-model="searchQuery"
+                prepend-inner-icon="mdi-magnify"
+                :placeholder="t('account.orders.searchPlaceholder')"
+                density="compact"
+                variant="outlined"
+                hide-details
+                clearable
+                style="width: 220px;"
+                class="flex-shrink-0"
+                @keydown.enter="onFilterChange"
+                @click:clear="onFilterChange">
+            </v-text-field>
 
-          <!-- 状态筛选 -->
-          <v-select
-              v-model="selectedStatus"
-              :items="statusOptions"
-              density="compact"
-              variant="outlined"
-              hide-details
-              style="width: 130px;"
-              class="flex-shrink-0"
-              @update:model-value="onFilterChange">
-          </v-select>
+            <!-- 状态筛选 -->
+            <v-select
+                v-model="selectedStatus"
+                :items="statusOptions"
+                density="compact"
+                variant="outlined"
+                hide-details
+                style="width: 130px;"
+                class="flex-shrink-0"
+                @update:model-value="onFilterChange">
+            </v-select>
 
-          <!-- 平台筛选 -->
-          <v-select
-              v-model="selectedPlatform"
-              :items="platformOptions"
-              density="compact"
-              variant="outlined"
-              hide-details
-              style="width: 130px;"
-              class="flex-shrink-0"
-              @update:model-value="onFilterChange">
-          </v-select>
-        </div>
+            <!-- 平台筛选 -->
+            <v-select
+                v-model="selectedPlatform"
+                :items="platformOptions"
+                density="compact"
+                variant="outlined"
+                hide-details
+                style="width: 130px;"
+                class="flex-shrink-0"
+                @update:model-value="onFilterChange">
+            </v-select>
+          </div>
 
-        <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
 
-        <div class="d-flex align-center ga-2">
-          <v-btn
-              color="amber"
-              variant="tonal"
-              prepend-icon="mdi-compass-rose"
-              to="/setting/subscriptions">
-            {{ t('subscription.title') }}
-          </v-btn>
+          <!-- 右侧操作区：桌面端平铺 S -->
+          <div class="d-none d-sm-flex align-center ga-2">
+            <v-btn
+                color="amber"
+                variant="tonal"
+                prepend-icon="mdi-compass-rose"
+                to="/setting/subscriptions">
+              {{ t('subscription.title') }}
+            </v-btn>
 
-          <v-btn
-              variant="flat"
-              :loading="loading"
-              @click="fetchOrders">
-            <v-icon>mdi-refresh</v-icon>
-          </v-btn>
-        </div>
-      </v-card>
+            <v-btn
+                variant="flat"
+                :loading="loading"
+                @click="fetchOrders">
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+          </div>
+          <!-- 右侧操作区：桌面端平铺 E -->
+
+          <!-- 右侧操作区：移动端三点菜单 S -->
+          <div class="d-flex d-sm-none align-center ga-1">
+            <v-menu location="bottom end">
+              <template v-slot:activator="{ props: menuProps }">
+                <v-btn
+                    v-bind="menuProps"
+                    icon="mdi-dots-vertical"
+                    size="small"
+                    variant="text">
+                </v-btn>
+              </template>
+              <v-list min-width="160" class="pa-1" border rounded="lg">
+                <v-list-item
+                    prepend-icon="mdi-compass-rose"
+                    to="/setting/subscriptions"
+                    :title="t('subscription.title')">
+                </v-list-item>
+
+                <v-list-item
+                    prepend-icon="mdi-refresh"
+                    @click="fetchOrders"
+                    :title="t('basic.button.refresh')"
+                    :disabled="loading">
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+          <!-- 右侧操作区：移动端三点菜单 E -->
+        </v-card>
+      </template>
     </AffixContainerView>
     <!-- 操作头 E -->
 

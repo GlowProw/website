@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { resolvePerkKey } from "./perkResolver";
+import { resolvePerkKey } from "@/assets/sripts/perk_resolver";
 import { useCDNAssetsServiceStore } from "~/stores/cdnAssetsStore";
 
 const props = withDefaults(

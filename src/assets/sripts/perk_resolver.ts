@@ -122,3 +122,4 @@ export function resolvePerkKey(perkId: string): string | null {
   const keys = resolvePerkKeys(perkId);
   return keys.length > 0 ? keys[0] : null;
 }
+

@@ -5,7 +5,7 @@ import {useI18n} from "vue-i18n";
 import {storage} from "@/assets/sripts";
 import {useRoute, useRouter} from "vue-router";
 import I18nMembersWidget from "@/components/i18nMembersWidget.vue";
-import languagesConfig, { DEFAULT_LANG, SUPPORTED_LANGS } from "@/config/languages";
+import languagesConfig, { DEFAULT_LANG, SUPPORTED_LANGS, setCurrentLang } from "@/config/languages";
 
 const {t, locale} = useI18n(),
     router = useRouter(),
@@ -42,6 +42,7 @@ const onChangeLang = (newVal?: string) => {
   selectLang.value = targetLang;
   storage.local.set('lang', {value: targetLang});
   locale.value = targetLang;
+  setCurrentLang(targetLang);
 
   // 剥离原有的语言前缀，拼接新的目标语言前缀
   const currentPath = route.path || '/';

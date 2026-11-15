@@ -8,6 +8,7 @@ import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import {useAppStore} from "~/stores/appStore";
 import Loading from "@/components/Loading.vue";
 import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
+import ItemSlotCard from "@/components/snbWidget/ItemSlotCard.vue";
 
 // 悬浮详情卡片改为按需异步加载，减轻海量图标挂载时的首屏开销
 const ItemCardDetail = defineAsyncComponent(() => import("@/components/snbWidget/itemCardDetail.vue"));
@@ -129,37 +130,29 @@ defineOptions({
 <template>
   <ItemCardTooltip v-if="i && i.id" :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
-      <v-card
-          width="100%"
-          variant="text"
-          class="border"
+      <ItemSlotCard
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/item/${i?.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
-          :style="`background: hsl(from ${rarityColorConfig[itemRarity]} h s calc(l * .2))`"
-          :class="[
-              'prohibit-drag',
-              `ma-${computedMargin}`,
-              `pa-${computedPadding}`,
-              `item-card-header-rarity-${itemRarity}`
-          ]">
-        <div class="d-flex align-center justify-center w-100 h-100">
-          <v-img
-              referrerpolicy="no-referrer"
-              class="prohibit-drag"
-              :src="itemsCardData.icon">
-            <template v-slot:error>
-              <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
-                <v-icon icon="mdi-help" class="opacity-30"></v-icon>
-              </div>
-            </template>
-            <template v-slot:placeholder>
-              <div class="d-flex justify-center align-center h-100">
-                <Loading size="40"/>
-              </div>
-            </template>
-          </v-img>
-        </div>
+          :rarity="itemRarity"
+          :padding="props.padding"
+          :margin="props.margin">
+        <v-img
+            referrerpolicy="no-referrer"
+            class="prohibit-drag"
+            :src="itemsCardData.icon">
+          <template v-slot:error>
+            <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
+              <v-icon icon="mdi-help" class="opacity-30"></v-icon>
+            </div>
+          </template>
+          <template v-slot:placeholder>
+            <div class="d-flex justify-center align-center h-100">
+              <Loading size="40"/>
+            </div>
+          </template>
+        </v-img>
+
         <div v-if="isUpgradeMod" class="item-upgrade-mod-mask position-absolute bottom-0 w-100 pt-5 pb-1">
           <template v-if="slots['upgrade-mod-content']">
             <slot name="upgrade-mod-content"></slot>
@@ -171,7 +164,7 @@ defineOptions({
             </span>
           </template>
         </div>
-      </v-card>
+      </ItemSlotCard>
     </template>
     <ItemCardDetail
         :id="props.id"

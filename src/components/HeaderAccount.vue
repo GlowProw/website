@@ -9,7 +9,7 @@ import {useMessagesUnreadStore} from "~/stores/messagesUnreadStore";
 import {useMessagesDrawerStore} from "~/stores/messagesDrawerStore";
 import {useAppStore} from "~/stores/appStore";
 import {apis, storage} from "@/assets/sripts";
-import languagesConfig, {DEFAULT_LANG, SUPPORTED_LANGS} from "@/config/languages";
+import languagesConfig, {DEFAULT_LANG, setCurrentLang, SUPPORTED_LANGS} from "@/config/languages";
 import type {HeaderAccountType} from "@/assets/types/User";
 import UserAvatar from "@/components/UserAvatar.vue";
 
@@ -45,6 +45,7 @@ const onChangeLang = (targetLang: string): void => {
 
   storage.local.set('lang', {value: targetLang});
   locale.value = targetLang;
+  setCurrentLang(targetLang);
 
   const currentPath = route.path || '/';
   const langRegex = new RegExp('^/(' + SUPPORTED_LANGS.join('|') + ')');

@@ -42,7 +42,6 @@
       <div v-bind="hoverProps" class="position-relative">
         <AssemblyTouring>
           <AssemblyWidget
-              class="card-flavor mb-5 ml-n10 mr-n10"
               :readonly="true"
               :perfect-display="perfectDisplay"
               ref="assemblyWidgetRef">

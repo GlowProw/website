@@ -2,7 +2,7 @@ import { getCurrentSeasonId, storage } from '@/assets/sripts';
 import { useAuthStore } from '@/../stores/userAccountStore';
 import { useAssetsStore } from '@/../stores/assetsStore';
 import { useCDNAssetsServiceStore } from '~/stores/cdnAssetsStore';
-import { normalizeLang, DEFAULT_LANG, isSupportedLang } from '@/config/languages';
+import { normalizeLang, DEFAULT_LANG, isSupportedLang, getCurrentLang, setCurrentLang } from '@/config/languages';
 
 // 静态文件白名单路径，不进行语言重定向与页面滚动
 export const staticFilePaths = ['/robots.txt', '/sitemap.xml', '/ads.txt'];
@@ -101,17 +101,18 @@ export function setupRouterGuards(r: any) {
         const origResolve = r.resolve.bind(r);
         r.resolve = (to: any, currentLocation: any) => {
             let normalizedTo = to;
+            const pathStr = (currentLocation?.path || r.currentRoute?.value?.path || '') as string;
+            const pathFirstSeg = pathStr.split('/').filter(Boolean)[0];
+            const langFromPath = pathFirstSeg && isSupportedLang(pathFirstSeg) ? pathFirstSeg : '';
+
+            const currentLang = (currentLocation?.params?.lang as string)
+                || (r.currentRoute?.value?.params?.lang as string)
+                || langFromPath
+                || getCurrentLang()
+                || DEFAULT_LANG;
+
             if (typeof to === 'object' && to !== null) {
                 if ('name' in to && to.name && (!to.params || !to.params.lang)) {
-                    const pathStr = (currentLocation?.path || r.currentRoute?.value?.path || '') as string;
-                    const pathFirstSeg = pathStr.split('/').filter(Boolean)[0];
-                    const langFromPath = pathFirstSeg && isSupportedLang(pathFirstSeg) ? pathFirstSeg : '';
-
-                    const currentLang = (currentLocation?.params?.lang as string)
-                        || (r.currentRoute?.value?.params?.lang as string)
-                        || langFromPath
-                        || DEFAULT_LANG;
-
                     normalizedTo = {
                         ...to,
                         params: {
@@ -119,6 +120,21 @@ export function setupRouterGuards(r: any) {
                             lang: (to.params && to.params.lang) ? to.params.lang : currentLang,
                         }
                     };
+                } else if ('path' in to && typeof to.path === 'string' && to.path.startsWith('/')) {
+                    const firstSeg = to.path.split('/').filter(Boolean)[0];
+                    if (!isSupportedLang(firstSeg) && !staticFilePaths.includes(to.path)) {
+                        const cleanPath = to.path === '/' ? '' : to.path;
+                        normalizedTo = {
+                            ...to,
+                            path: `/${currentLang}${cleanPath}`,
+                        };
+                    }
+                }
+            } else if (typeof to === 'string' && to.startsWith('/')) {
+                const firstSeg = to.split('/').filter(Boolean)[0];
+                if (!isSupportedLang(firstSeg) && !staticFilePaths.includes(to)) {
+                    const cleanPath = to === '/' ? '' : to;
+                    normalizedTo = `/${currentLang}${cleanPath}`;
                 }
             }
             return origResolve(normalizedTo, currentLocation);
@@ -136,6 +152,7 @@ export function setupRouterGuards(r: any) {
 
         // 如果包含合法的语言前缀
         if (firstSegment && isSupportedLang(firstSegment)) {
+            setCurrentLang(firstSegment);
             if (typeof window !== 'undefined') {
                 storage.local.set('lang', { value: firstSegment });
             }
@@ -144,12 +161,18 @@ export function setupRouterGuards(r: any) {
 
         // 客户端未带语言前缀的路径自动补全语言并重定向
         if (typeof window !== 'undefined') {
+            const fromFirstSeg = from?.path ? from.path.split('/').filter(Boolean)[0] : '';
+            const activeLang = (fromFirstSeg && isSupportedLang(fromFirstSeg)) ? fromFirstSeg : getCurrentLang();
+
             const rawStored = storage.local.get('lang')?.data?.value;
             const stored = (typeof rawStored === 'object' && rawStored !== null && rawStored.value) ? rawStored.value : rawStored;
-            const targetLang = (typeof stored === 'string' && isSupportedLang(stored))
-                ? stored
-                : (normalizeLang(navigator.language) || DEFAULT_LANG);
+            const targetLang = (activeLang && isSupportedLang(activeLang))
+                ? activeLang
+                : ((typeof stored === 'string' && isSupportedLang(stored))
+                    ? stored
+                    : (normalizeLang(navigator.language) || DEFAULT_LANG));
 
+            setCurrentLang(targetLang);
             const cleanPath = to.path === '/' ? '' : to.path;
             return next({ path: `/${targetLang}${cleanPath}`, query: to.query, hash: to.hash, replace: true });
         }

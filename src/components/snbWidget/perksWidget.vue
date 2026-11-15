@@ -6,7 +6,7 @@ import {useRoute} from "vue-router";
 import PerksName from "./perksName.vue";
 import PerkDescription from "@/components/snbWidget/perksDescription.vue";
 import PerkIcon from "@/components/snbWidget/perkIcon.vue";
-import {resolvePerkKeys} from "@/components/snbWidget/perkResolver";
+import {resolvePerkKeys} from "@/assets/sripts/perk_resolver";
 import {useAppStore} from "~/stores/appStore";
 
 const {locale} = useI18n(),

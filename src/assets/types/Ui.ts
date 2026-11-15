@@ -230,14 +230,14 @@ export interface ToolbarItem {
 export interface AffixBoxHasTitleViewProps {
   disabled?: boolean
   disabledTitle?: boolean
-  offsetTop?: number
-  offsetBottom?: number
+  offsetTop?: number | string
+  offsetBottom?: number | string
 }
 
 // AffixContainerView.vue
 export interface AffixContainerViewProps {
-  offsetTop?: number
-  offsetBottom?: number
+  offsetTop?: number | string
+  offsetBottom?: number | string
   disabled?: boolean
   // 简单的 sticky bottom 吸底模式
   affixBottom?: boolean
@@ -248,8 +248,8 @@ export interface AffixContainerViewProps {
 // AffixView.vue
 export interface AffixViewProps {
   direction?: 'left' | 'right'
-  offsetTop?: number
-  offsetBottom?: number
+  offsetTop?: number | string
+  offsetBottom?: number | string
   affixBgClass?: string
   disabled?: boolean
 }

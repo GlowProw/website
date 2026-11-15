@@ -1,3 +1,4 @@
+import { ref } from "vue";
 import type { LanguagesConfig } from "@/assets/types/I18n";
 
 export const languagesConfig: LanguagesConfig = {
@@ -62,20 +63,25 @@ export const toCDNLang = (lang: string | null | undefined): string => {
   return String(lang).trim().replace(/-/g, '_');
 };
 
-/**
- * 当前语言
- * 脱离组件上下文的全局同步值
- *
- * useI18n() 只能在 setup 内调用。
- */
-let currentLang: string = DEFAULT_LANG;
+// 当前激活语言的全局响应式状态
+const currentLang = ref<string>(DEFAULT_LANG);
 
+/**
+ * 设置全局当前语言
+ *
+ * @param lang 目标语言代码
+ */
 export const setCurrentLang = (lang?: string | null): void => {
-    if (isSupportedLang(lang)) {
-        currentLang = lang;
+    if (isSupportedLang(lang) && currentLang.value !== lang) {
+        currentLang.value = lang;
     }
 };
 
-export const getCurrentLang = (): string => currentLang;
+/**
+ * 获取全局当前语言代码
+ *
+ * @returns 当前语言代码
+ */
+export const getCurrentLang = (): string => currentLang.value;
 
 export default languagesConfig;

@@ -220,54 +220,92 @@ defineOptions({
 <template>
   <div class="position-relative media-page-root">
     <AffixContainerView>
-      <v-card class="mb-4 pa-2">
-        <div class="d-flex align-center justify-space-between flex-wrap ga-2">
-          <div class="d-flex align-center">
-            <div class="d-flex align-center flex-wrap ga-2">
-              <div>
-                <v-text-field
-                    v-model="searchKeyword"
-                    min-width="260px"
-                    :placeholder="t('account.media.searchPlaceholder')"
-                    prepend-inner-icon="mdi-magnify"
-                    density="compact"
-                    variant="outlined"
-                    hide-details
-                    clearable
-                    @keyup.enter="() => { currentPage = 1; loadList(); }"
-                    @click:clear="() => { currentPage = 1; loadList(); }"></v-text-field>
-              </div>
-              <div class="text-caption text-medium-emphasis">
-                {{ t('account.media.totalItems', {total: totalCount}) }}
+      <template #default="{isAffix}">
+        <v-card class="mb-4 pa-2"
+                :class="{'img img-wrap':isAffix}"
+                :variant="isAffix ? 'flat' : 'text'">
+          <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+            <div class="d-flex align-center">
+              <div class="d-flex align-center flex-wrap ga-2">
+                <div>
+                  <v-text-field
+                      v-model="searchKeyword"
+                      min-width="260px"
+                      :placeholder="t('account.media.searchPlaceholder')"
+                      prepend-inner-icon="mdi-magnify"
+                      density="compact"
+                      variant="outlined"
+                      hide-details
+                      clearable
+                      @keyup.enter="() => { currentPage = 1; loadList(); }"
+                      @click:clear="() => { currentPage = 1; loadList(); }"></v-text-field>
+                </div>
+                <div class="text-caption text-medium-emphasis">
+                  {{ t('account.media.totalItems', {total: totalCount}) }}
+                </div>
               </div>
             </div>
+
+            <!-- 右侧操作区：桌面端平铺 S -->
+            <div class="d-none d-sm-flex align-center ga-2">
+              <!-- 配额与容量复用 QuotaLimitWidget -->
+              <QuotaLimitWidget resource="media" text></QuotaLimitWidget>
+
+              <!-- 仅直传上传按钮 -->
+              <v-btn
+                  color="amber"
+                  variant="flat"
+                  prepend-icon="mdi-cloud-upload-outline"
+                  :loading="uploading"
+                  :disabled="storageDisabled"
+                  @click="triggerUpload">
+                {{ t('account.media.upload') }}
+              </v-btn>
+
+              <v-btn
+                  icon="mdi-refresh"
+                  size="small"
+                  variant="tonal"
+                  :loading="loading"
+                  @click="loadList">
+              </v-btn>
+            </div>
+            <!-- 右侧操作区：桌面端平铺 E -->
+
+            <!-- 右侧操作区：移动端三点菜单 S -->
+            <div class="d-flex d-sm-none align-center ga-1">
+              <QuotaLimitWidget resource="media"></QuotaLimitWidget>
+
+              <v-menu location="bottom end">
+                <template v-slot:activator="{ props: menuProps }">
+                  <v-btn
+                      v-bind="menuProps"
+                      icon="mdi-dots-vertical"
+                      size="small"
+                      variant="text">
+                  </v-btn>
+                </template>
+                <v-list min-width="160" class="pa-1" border rounded="lg">
+                  <v-list-item
+                      prepend-icon="mdi-cloud-upload-outline"
+                      @click="triggerUpload"
+                      :title="t('account.media.upload')"
+                      :disabled="storageDisabled || uploading">
+                  </v-list-item>
+
+                  <v-list-item
+                      prepend-icon="mdi-refresh"
+                      @click="loadList"
+                      :title="t('basic.button.refresh')"
+                      :disabled="loading">
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
+            <!-- 右侧操作区：移动端三点菜单 E -->
           </div>
-
-          <div class="d-flex align-center ga-2">
-            <!-- 配额与容量复用 QuotaLimitWidget -->
-            <QuotaLimitWidget resource="media" text></QuotaLimitWidget>
-
-            <!-- 仅直传上传按钮 -->
-            <v-btn
-                color="amber"
-                variant="flat"
-                prepend-icon="mdi-cloud-upload-outline"
-                :loading="uploading"
-                :disabled="storageDisabled"
-                @click="triggerUpload">
-              {{ t('account.media.upload') }}
-            </v-btn>
-
-            <v-btn
-                icon="mdi-refresh"
-                size="small"
-                variant="tonal"
-                :loading="loading"
-                @click="loadList"
-            ></v-btn>
-          </div>
-        </div>
-      </v-card>
+        </v-card>
+      </template>
     </AffixContainerView>
 
     <!-- 图床容量熔断提示 -->

@@ -1,5 +1,20 @@
+/**
+ * 获取本地存储环境前缀
+ */
+const getStorageEnv = (): string => {
+    try {
+        if (typeof import.meta !== 'undefined' && import.meta.env) {
+            return import.meta.env.MODE || (import.meta.env.PROD ? 'production' : 'development');
+        }
+    } catch {}
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV) {
+        return process.env.NODE_ENV;
+    }
+    return 'production';
+};
+
 export default class Storage {
-    STORAGENAME = `snb.${process.env.NODE_ENV}:`;
+    STORAGENAME = `snb.${getStorageEnv()}:`;
 
     constructor() {
         return this

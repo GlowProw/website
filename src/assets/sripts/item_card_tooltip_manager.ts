@@ -24,7 +24,7 @@ let activeTooltip: ActiveItemCardTooltip | null = null;
  * 提示卡片全局状态管理器
  * 统一调度全局提示卡片显示状态，保证全站同一时间仅显示一个卡片，避免多卡片同时残留
  */
-export const itemCardTooltipManager = {
+export const item_card_tooltip_manager = {
   /**
    * 注册并打开新的提示卡片
    * 当新卡片准备展示时，会立即强制关闭并重置任何已打开的旧卡片
@@ -83,7 +83,7 @@ export const itemCardTooltipManager = {
 // 窗口失去焦点时主动关闭浮动卡片，防止跨应用或切页残留
 if (typeof window !== "undefined") {
   window.addEventListener("blur", () => {
-    itemCardTooltipManager.closeActiveTooltip();
+    item_card_tooltip_manager.closeActiveTooltip();
   });
 }
 

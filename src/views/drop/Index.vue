@@ -307,43 +307,106 @@ onMounted(() => {
         </AffixBoxHasTitleView>
 
         <AffixBoxHasTitleView class="drop-section">
+          <!-- 操作头 S -->
           <AffixContainerView>
-            <v-card class="px-5 py-2 section-title-wrap d-flex flex-column flex-sm-row align-sm-center justify-space-between ga-4">
-              <div class="d-flex align-center ga-3">
-                {{ historyTotal }} {{ t('drop.records') }}
-              </div>
+            <template #default="{ isAffix }">
+              <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2 section-title-wrap"
+                      :class="{'img img-wrap': isAffix}"
+                      :variant="isAffix ? 'flat' : 'text'">
+                <div class="d-flex align-center flex-wrap ga-2">
+                  <!-- 搜索 -->
+                  <v-text-field
+                      v-model="historyKeyword"
+                      density="compact"
+                      variant="outlined"
+                      :placeholder="t('drop.searchPlaceholder')"
+                      prepend-inner-icon="mdi-magnify"
+                      hide-details
+                      style="width: 220px;"
+                      clearable
+                      rounded="lg"
+                      class="search-input flex-shrink-0">
+                  </v-text-field>
+                </div>
 
-              <!-- 筛选与搜索工具栏 S -->
-              <div class="d-flex flex-wrap align-center ga-3">
-                <v-btn-toggle
-                    v-model="historyStatus"
-                    mandatory
-                    density="comfortable"
-                    color="amber"
-                    variant="outlined"
-                    rounded="lg">
-                  <v-btn value="all" size="small">{{ t('drop.filterAll') }}</v-btn>
-                  <v-btn value="ended" size="small">{{ t('drop.filterEnded') }}</v-btn>
-                  <v-btn value="active" size="small">{{ t('drop.filterActive') }}</v-btn>
-                </v-btn-toggle>
+                <v-spacer></v-spacer>
 
-                <!-- 搜索 -->
-                <v-text-field
-                    v-model="historyKeyword"
-                    density="compact"
-                    variant="outlined"
-                    :placeholder="t('drop.searchPlaceholder')"
-                    prepend-inner-icon="mdi-magnify"
-                    hide-details
-                    min-width="240"
-                    clearable
-                    rounded="lg"
-                    class="search-input"
-                ></v-text-field>
-              </div>
-              <!-- 筛选与搜索工具栏 E -->
-            </v-card>
+                <!-- 右侧操作区：桌面端平铺 S -->
+                <div class="d-none d-sm-flex align-center ga-2">
+                  <v-btn-toggle
+                      v-model="historyStatus"
+                      mandatory
+                      density="comfortable"
+                      color="amber"
+                      variant="outlined"
+                      rounded="lg">
+                    <v-btn value="all" size="small">{{ t('drop.filterAll') }}</v-btn>
+                    <v-btn value="ended" size="small">{{ t('drop.filterEnded') }}</v-btn>
+                    <v-btn value="active" size="small">{{ t('drop.filterActive') }}</v-btn>
+                  </v-btn-toggle>
+
+                  <v-btn
+                      variant="flat"
+                      @click="onRefresh"
+                      :loading="historyLoading">
+                    <v-icon>mdi-refresh</v-icon>
+                  </v-btn>
+                </div>
+                <!-- 右侧操作区：桌面端平铺 E -->
+
+                <!-- 右侧操作区：移动端三点菜单 S -->
+                <div class="d-flex d-sm-none align-center ga-1">
+                  <v-menu location="bottom end">
+                    <template v-slot:activator="{ props: menuProps }">
+                      <v-btn
+                          v-bind="menuProps"
+                          icon="mdi-dots-vertical"
+                          size="small"
+                          variant="text">
+                      </v-btn>
+                    </template>
+                    <v-list min-width="160" class="pa-1" border rounded="lg">
+                      <v-list-item
+                          :active="historyStatus === 'all'"
+                          @click="historyStatus = 'all'"
+                          :title="t('drop.filterAll')">
+                        <template v-slot:append v-if="historyStatus === 'all'">
+                          <v-icon size="small" color="amber">mdi-check</v-icon>
+                        </template>
+                      </v-list-item>
+                      <v-list-item
+                          :active="historyStatus === 'ended'"
+                          @click="historyStatus = 'ended'"
+                          :title="t('drop.filterEnded')">
+                        <template v-slot:append v-if="historyStatus === 'ended'">
+                          <v-icon size="small" color="amber">mdi-check</v-icon>
+                        </template>
+                      </v-list-item>
+                      <v-list-item
+                          :active="historyStatus === 'active'"
+                          @click="historyStatus = 'active'"
+                          :title="t('drop.filterActive')">
+                        <template v-slot:append v-if="historyStatus === 'active'">
+                          <v-icon size="small" color="amber">mdi-check</v-icon>
+                        </template>
+                      </v-list-item>
+
+                      <v-divider class="my-1"></v-divider>
+
+                      <v-list-item
+                          prepend-icon="mdi-refresh"
+                          @click="onRefresh"
+                          :title="t('basic.button.refresh')"
+                          :disabled="historyLoading">
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+                <!-- 右侧操作区：移动端三点菜单 E -->
+              </v-card>
+            </template>
           </AffixContainerView>
+          <!-- 操作头 E -->
 
           <!-- 加载中 S -->
           <div v-if="historyLoading" class="d-flex flex-column justify-center py-4 mb-2 ga-4">

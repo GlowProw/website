@@ -59,6 +59,9 @@ export {
     type TimezoneOption
 } from './date';
 
+export { item_card_tooltip_manager } from './item_card_tooltip_manager';
+export { resolvePerkKey, resolvePerkKeys } from './perk_resolver';
+
 export default {
     apis, conf, ws, http,
     storage, storage_capacity_monitor, storage_account, storage_ads, storageIntermediateTransfer, storageCollect,

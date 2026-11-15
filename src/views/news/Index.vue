@@ -402,39 +402,74 @@ onMounted(() => {
         <AffixBoxHasTitleView class="news-section">
           <!-- 筛选与搜索吸附栏 S -->
           <AffixContainerView>
-            <v-card class="px-2 py-2 section-title-wrap d-flex flex-column flex-sm-row align-sm-center justify-space-between ga-4">
-              <div class="d-flex align-center ga-3">
-                <v-btn-toggle
-                    v-model="currentPlatform"
-                    mandatory
-                    density="comfortable"
-                    color="amber"
-                    variant="outlined">
-                  <v-btn
-                      v-for="plat in platforms"
-                      :key="plat.value"
-                      :value="plat.value"
-                      size="small">
-                    {{ plat.label }}
-                  </v-btn>
-                </v-btn-toggle>
-              </div>
+            <template #default="{ isAffix }">
+              <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2 section-title-wrap"
+                      :class="{'img img-wrap': isAffix}"
+                      :variant="isAffix ? 'flat' : 'text'">
+                <div class="d-flex align-center flex-wrap ga-2">
+                  <v-text-field
+                      v-model="keyword"
+                      density="compact"
+                      variant="outlined"
+                      :placeholder="t('news.searchPlaceholder')"
+                      prepend-inner-icon="mdi-magnify"
+                      hide-details
+                      style="width: 220px;"
+                      clearable
+                      rounded="lg"
+                      class="search-input flex-shrink-0">
+                  </v-text-field>
+                </div>
 
-              <div class="d-flex flex-wrap align-center ga-3">
-                <v-text-field
-                    v-model="keyword"
-                    density="compact"
-                    variant="outlined"
-                    :placeholder="t('news.searchPlaceholder')"
-                    prepend-inner-icon="mdi-magnify"
-                    hide-details
-                    min-width="220"
-                    clearable
-                    rounded="lg"
-                    class="search-input">
-                </v-text-field>
-              </div>
-            </v-card>
+                <v-spacer></v-spacer>
+
+                <!-- 桌面端平台切换 S -->
+                <div class="d-none d-sm-flex align-center ga-2">
+                  <v-btn-toggle
+                      v-model="currentPlatform"
+                      mandatory
+                      density="comfortable"
+                      color="amber"
+                      variant="outlined">
+                    <v-btn
+                        v-for="plat in platforms"
+                        :key="plat.value"
+                        :value="plat.value"
+                        size="small">
+                      {{ plat.label }}
+                    </v-btn>
+                  </v-btn-toggle>
+                </div>
+                <!-- 桌面端平台切换 E -->
+
+                <!-- 移动端三点菜单 S -->
+                <div class="d-flex d-sm-none align-center ga-1">
+                  <v-menu location="bottom end">
+                    <template v-slot:activator="{ props: menuProps }">
+                      <v-btn
+                          v-bind="menuProps"
+                          icon="mdi-dots-vertical"
+                          size="small"
+                          variant="text">
+                      </v-btn>
+                    </template>
+                    <v-list min-width="160" class="pa-1" border rounded="lg">
+                      <v-list-item
+                          v-for="plat in platforms"
+                          :key="plat.value"
+                          :active="currentPlatform === plat.value"
+                          @click="currentPlatform = plat.value"
+                          :title="plat.label">
+                        <template v-slot:append v-if="currentPlatform === plat.value">
+                          <v-icon size="small" color="amber">mdi-check</v-icon>
+                        </template>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+                <!-- 移动端三点菜单 E -->
+              </v-card>
+            </template>
           </AffixContainerView>
           <!-- 筛选与搜索吸附栏 E -->
 

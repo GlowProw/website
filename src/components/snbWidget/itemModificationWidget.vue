@@ -431,10 +431,12 @@ defineOptions({
           <template v-if="Object.keys(filteredModData).length > 0">
             <template v-for="(mods, grade) in filteredModData" :key="grade">
               <v-col cols="auto" class="pl-5 border-l">
-                <AffixContainerView class="px-4 py-4 title-long-flavor" align="center">
-                  <div>
-                    <v-img :src="modIcons[grade]" width="40px" height="40px"></v-img>
-                  </div>
+                <AffixContainerView class="py-4 title-long-flavor" align="center">
+                  <template #default="{isAffix}">
+                    <v-card :variant="isAffix ? 'flat' : 'plain'" class="py-1">
+                      <v-img :src="modIcons[grade]" width="40px" height="40px"></v-img>
+                    </v-card>
+                  </template>
                 </AffixContainerView>
 
                 <div class="mod-list d-flex flex-column align-center ga-2 mt-2 pb-5">

@@ -106,7 +106,7 @@ defineOptions({
         icon
         variant="flat"
         density="default"
-        class="scroll-up-btn position-fixed"
+        class="scroll-up-btn position-fixed img img-wrap"
         :style="buttonStyle"
         :aria-label="t('common.scrollToTop')"
         :title="t('common.scrollToTop')"
@@ -121,6 +121,8 @@ defineOptions({
 </template>
 
 <style scoped lang="less">
+@import "@/assets/styles/img";
+
 .scroll-up-btn {
   width: 44px !important;
   height: 44px !important;

@@ -924,30 +924,61 @@ defineOptions({
 
     <!-- 操作头 S -->
     <AffixContainerView>
-      <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">
-        <div class="d-flex align-center flex-wrap my-n2 ml-n1">
-          <!-- 全选复选框 -->
-          <v-tabs v-model="activeTab" color="amber" @update:model-value="onTabChange">
-            <v-tab value="collections" prepend-icon="mdi-folder-multiple-outline">{{ t('map.tabCollections') }}</v-tab>
-            <v-tab value="points" prepend-icon="mdi-map-marker-multiple-outline">{{ t('map.tabPoints') }}</v-tab>
-            <v-tab value="paths" prepend-icon="mdi-vector-polyline">{{ t('map.tabPaths') }}</v-tab>
-            <v-tab value="regions" prepend-icon="mdi-vector-polygon">{{ t('map.tabRegions') }}</v-tab>
-          </v-tabs>
-        </div>
+      <template #default="{isAffix}">
+        <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2"
+                :class="{'img img-wrap':isAffix}"
+                :variant="isAffix ? 'flat' : 'text'">
+          <div class="d-flex align-center flex-wrap my-n2 ml-n1">
+            <!-- 全选复选框 -->
+            <v-tabs v-model="activeTab" color="amber" @update:model-value="onTabChange">
+              <v-tab value="collections" prepend-icon="mdi-folder-multiple-outline">{{ t('map.tabCollections') }}</v-tab>
+              <v-tab value="points" prepend-icon="mdi-map-marker-multiple-outline">{{ t('map.tabPoints') }}</v-tab>
+              <v-tab value="paths" prepend-icon="mdi-vector-polyline">{{ t('map.tabPaths') }}</v-tab>
+              <v-tab value="regions" prepend-icon="mdi-vector-polygon">{{ t('map.tabRegions') }}</v-tab>
+            </v-tabs>
+          </div>
 
-        <v-spacer></v-spacer>
+          <v-spacer></v-spacer>
 
-        <div class="d-flex align-center ga-2">
-          <QuotaLimitWidget resource="map" text></QuotaLimitWidget>
+          <!-- 右侧操作区：桌面端平铺 S -->
+          <div class="d-none d-sm-flex align-center ga-2">
+            <QuotaLimitWidget resource="map" text></QuotaLimitWidget>
 
-          <v-btn
-              variant="flat"
-              @click="getMyCollectionsData"
-              :loading="collectionLoading">
-            <v-icon>mdi-refresh</v-icon>
-          </v-btn>
-        </div>
-      </v-card>
+            <v-btn
+                variant="flat"
+                @click="getMyCollectionsData"
+                :loading="collectionLoading">
+              <v-icon>mdi-refresh</v-icon>
+            </v-btn>
+          </div>
+          <!-- 右侧操作区：桌面端平铺 E -->
+
+          <!-- 右侧操作区：移动端三点菜单 S -->
+          <div class="d-flex d-sm-none align-center ga-1">
+            <QuotaLimitWidget resource="map"></QuotaLimitWidget>
+
+            <v-menu location="bottom end">
+              <template v-slot:activator="{ props: menuProps }">
+                <v-btn
+                    v-bind="menuProps"
+                    icon="mdi-dots-vertical"
+                    size="small"
+                    variant="text">
+                </v-btn>
+              </template>
+              <v-list min-width="160" class="pa-1" border rounded="lg">
+                <v-list-item
+                    prepend-icon="mdi-refresh"
+                    @click="getMyCollectionsData"
+                    :title="t('basic.button.refresh')"
+                    :disabled="collectionLoading">
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </div>
+          <!-- 右侧操作区：移动端三点菜单 E -->
+        </v-card>
+      </template>
     </AffixContainerView>
     <!-- 操作头 E -->
 

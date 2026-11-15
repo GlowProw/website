@@ -8,7 +8,7 @@ import ItemSlotBase from "./ItemSlotBase.vue";
 import {Item} from "glow-prow-data";
 import DamageIconWidget from "@/components/snbWidget/damageIconWidget.vue";
 import PerkIcon from "@/components/snbWidget/perkIcon.vue";
-import {resolvePerkKeys} from "@/components/snbWidget/perkResolver";
+import {resolvePerkKeys} from "@/assets/sripts/perk_resolver";
 import type {ItemDamageTypeSize} from "@/assets/types/Codex";
 
 const props = withDefaults(defineProps<{ data: Item | any, iconType?: "aggressivity" | "armor" , sizeType?: ItemDamageTypeSize, size?: number }>(), {

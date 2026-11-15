@@ -10,6 +10,7 @@ import {useRouter} from "vue-router";
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import ShipCardDetail from "@/components/snbWidget/shipCardDetail.vue";
 import ItemCardTooltip from "@/components/snbWidget/itemCardTooltip.vue";
+import ItemSlotCard from "@/components/snbWidget/ItemSlotCard.vue";
 import {useAppStore} from "~/stores/appStore";
 
 const props = withDefaults(defineProps<{
@@ -98,21 +99,15 @@ const computedMargin = useIconImageMargin(props.margin);
 <template>
   <ItemCardTooltip :disabled="!props.isShowTooltip">
     <template v-slot:activator="{ props: activatorProps }">
-      <v-card
+      <ItemSlotCard
           v-bind="activatorProps"
-          width="100%"
-          variant="text"
-          class="border"
           :to="isOpenDetail ? `/codex/ship/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
-          :style="`background: hsl(from ${rarityColorConfig[(i as any)?.rarity || '']} h s calc(l * .2))`"
-          :class="[
-              'prohibit-drag',
-              `ma-${computedMargin}`,
-              `pa-${computedPadding}`,
-          ]">
+          :rarity="(i as any)?.rarity || ''"
+          :padding="props.padding"
+          :margin="props.margin">
         <v-img :src="shipCardData.icon" class="pointer-events-none prohibit-drag"></v-img>
-      </v-card>
+      </ItemSlotCard>
     </template>
 
     <ShipCardDetail

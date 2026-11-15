@@ -243,49 +243,80 @@ defineOptions({
 
           <!-- 操作头 S -->
           <AffixContainerView>
-            <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2">
-              <div class="d-flex align-center flex-wrap ga-2">
-                <!-- 全选复选框 -->
-                <v-checkbox-btn
-                    v-if="trashData.length > 0"
-                    :model-value="isAllSelected"
-                    :indeterminate="selectedItems.length > 0 && !isAllSelected"
-                    @click.stop="toggleSelectAll"
-                    class="ml-2 mr-2">
-                  <template v-slot:label>
-                    <p
-                        class="text-body-2 font-weight-medium cursor-pointer user-select-none singe-line"
-                        @click="toggleSelectAll">
-                      {{ t('account.selectAll') }}
-                    </p>
-                  </template>
-                </v-checkbox-btn>
+            <template #default="{ isAffix }">
+              <v-card class="d-flex align-center justify-space-between flex-wrap ga-2 pa-2"
+                      :class="{'img img-wrap': isAffix}"
+                      :variant="isAffix ? 'flat' : 'text'">
+                <div class="d-flex align-center flex-wrap ga-2">
+                  <!-- 全选复选框 -->
+                  <v-checkbox-btn
+                      v-if="trashData.length > 0"
+                      :model-value="isAllSelected"
+                      :indeterminate="selectedItems.length > 0 && !isAllSelected"
+                      @click.stop="toggleSelectAll"
+                      class="ml-2 mr-2">
+                    <template v-slot:label>
+                      <p
+                          class="text-body-2 font-weight-medium cursor-pointer user-select-none singe-line"
+                          @click="toggleSelectAll">
+                        {{ t('account.selectAll') }}
+                      </p>
+                    </template>
+                  </v-checkbox-btn>
 
-                <!-- 批量恢复按钮 -->
-                <v-btn
-                    v-if="selectedItems.length > 0"
-                    variant="tonal"
-                    color="amber"
-                    prepend-icon="mdi-restore"
-                    @click="onBatchRestore">
-                  {{ t('assembly.restore') }}
+                  <!-- 批量恢复按钮 -->
+                  <v-btn
+                      v-if="selectedItems.length > 0"
+                      variant="tonal"
+                      color="amber"
+                      prepend-icon="mdi-restore"
+                      @click="onBatchRestore">
+                    {{ t('assembly.restore') }}
 
-                  <span v-if="selectedItems.length > 0" class="mx-1">
-              ({{ t('account.itemsSelected', {count: selectedItems.length}) }})
-            </span>
-                </v-btn>
-              </div>
+                    <span v-if="selectedItems.length > 0" class="mx-1">
+                      ({{ t('account.itemsSelected', {count: selectedItems.length}) }})
+                    </span>
+                  </v-btn>
+                </div>
 
-              <v-spacer></v-spacer>
+                <v-spacer></v-spacer>
 
-              <v-btn
-                  variant="flat"
-                  size="small"
-                  @click="getTrashData"
-                  :loading="loading">
-                <v-icon>mdi-refresh</v-icon>
-              </v-btn>
-            </v-card>
+                <!-- 右侧操作区：桌面端平铺 S -->
+                <div class="d-none d-sm-flex align-center ga-2">
+                  <v-btn
+                      variant="flat"
+                      size="small"
+                      @click="getTrashData"
+                      :loading="loading">
+                    <v-icon>mdi-refresh</v-icon>
+                  </v-btn>
+                </div>
+                <!-- 右侧操作区：桌面端平铺 E -->
+
+                <!-- 右侧操作区：移动端三点菜单 S -->
+                <div class="d-flex d-sm-none align-center ga-1">
+                  <v-menu location="bottom end">
+                    <template v-slot:activator="{ props: menuProps }">
+                      <v-btn
+                          v-bind="menuProps"
+                          icon="mdi-dots-vertical"
+                          size="small"
+                          variant="text">
+                      </v-btn>
+                    </template>
+                    <v-list min-width="160" class="pa-1" border rounded="lg">
+                      <v-list-item
+                          prepend-icon="mdi-refresh"
+                          @click="getTrashData"
+                          :title="t('basic.button.refresh')"
+                          :disabled="loading">
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+                <!-- 右侧操作区：移动端三点菜单 E -->
+              </v-card>
+            </template>
           </AffixContainerView>
           <!-- 操作头 E -->
 

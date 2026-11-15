@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import {computed, ref} from 'vue';
-import {useI18n} from 'vue-i18n';
-import {useDisplay} from 'vuetify';
-import type {DropCampaignData, TimeBasedDrop, StreamerChannel} from '@/assets/types';
+import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useDisplay } from 'vuetify';
+import type { DropCampaignData, TimeBasedDrop, StreamerChannel } from '@/assets/types';
+import { useMediaViewerStore, type MediaViewerItem } from '~/stores/mediaViewerStore';
 
 import CountdownWidget from '@/components/CountdownWidget.vue';
+import DropRewardItem from '@/components/DropRewardItem.vue';
 
 const props = withDefaults(
     defineProps<{
@@ -16,13 +18,9 @@ const props = withDefaults(
     }
 );
 
-const {t} = useI18n();
-const {mobile} = useDisplay()
-
-// 预览大图弹窗
-const previewDialog = ref(false);
-const previewImage = ref('');
-const previewTitle = ref('');
+const { t } = useI18n();
+const { mobile } = useDisplay();
+const mediaViewerStore = useMediaViewerStore();
 
 // 规范化字段访问
 const detailsLink = computed(() => props.campaign.detailsUrl || props.campaign.detailsURL || '');
@@ -82,37 +80,68 @@ const remainingCols = computed(() => {
 });
 
 /**
- * 阅览奖品
- * @param imgUrl 
- * @param title 
- */
-const openPreview = (imgUrl?: string, title?: string) => {
-  if (!imgUrl) return;
-  previewImage.value = imgUrl;
-  previewTitle.value = title || '';
-  previewDialog.value = true;
-};
-
-/**
- * 格式化所需时长
- * @param minutes 
+ * 格式化所需观看时长文案
+ *
+ * @param minutes 所需观看时长（分钟）
  */
 const formatMinutes = (minutes?: number) => {
   if (!minutes) return t('drop.duration.instant', '即时获得');
   if (minutes < 60) return t('drop.duration.watchMinutes', { minutes });
-  
-  const hours = minutes / 60;
 
+  const hours = minutes / 60;
   if (Number.isInteger(hours)) {
     return t('drop.duration.watchHours', { hours });
   }
-  
+
   return t('drop.duration.watchHoursMinutes', { hours: hours.toFixed(1), minutes });
 };
 
+// 当前活动全部奖励媒体画廊列表
+const mediaItems = computed<MediaViewerItem[]>(() => {
+  return dropList.value
+    .map((drop, idx): MediaViewerItem | null => {
+      const src = drop.benefits?.[0]?.imageAssetURL || bannerImage.value;
+      const title = drop.benefits?.[0]?.name || drop.name || `${props.campaign.name} #${idx + 1}`;
+      if (!src) return null;
+      return {
+        src,
+        type: 'image',
+        title,
+        description: drop.requiredMinutesWatched
+          ? formatMinutes(drop.requiredMinutesWatched)
+          : undefined,
+      };
+    })
+    .filter((item): item is MediaViewerItem => Boolean(item && item.src));
+});
+
+/**
+ * 阅览掉落奖品媒体大图（使用全局 MediaViewer 查看器）
+ *
+ * @param imgUrl 备选图片地址
+ * @param title 奖品标题
+ * @param index 奖品序号索引
+ */
+const openPreview = (imgUrl?: string, title?: string, index: number = 0) => {
+  if (mediaItems.value.length > 0) {
+    const targetIdx = index >= 0 && index < mediaItems.value.length ? index : 0;
+    mediaViewerStore.open(mediaItems.value, targetIdx);
+    return;
+  }
+
+  if (!imgUrl) return;
+  mediaViewerStore.open([
+    {
+      src: imgUrl,
+      type: 'image',
+      title: title || props.campaign.name,
+    },
+  ]);
+};
+
 defineOptions({
-  name: 'DropWidget'
-})
+  name: 'DropWidget',
+});
 </script>
 
 <template>
@@ -125,7 +154,7 @@ defineOptions({
       }"
       elevation="0">
     <!-- 奖励道具列表 S -->
-    <v-card-text class="pa-4 pa-sm-6">
+    <v-card-text class="px-2 px-sm-2">
       <v-row>
         <v-col cols="12" lg="3">
           <div class="drop-header-cover position-relative overflow-hidden ">
@@ -213,51 +242,11 @@ defineOptions({
                 sm="6"
                 md="2"
                 lg="2">
-              <v-card
-                  class="reward-card d-flex flex-column rounded-lg pa-3 h-100 position-relative"
-                  @click="
-                    openPreview(
-                      drop.benefits?.[0]?.imageAssetURL || bannerImage,
-                      drop.benefits?.[0]?.name || drop.name
-                    )
-                  ">
-                <!-- 奖励图片容器 -->
-                <div class="reward-img-wrap img-wrap rounded-lg mb-3 d-flex align-center justify-center overflow-hidden">
-                  <v-img
-                      :src="drop.benefits?.[0]?.imageAssetURL || bannerImage || '/favicon.ico'"
-                      :alt="drop.benefits?.[0]?.name || drop.name"
-                      aspect-ratio="1"
-                      class="reward-img"
-                      cover>
-                    <template v-slot:placeholder>
-                      <div class="d-flex align-center justify-center fill-height bg-grey-darken-4">
-                        <Loading size="28"></Loading>
-                      </div>
-                    </template>
-                    <template v-slot:error>
-                      <div class="d-flex align-center justify-center fill-height bg-grey-darken-4">
-                        <v-icon icon="mdi-gift-outline" size="28" color="grey"></v-icon>
-                      </div>
-                    </template>
-                  </v-img>
-                </div>
-
-                <!-- 奖励信息 -->
-                <div class="d-flex flex-column flex-grow-1 justify-space-between">
-                  <p class="u font-weight-bold text-body-2 text-white line-clamp-2 mb-2">
-                    {{ drop.benefits?.[0]?.name || drop.name }}
-                  </p>
-
-                  <div class="d-flex align-center justify-space-between mt-auto">
-                    <v-chip size="x-small" variant="tonal" class="font-weight-medium">
-                      <v-icon icon="mdi-clock-outline" start size="12"></v-icon>
-                      {{ formatMinutes(drop.requiredMinutesWatched) }}
-                    </v-chip>
-
-                    <span class="text-caption text-disabled">#{{ dIdx + 1 }}</span>
-                  </div>
-                </div>
-              </v-card>
+              <DropRewardItem
+                  :drop="drop"
+                  :index="dIdx"
+                  :banner-image="bannerImage"
+                  @preview="openPreview" />
             </v-col>
 
             <!-- 占位虚线边框卡片（当少于 6 个时填满本行剩余列；大于等于 6 个时不显示） -->
@@ -278,29 +267,6 @@ defineOptions({
       </v-row>
     </v-card-text>
     <!-- 奖励道具列表 E -->
-
-    <!-- 弹窗放大预览大图 S -->
-    <v-dialog v-model="previewDialog" max-width="500">
-      <v-card class="rounded-xl border pa-4 bg-grey-darken-4 text-center">
-        <v-card-title class="text-h6 font-weight-bold text-white pb-3">
-          {{ previewTitle }}
-        </v-card-title>
-        <div class="d-flex justify-center mb-4">
-          <v-img
-              :src="previewImage"
-              max-height="360"
-              class="rounded-lg border"
-              contain
-          ></v-img>
-        </div>
-        <v-card-actions class="justify-center pt-0">
-          <v-btn variant="tonal" @click="previewDialog = false">
-            {{ t('common.close') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <!-- 弹窗放大预览大图 E -->
   </v-card>
 </template>
 
