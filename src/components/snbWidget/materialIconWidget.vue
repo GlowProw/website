@@ -123,8 +123,8 @@ defineOptions({
               </div>
             </template>
             <template v-slot:placeholder>
-              <div class="d-flex justify-center align-center h-100">
-                <Loading size="40"/>
+              <div class="d-flex justify-center align-center h-100 opacity-60">
+                <Loading size="30px" min-size="10px" max-size="50px"/>
               </div>
             </template>
           </v-img>

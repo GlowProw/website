@@ -100,7 +100,20 @@ const computedMargin = useIconImageMargin(props.margin);
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,
           ]">
-        <v-img :src="ultimatesData.icon" class="pointer-events-none"></v-img>
+        <v-img :src="ultimatesData.icon"
+               referrerpolicy="no-referrer"
+               class="pointer-events-none prohibit-drag">
+          <template v-slot:error>
+            <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
+              <v-icon icon="mdi-help" class="opacity-30"></v-icon>
+            </div>
+          </template>
+          <template v-slot:placeholder>
+            <div class="d-flex justify-center align-center h-100 opacity-60">
+              <Loading size="30px" min-size="10px" max-size="50px"/>
+            </div>
+          </template>
+        </v-img>
       </v-card>
     </template>
     <UltimateCardDetail

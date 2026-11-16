@@ -263,8 +263,8 @@ defineOptions({
               </div>
             </template>
             <template v-slot:placeholder>
-              <div class="d-flex align-center justify-center w-100 h-100">
-                <Loading size="40"/>
+              <div class="d-flex align-center justify-center w-100 h-100 opacity-60">
+                <Loading size="30px" min-size="10px" max-size="50px"/>
               </div>
             </template>
           </v-img>
@@ -314,8 +314,8 @@ defineOptions({
           </div>
         </template>
         <template v-slot:placeholder>
-          <div class="d-flex align-center justify-center w-100 h-100">
-            <Loading :size="fallbackIconSize"/>
+          <div class="d-flex align-center justify-center w-100 h-100 opacity-60">
+            <Loading :size="fallbackIconSize" min-size="10px" max-size="50px"/>
           </div>
         </template>
       </v-img>
