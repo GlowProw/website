@@ -15,51 +15,6 @@ const appStore = useAppStore(),
 
 let iconId = ref('culverin1'),
     sizes: Ref<any, sizeConfig[]> = ref([
-      // {
-      //  size: 30,
-      //  box: {
-      //    margin: 0,
-      //    padding: 0,
-      //  },
-      //  icon: {
-      //    margin: 0,
-      //    padding: 0,
-      //  },
-      // },
-      // {
-      //  size: 40,
-      //  box: {
-      //    margin: 0,
-      //    padding: 0,
-      //  },
-      //  icon: {
-      //    margin: 0,
-      //    padding: 0,
-      //  },
-      // },
-      // {
-      //  size: 45,
-      //  box: {
-      //    margin: 0,
-      //    padding: 1,
-      //  },
-      //  icon: {
-      //    margin: 0,
-      //    padding: 0,
-      //  },
-      // },
-      // {
-      //  size: 48,
-      //  box: {
-      //    margin: 0,
-      //    padding: 1,
-      //  },
-      //  icon: {
-      //    margin: 0,
-      //    padding: 0,
-      //  },
-      // },
-      // <-- 过于小
       {
         size: 50,
         box: {
@@ -111,7 +66,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
+          margin: 0,
           padding: 0,
         },
       },
@@ -122,7 +77,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
+          margin: 0,
           padding: 0,
         },
       },
@@ -133,7 +88,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
+          margin: 0,
           padding: 0,
         },
       },
@@ -144,7 +99,7 @@ let iconId = ref('culverin1'),
           padding: 1,
         },
         icon: {
-          margin: 1,
+          margin: 0,
           padding: 0,
         },
       }

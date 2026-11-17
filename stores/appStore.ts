@@ -100,8 +100,8 @@ export const useAppStore = defineStore('app', () => {
             {
                 defaultValue: {
                     size: 99,
-                    box: { margin: 1, padding: 0 },
-                    icon: { margin: 1, padding: 0 },
+                    box: { margin: 1, padding: 1 },
+                    icon: { margin: 0, padding: 0 },
                 }
             }
         )

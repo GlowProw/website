@@ -42,7 +42,7 @@ const props = withDefaults(
       to: '',
       target: '_self',
       padding: 0,
-      margin: 1,
+      margin: 0,
       isAutoPadding: true,
       isAutoMargin: true,
       clickable: false,
@@ -60,8 +60,8 @@ const computedPadding = props.isAutoPadding
     : computed(() => props.padding ?? 0);
 
 const computedMargin = props.isAutoMargin
-    ? useIconImageMargin(() => props.margin, 1)
-    : computed(() => props.margin ?? 1);
+    ? useIconImageMargin(() => props.margin, 0)
+    : computed(() => props.margin ?? 0);
 
 /**
  * 依据稀有度计算卡片背景色彩样式

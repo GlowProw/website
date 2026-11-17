@@ -36,7 +36,7 @@ export function useIconGlobalStyle() {
             targetSize = Math.max(numVal - 10, Math.min(numVal + 10, targetSize));
             targetSize = Math.max(25, Math.min(150, targetSize));
 
-            return isPx ? `${targetSize}px` : targetSize;
+            return `${targetSize}px`;
         });
     };
 
@@ -76,7 +76,7 @@ export function useIconGlobalStyle() {
     /**
      * 图标图片外边距（Margin）计算
      */
-    const useIconImageMargin = (propsMargin: MaybeRefOrGetter<number | undefined>, defaultMargin: number = 1) => {
+    const useIconImageMargin = (propsMargin: MaybeRefOrGetter<number | undefined>, defaultMargin: number = 0) => {
         return computed(() => {
             if (appStore.iconSize?.icon?.margin !== undefined) return appStore.iconSize.icon.margin;
             const val = resolveValue(propsMargin);

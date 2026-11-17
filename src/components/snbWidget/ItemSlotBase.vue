@@ -35,9 +35,24 @@ const props = withDefaults(
 const {useIconAdaptiveSize, useIconBoxPadding, useIconBoxMargin} = useIconGlobalStyle();
 const wishlistStore = useWishlistStore();
 
-const computedSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : props.size;
-const computedPadding = props.isAutoPadding ? useIconBoxPadding(() => props.padding, 1) : props.padding;
-const computedMargin = props.isAutoMargin ? useIconBoxMargin(() => props.margin, 0) : props.margin;
+/**
+ * 规范化尺寸输出，确保任何时候都带有合法的 CSS 长度单位
+ */
+function formatCssDimension(val: number | string | undefined, defaultSize: number = 99): string {
+  if (val === undefined || val === null || val === '') return `${defaultSize}px`;
+  const str = String(val).trim();
+  const num = parseFloat(str);
+  if (isNaN(num)) return str;
+  return str.endsWith('px') || str.endsWith('%') || str.endsWith('rem') || str.endsWith('em') || str.endsWith('vw') || str.endsWith('vh')
+    ? str
+    : `${num}px`;
+}
+
+// 自适应计算尺寸
+const rawAdaptiveSize = props.isAutoSize ? useIconAdaptiveSize(() => props.size, 99) : computed(() => props.size);
+const computedSize = computed(() => formatCssDimension(rawAdaptiveSize.value, 99));
+const computedPadding = props.isAutoPadding ? useIconBoxPadding(() => props.padding, 1) : computed(() => props.padding ?? 1);
+const computedMargin = props.isAutoMargin ? useIconBoxMargin(() => props.margin, 0) : computed(() => props.margin ?? 0);
 
 const wishlistMatch = computed(() => {
   if (!props.id) return null;
@@ -61,7 +76,7 @@ defineOptions({
 <template>
   <div class="card-enlargement-flavor rounded-lg img-wrap"
        :class="`item-base-slot pa-${computedPadding} ma-${computedMargin}`"
-       :style="`height: ${computedSize}; width: ${computedSize};min-height: ${computedSize}; min-width: ${computedSize}`">
+       :style="`height: ${computedSize}; width: ${computedSize}; min-height: ${computedSize}; min-width: ${computedSize}; max-height: ${computedSize}; max-width: ${computedSize}; aspect-ratio: 1 / 1;`">
 
     <slot></slot>
 
@@ -90,10 +105,33 @@ defineOptions({
 
 .item-base-slot {
   display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
   background-color: color-mix(in srgb, var(--main-color) 2%, #000 98%) !important;
   background-image: url("@/assets/images/item-slot-bg.webp");
+
+  // 严格确保槽内所有直接子级与 itemSlot 保持 100% 绝对一致的尺寸与 1:1 正方形比例
+  :deep(> .v-card),
+  :deep(> .item-slot-card),
+  :deep(> a),
+  :deep(> div:not(.item-slot-base-top-view)) {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    min-width: 100% !important;
+    min-height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+    aspect-ratio: 1 / 1 !important;
+    flex-shrink: 0;
+  }
 }
 
 .item-slot-base-top-view {

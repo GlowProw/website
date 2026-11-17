@@ -40,7 +40,7 @@ const
       isOpenNewWindow: false,
       isShowTooltip: true,
       padding: 0,
-      margin: 1
+      margin: 0
     }),
     npcs: any = Npcs,
 
