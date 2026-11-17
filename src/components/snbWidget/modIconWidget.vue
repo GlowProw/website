@@ -102,9 +102,11 @@ const computedMargin = useIconImageMargin(props.margin);
           :padding="props.padding"
           :margin="props.margin">
         <template v-if="modsData.icon">
-          <v-img :src="modsData.icon"
-                 referrerpolicy="no-referrer"
-                 class="pointer-events-none prohibit-drag">
+          <v-img
+              :src="modsData.icon"
+              aspect-ratio="1"
+              referrerpolicy="no-referrer"
+              class="pointer-events-none prohibit-drag w-100 h-100">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
                 <v-icon icon="mdi-help" class="opacity-30"></v-icon>
@@ -118,8 +120,10 @@ const computedMargin = useIconImageMargin(props.margin);
           </v-img>
         </template>
         <template v-else>
-          <v-img class="error text-center"
-                 referrerpolicy="no-referrer">
+          <v-img
+              aspect-ratio="1"
+              class="error text-center w-100 h-100"
+              referrerpolicy="no-referrer">
             <template v-slot:error>
               <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
                 <v-icon icon="mdi-help" class="opacity-30"></v-icon>

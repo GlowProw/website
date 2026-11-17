@@ -138,8 +138,9 @@ defineOptions({
           :padding="props.padding"
           :margin="props.margin">
         <v-img
+            aspect-ratio="1"
             referrerpolicy="no-referrer"
-            class="prohibit-drag"
+            class="prohibit-drag w-100 h-100"
             :src="itemsCardData.icon">
           <template v-slot:error>
             <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">

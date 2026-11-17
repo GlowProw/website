@@ -91,8 +91,9 @@ const computedMargin = useIconImageMargin(props.margin);
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/ultimate/${id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
-          :style="`background: hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .2))`"
+          :style="`background: hsl(from ${rarityColorConfig[i?.rarity]} h s calc(l * .2)); aspect-ratio: 1 / 1;`"
           width="100%"
+          height="100%"
           variant="text"
           class="border"
           :class="[
@@ -100,9 +101,11 @@ const computedMargin = useIconImageMargin(props.margin);
               `ma-${computedMargin}`,
               `pa-${computedPadding}`,
           ]">
-        <v-img :src="ultimatesData.icon"
-               referrerpolicy="no-referrer"
-               class="pointer-events-none prohibit-drag">
+        <v-img
+            :src="ultimatesData.icon"
+            aspect-ratio="1"
+            referrerpolicy="no-referrer"
+            class="pointer-events-none prohibit-drag w-100 h-100">
           <template v-slot:error>
             <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
               <v-icon icon="mdi-help" class="opacity-30"></v-icon>

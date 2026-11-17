@@ -138,12 +138,13 @@ defineOptions({
       <v-card
           ref="targetElement"
           width="100%"
+          height="100%"
           variant="text"
           class="border"
           v-bind="activatorProps"
           :to="isOpenDetail ? `/codex/cosmetic/${i.id}` : ''"
           :target="isOpenNewWindow ? '_blank' : '_self'"
-          :style="`background: hsl(from ${rarityColorConfig[i?.rarity || '']} h s calc(l * .2))`"
+          :style="`background: hsl(from ${rarityColorConfig[i?.rarity || '']} h s calc(l * .2)); aspect-ratio: 1 / 1;`"
           :class="[
               'prohibit-drag',
               `ma-${computedMargin}`,
@@ -154,11 +155,12 @@ defineOptions({
           <v-img :src="raritys[`cosmetic-rarity-${i.rarity}`]" width="100%" height="100%" class="opacity-30 prohibit-drag"/>
         </template>
 
-        <div class="d-flex align-center justify-center h-100">
+        <div class="d-flex align-center justify-center w-100 h-100">
           <v-img
               v-if="displayIcon && !isIconError"
+              aspect-ratio="1"
               referrerpolicy="no-referrer"
-              class="prohibit-drag"
+              class="prohibit-drag w-100 h-100"
               :src="displayIcon"
               @error="onIconError">
             <template v-slot:error>

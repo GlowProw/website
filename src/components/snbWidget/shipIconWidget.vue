@@ -106,9 +106,11 @@ const computedMargin = useIconImageMargin(props.margin);
           :rarity="(i as any)?.rarity || ''"
           :padding="props.padding"
           :margin="props.margin">
-        <v-img :src="shipCardData.icon"
-               referrerpolicy="no-referrer"
-               class="pointer-events-none prohibit-drag">
+        <v-img
+            :src="shipCardData.icon"
+            aspect-ratio="1"
+            referrerpolicy="no-referrer"
+            class="pointer-events-none prohibit-drag w-100 h-100">
           <template v-slot:error>
             <div class="fill-height repeating-gradient d-flex justify-center align-center h-100">
               <v-icon icon="mdi-help" class="opacity-30"></v-icon>

@@ -73,8 +73,9 @@ defineOptions({
       elevation="0"
       class="w-100 h-100 d-flex justify-center align-center bg-transparent prohibit-drag"
       variant="text"
+      style="aspect-ratio: 1 / 1;"
       :border="isBorder">
-    <v-img :src="getIcon" :width="size" :height="size"></v-img>
+    <v-img :src="getIcon" aspect-ratio="1" :width="size" :height="size"></v-img>
   </v-card>
   <!-- 伤害图标卡片 E -->
 </template>

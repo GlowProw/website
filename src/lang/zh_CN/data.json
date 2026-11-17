@@ -3023,6 +3023,14 @@
       "title": "NPC",
       "lookDetail": "查看详情(按住)",
       "workerTitle": "可加工列表",
+      "slots": {
+        "grill": "可烹饪列表",
+        "container": "掉落内容",
+        "worker": "可加工列表",
+        "weaponBlueprint": "武器蓝图",
+        "shipCosmetics": "舰船外观",
+        "captainCosmetics": "船长外观"
+      },
       "types": {
         "npc": "非玩家人物",
         "structure": "建筑体(不可移动)"

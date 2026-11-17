@@ -69,13 +69,12 @@ const computedMargin = props.isAutoMargin
 const cardStyle = computed(() => {
   const r = props.rarity;
   const color = r ? rarityColorConfig[r] : '';
-  if (color) {
-    return {
-      background: `hsl(from ${color} h s calc(l * .2))`,
-    };
-  }
+  const background = color
+      ? `hsl(from ${color} h s calc(l * .2))`
+      : `hsl(from ${rarityColorConfig['common']} h s calc(l * .2))`;
   return {
-    background: `hsl(from ${rarityColorConfig['common']} h s calc(l * .2))`,
+    background,
+    aspectRatio: '1 / 1',
   };
 });
 
@@ -91,6 +90,9 @@ defineOptions({
   flex-direction: column !important;
   overflow: hidden !important;
   position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  height: 100%;
 
   .item-slot-card-body {
     flex: 1 1 100%;
@@ -104,6 +106,7 @@ defineOptions({
       width: 100%;
       height: 100%;
       display: block;
+      aspect-ratio: 1 / 1;
     }
   }
 }

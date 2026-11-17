@@ -48,6 +48,7 @@ import MasteryIconWidget from "@/components/snbWidget/masteryIconWidget.vue";
 import MasteryName from "@/components/snbWidget/masteryName.vue";
 import QuestIconWidget from "@/components/snbWidget/questIconWidget.vue";
 import QuestName from "@/components/snbWidget/questName.vue";
+import VerticalScrollList from "@/components/VerticalScrollList.vue";
 import type {LoadDataType, SortField, SortOrder} from "@/assets/types/Codex";
 
 const

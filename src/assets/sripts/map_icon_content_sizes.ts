@@ -1,6 +1,5 @@
 /**
- * 地图标记图标实际不透明内容最长边尺寸预计算表 (基于 200px 基准参考尺寸)
- * 提前测算避免运行时通过 Canvas 逐张网络下载测量带来的初始图标大小不一以及数秒后的尺寸突变闪烁
+ * 地图标记图标实际不透明内容最长边尺寸预计算表
  */
 export const PRECOMPUTED_ICON_SIZES: Record<string, number> = {
   // 本地地图图标 (512px / 200px 等素材)
@@ -185,7 +184,6 @@ export const getPrecomputedIconContentSize = (iconSrc: string, explicitKey?: str
   }
 
   // 地图标记大部分素材为 512px，不透明内容平均在 450px 左右
-  // 当未能提取出具体 key 时（如 Base64 内联），采用 450px 兜底，杜绝以 200px 计算造成的 2.25 倍暴增
   return 450;
 };
 

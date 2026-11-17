@@ -6,7 +6,7 @@ import {computed, onMounted, ref, type Ref, watch} from "vue";
 import ItemSlotBase from "@/components/snbWidget/ItemSlotBase.vue";
 import FactionIconWidget from "@/components/snbWidget/factionIconWidget.vue";
 
-import {Materials, Npc, Npcs} from "glow-prow-data";
+import {Commodities, Cosmetics, Items, Materials, Npc, Npcs} from "glow-prow-data";
 
 import {useI18nUtils} from "@/assets/sripts/i18n_util";
 import TimeView from "@/components/TimeView.vue";
@@ -32,6 +32,10 @@ import ItemName from "@/components/snbWidget/itemName.vue";
 import ItemIconWidget from "@/components/snbWidget/itemIconWidget.vue";
 import MaterialIconWidget from "@/components/snbWidget/materialIconWidget.vue";
 import MaterialName from "@/components/snbWidget/materialName.vue";
+import CosmeticIconWidget from "@/components/snbWidget/cosmeticIconWidget.vue";
+import CosmeticName from "@/components/snbWidget/cosmeticName.vue";
+import CommoditieIconWidget from "@/components/snbWidget/commoditieIconWidget.vue";
+import CommoditieName from "@/components/snbWidget/commoditieName.vue";
 
 import {useCDNAssetsServiceStore} from "~/stores/cdnAssetsStore";
 import VerticalScrollList from "@/components/VerticalScrollList.vue";
@@ -39,7 +43,7 @@ import {useAppStore} from "~/stores/appStore";
 import Banner from "@/components/Banner.vue";
 
 const
-    {t, messages} = useI18n(),
+    {t, te, messages} = useI18n(),
     router = useRouter(),
     route = useRoute(),
     appStore = useAppStore(),
@@ -49,6 +53,49 @@ const
     cdnStore = useCDNAssetsServiceStore(),
     npcs: any = Npcs,
     rarityColorConfig = rarity.color;
+
+/**
+ * 从槽位数据项提取物品唯一标识
+ *
+ * @param entry 槽位元素项（字符串标识或带 id 的对象）
+ */
+const getSlotItemId = (entry: any): string => {
+  if (!entry) return '';
+  if (typeof entry === 'string') return entry;
+  return entry.id || '';
+};
+
+/**
+ * 判断条目所属图鉴类型，用于分发对应图标与名称部件
+ *
+ * @param itemId 物品标识
+ */
+const resolveSlotItemType = (itemId: string): 'item' | 'material' | 'cosmetic' | 'commodity' => {
+  if ((Items as Record<string, any>)[itemId]) return 'item';
+  if ((Materials as Record<string, any>)[itemId]) return 'material';
+  if ((Cosmetics as Record<string, any>)[itemId]) return 'cosmetic';
+  if ((Commodities as Record<string, any>)[itemId]) return 'commodity';
+  return 'item';
+};
+
+/**
+ * 获取槽位对应的标题多语言文本
+ *
+ * @param slotKey 槽位键名
+ */
+const getSlotTitle = (slotKey: string): string => {
+  const i18nKey = `codex.npc.slots.${slotKey}`;
+  if (te(i18nKey)) {
+    return t(i18nKey);
+  }
+  if (slotKey === 'container') {
+    return t('codex.item.contentsTitle');
+  }
+  if (slotKey === 'worker') {
+    return t('codex.npc.workerTitle');
+  }
+  return slotKey;
+};
 
 const id = computed(() => {
   const paramId = route.params.id;
@@ -257,34 +304,55 @@ const onCodexHistory = () => {
                   </v-text-field>
                 </template>
               </v-col>
-              <v-col cols="12" sm="12" lg="12" xl="12" v-if="npcDetailData.slots?.container">
-                <v-divider>{{ t('codex.item.contentsTitle') }}</v-divider>
+              <!-- NPC 功能卡槽 S -->
+              <template v-for="(slotData, slotKey) in (npcDetailData?.slots || {})" :key="slotKey">
+                <v-col
+                    cols="12"
+                    sm="12"
+                    lg="12"
+                    xl="12"
+                    v-if="slotData && typeof slotData === 'object' && Array.isArray((slotData as any).data) && (slotData as any).data.length > 0">
+                  <v-divider>{{ getSlotTitle(String(slotKey)) }}</v-divider>
 
-                <v-row align="end" justify="center" class="d-flex ga-2 mt-2">
-                  <v-col cols="auto" v-for="(i,index) in npcDetailData.slots?.container?.data" :key="index">
-                    <div class="text-center">
-                      <ItemSlotBase size="50px" :padding="0" class="mx-auto mb-2">
-                        <ItemIconWidget :id="i.id" :padding="1"></ItemIconWidget>
-                      </ItemSlotBase>
-                      <ItemName :data="i"></ItemName>
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-col>
-              <v-col cols="12" sm="12" lg="12" xl="12" v-if="npcDetailData.slots?.worker">
-                <v-divider>{{ t('codex.npc.workerTitle') }}</v-divider>
+                  <v-row align="end" justify="center" class="d-flex ga-2 mt-2">
+                    <v-col
+                        cols="auto"
+                        v-for="(entry, index) in (slotData as any).data"
+                        :key="index">
+                      <div class="text-center" v-if="getSlotItemId(entry)">
+                        <ItemSlotBase size="50px" :padding="0" class="mx-auto mb-2">
+                          <template v-if="resolveSlotItemType(getSlotItemId(entry)) === 'material'">
+                            <MaterialIconWidget :id="getSlotItemId(entry)" :padding="1"></MaterialIconWidget>
+                          </template>
+                          <template v-else-if="resolveSlotItemType(getSlotItemId(entry)) === 'cosmetic'">
+                            <CosmeticIconWidget :id="getSlotItemId(entry)" :padding="1"></CosmeticIconWidget>
+                          </template>
+                          <template v-else-if="resolveSlotItemType(getSlotItemId(entry)) === 'commodity'">
+                            <CommoditieIconWidget :id="getSlotItemId(entry)" :padding="1"></CommoditieIconWidget>
+                          </template>
+                          <template v-else>
+                            <ItemIconWidget :id="getSlotItemId(entry)" :padding="1"></ItemIconWidget>
+                          </template>
+                        </ItemSlotBase>
 
-                <v-row align="end" justify="center" class="d-flex ga-2 mt-2">
-                  <v-col cols="auto" v-for="(i,index) in npcDetailData.slots?.worker?.data" :key="index">
-                    <div class="text-center" v-if="i && i.id">
-                      <ItemSlotBase size="50px" :padding="0" class="mx-auto mb-2">
-                        <MaterialIconWidget :id="i.id" :padding="1"></MaterialIconWidget>
-                      </ItemSlotBase>
-                      <MaterialName :id="i.id"></MaterialName>
-                    </div>
-                  </v-col>
-                </v-row>
-              </v-col>
+                        <template v-if="resolveSlotItemType(getSlotItemId(entry)) === 'material'">
+                          <MaterialName :id="getSlotItemId(entry)"></MaterialName>
+                        </template>
+                        <template v-else-if="resolveSlotItemType(getSlotItemId(entry)) === 'cosmetic'">
+                          <CosmeticName :id="getSlotItemId(entry)"></CosmeticName>
+                        </template>
+                        <template v-else-if="resolveSlotItemType(getSlotItemId(entry)) === 'commodity'">
+                          <CommoditieName :id="getSlotItemId(entry)"></CommoditieName>
+                        </template>
+                        <template v-else>
+                          <ItemName :id="getSlotItemId(entry)"></ItemName>
+                        </template>
+                      </div>
+                    </v-col>
+                  </v-row>
+                </v-col>
+              </template>
+              <!-- NPC 功能卡槽 E -->
             </v-row>
 
             <template v-if="npcDetailData.id">

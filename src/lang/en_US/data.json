@@ -3019,6 +3019,14 @@
       "title": "NPC",
       "lookDetail": "View Details (Hold)",
       "workerTitle": "Processable List",
+      "slots": {
+        "grill": "Cookable List",
+        "container": "Contents",
+        "worker": "Processable List",
+        "weaponBlueprint": "Weapon Blueprints",
+        "shipCosmetics": "Ship Cosmetics",
+        "captainCosmetics": "Captain Cosmetics"
+      },
       "types": {
         "npc": "Non-Player Character",
         "structure": "Structure (Immovable)"

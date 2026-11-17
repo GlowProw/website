@@ -8,6 +8,7 @@ import PerkDescription from "@/components/snbWidget/perksDescription.vue";
 import PerkIcon from "@/components/snbWidget/perkIcon.vue";
 import {resolvePerkKeys} from "@/assets/sripts/perk_resolver";
 import {useAppStore} from "~/stores/appStore";
+import {useI18nReadName} from "@/assets/sripts/i18n_read_name";
 
 const {locale} = useI18n(),
     appStore = useAppStore(),
@@ -15,6 +16,7 @@ const {locale} = useI18n(),
     props = withDefaults(defineProps<{ data: any }>(), {
       data: null
     }),
+    {perk} = useI18nReadName(),
     unwatch = watch(
         () => locale.value,
         async () => {
@@ -22,8 +24,30 @@ const {locale} = useI18n(),
         {immediate: true}
     )
 
-// 引用词条名称组件实例列表
-let perksNameRef = ref(null)
+/**
+ * 校验指定词条是否存在有效标题或图标
+ * 若两者皆空则隐藏整个黑色标题行
+ *
+ * @param perkId 词条标识
+ */
+const hasPerkHeader = (perkId: string): boolean => {
+  const iconKeys = resolvePerkKeys(perkId);
+  if (iconKeys && iconKeys.length > 0) {
+    return true;
+  }
+  const name = perk(perkId).name();
+  return !!(name && name.trim());
+};
+
+/**
+ * 校验词条标题文本是否非空
+ *
+ * @param perkId 词条标识
+ */
+const hasPerkName = (perkId: string): boolean => {
+  const name = perk(perkId).name();
+  return !!(name && name.trim());
+};
 
 onUnmounted(() => unwatch())
 
@@ -39,6 +63,7 @@ defineOptions({
       <div v-for="(p, pIndex) in props.data.perks" :key="pIndex" class="mb-3">
         <!-- 词条标题 S -->
         <v-row
+            v-if="hasPerkHeader(p)"
             no-gutters
             style="width: calc(100% + 18px * 2);margin: 0 0 0 -20px"
             class="bg-black title-long-flavor py-2 pl-10">
@@ -47,11 +72,11 @@ defineOptions({
               <PerkIcon :id="iconKey" :size="25" :isBorder="false"></PerkIcon>
             </v-col>
           </template>
-          <v-col cols="auto" v-show="perksNameRef && !perksNameRef[pIndex].isTitleEmpty">
+          <v-col cols="auto" v-if="hasPerkName(p)">
             <v-row no-gutters class="d-flex text-pre-wrap font-weight-bold align-center">
               <v-col>
                 <b class="text-amber">
-                  <PerksName ref="perksNameRef" :id="p"></PerksName>
+                  <PerksName :id="p"></PerksName>
                 </b>
                 <template v-if="appStore.isDebug">
                   - {{ p }}
