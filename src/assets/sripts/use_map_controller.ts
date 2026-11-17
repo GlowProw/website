@@ -376,7 +376,21 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     // 图标以 200px 内容尺寸为基准，按实际不透明区域换算缩放，避免素材留白导致视觉大小不一致
     const ICON_REFERENCE_SIZE = 200;
     const iconContentSizeCache: Record<string, number> = {};
+    // 图标地址到标识 Key 的反查字典，解决生产构建内联 Base64 无法从 URL 反解 Key 的问题
+    const iconSrcToKeyMap: Record<string, string> = {};
     let iconSizeRefreshTimer: number | null = null;
+
+    /**
+     * 刷新图标地址到标识 Key 的反查字典
+     */
+    const updateIconSrcToKeyMap = (): void => {
+        if (!icons.value) return;
+        Object.entries(icons.value).forEach(([k, src]) => {
+            if (src && !iconSrcToKeyMap[src]) {
+                iconSrcToKeyMap[src] = k;
+            }
+        });
+    };
 
     /**
      * 测量图标不透明内容的最长边，素材自带的透明留白不参与尺寸计算
@@ -420,13 +434,19 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      * 优先采用预计算内容尺寸字典，实现初始化第 0 毫秒即拥有准确缩放，消除大小不一和几秒后的突变
      * @param scale 基准缩放
      * @param iconSrc 图标地址
+     * @param iconKey 显式传入的分类或图标标识名称（如 'outpost'），优先查表避免 Base64 或 Hash 解析失败
      */
-    const normalizeIconScale = (scale: number, iconSrc: string): number => {
-        let contentSize = iconContentSizeCache[iconSrc];
+    const normalizeIconScale = (scale: number, iconSrc: string, iconKey?: string): number => {
+        const resolvedKey = iconKey || iconSrcToKeyMap[iconSrc] || '';
+        let contentSize = resolvedKey ? iconContentSizeCache[resolvedKey] : undefined;
         if (!contentSize) {
-            const precomputed = getPrecomputedIconContentSize(iconSrc);
+            contentSize = iconContentSizeCache[iconSrc];
+        }
+        if (!contentSize) {
+            const precomputed = getPrecomputedIconContentSize(iconSrc, resolvedKey);
             if (precomputed) {
                 contentSize = precomputed;
+                if (resolvedKey) iconContentSizeCache[resolvedKey] = precomputed;
                 iconContentSizeCache[iconSrc] = precomputed;
             }
         }
@@ -438,12 +458,16 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
      * 针对未预置尺寸的未知或自定义图标执行预加载与测量
      */
     const preloadIconSizes = (): void => {
+        updateIconSrcToKeyMap();
         const sources = [...new Set(Object.values(icons.value || {}).filter(Boolean))];
         if (sources.length === 0) return;
         const needMeasureSources = sources.filter(src => {
+            const resolvedKey = iconSrcToKeyMap[src] || '';
+            if (resolvedKey && iconContentSizeCache[resolvedKey]) return false;
             if (iconContentSizeCache[src]) return false;
-            const pre = getPrecomputedIconContentSize(src);
+            const pre = getPrecomputedIconContentSize(src, resolvedKey);
             if (pre) {
+                if (resolvedKey) iconContentSizeCache[resolvedKey] = pre;
                 iconContentSizeCache[src] = pre;
                 return false;
             }
@@ -470,8 +494,12 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         };
         needMeasureSources.forEach(src => {
             const image = new Image();
+            image.crossOrigin = 'anonymous';
             image.onload = () => {
-                iconContentSizeCache[src] = measureIconContentSize(image);
+                const size = measureIconContentSize(image);
+                const resolvedKey = iconSrcToKeyMap[src] || '';
+                if (resolvedKey) iconContentSizeCache[resolvedKey] = size;
+                iconContentSizeCache[src] = size;
                 pending--;
                 onSettled();
             };
@@ -575,7 +603,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         const baseScale = getCategoryScale(category, currentZoom);
         // 锁定的标记放大 1.8 倍，最低尺寸保证在低 zoom 下依然清晰可见
-        const lockedScale = normalizeIconScale(Math.max(0.24, baseScale * 1.8), iconSrc);
+        const lockedScale = normalizeIconScale(Math.max(0.24, baseScale * 1.8), iconSrc, styleKey);
         const styles: Style[] = [
             new Style({
                 image: new Icon({
@@ -740,7 +768,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
 
         // 缩放弹性过渡动画：淡入时尺寸从 70% 放大到 100%，淡出时缩小到 70%
-        const scale = normalizeIconScale(getCategoryScale(category, zoom) * (0.7 + 0.3 * opacity), iconSrc);
+        const scale = normalizeIconScale(getCategoryScale(category, zoom) * (0.7 + 0.3 * opacity), iconSrc, styleKey);
         // 目标高亮标记尺寸：放大 1.65 倍
         const targetScale = scale * 1.65;
         // 非目标标记半透明度 (0.28)
@@ -945,6 +973,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
         initializeLayerVisibility();
         icons.value = assetsStore.getMapImages();
+        updateIconSrcToKeyMap();
         preloadIconSizes();
 
         // debug 模式下添加边界编辑图层
@@ -3628,7 +3657,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const onCreatePersonalMarkerStyle = (): Style[] | Style => {
         const currentZoom = getCurrentZoom();
         const iconSrc = getPersonalMarkerIcon();
-        const scale = normalizeIconScale(getCategoryScale('shareLocation', currentZoom), iconSrc);
+        const scale = normalizeIconScale(getCategoryScale('shareLocation', currentZoom), iconSrc, 'shareLocation');
 
         return new Style({
             image: new Icon({
@@ -3829,7 +3858,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
 
         const currentZoom = getCurrentZoom();
-        const scale = normalizeIconScale(getCategoryScale(category, currentZoom), iconSrc);
+        const scale = normalizeIconScale(getCategoryScale(category, currentZoom), iconSrc, category);
 
         return new Style({
             image: new Icon({

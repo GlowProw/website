@@ -504,6 +504,7 @@ export default defineConfig(({ mode }) => {
             drop: ['console', 'debugger'],
         },
         build: {
+            assetsInlineLimit: 0,
             ssrManifest: true,
             assetsDir: 'static/images',
             chunkSizeWarningLimit: 1000,

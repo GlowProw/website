@@ -138,19 +138,22 @@ export const PRECOMPUTED_ICON_SIZES: Record<string, number> = {
 
 /**
  * 从图标地址中提取图标标识名称
- * 兼容本地打包路径、CDN路径与动态相对路径
+ * 兼容本地打包路径、CDN路径、动态相对路径与各种构建命名格式
  *
  * @param iconSrc 图标链接
  */
 export const extractIconKeyFromSrc = (iconSrc: string): string => {
-  if (!iconSrc) return '';
+  if (!iconSrc || iconSrc.startsWith('data:')) return '';
 
   try {
-    const cleanSrc = iconSrc.split('?')[0].split('#')[0];
+    const normalized = iconSrc.replace(/\\/g, '/');
+    const cleanSrc = normalized.split('?')[0].split('#')[0];
     const filename = cleanSrc.substring(cleanSrc.lastIndexOf('/') + 1);
     const nameWithoutExt = filename.substring(0, filename.lastIndexOf('.')) || filename;
-    // Vite 构建后可能带 hash (如 capitalSettlement-D4j9f 或 capitalSettlement.D4j9f)
-    const baseKey = nameWithoutExt.split('-')[0].split('.')[0];
+    // Vite 构建格式兼容：
+    // 格式1: outpost.glow-prow-front.C7NRfjQq.webp -> 分隔点取首项 outpost
+    // 格式2: outpost-C7NRfjQq.webp -> 分隔横杠取首项 outpost
+    const baseKey = nameWithoutExt.split('.')[0].split('-')[0];
     return baseKey;
   } catch {
     return '';
@@ -158,11 +161,17 @@ export const extractIconKeyFromSrc = (iconSrc: string): string => {
 };
 
 /**
- * 根据图标地址快速获取图标内容尺寸
+ * 根据图标地址与可选的显式 Key 快速获取图标内容尺寸
  *
- * @param iconSrc 图标链接
+ * @param iconSrc 图标链接或 Base64 编码
+ * @param explicitKey 显式传入的分类或图标标识名称（如 'outpost'），传入时优先查表避免 URL 解析失效
  */
-export const getPrecomputedIconContentSize = (iconSrc: string): number | null => {
+export const getPrecomputedIconContentSize = (iconSrc: string, explicitKey?: string): number | null => {
+  // 显式传入 key 优先匹配
+  if (explicitKey && PRECOMPUTED_ICON_SIZES[explicitKey]) {
+    return PRECOMPUTED_ICON_SIZES[explicitKey];
+  }
+
   if (!iconSrc) return null;
 
   const key = extractIconKeyFromSrc(iconSrc);
@@ -174,10 +183,9 @@ export const getPrecomputedIconContentSize = (iconSrc: string): number | null =>
   if (iconSrc.includes('enemies')) {
     return 181;
   }
-  if (iconSrc.includes('/map/') || iconSrc.includes('images/map')) {
-    return 450;
-  }
 
-  return 200;
+  // 地图标记大部分素材为 512px，不透明内容平均在 450px 左右
+  // 当未能提取出具体 key 时（如 Base64 内联），采用 450px 兜底，杜绝以 200px 计算造成的 2.25 倍暴增
+  return 450;
 };
 
