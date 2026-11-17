@@ -59,8 +59,13 @@ export const DEFAULT_CATEGORY_ZOOM_CONFIG: Record<string, CategoryZoomRule> = {
   requiemOfTheLost: ENEMY_CATEGORY_ZOOM_RULE,
   helmActivity: ENEMY_CATEGORY_ZOOM_RULE,
 
-  // 用户分享点位
-  shareLocation: STANDARD_MARKER_ZOOM_RULE(12),
+  // 用户标记与分享坐标点位（所有缩放层级均保持可见，绝不因缩放隐藏）
+  shareLocation: {
+    minZoom: 1,
+    maxZoom: 28,
+    scales: { 1: 0.12, 5: 0.14, 11: 0.16, 12: 0.18, 13: 0.20, 14: 0.22, 15: 0.24 },
+    baseScale: 0.18,
+  },
 
   // 资源与标记默认范围 (14 - 15)
   default: STANDARD_MARKER_ZOOM_RULE(14),

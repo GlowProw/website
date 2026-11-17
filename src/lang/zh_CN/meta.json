@@ -186,5 +186,11 @@
     "meta": {
       "keywords": "碧海黑帆,战事状态,赛季战事,阵营对抗,区域资源"
     }
+  },
+  "linkRedirect": {
+    "title": "外部链接访问提示",
+    "meta": {
+      "keywords": "外部链接,跳转提示,安全告示,{keywords}"
+    }
   }
 }

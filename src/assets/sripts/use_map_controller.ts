@@ -106,6 +106,14 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     const showCoordinateInfo = ref<boolean>(false);
     const clickedCoordinate = ref({ longitude: 0, latitude: 0 });
     const hoveedCoordinate = ref({ longitude: 0, latitude: 0 });
+    // 点击地图空白处放置的自定义标记点坐标
+    const customWaypointCoord = ref<{ longitude: number; latitude: number } | null>(null);
+    // 选中标记外框指示层与自定义空白坐标点组合标记矢量源与图层
+    const selectionSourceRef: Ref<VectorSource | null> = shallowRef(null);
+    const selectionLayerRef: Ref<VectorLayer<VectorSource> | null> = shallowRef(null);
+    // 选中已有标记时的底层衬垫外框矢量源与图层（层级为 90，保证 customMarker 垫在图标下方）
+    const selectionUnderlaySourceRef: Ref<VectorSource | null> = shallowRef(null);
+    const selectionUnderlayLayerRef: Ref<VectorLayer<VectorSource> | null> = shallowRef(null);
 
     const targetLongitude = ref<number | undefined>();
     const targetLatitude = ref<number | undefined>();
@@ -594,7 +602,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
 
         const isShare = styleKey === 'shareLocation' || category === 'shareLocation';
-        const anchor: [number, number] = isShare ? [0.5, 1] : [0.5, 0.6];
+        const anchor: [number, number] = isShare ? [0.5, 464 / 512] : [0.5, 0.5];
         const iconSrc = isShare
             ? getPersonalMarkerIcon()
             : (icons.value[styleKey] || getCategoryIcon(category));
@@ -695,6 +703,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
     });
 
+    watch([selectedLocationData, customWaypointCoord, model], () => {
+        updateSelectionMarker();
+    });
+
     watch(selectedCollectionUuid, async (newCollectionUuid) => {
         if (!authStore.isLogin) return;
 
@@ -755,7 +767,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         // 缩放与图层可见性仍按分类计算
         const category = styleKeyCategory[styleKey] || styleKey;
         const isShare = styleKey === 'shareLocation';
-        const anchor: [number, number] = isShare ? [0.5, 1] : [0.5, 0.6];
+        const anchor: [number, number] = isShare ? [0.5, 464 / 512] : [0.5, 0.5];
         const iconSrc = isShare
             ? getPersonalMarkerIcon()
             : (icons.value[styleKey] || getCategoryIcon(category));
@@ -790,13 +802,13 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             }),
         ];
 
-        // 高亮样式
+        // 高亮样式（目标标记保持完全可见，不因缩放而淡化消失）
         categoryTargetStyleCache[styleKey] = [
             new Style({
                 image: new Icon({
                     src: iconSrc,
                     scale: targetScale,
-                    opacity: Math.min(1.0, opacity),
+                    opacity: 1.0,
                     anchor,
                     anchorXUnits: 'fraction',
                     anchorYUnits: 'fraction',
@@ -937,12 +949,72 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
     };
 
     /**
+     * 判断点位是否为当前选中的标记地点
+     * @param data 原始点位数据
+     */
+    const isMarkerSelected = (data: any): boolean => {
+        const sel = selectedLocationData.value;
+        if (!sel || (!sel.id && !sel.uuid && sel.longitude === undefined)) return false;
+        if (sel.id && data?.id && sel.id === data.id) return true;
+        if (sel.uuid && data?.uuid && sel.uuid === data.uuid) return true;
+        if (typeof sel.longitude === 'number' && typeof sel.latitude === 'number' &&
+            typeof data?.longitude === 'number' && typeof data?.latitude === 'number') {
+            const dLon = Math.abs(sel.longitude - data.longitude);
+            const dLat = Math.abs(sel.latitude - data.latitude);
+            if (dLon < 0.0001 && dLat < 0.0001) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    /**
+     * 获取选中标记的突出显示样式（在所有缩放层级下保持可见，不因缩放隐藏，置于 customMarker 底框上方）
+     * @param originalData 原始点位数据
+     */
+    const getSelectedMarkerStyle = (originalData: any): Style[] | null => {
+        const styleKey = getMarkerStyleKey(originalData);
+        const category = styleKeyCategory[styleKey] || styleKey;
+        const currentZoom = getCurrentZoom();
+        const isShare = styleKey === 'shareLocation' || category === 'shareLocation';
+        const anchor: [number, number] = isShare ? [0.5, 464 / 512] : [0.5, 0.5];
+        const iconSrc = isShare
+            ? getPersonalMarkerIcon()
+            : (icons.value[styleKey] || getCategoryIcon(category));
+
+        if (!iconSrc) return null;
+
+        const baseScale = getCategoryScale(category, currentZoom);
+        // 选中的标记保持清晰可见，最低缩放尺寸保障，全缩放范围 opacity=1.0 永不隐藏
+        const selectedScale = normalizeIconScale(Math.max(0.20, baseScale * 1.35), iconSrc, styleKey);
+
+        return [
+            new Style({
+                image: new Icon({
+                    src: iconSrc,
+                    scale: selectedScale,
+                    opacity: 1.0,
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 500,
+            }),
+        ];
+    };
+
+    /**
      * 生成统一的 Marker 样式计算函数（从动画样式缓存中极速获取）
      */
     const createMarkerStyleFn = () => (feature: any) => {
         const originalData = feature.get('originalData');
         if (isMarkerLocked(originalData)) {
             return getLockedMarkerStyle(originalData);
+        }
+
+        // 当前被标记/选中的点位优先应用高亮样式，确保缩放时绝对不隐藏
+        if (isMarkerSelected(originalData)) {
+            return getSelectedMarkerStyle(originalData);
         }
 
         const styleKey = getMarkerStyleKey(originalData);
@@ -957,6 +1029,122 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         }
 
         return categoryStyleCache[styleKey] ?? null;
+    };
+
+    /**
+     * 计算已有标记点底层的 customMarker 外框样式（垫在图标下方，永不因缩放隐藏）
+     * @param feature 矢量要素
+     */
+    const createSelectionUnderlayStyleFn = () => (feature: any) => {
+        const customMarkerSrc = icons.value['customMarker'] || getCategoryIcon('customMarker');
+        if (!customMarkerSrc) return null;
+
+        const loc = selectedLocationData.value;
+        const category = loc?.category || 'default';
+        const isShare = category === 'shareLocation';
+        const currentZoom = getCurrentZoom();
+        const baseScale = getCategoryScale(category, currentZoom);
+        // 外套边框环适当放大，维持最低尺寸，并在所有缩放层级下保持可见
+        const frameScale = normalizeIconScale(Math.max(0.26, baseScale * 1.65), customMarkerSrc, 'customMarker');
+        const anchor: [number, number] = isShare ? [0.5, 156 / 512] : [0.5, 0.5];
+
+        return [
+            new Style({
+                image: new Icon({
+                    src: customMarkerSrc,
+                    scale: frameScale,
+                    opacity: 1.0,
+                    anchor,
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 90,
+            }),
+        ];
+    };
+
+    /**
+     * 计算自定义空白点组合标记样式（底层 customMarker，顶层 customMarkerX，永不因缩放隐藏）
+     * @param feature 矢量要素
+     */
+    const createSelectionMarkerStyleFn = () => (feature: any) => {
+        const isCustomWaypoint = feature.get('isCustomWaypoint');
+        if (!isCustomWaypoint) return null;
+
+        const currentZoom = getCurrentZoom();
+        const customMarkerSrc = icons.value['customMarker'] || getCategoryIcon('customMarker');
+        const customMarkerXSrc = icons.value['customMarkerX'] || getCategoryIcon('customMarkerX');
+        const baseScale = getCategoryScale('shareLocation', currentZoom);
+        const scale = normalizeIconScale(Math.max(0.20, baseScale * 1.35), customMarkerSrc, 'customMarker');
+        const styles: Style[] = [];
+
+        if (customMarkerSrc) {
+            styles.push(new Style({
+                image: new Icon({
+                    src: customMarkerSrc,
+                    scale,
+                    opacity: 1.0,
+                    anchor: [0.5, 0.5],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 650,
+            }));
+        }
+
+        if (customMarkerXSrc) {
+            styles.push(new Style({
+                image: new Icon({
+                    src: customMarkerXSrc,
+                    scale,
+                    opacity: 1.0,
+                    anchor: [0.5, 0.5],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                }),
+                zIndex: 651,
+            }));
+        }
+
+        return styles;
+    };
+
+    /**
+     * 更新选中标记外框指示层与自定义空白坐标点组合标记要素
+     */
+    const updateSelectionMarker = () => {
+        if (selectionSourceRef.value) {
+            selectionSourceRef.value.clear();
+        }
+        if (selectionUnderlaySourceRef.value) {
+            selectionUnderlaySourceRef.value.clear();
+        }
+
+        const loc = selectedLocationData.value;
+        if (loc && typeof loc.longitude === 'number' && typeof loc.latitude === 'number' && (loc.id || loc.uuid || loc.name)) {
+            // 已有位置点：customMarker.webp 作为底层衬垫放置于下方
+            const feature = new Feature({
+                geometry: new Point(fromLonLat([loc.longitude, loc.latitude])),
+                isSelectionMarker: true,
+            });
+            selectionUnderlaySourceRef.value?.addFeature(feature);
+            vectorLayerRef.value?.changed();
+            return;
+        }
+
+        if (customWaypointCoord.value) {
+            // 点击空白处的坐标标记点：组合标记（底层 customMarker，顶层 customMarkerX）
+            const coord = customWaypointCoord.value;
+            const feature = new Feature({
+                geometry: new Point(fromLonLat([coord.longitude, coord.latitude])),
+                isCustomWaypoint: true,
+            });
+            selectionSourceRef.value?.addFeature(feature);
+            vectorLayerRef.value?.changed();
+            return;
+        }
+
+        vectorLayerRef.value?.changed();
     };
 
     const onConfigChanged = () => {
@@ -988,6 +1176,17 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         // 首次初始化动画状态与样式缓存（立即应用无延迟）
         triggerTransitionAnimation(true);
 
+        const selectionUnderlaySource = new VectorSource();
+        selectionUnderlaySourceRef.value = selectionUnderlaySource;
+        const selectionUnderlayLayer = new VectorLayer({
+            source: selectionUnderlaySource,
+            zIndex: 90,
+            style: createSelectionUnderlayStyleFn(),
+        } as any);
+        selectionUnderlayLayer.set('isSelectionUnderlayLayer', true);
+        selectionUnderlayLayerRef.value = selectionUnderlayLayer;
+        map.addLayer(selectionUnderlayLayer);
+
         const vectorLayer = new VectorLayer({
             source: vectorSource,
             zIndex: 100,
@@ -998,15 +1197,32 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         vectorLayerRef.value = vectorLayer;
         map.addLayer(vectorLayer);
 
+        const selectionSource = new VectorSource();
+        selectionSourceRef.value = selectionSource;
+        const selectionLayer = new VectorLayer({
+            source: selectionSource,
+            zIndex: 650,
+            style: createSelectionMarkerStyleFn(),
+        } as any);
+        selectionLayer.set('isSelectionMarkerLayer', true);
+        selectionLayerRef.value = selectionLayer;
+        map.addLayer(selectionLayer);
+
         // 路径/区域绘制图层与交互
         drawController.attach();
 
         // 框选拖框 / 整组平移交互（默认未激活，由工具栏开关打开）
         setupMarqueeInteractions(map);
 
-        // 监听缩放变化，动态切换不同分类标记的平滑过渡动画
+        // 监听缩放变化，动态切换不同分类标记的平滑过渡动画与指示层刷新
         map.getView().on('change:resolution', () => {
             triggerTransitionAnimation();
+            if (selectionUnderlayLayerRef.value) {
+                selectionUnderlayLayerRef.value.changed();
+            }
+            if (selectionLayerRef.value) {
+                selectionLayerRef.value.changed();
+            }
         });
 
         const hoverInteraction = new Select({
@@ -1158,6 +1374,9 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                     if (handled !== false) return;
                 }
 
+                // 清除空白处自定义标记点
+                customWaypointCoord.value = null;
+
                 if (originalData?.category === 'shareLocation') {
                     selectedPoint.value = originalData;
                     selectedLocationData.value = { ...originalData, id: originalData.id, name: originalData.title, category: 'shareLocation' };
@@ -1174,9 +1393,14 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
                 return;
             }
 
+            // 点击地图其他地方（空白处）：放置组合图标（底层 customMarker，顶层 customMarkerX）
+            const clickedLonLat = toLonLat(event.coordinate);
+            clickedCoordinate.value = { longitude: clickedLonLat[0], latitude: clickedLonLat[1] };
+            customWaypointCoord.value = { longitude: clickedLonLat[0], latitude: clickedLonLat[1] };
+            selectedLocationData.value = {};
             showCoordinateInfo.value = true;
             model.value = false;
-            await router.push({ name: route.name, query: {} });
+            await router.push({ name: route.name, query: { x: clickedLonLat[0].toFixed(6), y: clickedLonLat[1].toFixed(6) } });
         });
 
         // 阻止浏览器默认右键菜单
@@ -2214,9 +2438,10 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             return;
         }
 
-        // 裸坐标链接（?x=&y=）：没有标记信息，定位并展示坐标卡片即可
+        // 裸坐标链接（?x=&y=）：没有标记信息，定位并展示坐标卡片与自定义组合标记
         if (hasCoord && !key) {
             clickedCoordinate.value = { longitude: lon, latitude: lat };
+            customWaypointCoord.value = { longitude: lon, latitude: lat };
             showCoordinateInfo.value = true;
         }
     };
@@ -3698,14 +3923,30 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
 
     const onSelectLocation = (location: any) => {
         if (!location) return;
+        const targetZoomLevel = 14.5;
         targetLongitude.value = location.longitude;
         targetLatitude.value = location.latitude;
+        targetZoom.value = targetZoomLevel;
+        targetLocationId.value = location.id;
         selectedLocationData.value = location;
         model.value = true;
         showCoordinateInfo.value = false;
         searchQuery.value = null;
         searchInput.value = '';
-        router.push({ name: route.name, query: { ...route.query, key: location.id, x: location.longitude, y: location.latitude, category: location.category } });
+
+        if (mapInstance.value) {
+            const view = mapInstance.value.getView();
+            view.animate({
+                center: fromLonLat([location.longitude, location.latitude]),
+                zoom: Math.max(view.getZoom() || 0, targetZoomLevel),
+                duration: 500,
+            });
+        }
+
+        customWaypointCoord.value = null;
+        updateSelectionMarker();
+
+        router.push({ name: route.name, query: { ...route.query, key: location.id, x: location.longitude, y: location.latitude, category: location.category, z: targetZoomLevel } });
     };
 
     const handleSearch = () => {
@@ -3864,7 +4105,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
             image: new Icon({
                 src: iconSrc,
                 scale,
-                anchor: [0.5, 0.6],
+                anchor: [0.5, 0.5],
                 anchorXUnits: 'fraction',
                 anchorYUnits: 'fraction',
             }),
@@ -3929,6 +4170,7 @@ export function use_map_controller(options: UseMapControllerOptions = {}) {
         selectedLocationData,
         showCoordinateInfo,
         clickedCoordinate,
+        customWaypointCoord,
         hoveedCoordinate,
         targetLongitude,
         targetLatitude,

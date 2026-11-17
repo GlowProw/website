@@ -69,6 +69,7 @@ import {createAppI18n} from './i18n'
 import {createAppVuetify} from './vuetify'
 import {routes, scrollBehavior, setupRouterGuards} from '~/router'
 import {initGlobalErrorCapture} from './assets/sripts/error_logger'
+import {initConsoleSecurityNotice, setupExternalLinkInterceptor} from './assets/sripts/external_link_interceptor'
 import {vHotkeys} from './directives/v-hotkeys'
 import Loading from '@/components/Loading.vue'
 
@@ -100,9 +101,11 @@ export const createApp = ViteSSG(
         app.directive('hotkeys', vHotkeys)
         app.directive('hotkey', vHotkeys)
 
-        // 错误捕获仅客户端
+        // 客户端专属初始化：错误捕获、控制台安全告示与全局外链拦截
         if (!import.meta.env.SSR) {
             initGlobalErrorCapture(app)
+            initConsoleSecurityNotice()
+            setupExternalLinkInterceptor(router)
             import('./assets/sripts/version_updater').then(m => m.startVersionWatcher())
         }
     }

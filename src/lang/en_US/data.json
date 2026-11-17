@@ -6125,5 +6125,19 @@
     "original": "View Original",
     "download": "Download Media",
     "counter": "{current} / {total}"
+  },
+  "linkRedirect": {
+    "title": "External Link Warning",
+    "subtitle": "You are about to leave this site and visit an external third-party website",
+    "badge": "Security Notice",
+    "targetUrl": "Destination URL",
+    "warningTitle": "Security Notice & Disclaimer",
+    "disclaimer": "This page is not operated or controlled by this site. Internet environments can be unpredictable; please verify the destination URL carefully. Never enter your account password, payment credentials, SMS verification code, or other sensitive personal information on unverified external websites. Beware of phishing and fraud. We are not responsible for the content, security, or availability of third-party websites.",
+    "proceed": "Continue to Site",
+    "return": "Return to Site",
+    "copyUrl": "Copy Destination Link",
+    "copySuccess": "Link copied to clipboard",
+    "copyFailed": "Failed to copy link, please copy manually",
+    "invalidUrl": "The target link is invalid, missing, or uses an unsafe protocol"
   }
 }

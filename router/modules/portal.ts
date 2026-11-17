@@ -42,6 +42,7 @@ const SettingWishlistPage = () => import('@/views/setting/Wishlist.vue');
 const SettingLogPage = () => import('@/views/setting/Log.vue');
 const SettingSubscriptionsPage = () => import('@/views/setting/Subscriptions.vue');
 const AdvancedPage = () => import('@/views/setting/Advanced.vue');
+const LinkRedirectPage = () => import('@/views/link/Index.vue');
 
 // 基础门户与用户账户、个人空间、系统设置路由集合
 export const portalRoutes: RouteRecordRaw[] = [
@@ -58,6 +59,14 @@ export const portalRoutes: RouteRecordRaw[] = [
                 path: '',
                 name: 'PortalHome',
                 component: PortalPage
+            },
+            {
+                path: 'link',
+                name: 'LinkRedirect',
+                component: LinkRedirectPage,
+                meta: {
+                    title: 'linkRedirect.title',
+                },
             },
             {
                 path: 'account',

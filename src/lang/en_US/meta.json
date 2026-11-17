@@ -187,5 +187,11 @@
     "meta": {
       "keywords": "Skull and Bones,State of War,War Assets,Compagnie Royale,VOC"
     }
+  },
+  "linkRedirect": {
+    "title": "External Link Warning",
+    "meta": {
+      "keywords": "external link,redirect warning,safety notice,{keywords}"
+    }
   }
 }

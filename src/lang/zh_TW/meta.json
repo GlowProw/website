@@ -191,5 +191,11 @@
     "meta": {
       "keywords": "碧海黑帆,戰事狀態,賽季戰事,陣營對抗,區域資源"
     }
+  },
+  "linkRedirect": {
+    "title": "外部連結訪問提示",
+    "meta": {
+      "keywords": "外部連結,跳轉提示,安全告示,{keywords}"
+    }
   }
 }

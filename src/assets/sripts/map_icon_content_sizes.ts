@@ -68,7 +68,7 @@ export const PRECOMPUTED_ICON_SIZES: Record<string, number> = {
   screwpine: 368,
   searchArea: 496,
   settlement: 496,
-  shareLocation: 200,
+  shareLocation: 448,
   shark: 400,
   shipwreck: 384,
   sideContract: 200,
