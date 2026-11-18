@@ -20,7 +20,7 @@ const items = Items
                   :padding="0"
                   :margin="0"
                   class="item-icon">
-      <ItemIconWidget :id="node.attrs.id" :padding="0" :margin="0" class="ma-0"></ItemIconWidget>
+      <ItemIconWidget :id="node.attrs.id" :padding="0" :margin="0" class="ma-0 rounded-lg"></ItemIconWidget>
     </ItemSlotBase>
     <ItemNameRarity :id="node.attrs.id" class="item-name text-no-wrap">
       <u class="u">

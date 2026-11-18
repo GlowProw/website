@@ -17,7 +17,7 @@ const props = defineProps(nodeViewProps)
                   :padding="0"
                   :margin="0"
                   class="ultimate-icon">
-      <UltimateIconWidget :id="node.attrs.id" :padding="0" class="ma-0"></UltimateIconWidget>
+      <UltimateIconWidget :id="node.attrs.id" :padding="0" class="ma-0 rounded-lg"></UltimateIconWidget>
     </ItemSlotBase>
     <u class="u ship-name text-no-wrap">
       <UltimateName :id="node.attrs.id"></UltimateName>

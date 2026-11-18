@@ -18,7 +18,7 @@ const props = defineProps(nodeViewProps)
                   :padding="0"
                   :margin="0"
                   class="mod-icon">
-      <ModIconWidget :id="node.attrs.id"></ModIconWidget>
+      <ModIconWidget :id="node.attrs.id" class="rounded-lg"></ModIconWidget>
     </ItemSlotBase>
     <u class="u ship-name text-no-wrap">
       <ModName :id="node.attrs.id" :grade="node.attrs.grade"></ModName>

@@ -17,7 +17,7 @@ const props = defineProps(nodeViewProps)
                   :padding="0"
                   :margin="0"
                   class="ship-icon">
-      <ShipIconWidget :id="props.node.attrs.id" :padding="0"/>
+      <ShipIconWidget :id="props.node.attrs.id" :padding="0" class="rounded-lg"/>
     </ItemSlotBase>
     <ItemNameRarity :id="props.node.attrs.id">
       <u class="u ship-name text-no-wrap">

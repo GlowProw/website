@@ -14,7 +14,7 @@
  *   SSG_SHARD_TOTAL  分片总数（默认 10）
  *   NODE_OPTIONS     透传，建议 --expose-gc --max-old-space-size=<单机上限>
  */
-import {spawn} from 'node:child_process';
+import {spawn, spawnSync} from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -22,30 +22,69 @@ import {fileURLToPath} from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 const binPath = path.join(root, 'node_modules', 'vite-ssg', 'bin', 'vite-ssg.js');
+const patchScript = path.join(root, 'scripts', 'patch-vite-ssg.js');
 
 const TOTAL = Math.max(1, Number.parseInt(process.env.SSG_SHARD_TOTAL || '10', 10));
 
+/**
+ * 执行单分片构建任务
+ *
+ * @param {number} index 当前分片索引
+ * @returns {Promise<void>}
+ */
 const runShard = (index) => new Promise((resolve, reject) => {
+    const existingNodeOptions = process.env.NODE_OPTIONS || '';
+    const hasExposeGc = existingNodeOptions.includes('--expose-gc');
+    const hasMaxOldSpace = existingNodeOptions.includes('--max-old-space-size');
+
+    // 补齐必要的 V8 调优参数，保证本地和 CI 环境均拥有足够的堆上限与主动垃圾回收能力
+    const childNodeOptions = [
+        existingNodeOptions,
+        hasExposeGc ? '' : '--expose-gc',
+        hasMaxOldSpace ? '' : '--max-old-space-size=8192',
+    ].filter(Boolean).join(' ');
+
     const env = {
         ...process.env,
+        NODE_OPTIONS: childNodeOptions,
         SSG_SHARD_INDEX: String(index),
         SSG_SHARD_TOTAL: String(TOTAL),
         SSG_SHARD_SKIP_CLIENT: index === 0 ? '' : '1',
     };
 
-    const child = spawn(process.execPath, [binPath, 'build', '--mode', 'production'], {
+    const child = spawn(process.execPath, ['--expose-gc', binPath, 'build', '--mode', 'production'], {
         cwd: root,
         env,
         stdio: 'inherit',
     });
 
-    child.on('exit', (code) => {
-        if (code === 0) resolve();
-        else reject(new Error(`[ssg-shard] shard ${index + 1}/${TOTAL} failed with exit code ${code}`));
+    child.on('exit', (code, signal) => {
+        if (code === 0) {
+            resolve();
+            return;
+        }
+        const reason = code !== null ? `exit code ${code}` : `signal ${signal} (process killed, possibly OOM)`;
+        reject(new Error(`[ssg-shard] shard ${index + 1}/${TOTAL} failed with ${reason}`));
     });
 });
 
+/**
+ * 执行构建主流程
+ *
+ * @returns {Promise<void>}
+ */
 const main = async () => {
+    // 确保 vite-ssg 补丁就绪
+    if (fs.existsSync(patchScript)) {
+        const patchRes = spawnSync(process.execPath, [patchScript], {
+            cwd: root,
+            stdio: 'inherit',
+        });
+        if (patchRes.status !== 0) {
+            console.warn('[ssg-shard] warning: patch-vite-ssg.js returned non-zero exit code');
+        }
+    }
+
     for (let i = 0; i < TOTAL; i++) {
         // 第 0 片前清空 dist；每片前清空 server 临时目录（vite-ssg 自身也会清，双保险）
         if (i === 0) {

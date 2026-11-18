@@ -1810,6 +1810,16 @@
       "goToGravatar": "前往 Gravatar",
       "previewDesc": "以下為您在網頁端、排行榜、討論區及組隊大廳中的各種規格展示效果：",
       "previewTitle": "多規格頭像預覽",
+      "specs": {
+        "setting": "個人設定",
+        "card": "資料卡片",
+        "smugglers": "走私/簡報",
+        "comment": "評論討論",
+        "header": "全域導覽",
+        "poster": "海報/詳情",
+        "list": "列表卡片",
+        "compare": "方案對比"
+      },
       "changeBtn": "更換頭像",
       "deleteBtn": "刪除頭像",
       "deleteConfirm": "確定要刪除當前頭像並恢復為預設頭像嗎？",

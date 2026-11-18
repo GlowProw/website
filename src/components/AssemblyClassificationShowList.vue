@@ -322,10 +322,13 @@ const capitalizeFLetter = (str: string) => {
  * @param id 条目 ID
  */
 const isSelected = (id: string) => {
+  if (!id) return false
   if (props.multiple) {
-    return localSelected.value.some((i: any) => i?.id === id)
+    return localSelected.value.some((i: any) => (i?.id || i) === id)
   }
-  return Boolean(props.modelValue && props.modelValue.id === id)
+  return Boolean(
+    props.modelValue && (props.modelValue.id === id || props.modelValue === id)
+  )
 }
 
 /**
@@ -467,9 +470,16 @@ defineOptions({
 
         <v-row class="pl-8 pr-8">
           <v-col v-for="(j, jIndex) in processedStarData" :key="`star-${j.id}`" cols="auto">
-            <div class="item text-center" @click="onClickEvent(castToAny(j))">
-              <ItemSlotBase size="99px" :padding="0" :margin="0"
-                                      :class="[isSelected(j.id) ? 'bg-amber' : '']">
+            <div class="item text-center position-relative"
+                 :class="{ 'is-selected': isSelected(j.id) }"
+                 @click="onClickEvent(castToAny(j))">
+              <v-icon
+                  v-if="isSelected(j.id)"
+                  icon="mdi-check-circle"
+                  color="amber"
+                  size="20"
+                  class="selected-badge"/>
+              <ItemSlotBase size="99px" :padding="0" :margin="0">
                 <template v-if="castToAny(j).type == 'ship'">
                   <ShipIconWidget :id="j.id" :padding="0" :margin="0"
                                   :is-open-new-window="false"
@@ -483,7 +493,7 @@ defineOptions({
                                   :is-show-tooltip="false"/>
                 </template>
               </ItemSlotBase>
-              <div class="ml-singe-line">
+              <div class="ml-singe-line" :class="[isSelected(j.id) ? 'text-amber font-weight-bold' : '']">
                 <template v-if="castToAny(j).type == 'ship'">
                   <ShipName :data="castToAny(j)"/>
                 </template>
@@ -534,7 +544,15 @@ defineOptions({
                   :key="item.id"
                   :title="castToAny(item).name"
                   cols="auto">
-                <div class="item" @click="onClickEvent(castToAny(item))">
+                <div class="item position-relative"
+                     :class="{ 'is-selected': isSelected(item.id) }"
+                     @click="onClickEvent(castToAny(item))">
+                  <v-icon
+                      v-if="isSelected(item.id)"
+                      icon="mdi-check-circle"
+                      color="amber"
+                      size="20"
+                      class="selected-badge"/>
                   <!-- 根据类型渲染不同的组件 -->
                   <template v-if="loadDataType === 'ship'">
                     <ItemSlotBase
@@ -852,12 +870,48 @@ defineOptions({
 .item {
   cursor: pointer;
   transition: all 0.2s ease;
+  position: relative;
+  border-radius: 8px;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &.is-selected {
+    :deep(.item-base-slot) {
+      box-shadow: 0 0 0 2.5px #FFC107, 0 0 14px rgba(255, 193, 7, 0.45) !important;
+      border-color: #FFC107 !important;
+    }
+
+    :deep(.item-base-slot > .v-card),
+    :deep(.item-base-slot .item-slot-card) {
+      border: 1.5px solid #FFC107 !important;
+    }
+
+    .singe-line,
+    .ml-singe-line {
+      color: #FFC107 !important;
+      font-weight: bold;
+    }
+  }
+
+  .selected-badge {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    z-index: 10;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.85));
+    pointer-events: none;
+  }
 }
 
-.singe-line {
+.singe-line,
+.ml-singe-line {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 99px;
+  line-height: 1.4;
+  margin-top: 4px;
 }
 </style>

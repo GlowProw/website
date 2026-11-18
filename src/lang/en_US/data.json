@@ -1860,7 +1860,17 @@
       "associatedEmailNotification": "The avatar is associated with {email}. You can also use it to set Gravatar.",
       "goToGravatar": "Go to Gravatar",
       "previewDesc": "Here are preview sizes across web pages, leaderboards, discussions, and recruitment:",
-      "previewTitle": "Multi-size Avatar Preview"
+      "previewTitle": "Multi-size Avatar Preview",
+      "specs": {
+        "setting": "Account Settings",
+        "card": "Profile Card",
+        "smugglers": "Smugglers/Reports",
+        "comment": "Comments",
+        "header": "Global Header",
+        "poster": "Posters/Details",
+        "list": "List Cards",
+        "compare": "Comparison"
+      }
     },
     "securityCenter": {
       "title": "Security"

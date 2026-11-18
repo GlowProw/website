@@ -17,7 +17,7 @@ const props = defineProps(nodeViewProps)
                   :padding="0"
                   :margin="0"
                   class="item-icon">
-      <TreasureMapIconWidget :id="node.attrs.id" :padding="0" :margin="0" class="ma-0"></TreasureMapIconWidget>
+      <TreasureMapIconWidget :id="node.attrs.id" :padding="0" :margin="0" class="ma-0 rounded-lg"></TreasureMapIconWidget>
     </ItemSlotBase>
     <div class="item-name text-no-wrap">
       <u class="u text-amber">

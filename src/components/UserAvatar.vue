@@ -2,7 +2,7 @@
   <!-- 头像展示容器 S -->
   <v-avatar
       icon="ios-person"
-      class="user-avatar d-flex justify-center align-center bg-black img-wrap"
+      class="user-avatar d-flex justify-center align-center bg-black img img-wrap"
       :class="{'cursor-pointer': canPreview}"
       :shape="shape"
       :rounded="tile ? 0 : ''"

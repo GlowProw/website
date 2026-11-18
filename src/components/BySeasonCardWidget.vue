@@ -15,7 +15,9 @@ const {t} = useI18n(),
 const getSeasonData = (data: any) => data?.bySeason || data?.firstAppearingSeason
 const getSeasonId = (data: any) => data?.bySeason?.id || 'release'
 
-defineOptions({ name: 'BySeasonCardWidget' })
+defineOptions({ 
+  name: 'BySeasonCardWidget'
+})
 </script>
 
 <template>
@@ -31,9 +33,9 @@ defineOptions({ name: 'BySeasonCardWidget' })
       <v-spacer></v-spacer>
       <div>
         <v-row>
-          <v-col cols="auto" class="text-caption opacity-60" v-if="data?.bySeason.startDate"><TimeView :time="data?.bySeason.startDate" :format="'date'"></TimeView></v-col>
+          <v-col cols="auto" class="text-caption opacity-60" v-if="getSeasonData(data)?.startDate"><TimeView :time="getSeasonData(data)?.startDate" :format="'date'"></TimeView></v-col>
           <v-spacer></v-spacer>
-          <v-col cols="auto" class="text-caption opacity-60" v-if="data?.bySeason.endDate" ><TimeView :time="data?.bySeason.endDate" :format="'date'"></TimeView></v-col>
+          <v-col cols="auto" class="text-caption opacity-60" v-if="getSeasonData(data)?.endDate"><TimeView :time="getSeasonData(data)?.endDate" :format="'date'"></TimeView></v-col>
         </v-row>
       </div>
     </v-card-text>

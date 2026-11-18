@@ -47,6 +47,18 @@ const nextAvailableDateText = computed(() => {
   return isNaN(d.getTime()) ? '' : d.toLocaleDateString()
 })
 
+// 全站头像多尺寸规格预览（对应站内真实使用场景）
+const previewSpecs = [
+  { size: 160, key: 'setting', label: '个人设置' },
+  { size: 100, key: 'card', label: '资料卡片' },
+  { size: 50, key: 'smugglers', label: '走私/简报' },
+  { size: 45, key: 'comment', label: '评论讨论' },
+  { size: 40, key: 'header', label: '全局导航' },
+  { size: 25, key: 'poster', label: '海报/详情' },
+  { size: 20, key: 'list', label: '列表卡片' },
+  { size: 14, key: 'compare', label: '方案对比' },
+]
+
 // 裁剪
 const croppingImageUrl = ref<string>(''),
     cropperImageRef = ref<HTMLImageElement | null>(null),
@@ -497,10 +509,13 @@ defineOptions({
           </p>
 
           <v-row align="end" class="ga-3">
-            <v-col cols="auto" v-for="size in [160, 120, 100 ,99 , 80, 56, 40, 28]" :key="size">
-              <div class="text-center">
-                <UserAvatar :src="avatarUrl" v-if="avatarUrl" :size="size"/>
-                <div class="text-caption opacity-50 font-weight-bold">{{ size }}px</div>
+            <v-col cols="auto" v-for="spec in previewSpecs" :key="spec.size">
+              <div class="text-center d-flex flex-column align-center">
+                <UserAvatar :src="avatarUrl" v-if="avatarUrl" :size="spec.size"/>
+                <div class="text-caption opacity-50 font-weight-bold mt-1">{{ spec.size }}px</div>
+                <div class="text-caption opacity-60 text-no-wrap" style="font-size: 11px;">
+                  {{ t(`account.profile-picture.specs.${spec.key}`) }}
+                </div>
               </div>
             </v-col>
           </v-row>

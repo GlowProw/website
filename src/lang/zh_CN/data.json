@@ -1860,7 +1860,17 @@
       "associatedEmailNotification": "头像关联的是{email}邮箱，也可使用它来设置 Gravatar",
       "goToGravatar": "前往 Gravatar",
       "previewDesc": "以下为您在网页端、排行榜、讨论区及组队大厅中的各种规格展示效果：",
-      "previewTitle": "多规格头像预览"
+      "previewTitle": "多规格头像预览",
+      "specs": {
+        "setting": "个人设置",
+        "card": "资料卡片",
+        "smugglers": "走私/简报",
+        "comment": "评论讨论",
+        "header": "全局导航",
+        "poster": "海报/详情",
+        "list": "列表卡片",
+        "compare": "方案对比"
+      }
     },
     "securityCenter": {
       "title": "安全"
